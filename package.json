@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "node scripts/serve.js",
     "build": "node scripts/build.js",
-    "test": "node --test tests/generators.test.js",
+    "test": "node --test tests/generators.test.js tests/release.test.js",
     "test:browser": "npm run build && node --test tests/browser.e2e.js",
     "format": "prettier --write ."
   },

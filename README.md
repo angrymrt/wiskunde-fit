@@ -68,8 +68,8 @@ src/
         ├── widgets.js      Schuifjes en hoekendemo
         ├── layout.js       De balk bovenaan
         └── state.js        Gedeelde toestand van de schermen
-scripts/                    Build en ontwikkelserver
-tests/                      Generatortests en browsertest
+scripts/                    Build, ontwikkelserver en releasenotities
+tests/                      Generatortests, releasecontrole en browsertest
 ```
 
 De belangrijkste plek om te beginnen is een bestand in `src/js/paragraphs/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vaardigheden. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.

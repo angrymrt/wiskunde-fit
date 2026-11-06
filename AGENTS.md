@@ -6,7 +6,7 @@ Instructies voor iedereen die hier code wijzigt, mens of AI. Wat de site doet en
 
 ```sh
 npm run dev           # site lokaal op poort 5173, toont src/ zonder bouwstap
-npm test              # generatortests, ongeveer 2 seconden
+npm test              # generatortests en releasecontrole, ongeveer 2 seconden
 npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer 1 minuut
 npm run build         # maakt dist/index.html
 npm run format        # Prettier
@@ -104,22 +104,18 @@ Alle schermen zijn functies die een HTML-tekst teruggeven. `render()` in `main.j
 
 ## Een release maken
 
-Elke push naar `main` zet de site meteen online. Een release op GitHub zet de site dus niet online, maar legt vast wat er is veranderd. Maak er een zodra leerlingen iets merken van de wijzigingen sinds de vorige release. Alleen wijzigingen in tests, documentatie of de werkwijze hebben geen release nodig. Een release is openbaar, dus maak hem pas als de eigenaar van het project dat goedvindt.
+Elke push naar `main` zet de site meteen online. Een release legt vast wat er is veranderd en ontstaat vanzelf: heeft de versie in `package.json` na een geslaagde deploy nog geen release, dan maakt de workflow `Online zetten` de tag en de release, met de notities uit `CHANGELOG.md`. Maak dus geen tags of releases met de hand.
 
-Het versienummer in `package.json` en de tag zijn altijd gelijk:
+Merken leerlingen iets van je wijziging, doe dan dit in dezelfde push:
+
+1. Verhoog de versie zonder commit of tag: `npm version minor --no-git-tag-version` (of `patch`).
+2. Zet bovenaan in `CHANGELOG.md` een kop met het nieuwe nummer, bijvoorbeeld `## 1.1.0`, met de notities eronder. `npm test` faalt als de bovenste kop niet gelijk is aan de versie, en dan gaat er ook niets online.
+3. Commit en push naar `main`.
+
+Wijzigingen in tests, documentatie of de werkwijze houden dezelfde versie en krijgen dus geen release. Meerdere kleine pushes mogen samen één versie worden: verhoog de versie dan bij de laatste.
 
 - **Patch** (`1.0.1`): een herstelde fout of een kleine verbetering.
 - **Minor** (`1.1.0`): nieuwe lesstof of een nieuwe functie.
-- **Major** (`2.0.0`): een wijziging waardoor opgeslagen voortgang of bestaande links niet meer werken zoals eerst.
-
-Zo maak je een release, als alle wijzigingen zijn gecommit en de tests slagen:
-
-```sh
-npm version minor -m "Versie %s"   # of patch of major; maakt een commit en een tag
-git push --follow-tags             # zet de site online en publiceert de tag
-gh release create v1.1.0 --verify-tag --title "v1.1.0" --notes-file notities.md
-```
-
-Maak de release pas als de workflow `Online zetten` is geslaagd, zodat elke release ook echt online staat. Zet `notities.md` niet in git.
+- **Major** (`2.0.0`): een wijziging waardoor opgeslagen voortgang of bestaande links niet meer werken zoals eerst. Alleen de eigenaar van het project besluit hierover. Verhoog de major-versie dus nooit zelf. Leg zo'n wijziging eerst voor en push niets voordat de eigenaar heeft gekozen.
 
 Schrijf de notities zelf, in het Nederlands en voor leerlingen, dus zonder bestandsnamen of technische details. Gebruik de kopjes die van toepassing zijn: `Nieuw`, `Verbeterd` en `Hersteld`. Noem een fout in de wiskunde altijd onder `Hersteld`, met de paragraaf en wat er fout was, want een leerling kan dat verkeerd hebben geleerd.

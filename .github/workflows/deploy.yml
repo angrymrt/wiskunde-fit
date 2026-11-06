@@ -1,4 +1,4 @@
-# Test en bouwt de site en zet hem online op Azure Static Web Apps.
+# Test en bouwt de site, zet hem online op Azure Static Web Apps en maakt zo nodig een release.
 name: Online zetten
 
 on:
@@ -28,3 +28,26 @@ jobs:
           app_location: dist
           output_location: ''
           skip_app_build: true
+
+  release:
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Maak een release als deze versie er nog geen heeft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v$(node -p "require('./package.json').version")"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "$tag heeft al een release."
+            exit 0
+          fi
+          node scripts/release-notes.js > "$RUNNER_TEMP/notities.md"
+          gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file "$RUNNER_TEMP/notities.md"
