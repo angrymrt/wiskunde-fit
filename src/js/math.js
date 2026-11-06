@@ -86,6 +86,12 @@ function lin(a, b, v = 'x') {
   }
   return s || '0';
 }
+// Als lin, maar met kommagetallen in plaats van breuken: 0,5x - 1,5.
+function dlin(a, b, v = 'x') {
+  let s = a ? (a < 0 ? '-' : '') + (Math.abs(a) === 1 ? '' : d(Math.abs(a))) + v : '';
+  if (b) s = s ? `${s} ${b < 0 ? '-' : '+'} ${d(Math.abs(b))}` : d(b);
+  return s || '0';
+}
 const sg = (b) => (b < 0 ? ` - ${d(-b)}` : ` + ${d(b)}`);
 
 export {
@@ -109,5 +115,6 @@ export {
   ap,
   fr,
   lin,
+  dlin,
   sg,
 };

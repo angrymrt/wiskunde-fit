@@ -71,7 +71,6 @@ export default {
   ch: 2,
   num: 'V',
   title: 'Voorkennis: Pythagoras',
-  core: true,
   videos: {
     menno: [
       ['De stelling van Pythagoras', 'zAnoHcHsKfM'],

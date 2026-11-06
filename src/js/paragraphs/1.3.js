@@ -243,27 +243,6 @@ function s13kgv() {
     v: () => L % d1 === 0 && L % d2 === 0,
   };
 }
-function s13compare() {
-  const a2 = pick([14, 16, 22, 25, 35]),
-    da = pick([4, 5, 6, 10, 12]),
-    a1 = a2 + da,
-    t = pick([5, 10, 15, 20, 25, 30]),
-    b1 = pick([300, 600, 1000, 1500, 2400]),
-    b2 = b1 + da * t;
-  return {
-    q: T(
-      `Voor het aantal volgers van twee kanalen geldt V_A = ${lin(a1, b1, 't')} en V_B = ${lin(a2, b2, 't')}, met t in weken. Na hoeveel weken hebben de kanalen evenveel volgers?`,
-    ),
-    fields: [F('t =', t)],
-    hint: T(`Evenveel betekent V_A = V_B. Zet de twee formules aan elkaar gelijk.`),
-    steps: [
-      `V_A = V_B geeft ${lin(a1, b1, 't')} = ${lin(a2, b2, 't')}`,
-      `${da}t = ${b2 - b1}`,
-      `t = ${t}`,
-    ],
-    v: () => a1 * t + b1 === a2 * t + b2,
-  };
-}
 function s13param() {
   for (let i = 0; i < 200; i++) {
     const x = nz(-5, 5),
@@ -298,20 +277,17 @@ export default {
   ch: 1,
   num: '1.3',
   title: 'Lineaire vergelijkingen',
-  core: true,
   videos: {
     menno: [
       ['Lineaire vergelijkingen oplossen', '-yl6BWQ3ZQM'],
       ['Lineaire vergelijkingen met haakjes', '1hKmkRoXBAo'],
       ['Lineaire vergelijkingen met breuken', 'LRgqvIRdjw0'],
-      ['Lineaire formules vergelijken', 'Zlneq6od-BM'],
     ],
     bob: [
       ['Lineaire vergelijkingen', 'SZHO7hYFrZA'],
       ['Lineaire vergelijkingen oplossen', '8xrYbLuUy1U'],
       ['Lineaire vergelijkingen met haakjes', '2oUrlUVE0fs'],
       ['Lineaire vergelijkingen met breuken', 'w1Dvc4nHdRo'],
-      ['Lineaire formules vergelijken', '2KAxh0NF8zU'],
     ],
   },
   skills: [
@@ -320,7 +296,6 @@ export default {
     ['Vergelijking met haakjes', s13brackets],
     ['Kleinste veelvoud', s13kgv],
     ['Vergelijking met breuken', s13frac],
-    ['Formules vergelijken', s13compare],
     ['Uitdaging: p berekenen', s13param],
   ],
   learn: [

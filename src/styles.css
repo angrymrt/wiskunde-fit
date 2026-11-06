@@ -623,12 +623,6 @@ sub {
   border-color: var(--ink);
   border-bottom: 2px solid var(--sheet);
 }
-.notice {
-  background: var(--ch2-soft);
-  padding: 10px 14px;
-  border-radius: 4px;
-  font-size: 0.94rem;
-}
 .block {
   display: grid;
   gap: 10px;

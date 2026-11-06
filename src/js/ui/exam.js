@@ -29,7 +29,7 @@ function vToetsSetup() {
   const scope = prog.scope || 'all',
     n = state.view.n || 20;
   return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit alle gekozen paragrafen, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>
-  <div class="setup"><b>Welke stof?</b><div class="chips">${SCOPES.map(([k, t]) => `<button class="chip" type="button" data-act="scope" data-id="${k}" aria-pressed="${scope === k}">${t}</button>`).join('')}</div>${scope === 'core' ? `<p class="small muted">Dat zijn Pythagoras en de paragrafen 1.1 tot en met 1.3 en 2.1 tot en met 2.3.</p>` : ''}</div>
+  <div class="setup"><b>Welke stof?</b><div class="chips">${SCOPES.map(([k, t]) => `<button class="chip" type="button" data-act="scope" data-id="${k}" aria-pressed="${scope === k}">${t}</button>`).join('')}</div></div>
   <div class="setup"><b>Hoeveel vragen?</b><div class="chips">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
   <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div></div>`;
 }

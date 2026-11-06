@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SECTIONS } from '../src/js/paragraphs/index.js';
 import { checkAnswer, checkField, parseNum } from '../src/js/answers.js';
+import { migrateSkills } from '../src/js/progress.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
 
 const ROUNDS = Number(process.env.QUESTIONS) || 500;
@@ -54,6 +55,29 @@ for (const section of SECTIONS) {
     }
   });
 }
+
+test('oude voortgang verhuist mee met de nieuwe indeling', () => {
+  const ids = new Set(SECTIONS.flatMap((s) => s.skills.map((k) => k.id)));
+  const old = [
+    ['1.1#0', '1.1#0'],
+    ['1.3#4', '1.3#4'],
+    ['1.3#5', '1.4#2'],
+    ['1.3#6', '1.3#5'],
+    ['1.4#0', '1.5#0'],
+    ['1.4#2', '1.5#2'],
+    ['1.5#0', 'v1#0'],
+    ['1.5#2', '1.4#0'],
+    ['1.5#3', '1.4#1'],
+    ['2.4#0', '2.4#0'],
+  ];
+  for (const [from, to] of old) {
+    assert.deepEqual(migrateSkills({ [from]: [1, 0] }), { [to]: [1, 0] }, from);
+    assert.ok(ids.has(to), `${to} bestaat niet`);
+  }
+  for (const gone of ['1.5#1', '1.5#4', '2.4#1', '2.4#2']) {
+    assert.deepEqual(migrateSkills({ [gone]: [1] }), {}, gone);
+  }
+});
 
 test('parseNum leest kommagetallen, breuken en mintekens', () => {
   const cases = [

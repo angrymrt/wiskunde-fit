@@ -35,7 +35,7 @@ function vHome() {
       .map(secRow)
       .join('')}</section>`;
   return `<section class="hero"><div class="hero-txt"><h1>Op naar die voldoende!</h1><p class="lead">Oefen voor je wiskundetoets met uitleg, hints en steeds nieuwe vragen. Zo ga je goed voorbereid je toets in.</p>
-  <div class="row"><button class="btn main" type="button" data-act="sec" data-id="${n.id}">${started ? 'Oefen' : 'Begin met'} ${n.num === 'V' ? 'Pythagoras' : n.num}</button><button class="btn" type="button" data-act="toets">Maak een proeftoets</button></div>
+  <div class="row"><button class="btn main" type="button" data-act="sec" data-id="${n.id}">${started ? 'Oefen' : 'Begin met'} ${n.num === 'V' ? n.title.replace('Voorkennis: ', '') : n.num}</button><button class="btn" type="button" data-act="toets">Maak een proeftoets</button></div>
   ${last ? `<p class="small muted">Laatste proeftoets: ${last.score} van ${last.max} punten.</p>` : ''}</div>${heroFig()}</section>
   <div class="chs">${chapter(1, 'Lineaire problemen')}${chapter(2, 'Gelijkvormigheid')}</div>
   <div class="row small muted"><span>Oefenstof voor havo 3 die aansluit op Getal &amp; Ruimte editie 13, FLEX-boek deel 1. Dit is een eigen project zonder band met Noordhoff of Getal &amp; Ruimte. Je voortgang blijft in deze browser bewaard.</span>${started ? (state.confirmReset ? `<button class="btn quiet" type="button" data-act="reset2">Ja, wis alles</button><button class="btn quiet" type="button" data-act="reset0">Annuleren</button>` : `<button class="btn quiet" type="button" data-act="reset1">Voortgang wissen</button>`) : ''}</div>`;

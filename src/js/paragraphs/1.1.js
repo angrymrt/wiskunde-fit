@@ -180,7 +180,6 @@ export default {
   ch: 1,
   num: '1.1',
   title: 'De formule y = ax + b',
-  core: true,
   videos: {
     menno: [
       ['De grafiek van een lineaire formule', '67AA66Z_hIw'],

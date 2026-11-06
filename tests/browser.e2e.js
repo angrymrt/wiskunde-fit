@@ -190,6 +190,26 @@ test(
   },
 );
 
+test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 }, async () => {
+  const browser = await launch();
+  try {
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(siteUrl);
+    await p.evaluate(() =>
+      localStorage.setItem(
+        'lijn-driehoek-v1',
+        JSON.stringify({ skills: { '1.4#0': [1, 1], '1.5#1': [1] }, tests: [], scope: 'all' }),
+      ),
+    );
+    await p.reload();
+    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { '1.5#0': [1, 1] });
+    assert.equal(await p.evaluate(() => wiskundefit.SEC['1.5'].title), 'Lineaire ongelijkheden');
+    await p.evaluate(() => localStorage.clear());
+  } finally {
+    await browser.close();
+  }
+});
+
 test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => {
   await mkdir(shotDir, { recursive: true });
   const browser = await launch();
@@ -228,6 +248,9 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
         while (await b.isVisible()) await b.click();
       }
       await checkOverflow(`${id} voorbeelden open`);
+      if (/&(lt|gt|amp);/.test(await p.textContent('#paneel'))) {
+        failures.push(`${id}: dubbel omgezette tekens in de uitleg`);
+      }
       for (const r of await p.$$('input[type=range]')) {
         await r.evaluate((el) => {
           el.value = el.max;
@@ -290,7 +313,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
 
     // Lege proeftoets: eerst een waarschuwing, daarna nul punten.
     await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
-    await p.click('[data-act="scope"][data-id="core"]');
+    await p.click('[data-act="scope"][data-id="h1"]');
     await p.click('[data-act="len"][data-id="10"]');
     await p.click('[data-act="start"]');
     await p.click('[data-act="tfin"]');
@@ -298,9 +321,9 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     await p.click('[data-act="tfin"]');
     const blank = await p.evaluate(() => ({
       score: wiskundefit.state.test.score,
-      onlyCore: wiskundefit.state.test.items.every((x) => x.sec.core),
+      onlyH1: wiskundefit.state.test.items.every((x) => x.sec.ch === 1),
     }));
-    assert.deepEqual(blank, { score: 0, onlyCore: true });
+    assert.deepEqual(blank, { score: 0, onlyH1: true });
 
     // Voortgang blijft bewaard na herladen.
     await p.reload();

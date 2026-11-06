@@ -13,7 +13,7 @@ function vOver() {
   <p>De uitleg, de vragen en de code zijn gemaakt met hulp van AI (Claude van Anthropic). We schrijven eigen teksten en voorbeelden en nemen niets over uit boeken.</p>
   <p>De computer maakt van elke soort vraag honderden varianten en rekent het antwoord op een tweede manier na. Zo vinden we rekenfouten, maar geen onduidelijke uitleg of een verkeerde aanpak.</p>
   <p>We maken het middelbare scholieren makkelijk om de juiste stof te vinden, door te verwijzen naar de hoofdstukken in bekende Nederlandse schoolboeken. Voorlopig is dat Getal &amp; Ruimte.</p>
-  <p>Niet alle paragrafen zijn al met het boek vergeleken. Daar staat dan een melding bij. De stof is ook nog niet helemaal door een wiskundedocent nagekeken, dus er kan iets niet kloppen. Zie je een fout? Laat het ons weten, dan herstellen we die zo snel mogelijk.</p></div>
+  <p>De werkwijze is met het boek vergeleken, maar de stof is nog niet helemaal door een wiskundedocent nagekeken. Er kan dus iets niet kloppen. Zie je een fout? Laat het ons weten, dan herstellen we die zo snel mogelijk.</p></div>
   <div class="block"><h2 class="h3">Contact</h2>
   <p>Ben je docent, of heb je een vraag of idee? Mail naar ${mail}.</p>
   <p>Heb je een fout gevonden? ${repo('Maak dan een issue aan op GitHub', '/issues/new')}, zodat iedereen kan zien dat we ermee bezig zijn. Zo'n issue is openbaar, met je accountnaam erbij, dus zet er geen namen of andere gegevens van leerlingen in. Heb je geen GitHub-account, mail de fout dan gerust.</p>

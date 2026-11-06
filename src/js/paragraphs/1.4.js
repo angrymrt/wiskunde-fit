@@ -1,141 +1,100 @@
-// Paragraaf 1.4: Lineaire ongelijkheden. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
-import { graph } from '../figures.js';
-import { ri, nz, pick, Q, near, lin, sg } from '../math.js';
+// Paragraaf 1.4: Snijpunten van grafieken. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+import { ri, nz, pick, coin, Q, qv, near, d, fr, lin, dlin, sg } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
 
-const SIG = ['<', '>', '≤', '≥'];
-const flip = { '<': '>', '>': '<', '≤': '≥', '≥': '≤' };
-const signF = (a) => ({ sel: SIG, a, pre: 'x' });
-function ineqOut(sign, k) {
-  return [signF(sign), F('', k)];
-}
-const ineqTrap = (sign, k) => [
-  {
-    f: (v) => near(v[1], k) && v[0] !== sign,
-    m: 'Het getal klopt. Kijk nog eens naar het teken: deel je door een negatief getal, dan klap je het teken om.',
-  },
-];
-function s14basic() {
-  let a, c;
-  do {
-    a = nz(-8, 8);
-    c = nz(-8, 8);
-  } while (a === c);
-  const k = nz(-8, 8),
-    b = nz(-12, 12),
-    dd = (a - c) * k + b,
-    s0 = pick(SIG),
-    co = a - c,
-    fin = co < 0 ? flip[s0] : s0;
-  return {
-    q: T(`Los op: ${lin(a, b)} ${s0} ${lin(c, dd)}`),
-    fields: ineqOut(fin, k),
-    hint:
-      co < 0
-        ? 'Los op zoals een vergelijking. Deel je door een negatief getal? Klap dan het teken om.'
-        : 'Los op zoals een vergelijking: termen met x links, getallen rechts.',
-    steps: [
-      `${lin(a, b)} ${s0} ${lin(c, dd)}`,
-      `${lin(co, b)} ${s0} ${dd}`,
-      `${lin(co, 0)} ${s0} ${dd - b}`,
-      co < 0
-        ? `Delen door ${co}, een negatief getal, dus het teken klapt om.`
-        : `Delen door ${co}, het teken blijft hetzelfde.`,
-      `x ${fin} ${k}`,
-    ],
-    traps: ineqTrap(fin, k),
-    v: () => {
-      const t = (x) => {
-          const l = a * x + b,
-            r = c * x + dd;
-          return { '<': l < r, '>': l > r, '≤': l <= r, '≥': l >= r }[s0];
-        },
-        u = (x) => ({ '<': x < k, '>': x > k, '≤': x <= k, '≥': x >= k })[fin];
-      return [k - 1, k, k + 1].every((x) => t(x) === u(x));
-    },
-  };
-}
-function s14br() {
-  for (let i = 0; i < 60; i++) {
-    const k = nz(-7, 7),
-      p = pick([-4, -3, -2, 2, 3, 4, 5]),
-      q = nz(-6, 6),
-      r = nz(-7, 7);
-    if (p === r) continue;
-    const dd = p * (k + q) - r * k,
-      s0 = pick(SIG),
-      co = p - r,
-      fin = co < 0 ? flip[s0] : s0;
-    const pr = `${p < 0 ? '-' : ''}${Math.abs(p)}(x${sg(q)})`;
-    return {
-      q: T(`Los op: ${pr} ${s0} ${lin(r, dd)}`),
-      fields: ineqOut(fin, k),
-      hint: 'Werk eerst de haakjes weg en los daarna op. Let op het teken als je door een negatief getal deelt.',
-      steps: [
-        `${lin(p, p * q)} ${s0} ${lin(r, dd)}`,
-        `${lin(co, 0)} ${s0} ${dd - p * q}`,
-        co < 0
-          ? `Delen door ${co}, dus het teken klapt om.`
-          : `Delen door ${co}, het teken blijft hetzelfde.`,
-        `x ${fin} ${k}`,
-      ],
-      traps: ineqTrap(fin, k),
-      v: () => near(p * (k + q), r * k + dd),
-    };
-  }
-  return s14basic();
-}
-function s14gr() {
-  let a1, a2, xs, ys, b1, b2;
-  do {
-    a1 = pick([-2, -1, 1, 2, 0.5]);
-    a2 = pick([-2, -1, 1, 2, -0.5]);
-    xs = pick([0, 2, 2, 4]);
-    ys = ri(-1, 3);
-    b1 = ys - a1 * xs;
-    b2 = ys - a2 * xs;
-  } while (a1 === a2 || Math.abs(b1) > 6 || Math.abs(b2) > 6);
-  const s0 = pick(SIG),
-    grow = a1 > a2,
-    strict = s0 === '<' || s0 === '>',
-    up = s0 === '>' || s0 === '≥'; /* links groter dan rechts: l boven m */
-  const right = up === grow,
-    fin = right ? (strict ? '>' : '≥') : strict ? '<' : '≤';
+// Een punt met kommagetallen krijgt een puntkomma, zodat de komma niet tussen de coördinaten verdwijnt.
+const point = (name, x, y) =>
+  `${name}(${d(x)}${Number.isInteger(x) && Number.isInteger(y) ? ',' : ';'} ${d(y)})`;
+
+function s14axes() {
+  const line = pick(['k', 'l', 'm', 'p']),
+    [P, R] = pick([
+      ['A', 'B'],
+      ['P', 'Q'],
+      ['C', 'D'],
+      ['K', 'L'],
+    ]),
+    a = pick([-6, -5, -4, -3, -2, -1, 2, 3, 4, 5, 6]),
+    z = coin() ? nz(-6, 6) : null,
+    b = z !== null ? -a * z : nz(-12, 12),
+    xs = Q(-b, a);
   return {
     q: T(
-      `In de figuur staan de lijnen l: y = ${lin(Q(a1 * 2, 2), Q(b1 * 2, 2))} en m: y = ${lin(Q(a2 * 2, 2), Q(b2 * 2, 2))}. Los met de grafieken op: ${lin(Q(a1 * 2, 2), Q(b1 * 2, 2))} ${s0} ${lin(Q(a2 * 2, 2), Q(b2 * 2, 2))}`,
+      `De lijn ${line}: y = ${lin(a, b)} snijdt de x-as in het punt ${P} en de y-as in het punt ${R}. Bereken de coördinaten van ${P} en ${R}.`,
     ),
-    fig: graph({
-      xr: [-2, 7],
-      yr: [-5, 7],
-      lines: [
-        { a: a1, b: b1, name: 'l' },
-        { a: a2, b: b2, name: 'm' },
-      ],
-      pts: [{ x: xs, y: ys }],
-    }),
-    fields: ineqOut(fin, xs),
-    hint: T(
-      `Zoek het snijpunt. Kijk daarna aan welke kant lijn l ${up ? 'boven' : 'onder'} lijn m ligt.`,
-    ),
+    fields: [F(`x_${P} =`, xs), F(`y_${R} =`, b)],
+    hint: T(`${P} ligt op de x-as, dus y_${P} = 0. ${R} ligt op de y-as, dus x_${R} = 0.`),
     steps: [
-      `De lijnen snijden elkaar bij x = ${xs}.`,
-      `Lijn l ligt ${up ? 'boven' : 'onder'} lijn m ${right ? 'rechts' : 'links'} van het snijpunt.`,
-      `Dus x ${fin} ${xs}.`,
+      `y = 0 geeft ${lin(a, b)} = 0`,
+      `${lin(a, 0)} = ${-b}`,
+      `x = ${fr(xs)}`,
+      `Dus ${P}(${fr(xs)}, 0).`,
+      `x = 0 geeft y = ${a}*0${sg(b)} = ${b}, dus ${R}(0, ${b}).`,
     ],
     traps: [
       {
-        f: (v) => near(v[1], xs) && v[0] !== fin,
-        m: 'Het getal klopt. Kijk aan welke kant van het snijpunt de juiste lijn hoger of lager ligt, en of het snijpunt meedoet.',
+        f: (v) => near(v[0], b) && near(v[1], qv(xs)),
+        m: 'Je hebt de twee omgewisseld. Op de x-as is y gelijk aan 0, op de y-as is x gelijk aan 0.',
       },
     ],
-    v: () => {
-      const x = xs + (right ? 1 : -1),
-        l = a1 * x + b1,
-        r = a2 * x + b2;
-      return near(a1 * xs + b1, a2 * xs + b2) && (up ? l > r : l < r);
-    },
+    v: () => near(a * qv(xs) + b, 0),
+  };
+}
+function s14cut() {
+  const slopes = [-3, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 3];
+  let a, c, x, y, b, e;
+  do {
+    a = pick(slopes);
+    c = pick(slopes);
+    x = nz(-6, 6);
+    y = ri(-12, 12) / 2;
+    b = y - a * x;
+    e = y - c * x;
+  } while (a === c || !b || !e || Math.abs(b) > 15 || Math.abs(e) > 15);
+  const [l1, l2] = pick([
+    ['l', 'm'],
+    ['k', 'l'],
+    ['m', 'n'],
+  ]);
+  return {
+    q: T(
+      `De lijnen ${l1}: y = ${dlin(a, b)} en ${l2}: y = ${dlin(c, e)} snijden elkaar in het punt S. Bereken de coördinaten van S.`,
+    ),
+    fields: [F('x_S =', x), F('y_S =', y)],
+    hint: T('In het snijpunt zijn de twee formules gelijk. Los die vergelijking op en vul x in.'),
+    steps: [
+      `${dlin(a, b)} = ${dlin(c, e)}`,
+      `${dlin(a - c, 0)} = ${d(e - b)}`,
+      `x = ${x}`,
+      `x = ${x} invullen bij y = ${dlin(a, b)} geeft`,
+      `y = ${d(a)}*${x}${sg(b)} = ${d(y)}`,
+      `Dus ${point('S', x, y)}.`,
+    ],
+    v: () => near(a * x + b, y) && near(c * x + e, y),
+  };
+}
+function s14compare() {
+  const a2 = pick([14, 16, 22, 25, 35]),
+    da = pick([4, 5, 6, 10, 12]),
+    a1 = a2 + da,
+    t = pick([5, 10, 15, 20, 25, 30]),
+    b1 = pick([300, 600, 1000, 1500, 2400]),
+    b2 = b1 + da * t,
+    n = a1 * t + b1;
+  return {
+    q: T(
+      `Voor het aantal volgers van twee kanalen geldt V_A = ${lin(a1, b1, 't')} en V_B = ${lin(a2, b2, 't')}, met t in weken. Na hoeveel weken hebben de kanalen evenveel volgers, en hoeveel zijn dat er dan?`,
+    ),
+    fields: [F('t =', t), F('aantal volgers =', n)],
+    hint: T(`Evenveel betekent V_A = V_B. Zet de twee formules aan elkaar gelijk.`),
+    steps: [
+      `V_A = V_B geeft ${lin(a1, b1, 't')} = ${lin(a2, b2, 't')}`,
+      `${da}t = ${b2 - b1}`,
+      `t = ${t}`,
+      `t = ${t} invullen bij V_A geeft V_A = ${a1}*${t} + ${b1} = ${n}`,
+    ],
+    v: () => a1 * t + b1 === a2 * t + b2,
   };
 }
 
@@ -143,51 +102,66 @@ export default {
   id: '1.4',
   ch: 1,
   num: '1.4',
-  title: 'Lineaire ongelijkheden',
-  core: false,
+  title: 'Snijpunten van grafieken',
   videos: {
     menno: [
-      ['Lineaire ongelijkheden oplossen met grafieken', '016gEKebUGM'],
-      ['Lineaire ongelijkheden oplossen zonder grafieken', '5l1zGO5-6NQ'],
-      ['Het omklappen van het ongelijkheidsteken', 'QoExM-o8uGs'],
-      ['Lineaire ongelijkheden oplossen', 'nRI_665QMks'],
+      ['Snijpunten met de x-as en de y-as', 'tdHnhUP7sgQ'],
+      ['Snijpunten van grafieken van functies', 'aE6hAgajF0A'],
+      ['Lineaire formules vergelijken', 'Zlneq6od-BM'],
     ],
     bob: [
-      ['Lineaire ongelijkheden oplossen met grafieken', '_20Rwdzb5So'],
-      ['Lineaire ongelijkheden oplossen zonder grafieken', 'TG6G3qZ3BwM'],
-      ['Het omklappen van het ongelijkheidsteken', '94XxGpvkLNY'],
-      ['Lineaire ongelijkheden oplossen', 'WwyGUKpUMa4'],
+      ['Snijpunten met de x-as en de y-as', '2NIdNlJIDrM'],
+      ['Snijpunten van grafieken van functies', 'Q4JkCIf48nQ'],
+      ['Lineaire formules vergelijken', '2KAxh0NF8zU'],
     ],
   },
   skills: [
-    ['Ongelijkheid oplossen', s14basic],
-    ['Ongelijkheid met haakjes', s14br],
-    ['Oplossen met grafieken', s14gr],
+    ['Snijpunten met de assen', s14axes],
+    ['Snijpunt van twee lijnen', s14cut],
+    ['Formules vergelijken', s14compare],
   ],
   learn: [
     {
-      t: 'De tekens',
+      t: 'Snijpunten met de assen',
       p: [
         T(
-          'x < 3 betekent kleiner dan 3. x ≤ 3 betekent kleiner dan of gelijk aan 3. Bij > en ≥ gaat het om groter dan.',
+          'Een punt op de x-as heeft y-coördinaat 0. Een punt op de y-as heeft x-coördinaat 0. Ligt A op de x-as, dan schrijf je y_A = 0.',
         ),
       ],
-    },
-    {
-      t: 'Zonder grafiek',
-      p: ['Los de ongelijkheid op zoals een vergelijking.'],
-      watch: T(
-        'Deel of vermenigvuldig je met een negatief getal? Dan klapt het teken om: -2x > 6 wordt x < -3.',
-      ),
       ex: {
-        q: T('2x + 1 > 5x - 8'),
-        steps: ['-3x + 1 > -8', '-3x > -9', 'Delen door -3, dus het teken klapt om.', 'x < 3'],
+        q: T('De lijn l: y = 3x - 9 snijdt de x-as in A en de y-as in B.'),
+        steps: [
+          'y = 0 geeft 3x - 9 = 0',
+          '3x = 9',
+          'x = 3',
+          'Dus A(3, 0).',
+          'x = 0 geeft y = 3*0 - 9 = -9, dus B(0, -9).',
+        ],
       },
     },
     {
-      t: 'Met grafieken',
+      t: 'Snijpunt van twee lijnen',
+      how: [
+        'Zet de twee formules aan elkaar gelijk en los de vergelijking op. Dat geeft x.',
+        'Vul x in een van de formules in. Dat geeft y.',
+        T('Schrijf het punt op. Staat er een kommagetal in, gebruik dan een puntkomma: S(3; 5,5).'),
+      ],
+      ex: {
+        q: T('De lijnen k: y = 2,5x - 2 en l: y = -0,5x + 7 snijden elkaar in S.'),
+        steps: [
+          '2,5x - 2 = -0,5x + 7',
+          '3x = 9',
+          'x = 3',
+          'x = 3 invullen bij y = 2,5x - 2 geeft',
+          'y = 2,5*3 - 2 = 5,5',
+          'Dus S(3; 5,5).',
+        ],
+      },
+    },
+    {
+      t: 'Formules vergelijken',
       p: [
-        'Zoek het snijpunt van de twee lijnen. Kijk daarna waar de ene lijn boven of onder de andere ligt. Bij ≤ en ≥ hoort het snijpunt er ook bij.',
+        'Wil je weten wanneer twee hoeveelheden even groot zijn? Dan zet je de twee formules aan elkaar gelijk. Vul de uitkomst in een van de formules in om de hoeveelheid zelf te vinden.',
       ],
     },
   ],

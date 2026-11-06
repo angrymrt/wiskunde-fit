@@ -345,7 +345,6 @@ export default {
   ch: 2,
   num: '2.3',
   title: 'Gelijkvormigheid aantonen',
-  core: true,
   videos: {
     menno: [
       ['Gelijkvormige driehoeken aantonen', 'v82_TCJTSks'],

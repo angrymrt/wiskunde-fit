@@ -72,7 +72,6 @@ function vSec(s) {
         ? vPractice(s)
         : `<div class="sheet">${vVideos(s)}</div>`;
   return `<div class="c${c}" style="display:grid;gap:16px"><div class="head"><span class="small muted">Hoofdstuk ${c}</span><h1>${s.num === 'V' ? '' : s.num + ' '}${T(s.title)}</h1></div>
-  ${s.core ? '' : `<p class="notice">Deze paragraaf is gemaakt zonder de uitwerkingen uit het boek. De uitleg en vragen volgen de onderwerpen van uitlegvideo's, dus de werkwijze kan afwijken. Vraag je docent of dit bij je toets hoort.</p>`}
   <div class="tabs" role="tablist">${[
     ['uitleg', 'Uitleg'],
     ['oefen', 'Oefenen'],

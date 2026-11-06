@@ -30,10 +30,11 @@ Al het werk wordt getoetst aan de grenzen en doelen in de [principes in AGENTS.m
 | Inloggen heeft de laagste prioriteit.                                                                                                 | Het is niet nodig om te oefenen, en het brengt persoonsgegevens van vooral minderjarigen en een server met zich mee.                                         |
 | Donaties, subsidie en een vergoeding van scholen mogen.                                                                               | Zo kunnen eventuele kosten worden betaald, zonder reclame of betaalmuur voor leerlingen.                                                                     |
 | Elke release komt automatisch na een geslaagde deploy. Alleen de eigenaar besluit over een major-versie.                              | Niemand hoeft handmatig te publiceren, terwijl de eigenaar bepaalt wanneer er iets ingrijpends verandert.                                                    |
+| De site zegt niet welke stof bij een toets hoort.                                                                                     | Dat hangt af van het boek en van wat de docent opgeeft. Leerlingen kiezen het zelf.                                                                          |
 
 ## Waar we nu staan
 
-De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 11 paragrafen en 49 soorten vragen. Hij is statisch, zonder accounts of tracking. Elke push naar `main` draait `npm test`, bouwt de site, zet hem online en maakt zo nodig een release. De lesstof is al goed gescheiden van de schermen, maar dit zit een uitbreiding in de weg:
+De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 12 paragrafen en 51 soorten vragen. Hij is statisch, zonder accounts of tracking. Elke push naar `main` draait `npm test`, bouwt de site, zet hem online en maakt zo nodig een release. De lesstof is al goed gescheiden van de schermen, maar dit zit een uitbreiding in de weg:
 
 | Wat                   | Waar                                          | Probleem                                                                                                                                                      |
 | --------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -42,7 +43,7 @@ De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 11 paragrafen en 4
 | Lijst met paragrafen  | `paragraphs/index.js`                         | Eén platte lijst met losse imports. Alles wordt altijd geladen.                                                                                               |
 | Hoofdstukken          | `ui/home.js:42`, `progress.js` (`SCOPES`)     | Hoofdstuk 1 en 2, hun titels en de keuzes voor de proeftoets staan vast in de code.                                                                           |
 | Kleuren per hoofdstuk | `styles.css` (`.c1`, `.c2`)                   | Er zijn maar twee hoofdstukkleuren.                                                                                                                           |
-| Teksten               | `ui/home.js`, `ui/paragraph.js`, `index.html` | De titel, de voettekst en de melding bij `core: false` gaan uit van dit ene boek.                                                                             |
+| Teksten               | `ui/home.js`, `ui/paragraph.js`, `index.html` | De titel en de voettekst gaan uit van dit ene boek.                                                                                                           |
 | Adressen en HTML      | Hele site                                     | Er zijn geen URL's per scherm en de lesstof staat pas na JavaScript in de pagina. Je kunt niet naar een paragraaf linken en zoekmachines zien de stof slecht. |
 | Willekeurige vragen   | `paragraphs/`, `math.js`                      | Een vraag is niet te herhalen. Een foutmelding of een gedeelde proeftoets kan dus niet naar precies dezelfde vraag wijzen.                                    |
 | Browsertest           | `tests/browser.e2e.js`                        | Duurt nu anderhalve minuut, groeit mee met de lesstof en draait alleen lokaal. Safari is alleen via WebKit te testen.                                         |
@@ -59,7 +60,7 @@ Indeling     naam → hoofdstukken → paragrafen → lessen
 
 Een boek en een boekonafhankelijke leerlijn zijn allebei een indeling. Een nieuw boek is dan vooral een nieuw gegevensbestand. De indeling krijgt een eigen naam, zoals `gr13-havo3`, want niveau en leerjaar zijn niet genoeg: in de bovenbouw komt het vak erbij en vmbo heeft leerwegen.
 
-De les is nodig omdat uitleg en video's nu per paragraaf staan en niet één op één bij een vaardigheid horen. Ook is hergebruik lastiger dan het lijkt: "Evenwijdige lijnen" betekent iets anders in 1.1 dan in 2.1, en `s11coord`, `s12value` en `s15value` rekenen vrijwel hetzelfde uit met een andere notatie. Daarom zetten we de 49 vaardigheden eerst één op één om en voegen we pas samen als dezelfde vraag en uitwerking echt in beide indelingen passen.
+De les is nodig omdat uitleg en video's nu per paragraaf staan en niet één op één bij een vaardigheid horen. Ook is hergebruik lastiger dan het lijkt: "Evenwijdige lijnen" betekent iets anders in 1.1 dan in 2.1, en `s11coord`, `s12value` en `s15value` rekenen vrijwel hetzelfde uit met een andere notatie. Daarom zetten we de 51 vaardigheden eerst één op één om en voegen we pas samen als dezelfde vraag en uitwerking echt in beide indelingen passen.
 
 Dit model moet nog bewijzen dat het werkt. De werkwijze en notatie kunnen per boek en niveau verschillen, en de regel "volg de werkwijze van het boek" moet dan worden herzien.
 
@@ -67,11 +68,12 @@ Dit model moet nog bewijzen dat het werkt. De werkwijze en notatie kunnen per bo
 
 ### Fase 1: de inhoud op orde
 
-Doel 1 gaat voor op nieuwe functies en nieuwe stof.
+Afgerond in versie 1.3.0. Doel 1 gaat voor op nieuwe functies en nieuwe stof.
 
 - [x] De vier plekken met `v: () => true` een echte controle geven, in `s12story` en `s23why` ([#5](https://github.com/angrymrt/wiskunde-fit/issues/5)).
-- [ ] Paragrafen 1.4, 1.5, 1.6 en 2.4 nakijken op overlap met het boek en op de juiste werkwijze, zodra dat materiaal beschikbaar is ([#6](https://github.com/angrymrt/wiskunde-fit/issues/6)).
-- [ ] Laten bevestigen of die paragrafen bij de toetsstof horen ([#7](https://github.com/angrymrt/wiskunde-fit/issues/7)).
+- [x] Paragrafen 1.4, 1.5, 1.6 en 2.4 nakijken op overlap met het boek en op de juiste werkwijze ([#6](https://github.com/angrymrt/wiskunde-fit/issues/6)).
+- [x] De indeling van hoofdstuk 1 en de titel van 2.4 gelijk maken aan het boek ([#8](https://github.com/angrymrt/wiskunde-fit/issues/8)).
+- [x] Besloten dat de site niet zegt wat bij een toets hoort ([#7](https://github.com/angrymrt/wiskunde-fit/issues/7)).
 - [x] Beslissen over de video's van Menno en de links aanpassen ([#1](https://github.com/angrymrt/wiskunde-fit/issues/1)).
 
 ### Fase 2: de basis op orde
@@ -82,10 +84,22 @@ Doel 1 gaat voor op nieuwe functies en nieuwe stof.
 - [x] Een PNG-icoon voor het beginscherm, en de browsertest ook kunnen draaien op WebKit, de motor van Safari.
 - [ ] Testen op een echte iPhone. Dit kan alleen met de hand, en controleer dan ook het linkvoorbeeld en het icoon op het beginscherm.
 - [x] Toegankelijkheid: `axe-core` in de browsertest, en de focus goed zetten wanneer `render()` het scherm vervangt.
-- [x] De melding bij `core: false` herschrijven, want die gaat uit van één klas.
+- [x] De melding over de toetsstof weghalen, want leerlingen kiezen zelf wat ze oefenen.
 - [ ] Juridisch laten nakijken welke vorm van anonieme statistieken mag.
 - [ ] De regel "geen tracking" in `AGENTS.md` vervangen door "geen persoonsgegevens en geen cookies".
 - [ ] Weergaven per les en tellers per functie meten, met opslag in de EU en het script op onze eigen site. Tel op naam van de les en niet op adres, want de adressen veranderen in fase 3. Unieke bezoekers alleen als het juridische advies dat toelaat.
+
+### Aanvullen: wat hoofdstuk 1 en 2 nog missen
+
+Dit kan naast de andere fases, en doel 1 gaat voor op nieuwe functies. Zie open vraag 7 over het nakijken.
+
+- [ ] Zelf een grafiek laten tekenen ([#11](https://github.com/angrymrt/wiskunde-fit/issues/11)).
+- [ ] Een ongelijkheid of vergelijking opstellen uit een verhaal ([#12](https://github.com/angrymrt/wiskunde-fit/issues/12)).
+- [ ] Ongelijkheden waarbij je eerst het snijpunt berekent ([#13](https://github.com/angrymrt/wiskunde-fit/issues/13)).
+- [ ] De kubus en vlakke figuren bij 2.4 ([#14](https://github.com/angrymrt/wiskunde-fit/issues/14)).
+- [ ] De werkwijze van de andere paragrafen vergelijken met de theorie in het boek ([#15](https://github.com/angrymrt/wiskunde-fit/issues/15)).
+- [ ] De video's bij 1.4 controleren ([#16](https://github.com/angrymrt/wiskunde-fit/issues/16)).
+- [ ] Een wiskundedocent de stof laten nakijken ([#17](https://github.com/angrymrt/wiskunde-fit/issues/17)).
 
 ### Fase 3: het fundament
 
@@ -114,6 +128,7 @@ Klaar als: de site er hetzelfde uitziet, opgeslagen voortgang behouden blijft en
 - [ ] Een oefenronde met je zwakste vaardigheden.
 - [ ] Voortgang overzetten met een link of QR-code, zonder server.
 - [ ] De site kunnen installeren en offline gebruiken.
+- [ ] Een ingebouwde rekenmachine, vooral handig op de telefoon ([#18](https://github.com/angrymrt/wiskunde-fit/issues/18)).
 
 ### Fase 6: uitbreiden op basis van echte signalen
 
@@ -139,9 +154,9 @@ Bij een vraag staat onze voorlopige voorkeur als die er is.
 1. **Welke leerling staat voorop?** _Voorkeur: een leerling die binnenkort een toets heeft, het eigen boek en hoofdstuk kent en via een gedeelde link of Google binnenkomt._ Dit hangt samen met het verschil met het FLEX-aanbod ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3)).
 2. **Hoe ver willen we hiermee?** Hoeveel tijd is er beschikbaar, en hoe snel moet de site groeien?
 3. **Wie staat buiten havo 3 in voor de wiskunde?** Doel 1 maakt dit de echte grens aan de groei.
-4. **Indelen op boek of op onderwerp?** _Voorkeur: voor de leerling het boek als gewone ingang, en onderwerp als terugvaloptie. Intern geen onderwerpenboom, maar de drie lagen uit het laagmodel._
+4. **Indelen op boek of op onderwerp?** _Voorstel van de eigenaar: onderwerpen worden de hoofdingang van de site. Paragrafen en hoofdstukken blijven vooral om de stof te kiezen die je wilt oefenen, en staan minder prominent. Dit past bij het laagmodel en moet voor fase 3 worden uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10))._
 5. **Sluiten we aan bij Neon?** Dat kan de richting veranderen, want samenwerken ligt dan misschien meer voor de hand dan alles zelf bouwen ([#4](https://github.com/angrymrt/wiskunde-fit/issues/4)).
-6. **Hoe maken we de lesstof op grote schaal?** Twee hoofdstukken kostten 49 soorten vragen, dus een heel leerjaar wordt al snel een paar honderd. _Voorkeur: uitbreiden op basis van echte vraag en AI gebruiken als hulp, met de automatische controles en een menselijke nakijkronde._
+6. **Hoe maken we de lesstof op grote schaal?** Twee hoofdstukken kostten 51 soorten vragen, dus een heel leerjaar wordt al snel een paar honderd. _Voorkeur: uitbreiden op basis van echte vraag en AI gebruiken als hulp, met de automatische controles en een menselijke nakijkronde._
 7. **Wie controleert de wiskunde?** De `v`-functies vinden rekenfouten, maar geen slechte uitleg of een verkeerde aanpak. _Voorkeur: per hoofdstuk een nakijkronde, en een knop om een fout te melden._
 8. **Wat mag er over boeken op de site?** Mogen we titels en paragraafnummers van uitgevers noemen en de werkwijze volgen? Dat is belangrijk voordat we meer boeken toevoegen. _Voorkeur: alleen eigen teksten en voorbeelden. Dit moet nog juridisch worden nagevraagd, en deze roadmap geeft daarover geen uitsluitsel._
 9. **Hoe gaan we om met het curriculum?** Moeten we aansluiten op landelijke leerdoelen? Dat kan helpen om onafhankelijk van een boek te worden, maar dat moet nog worden uitgezocht.
@@ -149,4 +164,4 @@ Bij een vraag staat onze voorlopige voorkeur als die er is.
 
 ## Hier beginnen we
 
-Begin met fase 1. Zoek ondertussen uit hoe de site verschilt van het FLEX-aanbod en of Neon past ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)), want dat kan de keuzes voor fase 3 en verder veranderen. Maak voor fase 3 een concreet plan voor stabiele id's, adressen en de migratie van de voortgang.
+Fase 1 is af. Rond fase 2 af met de test op een echte iPhone, en werk daarna het voorstel over onderwerpen uit ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)). Zoek ondertussen uit hoe de site verschilt van het FLEX-aanbod en of Neon past ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)), want dat kan de keuzes voor fase 3 en verder veranderen. Maak voor fase 3 een concreet plan voor stabiele id's, adressen en de migratie van de voortgang.

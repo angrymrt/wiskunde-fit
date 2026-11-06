@@ -1,6 +1,6 @@
 // Paragraaf 1.6: Vergelijkingen met twee variabelen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { nz, pick, coin, Q, qv, near, fr, lin } from '../math.js';
-import { F } from './shared.js';
+import { F, MC } from './shared.js';
 import { T } from '../typeset.js';
 
 const lin2 = (A, B) =>
@@ -13,43 +13,72 @@ function s16pair() {
     C = A * x + B * y;
   if (coin())
     return {
-      q: T(`Gegeven is de vergelijking ${lin2(A, B)} = ${C}. Bereken y als x = ${x}.`),
+      q: T(`Gegeven is de vergelijking ${lin2(A, B)} = ${C}. Bereken de oplossing met x = ${x}.`),
       fields: [F('y =', y)],
       hint: T(`Vul x = ${x} in. Dan houd je een vergelijking met alleen y over.`),
       steps: [
-        `${A}*${x} ${B < 0 ? '-' : '+'} ${Math.abs(B)}y = ${C}`,
+        `x = ${x} geeft ${A}*${x} ${B < 0 ? '-' : '+'} ${Math.abs(B)}y = ${C}`,
         `${A * x} ${B < 0 ? '-' : '+'} ${Math.abs(B)}y = ${C}`,
-        `${B}y = ${C - A * x}`,
+        `${lin(B, 0, 'y')} = ${C - A * x}`,
         `y = ${y}`,
+        `Dus (${x}, ${y}).`,
       ],
       v: () => A * x + B * y === C,
     };
   return {
-    q: T(`Gegeven is de vergelijking ${lin2(A, B)} = ${C}. Bereken x als y = ${y}.`),
+    q: T(`Gegeven is de vergelijking ${lin2(A, B)} = ${C}. Bereken de oplossing met y = ${y}.`),
     fields: [F('x =', x)],
     hint: T(`Vul y = ${y} in. Dan houd je een vergelijking met alleen x over.`),
     steps: [
-      `${lin(A, 0)} ${B < 0 ? '-' : '+'} ${Math.abs(B)}*${y} = ${C}`,
+      `y = ${y} geeft ${lin(A, 0)} ${B < 0 ? '-' : '+'} ${Math.abs(B)}*${y} = ${C}`,
       `${lin(A, B * y)} = ${C}`,
       `${lin(A, 0)} = ${C - B * y}`,
       `x = ${x}`,
+      `Dus (${x}, ${y}).`,
     ],
     v: () => A * x + B * y === C,
   };
 }
+function s16check() {
+  const A = pick([2, 3, 4, 5, 6]),
+    B = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4]),
+    x = nz(-6, 6),
+    y = nz(-6, 6),
+    good = coin(),
+    worth = A * x + B * y,
+    C = good ? worth : worth + nz(-4, 4);
+  return {
+    q: T(
+      `Gegeven is de vergelijking ${lin2(A, B)} = ${C}. Is het getallenpaar (${x}, ${y}) een oplossing van de vergelijking?`,
+    ),
+    mc: MC(good ? ['Ja', 'Nee'] : ['Nee', 'Ja'], 0),
+    hint: T(`Vul x = ${x} en y = ${y} in en kijk of er ${C} uitkomt.`),
+    steps: [
+      `x = ${x} en y = ${y} geeft ${A}*${x} ${B < 0 ? '-' : '+'} ${Math.abs(B)}*${y} = ${worth}${good ? '' : ` ≠ ${C}`}`,
+      `Dus (${x}, ${y}) is ${good ? 'een' : 'geen'} oplossing.`,
+    ],
+    v: () => (A * x + B * y === C) === good,
+  };
+}
 function s16iso() {
   const A = pick([1, 2, 3, 4, 5, 6]),
-    B = pick([-4, -3, -2, 2, 3, 4, 5]),
+    B = pick([-4, -3, -2, -1, 1, 2, 3, 4, 5]),
     C = B * nz(-5, 6) + (coin() ? 0 : nz(-3, 3));
   const a = Q(-A, B),
     b = Q(C, B);
   return {
-    q: T(`Schrijf ${lin2(A, B)} = ${C} in de vorm y = ax + b.`),
+    q: T(`Herleid ${lin2(A, B)} = ${C} tot de vorm y = ax + b.`),
     fields: [F('a =', a), F('b =', b)],
     hint: T(
-      `Zet eerst de term met y alleen aan de linkerkant. Deel daarna links en rechts door ${B}.`,
+      B === 1
+        ? `Breng ${lin(A, 0)} over naar het rechterlid. Daarbij verandert + in -.`
+        : `Breng ${lin(A, 0)} over naar het rechterlid. Daarbij verandert + in -. Deel daarna alle termen door ${B}.`,
     ),
-    steps: [`${lin2(A, B)} = ${C}`, `${B}y = ${lin(-A, C)}`, `y = ${lin(a, b)}`],
+    steps: [
+      `${lin2(A, B)} = ${C}`,
+      `${lin(B, 0, 'y')} = ${lin(-A, C)}`,
+      ...(B === 1 ? [] : [`y = ${lin(a, b)}`]),
+    ],
     traps: [
       {
         f: (v) => near(v[0], A / B),
@@ -85,7 +114,6 @@ export default {
   ch: 1,
   num: '1.6',
   title: 'Vergelijkingen met twee variabelen',
-  core: false,
   videos: {
     menno: [
       ['Getallenparen', 'fr2kg8fWaBU'],
@@ -96,29 +124,33 @@ export default {
   },
   skills: [
     ['Getallenparen', s16pair],
-    ['Schrijven als y = ax + b', s16iso],
+    ['Herleiden tot y = ax + b', s16iso],
     ['Snijpunten met de assen', s16ax],
+    ['Is het een oplossing?', s16check],
   ],
   learn: [
     {
       t: 'Getallenparen',
       p: [
         T(
-          'Bij 2x + 3y = 12 hoort niet één oplossing. x = 3 en y = 2 is een oplossing, want 2*3 + 3*2 = 12. Elk paar dat klopt is een punt op een rechte lijn.',
+          'Een oplossing van een vergelijking met x en y is een getallenpaar (x, y) waarvoor de vergelijking klopt. Bij 4x + 3y = 12 is (-3, 8) een oplossing, want 4*-3 + 3*8 = 12. Maar (8, -3) is geen oplossing, want 4*8 + 3*-3 = 23 ≠ 12.',
         ),
       ],
     },
     {
-      t: 'Schrijven als y = ax + b',
-      ex: { q: T('2x + 3y = 12'), steps: ['3y = -2x + 12', 'y = {-2/3}x + 4'] },
-    },
-    {
-      t: 'Snel tekenen',
+      t: 'De grafiek tekenen',
       p: [
         T(
-          'Op de x-as is y = 0, op de y-as is x = 0. Bij 2x + 3y = 12 geeft dat (6, 0) en (0, 4). Teken de lijn door die twee punten.',
+          'De grafiek van p​x + q​y = r is een lijn. Daarvoor heb je twee punten nodig. Meestal is rekenen met x = 0 en y = 0 het makkelijkst. Bij 4x + 3y = 12 geeft x = 0 het punt (0, 4) en y = 0 het punt (3, 0).',
         ),
       ],
+    },
+    {
+      t: 'Herleiden tot y = ax + b',
+      p: [
+        'Breng de term met x over naar het rechterlid. Daarbij verandert + in - en - in +. Staat er nog een getal voor y, deel dan alle termen door dat getal.',
+      ],
+      ex: { q: T('4x + 3y = 12'), steps: ['3y = -4x + 12', 'y = -{4/3}x + 4'] },
     },
   ],
 };

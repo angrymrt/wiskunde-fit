@@ -289,7 +289,6 @@ export default {
   ch: 2,
   num: '2.2',
   title: 'Gelijkvormigheid',
-  core: true,
   videos: {
     menno: [
       ['Gelijkvormigheid', 'cVu2DqhSueY'],

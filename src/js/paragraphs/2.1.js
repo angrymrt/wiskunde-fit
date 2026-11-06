@@ -209,7 +209,6 @@ export default {
   ch: 2,
   num: '2.1',
   title: 'Verhoudingstabellen',
-  core: true,
   videos: {
     menno: [
       ['Kruislings vermenigvuldigen', 't8xn6N4Cf3M'],

@@ -111,7 +111,6 @@ Handige hulpen uit `math.js` zijn `lin(a, b, 'x')` voor een nette formule zonder
 
 1. Kopieer een bestand in `src/js/paragraphs/` en pas de `export default` aan.
 2. Voeg het toe aan de lijst in `paragraphs/index.js`.
-3. Zet `core: true` als er uitwerkingen uit het boek bij horen. Bij `core: false` toont de site een melding dat de docent moet bevestigen of de stof bij de toets hoort.
 
 Wijzig de `id` van een bestaande paragraaf of de volgorde van de `skills` niet zomaar: de opgeslagen voortgang verwijst daarnaar (`1.1#0`).
 

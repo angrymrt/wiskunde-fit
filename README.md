@@ -7,7 +7,7 @@ Interactieve oefensite voor de wiskundetoets over hoofdstuk 1 (lineaire probleme
 ## Wat de site doet
 
 - **Uitleg per paragraaf**, met voorbeelden die stap voor stap verschijnen en interactieve onderdelen, zoals schuifjes voor `a` en `b` in `y = ax + b`.
-- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 49 soorten vragen, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
+- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 51 soorten vragen, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
 - **Proeftoetsen** van 10 tot 30 vragen, met aan het eind een score per paragraaf en alle uitwerkingen.
 - **Video's** per paragraaf, als links naar YouTube.
 - **Voortgang** per vaardigheid, bewaard in de browser. Er is geen server en er is geen account nodig.
@@ -61,7 +61,8 @@ src/
     ├── paragraphs/         De lesstof: elk bestand is één paragraaf
     │   ├── index.js        De lijst met alle paragrafen
     │   ├── shared.js       Hulpmiddelen voor meerdere paragrafen
-    │   ├── voorkennis.js   Pythagoras
+    │   ├── voorkennis-lineair.js  Lineaire formules
+│   ├── voorkennis.js   Pythagoras
     │   └── 1.1.js … 2.4.js
     └── ui/                 De schermen
         ├── home.js         Overzicht
@@ -84,7 +85,7 @@ In [AGENTS.md](AGENTS.md) staat hoe je een vraag of paragraaf toevoegt en welke 
 
 De map `lesstof/` is bewust niet opgenomen in deze repository (zie `.gitignore`). De uitwerkingen daarin zijn auteursrechtelijk beschermd materiaal van de uitgever. De site gebruikt ze alleen als naslag voor de werkwijze en notatie; de uitleg en vragen zijn zelf geschreven of worden automatisch gemaakt.
 
-Paragrafen 1.4, 1.5, 1.6 en 2.4 zijn gebaseerd op de onderwerpen van uitlegvideo's, omdat daarvoor geen uitwerkingen beschikbaar waren. De aanpak kan daar iets afwijken van het boek. De site toont daarover een melding.
+De werkwijze is vergeleken met de theorie en de voorbeelden uit het boek. De site zegt niet welke stof bij een toets hoort: dat hangt af van het boek en de docent, en de leerling kiest het zelf.
 
 Dit is een persoonlijk project en heeft geen band met Noordhoff of _Getal & Ruimte_. De video's zijn van de YouTube-kanalen Math with Menno en Wiskunde met Bob Pruiksma.
 

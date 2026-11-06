@@ -259,7 +259,6 @@ export default {
   ch: 1,
   num: '1.2',
   title: 'Lineaire verbanden',
-  core: true,
   videos: {
     menno: [['Formules met andere letters dan x en y', 'rFEA-kT63qQ']],
     bob: [['Formules met andere letters dan x en y', 'g8s5J0GeRJQ']],

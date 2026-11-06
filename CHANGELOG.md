@@ -2,6 +2,28 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.3.0
+
+### Nieuw
+
+- Voorkennis Lineaire formules: `y` berekenen, een tabel invullen en zien hoeveel `y` verandert.
+- Paragraaf 1.4 Snijpunten van grafieken, met snijpunten met de assen, het snijpunt van twee lijnen en formules vergelijken.
+- Paragraaf 2.4 heeft nu vragen over een balk en over een deel van een bekende lengte.
+- Paragraaf 1.5 heeft nu vragen over het omklappen van het ongelijkheidsteken, en paragraaf 1.6 vragen over de vraag of een getallenpaar een oplossing is.
+
+### Verbeterd
+
+- De uitleg en uitwerkingen van 1.4, 1.5, 1.6 en 2.4 volgen nu de werkwijze uit het boek.
+- De melding of een paragraaf bij je toets hoort is weg. Welke stof je oefent, kies je zelf.
+- Je voortgang verhuist mee naar de nieuwe paragrafen. Alleen je resultaten bij de vragen die zijn verdwenen, vervallen.
+
+### Hersteld
+
+- De nummers in hoofdstuk 1 klopten niet met het boek. Lineaire ongelijkheden staat nu bij 1.5, en formules vergelijken bij 1.4.
+- Paragraaf 2.4 heet nu Lengtes van lijnstukken berekenen, en de vragen over de piramide en de kegel zijn vervangen, want die staan niet in deze paragraaf van het boek.
+- Paragraaf 1.5 Functies is weg uit hoofdstuk 1, want die stof hoort daar niet bij in het boek.
+- Bij lineaire ongelijkheden kwamen de tekens ≤ en ≥ voor, die niet in deze paragraaf van het boek staan.
+
 ## 1.2.0
 
 ### Nieuw
