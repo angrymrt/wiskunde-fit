@@ -17,7 +17,8 @@ function vOver() {
   <div class="block"><h2 class="h3">Contact</h2>
   <p>Ben je docent, of heb je een vraag of idee? Mail naar ${mail}.</p>
   <p>Heb je een fout gevonden? ${repo('Maak dan een issue aan op GitHub', '/issues/new')}, zodat iedereen kan zien dat we ermee bezig zijn. Zo'n issue is openbaar, met je accountnaam erbij, dus zet er geen namen of andere gegevens van leerlingen in. Heb je geen GitHub-account, mail de fout dan gerust.</p>
-  <p>De code, de bekende fouten en de plannen staan ook op ${repo('GitHub')}.</p></div>
+  <p>De code, de bekende fouten en de plannen staan ook op ${repo('GitHub')}.</p>
+  <p>We hebben de site nog niet op een echte iPhone getest, alleen met de motor van Safari op een computer. Werkt er op jouw iPhone iets niet goed? Laat het ons dan weten.</p></div>
   </div>
   <div class="sheet"><h2>Privacy</h2>
   <div class="block"><h3>Wat we niet doen</h3>

@@ -2,6 +2,13 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.3.1
+
+### Verbeterd
+
+- Zet je de site op het beginscherm van je iPhone, dan heet het icoon nu gewoon Wiskundefit.
+- Op de pagina over Wiskundefit staat nu dat de site nog niet op een echte iPhone is getest. Werkt er iets niet goed, laat het ons dan weten.
+
 ## 1.3.0
 
 ### Nieuw

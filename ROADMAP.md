@@ -26,7 +26,8 @@ Al het werk wordt getoetst aan de grenzen en doelen in de [principes in AGENTS.m
 | We gebruiken het laagmodel uit deze roadmap, mits het haalbaar blijkt.                                                                | Een nieuw boek of leerjaar wordt dan vooral een gegevensbestand. In fase 3 moet blijken of het werkt.                                                        |
 | De site krijgt echte adressen in plaats van hash-routes, met vooraf gebouwde HTML per les.                                            | De site moet vindbaar zijn via Google, en dat lukt niet met hash-routes en tekst die pas met JavaScript verschijnt. Adressen zijn later duur om te wijzigen. |
 | Vindbaarheid in AI-antwoorden krijgt geen eigen werk.                                                                                 | Echte adressen, duidelijke uitleg en een over-pagina helpen daar ook.                                                                                        |
-| We meten alleen anonieme totalen: weergaven per les en tellers per functie.                                                           | We willen weten hoeveel de site wordt gebruikt en wat populair is. Daar zijn geen gegevens per leerling voor nodig. Dit gaat pas live na juridisch advies.   |
+| We volgen de AVG en bouwen zo dat er geen cookiebanner nodig is: geen cookies, of alleen functionele.                                 | Een banner zit leerlingen in de weg en we hebben geen gegevens over bezoekers nodig. Heeft iets toestemming nodig, dan bouwen we het niet.                   |
+| We meten alleen anonieme totalen, in een vorm die geen toestemming nodig heeft, en we vragen hiervoor geen apart juridisch advies.    | We willen weten hoeveel de site wordt gebruikt en wat populair is. Daar zijn geen gegevens per leerling voor nodig.                                          |
 | Inloggen heeft de laagste prioriteit.                                                                                                 | Het is niet nodig om te oefenen, en het brengt persoonsgegevens van vooral minderjarigen en een server met zich mee.                                         |
 | Donaties, subsidie en een vergoeding van scholen mogen.                                                                               | Zo kunnen eventuele kosten worden betaald, zonder reclame of betaalmuur voor leerlingen.                                                                     |
 | Elke release komt automatisch na een geslaagde deploy. Alleen de eigenaar besluit over een major-versie.                              | Niemand hoeft handmatig te publiceren, terwijl de eigenaar bepaalt wanneer er iets ingrijpends verandert.                                                    |
@@ -78,16 +79,16 @@ Afgerond in versie 1.3.0. Doel 1 gaat voor op nieuwe functies en nieuwe stof.
 
 ### Fase 2: de basis op orde
 
+Afgerond in versie 1.3.1, op de test op een echte iPhone na. De eigenaar heeft geen iPhone, dus die test blijft open voor wie er wel een heeft. Tot die tijd testen we alleen op WebKit, en dat zeggen we ook op de over-pagina.
+
 - [x] Een over-pagina: wie erachter zit, geen band met uitgevers, hoe de stof is gemaakt en nagekeken, en een privacyverklaring.
 - [x] Contact voor docenten, voorlopig met een `mailto:` naar een bestaand adres. Vervang dat door een adres op `wiskundefit.nl` zodra dat er is (`MAIL` in `ui/about.js`).
 - [x] Titel, beschrijving en afbeelding voor linkvoorbeelden, zoals in WhatsApp.
 - [x] Een PNG-icoon voor het beginscherm, en de browsertest ook kunnen draaien op WebKit, de motor van Safari.
-- [ ] Testen op een echte iPhone. Dit kan alleen met de hand, en controleer dan ook het linkvoorbeeld en het icoon op het beginscherm.
+- [ ] Testen op een echte iPhone. Dit kan alleen met de hand, en controleer dan ook het linkvoorbeeld en het icoon op het beginscherm ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)).
 - [x] Toegankelijkheid: `axe-core` in de browsertest, en de focus goed zetten wanneer `render()` het scherm vervangt.
 - [x] De melding over de toetsstof weghalen, want leerlingen kiezen zelf wat ze oefenen.
-- [ ] Juridisch laten nakijken welke vorm van anonieme statistieken mag.
-- [ ] De regel "geen tracking" in `AGENTS.md` vervangen door "geen persoonsgegevens en geen cookies".
-- [ ] Weergaven per les en tellers per functie meten, met opslag in de EU en het script op onze eigen site. Tel op naam van de les en niet op adres, want de adressen veranderen in fase 3. Unieke bezoekers alleen als het juridische advies dat toelaat.
+- [x] De regel "geen tracking" in `AGENTS.md` vervangen door "geen persoonsgegevens en geen cookies".
 
 ### Aanvullen: wat hoofdstuk 1 en 2 nog missen
 
@@ -112,6 +113,7 @@ Geen nieuwe lesstof, wel alles wat later duur wordt om te veranderen.
 - [ ] Lettertypes en code uit de HTML halen, zodat de browser ze kan bewaren. Het losse bestand wordt een optionele export.
 - [ ] Vragen met een seed, zodat elke vraag precies te herhalen is.
 - [ ] Zoekmachines helpen: een sitemap, unieke titels en beschrijvingen.
+- [ ] Anonieme totalen meten, nadat de echte adressen er zijn, met opslag in de EU en zonder unieke bezoekers. Zo kunnen we weergaven per les op de server tellen, zonder script en zonder iets op het apparaat. Tellers per functie alleen als ze geen toestemming nodig hebben ([#19](https://github.com/angrymrt/wiskunde-fit/issues/19)).
 - [ ] De browsertest per indeling kunnen draaien en bij een push laten meelopen.
 
 Klaar als: de site er hetzelfde uitziet, opgeslagen voortgang behouden blijft en een nieuw hoofdstuk geen schermcode meer nodig heeft.
@@ -164,4 +166,4 @@ Bij een vraag staat onze voorlopige voorkeur als die er is.
 
 ## Hier beginnen we
 
-Fase 1 is af. Rond fase 2 af met de test op een echte iPhone, en werk daarna het voorstel over onderwerpen uit ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)). Zoek ondertussen uit hoe de site verschilt van het FLEX-aanbod en of Neon past ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)), want dat kan de keuzes voor fase 3 en verder veranderen. Maak voor fase 3 een concreet plan voor stabiele id's, adressen en de migratie van de voortgang.
+Fase 1 en 2 zijn af, op de test op een echte iPhone na ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)). Werk nu het voorstel over onderwerpen uit ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)). Zoek ondertussen uit hoe de site verschilt van het FLEX-aanbod en of Neon past ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)), want dat kan de keuzes voor fase 3 en verder veranderen. Maak voor fase 3 een concreet plan voor stabiele id's, adressen en de migratie van de voortgang.
