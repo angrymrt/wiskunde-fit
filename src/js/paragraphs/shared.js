@@ -25,7 +25,7 @@ const TRP = [
   [10, 24, 26],
   [7, 24, 25],
 ];
-function nestedFig(ab, bc, ac, ad, opts) {
+function nestedPts(ab, bc, ac, ad) {
   /* B(0,0), C(bc,0), A boven */ const B = [0, 0],
     C = [bc, 0],
     A = [
@@ -35,8 +35,11 @@ function nestedFig(ab, bc, ac, ad, opts) {
   const r = ad / ab,
     D = [A[0] + (B[0] - A[0]) * r, A[1] + (B[1] - A[1]) * r],
     E = [A[0] + (C[0] - A[0]) * r, A[1] + (C[1] - A[1]) * r];
+  return { A, B, C, D, E };
+}
+function nestedFig(ab, bc, ac, ad, opts) {
   return geo({
-    pts: { A, B, C, D, E },
+    pts: nestedPts(ab, bc, ac, ad),
     segs: ['AB', 'AC', 'BC', 'DE'],
     w: 320,
     maxH: 270,
@@ -44,4 +47,4 @@ function nestedFig(ab, bc, ac, ad, opts) {
   });
 }
 
-export { H, F, RF, needRound, MC, plug, TRP, nestedFig };
+export { H, F, RF, needRound, MC, plug, TRP, nestedPts, nestedFig };

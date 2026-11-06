@@ -69,7 +69,7 @@ Dit model moet nog bewijzen dat het werkt. De werkwijze en notatie kunnen per bo
 
 Doel 1 gaat voor op nieuwe functies en nieuwe stof.
 
-- [ ] De vier plekken met `v: () => true` een echte controle geven, in `s12story` en `s23why` ([#5](https://github.com/angrymrt/wiskunde-fit/issues/5)).
+- [x] De vier plekken met `v: () => true` een echte controle geven, in `s12story` en `s23why` ([#5](https://github.com/angrymrt/wiskunde-fit/issues/5)).
 - [ ] Paragrafen 1.4, 1.5, 1.6 en 2.4 nakijken op overlap met het boek en op de juiste werkwijze, zodra dat materiaal beschikbaar is ([#6](https://github.com/angrymrt/wiskunde-fit/issues/6)).
 - [ ] Laten bevestigen of die paragrafen bij de toetsstof horen ([#7](https://github.com/angrymrt/wiskunde-fit/issues/7)).
 - [ ] Beslissen over de video's van Menno en de links aanpassen ([#1](https://github.com/angrymrt/wiskunde-fit/issues/1)).

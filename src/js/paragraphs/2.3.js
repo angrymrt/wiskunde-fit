@@ -1,8 +1,22 @@
 // Paragraaf 2.3: Gelijkvormigheid aantonen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { geo, angleFig } from '../figures.js';
 import { ri, pick, coin, near, rd, isNice, d, ap } from '../math.js';
-import { H, F, RF, needRound, MC, TRP, nestedFig } from './shared.js';
+import { H, F, RF, needRound, MC, TRP, nestedPts, nestedFig } from './shared.js';
 import { T, vt } from '../typeset.js';
+
+// Meetkunde op de coördinaten van een figuur, om de redenen in een vraag na te rekenen.
+const vec = (p, q) => [q[0] - p[0], q[1] - p[1]];
+const dot = (u, w) => u[0] * w[0] + u[1] * w[1];
+const cross = (u, w) => u[0] * w[1] - u[1] * w[0];
+const angleAt = (p, v, q) => {
+  const u = vec(v, p),
+    w = vec(v, q);
+  return Math.atan2(Math.abs(cross(u, w)), dot(u, w));
+};
+const parallel = (a, b, c, e) => near(cross(vec(a, b), vec(c, e)), 0);
+const perpendicular = (a, b, c, e) => near(dot(vec(a, b), vec(c, e)), 0);
+const between = (p, x, q) => near(cross(vec(p, x), vec(p, q)), 0) && dot(vec(x, p), vec(x, q)) < 0;
+const sameSide = (p, q, a, b) => cross(vec(a, b), vec(a, p)) * cross(vec(a, b), vec(a, q)) > 0;
 
 function s23kind() {
   const k = ri(0, 2);
@@ -59,15 +73,27 @@ function s23why() {
         '∠A = ∠E (Z-hoeken)',
         'Twee paar gelijke hoeken, dus △ABC ∼ △EDC.',
       ],
-      v: () => true,
+      v: () => {
+        const { A, B, C, D, E } = pts;
+        return (
+          parallel(A, B, D, E) &&
+          between(A, C, E) &&
+          between(B, C, D) &&
+          !sameSide(B, D, A, E) &&
+          near(angleAt(A, C, B), angleAt(E, C, D)) &&
+          near(angleAt(B, A, C), angleAt(D, E, C)) &&
+          !near(angleAt(B, A, C), angleAt(C, D, E))
+        );
+      },
     };
   }
-  if (k === 1)
+  if (k === 1) {
+    const sizes = [8, 8, 7, 4];
     return {
       q: T(
         'In △ABC ligt D op AB en E op AC, met DE evenwijdig aan BC. Welke reden laat zien dat △ABC ∼ △ADE?',
       ),
-      fig: nestedFig(8, 8, 7, 4, {}),
+      fig: nestedFig(...sizes, {}),
       mc: MC(
         [
           T('∠B = ∠D (F-hoeken) en ∠A is gemeenschappelijk'),
@@ -81,8 +107,20 @@ function s23why() {
         'De hoek bij A zit in allebei de driehoeken. Kijk welke hoek van de kleine driehoek op dezelfde plek zit als ∠B.',
       ),
       steps: ['∠A (in △ABC) = ∠A (in △ADE)', '∠B = ∠D (F-hoeken)', 'Dus △ABC ∼ △ADE.'],
-      v: () => true,
+      v: () => {
+        const { A, B, C, D, E } = nestedPts(...sizes);
+        return (
+          between(A, D, B) &&
+          between(A, E, C) &&
+          parallel(D, E, B, C) &&
+          sameSide(C, E, A, B) &&
+          near(angleAt(A, B, C), angleAt(A, D, E)) &&
+          !near(angleAt(A, B, C), angleAt(A, E, D)) &&
+          !near(angleAt(A, C, B), angleAt(A, D, E))
+        );
+      },
     };
+  }
   const pts = { A: [0, 0], B: [6.25, 0], D: [2.25, 0], C: [2.25, 3] };
   return {
     q: T('In △ABC is ∠C = 90°. CD staat loodrecht op AB. Welke reden laat zien dat △ABC ∼ △ACD?'),
@@ -109,7 +147,15 @@ function s23why() {
       'Welke hoek zit in allebei de driehoeken △ABC en △ACD? En waar zitten de rechte hoeken?',
     ),
     steps: ['∠A (in △ABC) = ∠A (in △ACD)', '∠C (in △ABC) = ∠D (= 90°)', 'Dus △ABC ∼ △ACD.'],
-    v: () => true,
+    v: () => {
+      const { A, B, C, D } = pts;
+      return (
+        perpendicular(C, A, C, B) &&
+        perpendicular(D, C, A, B) &&
+        between(A, D, B) &&
+        !near(angleAt(A, B, C), Math.PI / 2)
+      );
+    },
   };
 }
 function s23x() {

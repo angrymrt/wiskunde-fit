@@ -158,6 +158,17 @@ const STORIES = [
     };
   },
 ];
+// Leest het startgetal, de stap en de richting uit de tekst en loopt het verhaal na met de formule.
+function storyFits(s) {
+  const [start, step] = s.t.match(/\d+/g).map(Number);
+  const change = /gebruik je|daalt/.test(s.t) ? -step : step;
+  let y = start;
+  for (let x = 0; x <= 3; x++) {
+    if (s.a * x + s.b !== y) return false;
+    y += change;
+  }
+  return s.t.includes(`${s.y} is`) && s.t.includes(` ${s.x} `);
+}
 function s12story() {
   const s = pick(STORIES)();
   return {
@@ -171,7 +182,7 @@ function s12story() {
         m: 'Kijk of de hoeveelheid toeneemt of afneemt. Bij afnemen is a negatief.',
       },
     ],
-    v: () => true,
+    v: () => storyFits(s),
   };
 }
 function s12empty() {
