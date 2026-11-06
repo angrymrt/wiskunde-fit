@@ -101,3 +101,25 @@ Wijzig de `id` van een bestaande paragraaf of de volgorde van de `skills` niet z
 Alle schermen zijn functies die een HTML-tekst teruggeven. `render()` in `main.js` zet die in de pagina; `go({ name, ... })` wisselt van scherm. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`.
 
 `window.wiskundefit` bestaat alleen zodat `tests/browser.e2e.js` de juiste antwoorden kan opvragen. Gebruik het niet in de site zelf.
+
+## Een release maken
+
+Elke push naar `main` zet de site meteen online. Een release op GitHub zet de site dus niet online, maar legt vast wat er is veranderd. Maak er een zodra leerlingen iets merken van de wijzigingen sinds de vorige release. Alleen wijzigingen in tests, documentatie of de werkwijze hebben geen release nodig. Een release is openbaar, dus maak hem pas als de eigenaar van het project dat goedvindt.
+
+Het versienummer in `package.json` en de tag zijn altijd gelijk:
+
+- **Patch** (`1.0.1`): een herstelde fout of een kleine verbetering.
+- **Minor** (`1.1.0`): nieuwe lesstof of een nieuwe functie.
+- **Major** (`2.0.0`): een wijziging waardoor opgeslagen voortgang of bestaande links niet meer werken zoals eerst.
+
+Zo maak je een release, als alle wijzigingen zijn gecommit en de tests slagen:
+
+```sh
+npm version minor -m "Versie %s"   # of patch of major; maakt een commit en een tag
+git push --follow-tags             # zet de site online en publiceert de tag
+gh release create v1.1.0 --verify-tag --title "v1.1.0" --notes-file notities.md
+```
+
+Maak de release pas als de workflow `Online zetten` is geslaagd, zodat elke release ook echt online staat. Zet `notities.md` niet in git.
+
+Schrijf de notities zelf, in het Nederlands en voor leerlingen, dus zonder bestandsnamen of technische details. Gebruik de kopjes die van toepassing zijn: `Nieuw`, `Verbeterd` en `Hersteld`. Noem een fout in de wiskunde altijd onder `Hersteld`, met de paragraaf en wat er fout was, want een leerling kan dat verkeerd hebben geleerd.
