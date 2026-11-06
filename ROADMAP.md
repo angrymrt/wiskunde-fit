@@ -82,6 +82,9 @@ Doel 1 gaat voor op nieuwe functies en nieuwe stof.
 - [ ] Testen op Safari en iPhone, en een PNG-icoon voor het beginscherm.
 - [ ] Toegankelijkheid: `axe-core` in de browsertest, en de focus goed zetten wanneer `render()` het scherm vervangt.
 - [ ] De melding bij `core: false` herschrijven, want die gaat uit van één klas.
+- [ ] Juridisch laten nakijken welke vorm van anonieme statistieken mag.
+- [ ] De regel "geen tracking" in `AGENTS.md` vervangen door "geen persoonsgegevens en geen cookies".
+- [ ] Weergaven per les en tellers per functie meten, met opslag in de EU en het script op onze eigen site. Tel op naam van de les en niet op adres, want de adressen veranderen in fase 3. Unieke bezoekers alleen als het juridische advies dat toelaat.
 
 ### Fase 3: het fundament
 
@@ -98,11 +101,8 @@ Geen nieuwe lesstof, wel alles wat later duur wordt om te veranderen.
 
 Klaar als: de site er hetzelfde uitziet, opgeslagen voortgang behouden blijft en een nieuw hoofdstuk geen schermcode meer nodig heeft.
 
-### Fase 4: leren wat werkt
+### Fase 4: fouten kunnen melden
 
-- [ ] Juridisch laten nakijken welke vorm van anonieme statistieken mag.
-- [ ] De regel "geen tracking" in `AGENTS.md` vervangen door "geen persoonsgegevens en geen cookies".
-- [ ] Weergaven per les en tellers per functie meten, met opslag in de EU en het script op onze eigen site. Unieke bezoekers alleen als het juridische advies dat toelaat.
 - [ ] Een knop om per vraag een fout te melden, met de seed erbij.
 
 ### Fase 5: meer waarde voor leerlingen en docenten
