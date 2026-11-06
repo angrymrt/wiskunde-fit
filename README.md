@@ -7,7 +7,7 @@ Interactieve oefensite voor de wiskundetoets over hoofdstuk 1 (lineaire probleme
 ## Wat de site doet
 
 - **Uitleg per paragraaf**, met voorbeelden die stap voor stap verschijnen en interactieve onderdelen, zoals schuifjes voor `a` en `b` in `y = ax + b`.
-- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 51 soorten vragen, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
+- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 60 soorten vragen, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
 - **Proeftoetsen** van 10 tot 30 vragen, met aan het eind een score per paragraaf en alle uitwerkingen.
 - **Video's** per paragraaf, als links naar YouTube.
 - **Voortgang** per vaardigheid, bewaard in de browser. Er is geen server en er is geen account nodig.

@@ -352,6 +352,10 @@ sub {
   height: auto;
   display: block;
 }
+.fig[data-draw] {
+  cursor: crosshair;
+  touch-action: manipulation;
+}
 .fig text {
   font-family: var(--math);
   font-size: 14px;
@@ -761,6 +765,17 @@ ol.how {
 }
 .fld select {
   width: auto;
+}
+/* Velden die samen een formule of punt vormen: smal, zodat ze op één regel passen. */
+.fields.compact {
+  gap: 12px 8px;
+}
+.fields.compact .fld input {
+  width: 3.8em;
+}
+.fbreak {
+  flex-basis: 100%;
+  height: 0;
 }
 .fld.ok input,
 .fld.ok select {

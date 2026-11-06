@@ -1,6 +1,6 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
-import { geo } from '../figures.js';
-import { shuffle, qv, isNice, sg } from '../math.js';
+import { geo, graph } from '../figures.js';
+import { shuffle, qv, isNice, sg, near } from '../math.js';
 
 const H = (html) => ({ h: html });
 const F = (pre, a, post = '') => ({ pre, a: qv(a), post });
@@ -15,6 +15,8 @@ const MC = (opts, a) => {
   return { opts: idx.map((i) => opts[i]), a: idx.indexOf(a) };
 };
 const plug = (a, x, b) => `${a}*${x}${sg(b)}`;
+// Een bedrag zoals op een prijskaartje: 3 of 2,50.
+const euro = (x) => x.toFixed(Number.isInteger(x) ? 0 : 2).replace('.', ',');
 const TRP = [
   [3, 4, 5],
   [6, 8, 10],
@@ -46,5 +48,65 @@ function nestedFig(ab, bc, ac, ad, opts) {
     ...opts,
   });
 }
+// Een lijn tekenen in een rooster. Elk paar verschillende punten op de lijn is goed, dus de velden
+// bevatten alleen een voorbeeld en de vraag kijkt zelf na. p en q zijn dat voorbeeld.
+const DRAW_X = [-5, 5];
+const DRAW_Y = [-6, 6];
+const inGrid = (x, y) => x >= DRAW_X[0] && x <= DRAW_X[1] && y >= DRAW_Y[0] && y <= DRAW_Y[1];
+const answerGraph = (lines, pts) => graph({ xr: DRAW_X, yr: DRAW_Y, lines, pts });
+function drawLine(a, b, p, q) {
+  const on = (x, y) => near(a * x + b, y),
+    same = (v) => near(v[0], v[2]) && near(v[1], v[3]);
+  return {
+    fig: graph({
+      xr: DRAW_X,
+      yr: DRAW_Y,
+      u: 28,
+      draw: true,
+      label:
+        'Leeg rooster om de lijn in te tekenen. Je kunt ook de coördinaten in de velden typen.',
+    }),
+    compact: true,
+    fields: [
+      { ...F('Punt 1: x =', p[0]), label: 'Punt 1, x-coördinaat' },
+      { ...F('y =', p[1]), label: 'Punt 1, y-coördinaat' },
+      { ...F('Punt 2: x =', q[0]), label: 'Punt 2, x-coördinaat', br: true },
+      { ...F('y =', q[1]), label: 'Punt 2, y-coördinaat' },
+    ],
+    check: (v) => {
+      const first = on(v[0], v[1]),
+        second = on(v[2], v[3]) && !same(v);
+      return [first, first, second, second];
+    },
+    traps: [
+      {
+        f: same,
+        m: 'Je hebt twee keer hetzelfde punt gekozen. Voor een lijn heb je twee verschillende punten nodig.',
+      },
+      {
+        f: (v) => near((v[3] - v[1]) / (v[2] - v[0]), a),
+        m: 'De lijn loopt de goede kant op, maar hij ligt te hoog of te laag.',
+      },
+      {
+        f: (v) => on(v[0], v[1]) !== on(v[2], v[3]),
+        m: 'Eén van je punten ligt op de lijn, de andere niet. Vul de x-coördinaat in en reken de y-coördinaat na.',
+      },
+    ],
+  };
+}
 
-export { H, F, RF, needRound, MC, plug, TRP, nestedPts, nestedFig };
+export {
+  H,
+  F,
+  RF,
+  needRound,
+  MC,
+  plug,
+  euro,
+  TRP,
+  nestedPts,
+  nestedFig,
+  drawLine,
+  inGrid,
+  answerGraph,
+};

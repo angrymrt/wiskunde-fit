@@ -42,7 +42,11 @@ function assertSound(q) {
     f.sel ? f.a : typed(f.round ? Number(f.a.toFixed(f.round)) : f.a),
   );
   assert.ok(checkAnswer(q, right).ok, `goed antwoord afgekeurd (${right.join(' | ')}): ${q.q}`);
-  const wrong = q.fields.map((f) => (f.sel ? f.a : typed(f.a + 7)));
+  // Bij een tekenvraag verschuift alleen de eerste y, want twee punten even ver opschuiven kan weer
+  // een punt op dezelfde lijn geven.
+  const wrong = q.fields.map((f, i) =>
+    f.sel ? f.a : typed(q.check ? (i === 1 ? f.a + 7 : f.a) : f.a + 7),
+  );
   assert.ok(!checkAnswer(q, wrong).ok, `fout antwoord goedgekeurd: ${q.q}`);
 }
 
@@ -55,6 +59,24 @@ for (const section of SECTIONS) {
     }
   });
 }
+
+test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
+  const drawing = SECTIONS.flatMap((s) => s.skills).filter((k) => k.name === 'Een lijn tekenen');
+  assert.equal(drawing.length, 2);
+  for (const skill of drawing) {
+    for (let i = 0; i < ROUNDS; i++) {
+      const q = skill.gen();
+      const [x1, y1, x2, y2] = q.fields.map((f) => f.a);
+      const other = [x1 + 2 * (x2 - x1), y1 + 2 * (y2 - y1)];
+      const answer = (...vals) => checkAnswer(q, vals.map(String));
+      assert.ok(answer(x1, y1, ...other).ok, `ander punt op de lijn afgekeurd: ${q.q}`);
+      assert.ok(answer(x2, y2, x1, y1).ok, `omgekeerde volgorde afgekeurd: ${q.q}`);
+      assert.ok(!answer(x1, y1, x1, y1).ok, `twee keer hetzelfde punt goedgekeurd: ${q.q}`);
+      assert.deepEqual(answer(x1, y1, x2, y2 + 1).each, [true, true, false, false]);
+      assert.ok(!answer(x1, y1, '', '').ok, `één punt goedgekeurd: ${q.q}`);
+    }
+  }
+});
 
 test('oude voortgang verhuist mee met de nieuwe indeling', () => {
   const ids = new Set(SECTIONS.flatMap((s) => s.skills.map((k) => k.id)));

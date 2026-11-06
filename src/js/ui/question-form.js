@@ -6,12 +6,13 @@ import { app } from './state.js';
 function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
   if (q.mc)
     return `<div class="opts" role="radiogroup" aria-labelledby="${pfx}q">${q.mc.opts.map((o, i) => `<label class="opt ${marks ? (i === q.mc.a && marks.reveal ? 'ok' : String(vals[0]) === String(i) ? (marks.each[0] ? 'ok' : 'no') : '') : ''}"><input type="radio" name="${pfx}mc" id="${pfx}m${i}" value="${i}" ${String(vals[0]) === String(i) ? 'checked' : ''} ${locked ? 'disabled' : ''}><span>${o}</span></label>`).join('')}</div>`;
-  return `<div class="fields">${q.fields
+  return `<div class="fields${q.compact ? ' compact' : ''}">${q.fields
     .map((f, i) => {
-      const cl = marks ? (marks.each[i] ? 'ok' : 'no') : '';
+      const cl = marks ? (marks.each[i] ? 'ok' : 'no') : '',
+        br = f.br ? '<span class="fbreak"></span>' : '';
       if (f.sel)
-        return `<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<select id="${pfx}f${i}" aria-label="${f.label || 'Kies het teken'}" aria-describedby="${pfx}q" ${locked ? 'disabled' : ''}><option value="">kies</option>${f.sel.map((o) => `<option ${vals[i] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
-      return `<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<input id="${pfx}f${i}" type="text" inputmode="text" autocomplete="off" ${f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>${f.post ? `<span>${T(f.post)}</span>` : ''}</label>`;
+        return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<select id="${pfx}f${i}" aria-label="${f.label || 'Kies het teken'}" aria-describedby="${pfx}q" ${locked ? 'disabled' : ''}><option value="">kies</option>${f.sel.map((o) => `<option ${vals[i] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
+      return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<input id="${pfx}f${i}" type="text" inputmode="text" autocomplete="off" ${f.label ? `aria-label="${f.label}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>${f.post ? `<span>${T(f.post)}</span>` : ''}</label>`;
     })
     .join('')}</div>`;
 }

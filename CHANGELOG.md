@@ -2,6 +2,19 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.4.0
+
+### Nieuw
+
+- Je kunt nu zelf een lijn tekenen bij paragraaf 1.1 en 1.6. Tik twee punten aan in het rooster, of vul de coördinaten in.
+- Paragraaf 1.5 heeft nu vragen met een schets zonder ruitjes, waarbij je eerst het snijpunt berekent, en vragen waarbij je een ongelijkheid opstelt uit een verhaal.
+- Paragraaf 1.6 heeft nu vragen waarbij je een vergelijking opstelt uit een verhaal.
+- Paragraaf 2.4 heeft nu vragen over de kubus, de rechthoek en het parallellogram, en vragen in een verhaal.
+
+### Verbeterd
+
+- Je voortgang per paragraaf telt nu ook de nieuwe vragen mee. Het percentage kan daardoor lager zijn dan eerst, maar je resultaten zijn bewaard.
+
 ## 1.3.1
 
 ### Verbeterd

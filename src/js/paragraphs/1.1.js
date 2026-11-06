@@ -1,7 +1,7 @@
 // Paragraaf 1.1: De formule y = ax + b. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { graph } from '../figures.js';
 import { ri, nz, pick, coin, gcd, Q, qv, qSub, qMul, near, fr, lin } from '../math.js';
-import { F, MC, plug } from './shared.js';
+import { F, MC, plug, drawLine, inGrid, answerGraph, H } from './shared.js';
 import { T } from '../typeset.js';
 
 function s11point() {
@@ -174,6 +174,41 @@ function s11par() {
     v: () => near(qv(a) * px + qv(b), py),
   };
 }
+function s11draw() {
+  let b, run, rise, a;
+  do {
+    b = ri(-4, 4);
+    run = pick([1, 1, 2, 3]);
+    rise = nz(-4, 4);
+    a = Q(rise, run);
+  } while (!inGrid(a.d, b + a.n));
+  const l = pick('klmn'),
+    p = [0, b],
+    q = [a.d, b + a.n];
+  return {
+    q: T(
+      `Teken de lijn ${l}: y = ${lin(a, b)}. Tik in het rooster twee punten van de lijn aan, of vul de coördinaten in.`,
+    ),
+    ...drawLine(qv(a), b, p, q),
+    hint: T(
+      `Begin bij b: de lijn gaat door (0, ${b}). Ga vanaf daar ${a.d} naar rechts en ${Math.abs(a.n)} ${a.n > 0 ? 'omhoog' : 'omlaag'}.`,
+    ),
+    steps: [
+      `b = ${b}, dus de lijn gaat door (0, ${b}).`,
+      `a = ${fr(a)}, dus ${a.d} naar rechts en ${Math.abs(a.n)} ${a.n > 0 ? 'omhoog' : 'omlaag'}. Dat geeft (${q[0]}, ${q[1]}).`,
+      H(
+        answerGraph(
+          [{ a: qv(a), b, name: l }],
+          [
+            { x: p[0], y: p[1] },
+            { x: q[0], y: q[1] },
+          ],
+        ),
+      ),
+    ],
+    v: () => [p, q].every(([x, y]) => near((rise * x) / run + b, y)),
+  };
+}
 
 export default {
   id: '1.1',
@@ -198,6 +233,7 @@ export default {
     ['Formule uit grafiek', s11read],
     ['Formule door twee punten', s11two],
     ['Evenwijdige lijnen', s11par],
+    ['Een lijn tekenen', s11draw],
   ],
   learn: [
     {
@@ -211,6 +247,22 @@ export default {
         ),
       ],
       widget: 'slope',
+    },
+    {
+      t: 'Een lijn tekenen',
+      p: [
+        T(
+          'Voor een lijn heb je twee punten nodig. Begin bij (0, b) op de y-as. Ga vanaf daar naar rechts en omhoog of omlaag, zoals a aangeeft. Trek daarna de lijn door beide punten.',
+        ),
+      ],
+      ex: {
+        q: T('Teken de lijn y = {3/2}x - 2.'),
+        steps: [
+          'b = -2, dus de lijn gaat door (0, -2).',
+          'a = {3/2}, dus 2 naar rechts en 3 omhoog. Dat geeft (2, 1).',
+          'Trek de lijn door (0, -2) en (2, 1).',
+        ],
+      },
     },
     {
       t: 'Ligt een punt op de lijn?',

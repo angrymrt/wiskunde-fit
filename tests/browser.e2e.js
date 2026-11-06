@@ -190,6 +190,71 @@ test(
   },
 );
 
+test('een lijn tekenen werkt met tikken en met typen', { timeout: 60_000 }, async () => {
+  const browser = await launch();
+  try {
+    await mkdir(shotDir, { recursive: true });
+    // Hoog genoeg voor het hele rooster: een muisklik buiten het scherm raakt niets.
+    const p = await browser.newPage({ viewport: { width: 390, height: 1300 } });
+    await p.goto(siteUrl);
+    await p.evaluate(() => wiskundefit.go({ name: 'sec', id: '1.1', tab: 'oefen' }));
+    const id = await p.evaluate(
+      () => wiskundefit.SEC['1.1'].skills.find((k) => k.name === 'Een lijn tekenen').id,
+    );
+    await p.click(`.chip[data-id="${id}"]`);
+    const q = () => p.evaluate(() => wiskundefit.state.prac['1.1'].q.fields.map((f) => f.a));
+    const inputs = () => p.$$eval('#pform .fld input', (els) => els.map((e) => e.value));
+    // Tikt op een punt van het rooster, ook als de figuur op het scherm is geschaald.
+    const tap = async (x, y) => {
+      const box = await (await p.$('svg[data-draw]')).boundingBox();
+      const [x0, , , y1, u, ml, mt, w] = await p.$eval('svg[data-draw]', (s) => [
+        ...s.dataset.draw.split(',').map(Number),
+        s.viewBox.baseVal.width,
+      ]);
+      const k = box.width / w;
+      await p.mouse.click(box.x + (ml + (x - x0) * u) * k, box.y + (mt + (y1 - y) * u) * k);
+    };
+    const [x1, y1, x2, y2] = await q();
+
+    // Twee tikken vullen de velden en tekenen de lijn.
+    await tap(x1, y1);
+    assert.deepEqual(await inputs(), [String(x1), String(y1), '', '']);
+    assert.equal(await p.$$eval('.drawn line', (l) => l.length), 0);
+    assert.equal(await p.$$eval('.drawn circle', (c) => c.length), 1);
+    await tap(x2, y2);
+    assert.deepEqual(await inputs(), [String(x1), String(y1), String(x2), String(y2)]);
+    assert.equal(await p.$$eval('.drawn line', (l) => l.length), 1);
+    await p.screenshot({ path: `${shotDir}lijn-tekenen.png`, fullPage: true });
+
+    // Een derde tik vervangt het oudste punt, en tikken op een gekozen punt haalt het weg.
+    await tap(5, -6);
+    assert.deepEqual((await inputs()).slice(0, 2), [String(x2), String(y2)]);
+    await tap(5, -6);
+    assert.deepEqual((await inputs()).slice(2), ['', '']);
+    assert.equal(await p.$$eval('.drawn line', (l) => l.length), 0);
+
+    // Na een hint staat de tekening er nog, want die volgt uit de velden.
+    await tap(x1, y1);
+    await p.click('[data-act="hint"]');
+    assert.equal(await p.$$eval('.drawn line', (l) => l.length), 1);
+
+    // Typen tekent ook, en een ander paar punten op de lijn is goed.
+    await p.fill('#pf0', String(x1 + 2 * (x2 - x1)));
+    await p.fill('#pf1', String(y1 + 2 * (y2 - y1)));
+    await p.fill('#pf2', String(x1));
+    await p.fill('#pf3', String(y1));
+    await p.click('#pform button[type=submit]');
+    assert.match(await p.textContent('.fb'), /Goed gedaan/);
+
+    // Na het nakijken verandert een tik niets meer.
+    const before = await inputs();
+    await tap(0, 0);
+    assert.deepEqual(await inputs(), before);
+  } finally {
+    await browser.close();
+  }
+});
+
 test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 }, async () => {
   const browser = await launch();
   try {

@@ -72,22 +72,27 @@ function s15value() {
 
 ### Velden van een vraag
 
-| Veld     | Verplicht   | Betekenis                                                                    |
-| -------- | ----------- | ---------------------------------------------------------------------------- |
-| `q`      | ja          | De vraag als HTML, meestal gemaakt met `T(...)`                              |
-| `fields` | of `mc`     | Invoervelden, zie hieronder                                                  |
-| `mc`     | of `fields` | Meerkeuze, gemaakt met `MC([goed, fout, fout], 0)`; de keuzes worden geschud |
-| `hint`   | ja          | Tekst, wordt automatisch omgezet met `T`                                     |
-| `steps`  | ja          | De uitwerking: tekst voor `T`, of `H(html)` voor kant-en-klare HTML          |
-| `v`      | aanbevolen  | Controlefunctie, moet `true` geven                                           |
-| `fig`    | nee         | Figuur als SVG-tekst, uit `graph(...)` of `geo(...)`                         |
-| `traps`  | nee         | Gerichte feedback: `[{ f: (waarden) => boolean, m: 'bericht' }]`             |
+| Veld      | Verplicht   | Betekenis                                                                    |
+| --------- | ----------- | ---------------------------------------------------------------------------- |
+| `q`       | ja          | De vraag als HTML, meestal gemaakt met `T(...)`                              |
+| `fields`  | of `mc`     | Invoervelden, zie hieronder                                                  |
+| `mc`      | of `fields` | Meerkeuze, gemaakt met `MC([goed, fout, fout], 0)`; de keuzes worden geschud |
+| `hint`    | ja          | Tekst, wordt automatisch omgezet met `T`                                     |
+| `steps`   | ja          | De uitwerking: tekst voor `T`, of `H(html)` voor kant-en-klare HTML          |
+| `v`       | aanbevolen  | Controlefunctie, moet `true` geven                                           |
+| `fig`     | nee         | Figuur als SVG-tekst, uit `graph(...)` of `geo(...)`                         |
+| `traps`   | nee         | Gerichte feedback: `[{ f: (waarden) => boolean, m: 'bericht' }]`             |
+| `check`   | nee         | Eigen nakijken bij meer goede antwoorden: `(getallen) => [true, false, ...]` |
+| `compact` | nee         | Smalle velden, voor een formule of punt op één regel                         |
 
 Veldhulpen in `paragraphs/shared.js`:
 
 - `F(label, antwoord, achterLabel)` maakt een exact veld. Breuken uit `Q(...)` mogen als antwoord.
 - `RF(label, antwoord, decimalen, achterLabel)` maakt een veld dat afronden alleen toestaat als het antwoord niet precies uitkomt. Zet `needRound(velden)` achter de vraag voor de zin "Rond af op ...".
 - `{ sel: ['<', '>'], a: '<', pre: 'x' }` maakt een keuzelijst.
+- `drawLine(a, b, punt1, punt2)` geeft alles voor een vraag waarin de leerling een lijn tekent: het rooster, de velden, het nakijken en de feedback. Elk paar punten op de lijn is goed. Tikken op het rooster vult dezelfde velden als typen, zodat de vraag ook zonder muis of scherm werkt.
+
+Een veld kan ook `label` krijgen, de naam voor een schermlezer als de tekst ernaast niet genoeg zegt, en `br: true` om op een nieuwe regel te beginnen.
 
 ### T-notatie
 

@@ -16,6 +16,9 @@ function graph({
   lx = 1,
   ly = 1,
   extra = '',
+  sketch = false, // Een schets: alleen de assen, dus zonder rooster en getallen.
+  draw = false, // Een rooster om zelf in te tekenen, zie ui/draw.js.
+  label = 'Grafiek in een assenstelsel',
 }) {
   const ml = 30,
     mr = 20,
@@ -27,20 +30,24 @@ function graph({
     Y = (y) => mt + (yr[1] - y) * u,
     id = 'c' + ++uid;
   let o = '';
-  for (let i = xr[0]; i <= xr[1]; i++)
-    o += `<line class="gl" x1="${X(i)}" x2="${X(i)}" y1="${Y(yr[1])}" y2="${Y(yr[0])}"/>`;
-  for (let j = yr[0]; j <= yr[1]; j++)
-    o += `<line class="gl" x1="${X(xr[0])}" x2="${X(xr[1])}" y1="${Y(j)}" y2="${Y(j)}"/>`;
+  if (!sketch) {
+    for (let i = xr[0]; i <= xr[1]; i++)
+      o += `<line class="gl" x1="${X(i)}" x2="${X(i)}" y1="${Y(yr[1])}" y2="${Y(yr[0])}"/>`;
+    for (let j = yr[0]; j <= yr[1]; j++)
+      o += `<line class="gl" x1="${X(xr[0])}" x2="${X(xr[1])}" y1="${Y(j)}" y2="${Y(j)}"/>`;
+  }
   const ax = Math.max(xr[0], 0),
     ay = Math.max(yr[0], 0);
   o += `<path class="ax" d="M${X(xr[0]) - 6} ${Y(ay)}H${X(xr[1]) + 10}m-6 -4l6 4l-6 4M${X(ax)} ${Y(yr[0]) + 6}V${Y(yr[1]) - 10}m-4 6l4 -6l4 6"/>`;
   o += `<text class="ti" x="${X(xr[1]) + 6}" y="${Y(ay) - 8}">${xn}</text><text class="ti" x="${X(ax) + 9}" y="${Y(yr[1]) - 5}">${yn}</text><text class="ti tk" x="${X(ax) - 11}" y="${Y(ay) + 14}">O</text>`;
-  for (let i = xr[0]; i <= xr[1]; i++)
-    if (i && i % lx === 0)
-      o += `<text class="tk" text-anchor="middle" x="${X(i)}" y="${Y(ay) + 15}">${String(i * xs).replace('-', '−')}</text>`;
-  for (let j = yr[0]; j <= yr[1]; j++)
-    if (j && j % ly === 0)
-      o += `<text class="tk" text-anchor="end" x="${X(ax) - 5}" y="${Y(j) + 4}">${String(j * ys).replace('-', '−')}</text>`;
+  if (!sketch) {
+    for (let i = xr[0]; i <= xr[1]; i++)
+      if (i && i % lx === 0)
+        o += `<text class="tk" text-anchor="middle" x="${X(i)}" y="${Y(ay) + 15}">${String(i * xs).replace('-', '−')}</text>`;
+    for (let j = yr[0]; j <= yr[1]; j++)
+      if (j && j % ly === 0)
+        o += `<text class="tk" text-anchor="end" x="${X(ax) - 5}" y="${Y(j) + 4}">${String(j * ys).replace('-', '−')}</text>`;
+  }
   o += `<clipPath id="${id}"><rect x="${X(xr[0])}" y="${Y(yr[1])}" width="${(xr[1] - xr[0]) * u}" height="${(yr[1] - yr[0]) * u}"/></clipPath><g clip-path="url(#${id})">`;
   lines.forEach((l, i) => {
     const f = (x) => (l.a * x * xs + l.b) / ys;
@@ -50,20 +57,24 @@ function graph({
   lines.forEach((l, i) => {
     if (!l.name) return;
     const f = (x) => (l.a * x * xs + l.b) / ys;
-    let tx = xr[1] - 0.1;
-    for (let k = 0; k < 400; k++) {
+    let tx = l.at ?? xr[1] - 0.1;
+    for (let k = 0; k < 400 && l.at === undefined; k++) {
       if (f(tx) >= yr[0] + 0.3 && f(tx) <= yr[1] - 0.3) break;
       tx -= (xr[1] - xr[0]) / 400;
     }
-    const up = -8;
-    o += `<text class="t${l.c || i + 1} ti" text-anchor="end" x="${X(tx) - 6}" y="${Y(f(tx)) + up}">${l.name}</text>`;
+    const up = -8,
+      // Met een eigen plek (at) komt de naam aan de kant waar de lijn niet naartoe loopt.
+      after = l.at !== undefined && l.a < 0;
+    o += `<text class="t${l.c || i + 1} ti" text-anchor="${after ? 'start' : 'end'}" x="${X(tx) + (after ? 6 : -6)}" y="${Y(f(tx)) + up}">${l.name}</text>`;
   });
   pts.forEach((p) => {
     o += `<circle class="dot" cx="${X(p.x / xs)}" cy="${Y(p.y / ys)}" r="3.6"/>`;
     if (p.label)
-      o += `<text class="ti" x="${X(p.x / xs) + 7}" y="${Y(p.y / ys) - 7}">${p.label}</text>`;
+      o += `<text class="ti" x="${X(p.x / xs) + (p.off ? p.off[0] : 7)}" y="${Y(p.y / ys) + (p.off ? p.off[1] : -7)}">${p.label}</text>`;
   });
-  return `<svg class="fig" role="img" aria-label="Grafiek in een assenstelsel" width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}">${o}${typeof extra === 'function' ? extra(X, Y) : extra}</svg>`;
+  const drawing = draw ? `<g class="drawn" clip-path="url(#${id})"></g>` : '',
+    drawData = draw ? ` data-draw="${[...xr, ...yr, u, ml, mt].join(',')}"` : '';
+  return `<svg class="fig" role="img" aria-label="${label}"${drawData} width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}">${o}${typeof extra === 'function' ? extra(X, Y) : extra}${drawing}</svg>`;
 }
 function triFromSides(ab, bc, ac) {
   const x = (ab * ab + ac * ac - bc * bc) / (2 * ab);

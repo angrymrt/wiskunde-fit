@@ -33,7 +33,10 @@ function checkAnswer(q, vals) {
     const hit = vals[0] !== '' && vals[0] != null && +vals[0] === q.mc.a;
     return { each: [hit], ok: hit };
   }
-  const each = q.fields.map((f, i) => checkField(f, vals[i] ?? ''));
+  // Is er meer dan één goed antwoord, dan kijkt de vraag zelf na. Zie drawLine in paragraphs/shared.js.
+  const each = q.check
+    ? q.check(q.fields.map((f, i) => parseNum(vals[i] ?? '')))
+    : q.fields.map((f, i) => checkField(f, vals[i] ?? ''));
   return { each, ok: each.every(Boolean) };
 }
 function findTrap(q, vals) {

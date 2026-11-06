@@ -14,6 +14,7 @@ import {
 import { vOver } from './ui/about.js';
 import { vHome } from './ui/home.js';
 import { vSec, newQuestion } from './ui/paragraph.js';
+import { showDrawn, tapGrid } from './ui/draw.js';
 import { topbar, footer } from './ui/layout.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { state, app } from './ui/state.js';
@@ -61,6 +62,7 @@ function render(focus) {
   else if (state.view.name === 'over') html = vOver();
   app.innerHTML = `${topbar()}<main class="screen">${html}</main>${footer()}`;
   mountWidgets();
+  showDrawn();
   if (target && !focusOn(target)) focusOn('h1');
   if (state.view.name === 'toetsrun' && !state.timer)
     state.timer = setInterval(() => {
@@ -68,7 +70,10 @@ function render(focus) {
       if (c && state.test) c.textContent = fmtT(Math.floor((Date.now() - state.test.start) / 1000));
     }, 1000);
 }
+app.addEventListener('input', showDrawn);
 app.addEventListener('click', (e) => {
+  const grid = e.target.closest('svg[data-draw]');
+  if (grid) return tapGrid(grid, e);
   const b = e.target.closest('[data-act]');
   if (!b) return;
   // Safari geeft een knop geen focus bij een klik, en dan vindt render() hem niet terug.
