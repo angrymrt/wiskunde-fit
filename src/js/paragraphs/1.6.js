@@ -1,7 +1,7 @@
 // Paragraaf 1.6: Vergelijkingen met twee variabelen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { ri, nz, pick, coin, gcd, Q, qv, near, fr, lin, d, dlin } from '../math.js';
-import { F, H, MC, drawLine, inGrid, answerGraph, euro } from './shared.js';
-import { T, dt } from '../typeset.js';
+import { F, MC, drawLine, inGrid, lineTable, euro } from './shared.js';
+import { T } from '../typeset.js';
 
 const lin2 = (A, B) =>
   `${lin(A, 0, 'x')} ${B < 0 ? '-' : '+'} ${Math.abs(B) === 1 ? '' : Math.abs(B)}y`;
@@ -148,21 +148,7 @@ function s16draw() {
           : []),
         line(...p),
         line(...q),
-        H(
-          dt([
-            ['x', String(p[0]), String(q[0])],
-            ['y', String(p[1]), String(q[1])],
-          ]),
-        ),
-        H(
-          answerGraph(
-            [{ a: -A / B, b: C / B, name: 'l' }],
-            [
-              { x: p[0], y: p[1] },
-              { x: q[0], y: q[1] },
-            ],
-          ),
-        ),
+        ...lineTable(p, q, { a: -A / B, b: C / B, name: 'l' }),
       ],
       v: () => [p, q].every(([x, y]) => A * x + B * y === C) && (p[0] !== q[0] || p[1] !== q[1]),
     };

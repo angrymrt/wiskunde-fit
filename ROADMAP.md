@@ -35,7 +35,7 @@ Al het werk wordt getoetst aan de grenzen en doelen in de [principes in AGENTS.m
 
 ## Waar we nu staan
 
-De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 12 paragrafen en 60 soorten vragen. Hij is statisch, zonder accounts of tracking. Elke push naar `main` draait `npm test`, bouwt de site, zet hem online en maakt zo nodig een release. De lesstof is al goed gescheiden van de schermen, maar dit zit een uitbreiding in de weg:
+De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 12 paragrafen en 64 soorten vragen. Hij is statisch, zonder accounts of tracking. Elke push naar `main` draait `npm test`, bouwt de site, zet hem online en maakt zo nodig een release. De lesstof is al goed gescheiden van de schermen, maar dit zit een uitbreiding in de weg:
 
 | Wat                   | Waar                                          | Probleem                                                                                                                                                      |
 | --------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -61,7 +61,7 @@ Indeling     naam → hoofdstukken → paragrafen → lessen
 
 Een boek en een boekonafhankelijke leerlijn zijn allebei een indeling. Een nieuw boek is dan vooral een nieuw gegevensbestand. De indeling krijgt een eigen naam, zoals `gr13-havo3`, want niveau en leerjaar zijn niet genoeg: in de bovenbouw komt het vak erbij en vmbo heeft leerwegen.
 
-De les is nodig omdat uitleg en video's nu per paragraaf staan en niet één op één bij een vaardigheid horen. Ook is hergebruik lastiger dan het lijkt: "Evenwijdige lijnen" betekent iets anders in 1.1 dan in 2.1, en `s11coord`, `s12value` en `s15value` rekenen vrijwel hetzelfde uit met een andere notatie. Daarom zetten we de 60 vaardigheden eerst één op één om en voegen we pas samen als dezelfde vraag en uitwerking echt in beide indelingen passen.
+De les is nodig omdat uitleg en video's nu per paragraaf staan en niet één op één bij een vaardigheid horen. Ook is hergebruik lastiger dan het lijkt: "Evenwijdige lijnen" betekent iets anders in 1.1 dan in 2.1, en `s11coord`, `s12value` en `s15value` rekenen vrijwel hetzelfde uit met een andere notatie. Daarom zetten we de 64 vaardigheden eerst één op één om en voegen we pas samen als dezelfde vraag en uitwerking echt in beide indelingen passen.
 
 Dit model moet nog bewijzen dat het werkt. De werkwijze en notatie kunnen per boek en niveau verschillen, en de regel "volg de werkwijze van het boek" moet dan worden herzien.
 
@@ -92,13 +92,13 @@ Afgerond in versie 1.3.1, op de test op een echte iPhone na. De eigenaar heeft g
 
 ### Aanvullen: wat hoofdstuk 1 en 2 nog missen
 
-Dit kan naast de andere fases, en doel 1 gaat voor op nieuwe functies. Zie open vraag 7 over het nakijken. De lesstof is aangevuld in versie 1.4.0. Wat overblijft, kan niet zonder boekpagina's of een docent.
+Dit kan naast de andere fases, en doel 1 gaat voor op nieuwe functies. Zie open vraag 7 over het nakijken. De lesstof is aangevuld in versie 1.4.0 en met de theorie in het boek vergeleken in versie 1.5.0. Wat overblijft, kan niet zonder een docent. De [nakijklijst](NAKIJKEN.md) staat daarvoor klaar.
 
 - [x] Zelf een grafiek laten tekenen ([#11](https://github.com/angrymrt/wiskunde-fit/issues/11)).
 - [x] Een ongelijkheid of vergelijking opstellen uit een verhaal ([#12](https://github.com/angrymrt/wiskunde-fit/issues/12)).
 - [x] Ongelijkheden waarbij je eerst het snijpunt berekent ([#13](https://github.com/angrymrt/wiskunde-fit/issues/13)).
 - [x] De kubus en vlakke figuren bij 2.4 ([#14](https://github.com/angrymrt/wiskunde-fit/issues/14)).
-- [ ] De werkwijze van de andere paragrafen vergelijken met de theorie in het boek ([#15](https://github.com/angrymrt/wiskunde-fit/issues/15)).
+- [x] De werkwijze van de andere paragrafen vergelijken met de theorie in het boek ([#15](https://github.com/angrymrt/wiskunde-fit/issues/15)). Bladzijde 11, 54 en 55 ontbraken; bladzijde 54 is via de uitwerkingen gecontroleerd.
 - [x] De video's bij 1.4 controleren ([#16](https://github.com/angrymrt/wiskunde-fit/issues/16)).
 - [ ] Een wiskundedocent de stof laten nakijken ([#17](https://github.com/angrymrt/wiskunde-fit/issues/17)).
 
@@ -158,7 +158,7 @@ Bij een vraag staat onze voorlopige voorkeur als die er is.
 3. **Wie staat buiten havo 3 in voor de wiskunde?** Doel 1 maakt dit de echte grens aan de groei.
 4. **Indelen op boek of op onderwerp?** _Voorstel van de eigenaar: onderwerpen worden de hoofdingang van de site. Paragrafen en hoofdstukken blijven vooral om de stof te kiezen die je wilt oefenen, en staan minder prominent. Dit past bij het laagmodel en moet voor fase 3 worden uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10))._
 5. **Sluiten we aan bij Neon?** Dat kan de richting veranderen, want samenwerken ligt dan misschien meer voor de hand dan alles zelf bouwen ([#4](https://github.com/angrymrt/wiskunde-fit/issues/4)).
-6. **Hoe maken we de lesstof op grote schaal?** Twee hoofdstukken kostten 60 soorten vragen, dus een heel leerjaar wordt al snel een paar honderd. _Voorkeur: uitbreiden op basis van echte vraag en AI gebruiken als hulp, met de automatische controles en een menselijke nakijkronde._
+6. **Hoe maken we de lesstof op grote schaal?** Twee hoofdstukken kostten 64 soorten vragen, dus een heel leerjaar wordt al snel een paar honderd. _Voorkeur: uitbreiden op basis van echte vraag en AI gebruiken als hulp, met de automatische controles en een menselijke nakijkronde._
 7. **Wie controleert de wiskunde?** De `v`-functies vinden rekenfouten, maar geen slechte uitleg of een verkeerde aanpak. _Voorkeur: per hoofdstuk een nakijkronde, en een knop om een fout te melden._
 8. **Wat mag er over boeken op de site?** Mogen we titels en paragraafnummers van uitgevers noemen en de werkwijze volgen? Dat is belangrijk voordat we meer boeken toevoegen. _Voorkeur: alleen eigen teksten en voorbeelden. Dit moet nog juridisch worden nagevraagd, en deze roadmap geeft daarover geen uitsluitsel._
 9. **Hoe gaan we om met het curriculum?** Moeten we aansluiten op landelijke leerdoelen? Dat kan helpen om onafhankelijk van een boek te worden, maar dat moet nog worden uitgezocht.

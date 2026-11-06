@@ -57,7 +57,18 @@ function s23why() {
       q: T(
         'AB is evenwijdig met DE. De lijnstukken AE en BD snijden elkaar in C. Welke reden laat zien dat △ABC ∼ △EDC?',
       ),
-      fig: geo({ pts, segs: ['AE', 'BD', 'AB', 'DE'], tris: ['ABC', 'EDC'], w: 320, maxH: 250 }),
+      fig: geo({
+        pts,
+        segs: ['AE', 'BD', 'AB', 'DE'],
+        tris: ['ABC', 'EDC'],
+        off: { C: [-13, -14] },
+        nums: [
+          { at: 'C', t: 1, off: [-11, 11] },
+          { at: 'C', t: 2, off: [12, -11] },
+        ],
+        w: 320,
+        maxH: 250,
+      }),
       mc: MC(
         [
           T('∠C_1 = ∠C_2 (overstaande hoeken) en ∠A = ∠E (Z-hoeken)'),
@@ -371,7 +382,10 @@ export default {
     },
     {
       t: 'Gelijke hoeken vinden',
-      p: ['Kies hieronder een soort hoek en bekijk waar de gelijke hoeken zitten.'],
+      p: [
+        'Kies hieronder een soort hoek en bekijk waar de gelijke hoeken zitten.',
+        'Denk ook aan de twee gelijke hoeken in een gelijkbenige driehoek, en aan rechte hoeken.',
+      ],
       widget: 'angles',
     },
     {

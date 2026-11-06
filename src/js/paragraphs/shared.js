@@ -1,6 +1,7 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
 import { geo, graph } from '../figures.js';
 import { shuffle, qv, isNice, sg, near } from '../math.js';
+import { dt } from '../typeset.js';
 
 const H = (html) => ({ h: html });
 const F = (pre, a, post = '') => ({ pre, a: qv(a), post });
@@ -53,8 +54,29 @@ function nestedFig(ab, bc, ac, ad, opts) {
 const DRAW_X = [-5, 5];
 const DRAW_Y = [-6, 6];
 const inGrid = (x, y) => x >= DRAW_X[0] && x <= DRAW_X[1] && y >= DRAW_Y[0] && y <= DRAW_Y[1];
-const answerGraph = (lines, pts) => graph({ xr: DRAW_X, yr: DRAW_Y, lines, pts });
-function drawLine(a, b, p, q) {
+// De uitwerking zoals in het boek: een tabel met twee punten, en daarna de lijn door die punten.
+const lineTable = (p, q, line, xn = 'x', yn = 'y') => [
+  H(
+    dt([
+      [xn, String(p[0]), String(q[0])],
+      [yn, String(p[1]), String(q[1])],
+    ]),
+  ),
+  H(
+    graph({
+      xr: DRAW_X,
+      yr: DRAW_Y,
+      xn,
+      yn,
+      lines: [line],
+      pts: [
+        { x: p[0], y: p[1] },
+        { x: q[0], y: q[1] },
+      ],
+    }),
+  ),
+];
+function drawLine(a, b, p, q, xn = 'x', yn = 'y') {
   const on = (x, y) => near(a * x + b, y),
     same = (v) => near(v[0], v[2]) && near(v[1], v[3]);
   return {
@@ -62,16 +84,18 @@ function drawLine(a, b, p, q) {
       xr: DRAW_X,
       yr: DRAW_Y,
       u: 28,
+      xn,
+      yn,
       draw: true,
       label:
         'Leeg rooster om de lijn in te tekenen. Je kunt ook de coördinaten in de velden typen.',
     }),
     compact: true,
     fields: [
-      { ...F('Punt 1: x =', p[0]), label: 'Punt 1, x-coördinaat' },
-      { ...F('y =', p[1]), label: 'Punt 1, y-coördinaat' },
-      { ...F('Punt 2: x =', q[0]), label: 'Punt 2, x-coördinaat', br: true },
-      { ...F('y =', q[1]), label: 'Punt 2, y-coördinaat' },
+      { ...F(`Punt 1: ${xn} =`, p[0]), label: `Punt 1, ${xn}-coördinaat` },
+      { ...F(`${yn} =`, p[1]), label: `Punt 1, ${yn}-coördinaat` },
+      { ...F(`Punt 2: ${xn} =`, q[0]), label: `Punt 2, ${xn}-coördinaat`, br: true },
+      { ...F(`${yn} =`, q[1]), label: `Punt 2, ${yn}-coördinaat` },
     ],
     check: (v) => {
       const first = on(v[0], v[1]),
@@ -89,7 +113,7 @@ function drawLine(a, b, p, q) {
       },
       {
         f: (v) => on(v[0], v[1]) !== on(v[2], v[3]),
-        m: 'Eén van je punten ligt op de lijn, de andere niet. Vul de x-coördinaat in en reken de y-coördinaat na.',
+        m: `Eén van je punten ligt op de lijn, de andere niet. Vul de ${xn}-coördinaat in en reken de ${yn}-coördinaat na.`,
       },
     ],
   };
@@ -108,5 +132,5 @@ export {
   nestedFig,
   drawLine,
   inGrid,
-  answerGraph,
+  lineTable,
 };

@@ -3,6 +3,11 @@ import { ri, nz, pick, coin, lcm, Q, qv, near, fr, lin, sg } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
 
+// De laatste stappen: 4x = 24, x = 6. Staat er al x = ..., dan is delen niet nodig.
+const solved = (co, rhs, x, v = 'x') => [
+  ...(co === 1 ? [] : [`${lin(co, 0, v)} = ${rhs}`]),
+  `${v} = ${x}`,
+];
 function s13basic() {
   const x = nz(-9, 9),
     a = nz(-9, 9);
@@ -16,12 +21,7 @@ function s13basic() {
     q: T(`Los op: ${lin(a, b)} = ${lin(c, dd)}`),
     fields: [F('x =', x)],
     hint: 'Breng de termen met x naar één kant en de getallen naar de andere kant. Doe links en rechts hetzelfde.',
-    steps: [
-      `${lin(a, b)} = ${lin(c, dd)}`,
-      `${lin(a - c, b)} = ${dd}`,
-      `${lin(a - c, 0)} = ${dd - b}`,
-      `x = ${x}`,
-    ],
+    steps: [`${lin(a, b)} = ${lin(c, dd)}`, ...solved(a - c, dd - b, x)],
     traps: [
       {
         f: (v) => near(v[0], -x),
@@ -50,8 +50,7 @@ function s13brackets() {
         steps: [
           `${lq(p, q)} = ${lin(r, ss)}`,
           `${lin(p, p * q)} = ${lin(r, ss)}`,
-          `${lin(p - r, 0)} = ${ss - p * q}`,
-          `x = ${x}`,
+          ...solved(p - r, ss - p * q, x),
         ],
         traps: [
           {
@@ -72,11 +71,7 @@ function s13brackets() {
         q: T(`Los op: ${lq(p, q)} = ${lq(r, u)}`),
         fields: [F('x =', x)],
         hint: 'Werk links en rechts de haakjes weg.',
-        steps: [
-          `${lin(p, p * q)} = ${lin(r, r * u)}`,
-          `${lin(p - r, 0)} = ${r * u - p * q}`,
-          `x = ${x}`,
-        ],
+        steps: [`${lin(p, p * q)} = ${lin(r, r * u)}`, ...solved(p - r, r * u - p * q, x)],
         v: () => p * (x + q) === r * (x + u),
       };
     }
@@ -93,8 +88,7 @@ function s13brackets() {
         steps: [
           `${t} + ${lin(p, p * q)} = ${lin(r, r * u)}`,
           `${lin(p, t + p * q)} = ${lin(r, r * u)}`,
-          `${lin(p - r, 0)} = ${r * u - t - p * q}`,
-          `x = ${x}`,
+          ...solved(p - r, r * u - t - p * q, x),
         ],
         v: () => t + p * (x + q) === r * (x + u),
       };
@@ -110,8 +104,7 @@ function s13brackets() {
         steps: [
           `${t} - ${p}x${q > 0 ? ' - ' : ' + '}${Math.abs(p * q)} = ${lin(r, ss)}`,
           `${lin(-p, t - p * q)} = ${lin(r, ss)}`,
-          `${lin(-p - r, 0)} = ${ss - t + p * q}`,
-          `x = ${x}`,
+          ...solved(-p - r, ss - t + p * q, x),
         ],
         traps: [
           {
@@ -195,9 +188,7 @@ function s13frac() {
         `Het kleinste veelvoud van de noemers is ${L}.`,
         `${L}*${fr(a)}x ${qv(b) < 0 ? '-' : '+'} ${L}*${fr(Q(Math.abs(b.n), b.d))} = ${L}*${fr(c)}x ${e < 0 ? '-' : '+'} ${L}*${Math.abs(e)}`,
         `${lin(A, K1)} = ${lin(C, K2)}`,
-        `${lin(A - C, K1)} = ${K2}`,
-        `${lin(A - C, 0)} = ${K2 - K1}`,
-        `x = ${fr(x)}`,
+        ...solved(A - C, K2 - K1, fr(x)),
       ],
       traps: [
         {
@@ -263,8 +254,7 @@ function s13param() {
       steps: [
         `x = ${x} invullen geeft ${a}(${x} + p) = ${lin(b, c * x, 'p')}`,
         `${lin(a, a * x, 'p')} = ${lin(b, c * x, 'p')}`,
-        `${lin(a - b, 0, 'p')} = ${c * x - a * x}`,
-        `p = ${p}`,
+        ...solved(a - b, c * x - a * x, p, 'p'),
       ],
       v: () => a * (x + p) === b * p + c * x,
     };
@@ -302,18 +292,22 @@ export default {
     {
       t: 'Het stappenplan',
       how: [
-        'Haakjes weg.',
-        'Breuken weg: vermenigvuldig alle termen met het kleinste veelvoud van de noemers.',
-        'Termen met x naar links, losse getallen naar rechts.',
-        'Deel door het getal voor x.',
+        'Staan er breuken? Werk die eerst weg: vermenigvuldig alle termen met het kleinste veelvoud van de noemers.',
+        'Werk de haakjes weg.',
+        'Reken beide kanten zo ver mogelijk uit.',
+        'Zorg dat links alleen een term met x staat en rechts alleen een getal.',
+        'Deel beide kanten door het getal voor x.',
       ],
-      ex: { q: T('6x - 4 = 2x + 8'), steps: ['4x - 4 = 8', '4x = 12', 'x = 3'] },
+      ex: { q: T('6x - 4 = 2x + 8'), steps: ['4x = 12', 'x = 3'] },
+      watch: T(
+        'Je hoeft niet elke tussenstap op te schrijven. Links en rechts 2x aftrekken én links en rechts 4 optellen doe je in één keer. Zo ga je direct naar 4x = 12.',
+      ),
     },
     {
       t: 'Haakjes',
       p: [T('Vermenigvuldig het getal voor de haakjes met allebei de termen: 4(x - 3) = 4x - 12.')],
       watch: T('Min voor de haakjes: 3x - 5(x - 2) = 3x - 5x + 10. Min maal min is plus.'),
-      ex: { q: T('4(x - 2) = x + 7'), steps: ['4x - 8 = x + 7', '3x - 8 = 7', '3x = 15', 'x = 5'] },
+      ex: { q: T('4(x - 2) = x + 7'), steps: ['4x - 8 = x + 7', '3x = 15', 'x = 5'] },
     },
     {
       t: 'Breuken',

@@ -1,7 +1,7 @@
 // Paragraaf 1.2: Lineaire verbanden. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { graph } from '../figures.js';
 import { ri, nz, pick, coin, Q, qv, qAdd, qMul, near, d, fr, lin, sg } from '../math.js';
-import { F, plug } from './shared.js';
+import { F, plug, drawLine, inGrid, lineTable } from './shared.js';
 import { T, dt } from '../typeset.js';
 
 const LV = [
@@ -253,6 +253,32 @@ function s12table() {
     v: () => b + a * 10 === +rows[1][2],
   };
 }
+// Een grafiek tekenen met andere letters: de letter achter a staat op de horizontale as.
+function s12draw() {
+  let b, a;
+  do {
+    b = ri(-4, 4);
+    a = Q(nz(-4, 4), pick([1, 1, 2, 3, 4]));
+  } while (!inGrid(a.d, b + a.n));
+  const [y, x] = pick(LV),
+    p = [0, b],
+    q = [a.d, b + a.n];
+  return {
+    q: T(
+      `Teken de grafiek van ${y} = ${lin(a, b, x)}. Tik in het rooster twee punten aan, of vul de coördinaten in.`,
+    ),
+    ...drawLine(qv(a), b, p, q, x, y),
+    hint: T(
+      `Maak een tabel met twee punten. Neem ${x} = 0 en ${x} = ${a.d}. De ${x}-as is horizontaal en de ${y}-as is verticaal.`,
+    ),
+    steps: [
+      `${x} = 0 geeft ${y} = ${b}`,
+      `${x} = ${a.d} geeft ${y} = ${fr(a)}*${a.d}${b ? sg(b) : ''} = ${q[1]}`,
+      ...lineTable(p, q, { a: qv(a), b }, x, y),
+    ],
+    v: () => [p, q].every(([s, t]) => near((a.n * s) / a.d + b, t)),
+  };
+}
 
 export default {
   id: '1.2',
@@ -269,6 +295,7 @@ export default {
     ['Formule uit een verhaal', s12story],
     ['Wanneer is het leeg?', s12empty],
     ['Formule uit een tabel', s12table],
+    ['Een grafiek tekenen', s12draw],
   ],
   learn: [
     {
@@ -276,6 +303,9 @@ export default {
       p: [
         T(
           'Een formule als N = {2/3}t - 1 werkt precies hetzelfde als y = ax + b. De letter die op de horizontale as staat vervangt x, de letter op de verticale as vervangt y.',
+        ),
+        T(
+          'Om de grafiek te tekenen, maak je eerst een tabel. Hier is dat bijvoorbeeld t = 0 met N = -1, en t = 3 met N = 1. Met die twee punten teken je de lijn.',
         ),
       ],
     },
@@ -285,7 +315,7 @@ export default {
         'In een verhaal is b het startgetal (vaste kosten, beginhoeveelheid). a is wat er per stap bij komt of af gaat.',
       ],
       ex: {
-        q: T('Een vat bevat 640 liter. Per dag gebruik je 40 liter.'),
+        q: T('Een regenton bevat 640 liter. Per dag gebruik je 40 liter.'),
         steps: [
           'Het startgetal is 640, dus b = 640.',
           'Per dag gaat er 40 af, dus a = -40.',

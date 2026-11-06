@@ -496,55 +496,67 @@ function s24par() {
   }
   return s24x();
 }
-// Twee eigen verhalen: de breedte van een rivier meten, en een kabel over een paal.
-function riverStory() {
-  const ps = pick([6, 8, 10, 12, 15]),
-    sr = pick([2, 3, 4, 5]),
-    rt = pick([3, 4, 5, 6, 8]),
-    w = (rt * ps) / sr,
-    f = [RF('PB =', w, 1, 'meter')];
-  return {
-    q: T(
-      `Je wilt weten hoe breed een rivier is, zonder over te steken. Aan de overkant staat boom B, recht tegenover punt P. Vanaf P loop je langs de oever ${ps} meter naar paaltje S en daarna nog ${sr} meter naar punt R. Vanaf R loop je haaks op de oever ${rt} meter van de rivier af, tot punt T. Vanaf T zie je de boom precies achter paaltje S. Bereken de breedte PB.${needRound(f)}`,
-    ),
-    fig: geo({
-      pts: { B: [0, w], P: [0, 0], S: [ps, 0], R: [ps + sr, 0], T: [ps + sr, -rt] },
-      segs: ['BP', 'PR', 'RT', 'TB'],
-      rights: [
-        { at: 'P', p: 'B', q: 'S' },
-        { at: 'R', p: 'S', q: 'T' },
-      ],
-      sides: [
-        { a: 'P', b: 'S', t: ps, flip: true },
-        { a: 'S', b: 'R', t: sr, flip: true },
-        { a: 'R', b: 'T', t: rt },
-      ],
-      off: { S: [-9, 13], R: [11, -9] },
-      w: 320,
-      maxH: 280,
-    }),
-    fields: f,
-    hint: T('Bij S liggen overstaande hoeken. Bij P en R zijn de hoeken 90°.'),
-    steps: [
-      '∠P = ∠R (= 90°)',
-      '∠PSB = ∠RST (overstaande hoeken)',
-      'Dus △PSB ∼ △RST.',
-      H(
-        vt(['PB', 'PS'], ['RT', 'RS']) +
-          T(' geeft ') +
-          vt(['PB', String(ps)], [String(rt), String(sr)]),
+// Twee eigen verhalen: de gekruiste poten van een klaptafel, en een kabel over een paal.
+function tableStory() {
+  for (let i = 0; i < 200; i++) {
+    const w = pick([60, 70, 80, 90, 100]),
+      f = pick([40, 50, 60, 70]),
+      L = pick([60, 70, 80, 90, 100]),
+      half = (w + f) / 2;
+    if (w === f || half > L * 0.9) continue;
+    const x = (L * w) / (w + f),
+      h = Math.sqrt(L * L - half * half),
+      out = (w - f) / 2,
+      r = [RF('PS =', x, 1, 'cm')];
+    return {
+      q: T(
+        `Een klaptafel heeft twee rechte poten PR en QT die elkaar kruisen in punt S. Elke poot is ${L} cm lang. Bovenaan zitten de poten vast aan het tafelblad, op ${w} cm van elkaar. Op de vloer staan ze ${f} cm uit elkaar. Het tafelblad is evenwijdig met de vloer. Bereken PS.${needRound(r)}`,
       ),
-      `PB = {${rt}*${ps}/${sr}} ${ap(w)}`,
-      `Dus PB ${ap(w)} meter.`,
-    ],
-    traps: [
-      {
-        f: (v) => near(v[0], (rt * sr) / ps, 0.06),
-        m: 'Je hebt de verhouding omgedraaid. PS hoort bij de grote driehoek en RS bij de kleine.',
-      },
-    ],
-    v: () => near(w * sr, rt * ps),
-  };
+      fig: geo({
+        pts: {
+          P: [0, h],
+          Q: [w, h],
+          T: [out, 0],
+          R: [out + f, 0],
+          S: [w / 2, (h * f) / (w + f)],
+        },
+        segs: ['PQ', 'TR', 'PR', 'QT'],
+        sides: [
+          { a: 'P', b: 'Q', t: w },
+          { a: 'T', b: 'R', t: f },
+        ],
+        off: { S: [17, 0] },
+        w: 300,
+        maxH: 220,
+      }),
+      fields: r,
+      hint: T(`Stel PS = x. De hele poot is ${L}, dus RS = ${L} - x.`),
+      steps: [
+        '∠P = ∠R (Z-hoeken)',
+        '∠Q = ∠T (Z-hoeken)',
+        'Dus △PQS ∼ △RTS.',
+        `Stel PS = x, dan is RS = ${L} - x.`,
+        H(
+          vt(['PQ', 'PS'], ['RT', 'RS']) +
+            T(' geeft ') +
+            vt([String(w), 'x'], [String(f), `${L} - x`]),
+        ),
+        `${f}x = ${w}(${L} - x)`,
+        `${f}x = ${w * L} - ${w}x`,
+        `${f + w}x = ${w * L}`,
+        `x ${ap(x)}`,
+        `Dus PS ${ap(x)} cm.`,
+      ],
+      traps: [
+        {
+          f: (v) => near(v[0], L - x, 0.06),
+          m: 'Dit is de lengte van RS. Kijk nog eens welk stuk je x hebt genoemd.',
+        },
+      ],
+      v: () => near(f * x, w * (L - x)) && near(Math.hypot(half, h), L),
+    };
+  }
+  return s24sum();
 }
 function cableStory() {
   for (let i = 0; i < 200; i++) {
@@ -602,9 +614,9 @@ function cableStory() {
       v: () => near(h2 * x, h1 * (x + dist)),
     };
   }
-  return riverStory();
+  return tableStory();
 }
-const s24story = () => pick([riverStory, cableStory])();
+const s24story = () => pick([tableStory, cableStory])();
 
 export default {
   id: '2.4',

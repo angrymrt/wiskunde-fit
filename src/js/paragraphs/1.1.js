@@ -1,8 +1,8 @@
 // Paragraaf 1.1: De formule y = ax + b. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { graph } from '../figures.js';
-import { ri, nz, pick, coin, gcd, Q, qv, qSub, qMul, near, fr, lin } from '../math.js';
-import { F, MC, plug, drawLine, inGrid, answerGraph, H } from './shared.js';
-import { T } from '../typeset.js';
+import { ri, nz, pick, coin, gcd, Q, qv, qSub, qMul, near, fr, lin, sg } from '../math.js';
+import { F, MC, plug, drawLine, inGrid, lineTable, H } from './shared.js';
+import { T, dt } from '../typeset.js';
 
 function s11point() {
   const a = pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 8]),
@@ -18,8 +18,8 @@ function s11point() {
     mc: MC([T(`Ja, ${P} ligt op ${l}`), T(`Nee, ${P} ligt niet op ${l}`)], on ? 0 : 1),
     hint: T(`Vul x = ${x} in de formule in en vergelijk de uitkomst met ${gy}.`),
     steps: [
-      `x = ${x} geeft y = ${plug(a, x, b)} = ${y}`,
-      on ? `Dus ${P} ligt op ${l}.` : `${y} is niet gelijk aan ${gy}, dus ${P} ligt niet op ${l}.`,
+      `x = ${x} geeft y = ${plug(a, x, b)} = ${y}${on ? '' : ` ≠ ${gy}`}`,
+      on ? `Dus ${P} ligt op ${l}.` : `Dus ${P} ligt niet op ${l}.`,
     ],
     v: () => (a * x + b === gy) === on,
   };
@@ -71,10 +71,12 @@ function s11read() {
       ],
     }),
     fields: [F('a =', a), F('b =', b)],
-    hint: 'Lees b af waar de lijn de y-as snijdt. Tel daarna vanaf dat punt hoeveel de lijn stijgt of daalt als je naar rechts gaat.',
+    hint: T(
+      'Lees b af waar de lijn de y-as snijdt. Kies daarna nog een roosterpunt op de lijn. Dan is a = {verticaal/horizontaal}.',
+    ),
     steps: [
       `Door (0, ${b}), dus b = ${b}.`,
-      `De lijn gaat ${run} naar rechts en ${Math.abs(rise)} ${rise > 0 ? 'omhoog' : 'omlaag'}, dus a = {${rise}/${run}}${a.d === run ? '' : ' = ' + fr(a)}.`,
+      `a = {verticaal/horizontaal} = {${rise}/${run}}${a.d === run ? '' : ' = ' + fr(a)}`,
       `Dus ${l}: y = ${lin(a, b)}.`,
     ],
     traps: [
@@ -84,7 +86,7 @@ function s11read() {
       },
       {
         f: (v) => near(v[0], run / rise),
-        m: 'Je hebt de breuk omgedraaid. Reken a uit als omhoog gedeeld door naar rechts.',
+        m: 'Je hebt de breuk omgedraaid. Reken a uit als verticaal gedeeld door horizontaal.',
       },
     ],
     v: () => near(qv(a) * run + b, b + rise),
@@ -138,7 +140,7 @@ function s11par() {
     py = ri(-16, 20);
     const c = nz(-9, 9);
     intro = `De lijn l is evenwijdig met k: y = ${lin(a, c)} en gaat door P(${px}, ${py}).`;
-    first = `l // k, dus a = rc_k = ${fr(a)}.`;
+    first = `l // k, dus a = rc_l = rc_k = ${fr(a)}.`;
   } else {
     const den = pick([2, 3, 4]),
       num = nz(-5, 5);
@@ -151,7 +153,7 @@ function s11par() {
       px = k;
     }
     intro = `De lijn l is evenwijdig met k: y = ${lin(a, c)} en gaat door P(${px}, ${py}).`;
-    first = `l // k, dus a = rc_k = ${fr(a)}.`;
+    first = `l // k, dus a = rc_l = rc_k = ${fr(a)}.`;
   }
   const b = qSub(py, qMul(a, px));
   return {
@@ -191,22 +193,90 @@ function s11draw() {
     ),
     ...drawLine(qv(a), b, p, q),
     hint: T(
-      `Begin bij b: de lijn gaat door (0, ${b}). Ga vanaf daar ${a.d} naar rechts en ${Math.abs(a.n)} ${a.n > 0 ? 'omhoog' : 'omlaag'}.`,
+      `Maak een tabel met twee punten. Neem x = 0 en een x waarbij y geen breuk wordt, bijvoorbeeld x = ${a.d}.`,
     ),
     steps: [
-      `b = ${b}, dus de lijn gaat door (0, ${b}).`,
-      `a = ${fr(a)}, dus ${a.d} naar rechts en ${Math.abs(a.n)} ${a.n > 0 ? 'omhoog' : 'omlaag'}. Dat geeft (${q[0]}, ${q[1]}).`,
-      H(
-        answerGraph(
-          [{ a: qv(a), b, name: l }],
-          [
-            { x: p[0], y: p[1] },
-            { x: q[0], y: q[1] },
-          ],
-        ),
-      ),
+      `x = 0 geeft y = ${b}`,
+      `x = ${a.d} geeft y = ${fr(a)}*${a.d}${b ? sg(b) : ''} = ${q[1]}`,
+      ...lineTable(p, q, { a: qv(a), b, name: l }),
     ],
     v: () => [p, q].every(([x, y]) => near((rise * x) / run + b, y)),
+  };
+}
+// Met de richtingscoëfficiënt en een punt bereken je b. De lijn is niet altijd evenwijdig met een andere.
+function s11rc() {
+  const a = pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]),
+    x = nz(-8, 8),
+    y = ri(-20, 24),
+    b = y - a * x,
+    l = pick('kmpq');
+  return {
+    q: T(
+      coin()
+        ? `Het punt P(${x}, ${y}) ligt op de lijn ${l}: y = ${lin(a, 0)} + b. Stel de formule van ${l} op.`
+        : `Van de lijn ${l}: y = ax + b is rc_${l} = ${a}. Lijn ${l} gaat door het punt P(${x}, ${y}). Stel de formule van ${l} op.`,
+    ),
+    fields: [F('a =', a), F('b =', b)],
+    hint: T(`Je weet a al. Vul x = ${x} en y = ${y} in de formule in en bereken b.`),
+    steps: [
+      `y = ${lin(a, 0)} + b door P(${x}, ${y}) geeft ${a}*${x} + b = ${y}`,
+      `${a * x} + b = ${y}`,
+      `b = ${b}`,
+      `Dus ${l}: y = ${lin(a, b)}.`,
+    ],
+    traps: [
+      {
+        f: (v) => near(v[1], y + a * x),
+        m: 'Let op het teken: het getal bij b gaat naar de andere kant van het is-gelijkteken.',
+      },
+    ],
+    v: () => a * x + b === y,
+  };
+}
+// Twee bijzondere lijnen: horizontaal (a = 0) en door de oorsprong (b = 0).
+function s11special() {
+  const l = pick('klmn');
+  if (coin()) {
+    const x = nz(-6, 6),
+      y = nz(-9, 9);
+    return {
+      q: T(
+        `De lijn ${l} hoort bij een constant verband en gaat door het punt (${x}, ${y}). Geef de formule van ${l} in de vorm y = ax + b.`,
+      ),
+      fields: [F('a =', 0), F('b =', y)],
+      hint: 'Bij een constant verband is a = 0. De grafiek is een horizontale lijn, dus y is overal hetzelfde.',
+      steps: [`Constant verband, dus a = 0.`, `Door (${x}, ${y}), dus ${l}: y = ${y}.`],
+      traps: [
+        {
+          f: (v) => near(v[1], x) && x !== y,
+          m: 'Bij een horizontale lijn is b de y-coördinaat van het punt, niet de x-coördinaat.',
+        },
+      ],
+      v: () => [-3, x, 7].every((t) => 0 * t + y === y),
+    };
+  }
+  const x = pick([-4, -3, -2, 2, 3, 4, 5, 6]),
+    y = nz(-12, 12),
+    a = Q(y, x);
+  return {
+    q: T(
+      `De lijn ${l} hoort bij een recht evenredig verband en gaat door het punt (${x}, ${y}). Geef de formule van ${l} in de vorm y = ax + b.`,
+    ),
+    fields: [F('a =', a), F('b =', 0)],
+    hint: 'Bij een recht evenredig verband gaat de lijn door de oorsprong, dus b = 0.',
+    steps: [
+      'Recht evenredig verband, dus b = 0.',
+      `y = ax door (${x}, ${y}) geeft a*${x} = ${y}`,
+      `a = {${y}/${x}}${a.d === x && a.n === y ? '' : ' = ' + fr(a)}`,
+      `Dus ${l}: y = ${lin(a, 0)}.`,
+    ],
+    traps: [
+      {
+        f: (v) => near(v[0], x / y) && !near(x / y, y / x),
+        m: 'Je hebt de breuk omgedraaid. Deel de y-coördinaat door de x-coördinaat.',
+      },
+    ],
+    v: () => near(qv(a) * x, y),
   };
 }
 
@@ -234,6 +304,8 @@ export default {
     ['Formule door twee punten', s11two],
     ['Evenwijdige lijnen', s11par],
     ['Een lijn tekenen', s11draw],
+    ['Formule met een punt', s11rc],
+    ['Constant en recht evenredig', s11special],
   ],
   learn: [
     {
@@ -252,14 +324,20 @@ export default {
       t: 'Een lijn tekenen',
       p: [
         T(
-          'Voor een lijn heb je twee punten nodig. Begin bij (0, b) op de y-as. Ga vanaf daar naar rechts en omhoog of omlaag, zoals a aangeeft. Trek daarna de lijn door beide punten.',
+          'Voor een lijn heb je twee punten nodig. Maak daarom een tabel met twee x-waarden. Neem x = 0 en een x waarbij y geen breuk wordt. Teken de punten en trek de lijn erdoor. Zet de letter van de lijn erbij.',
         ),
       ],
       ex: {
         q: T('Teken de lijn y = {3/2}x - 2.'),
         steps: [
-          'b = -2, dus de lijn gaat door (0, -2).',
-          'a = {3/2}, dus 2 naar rechts en 3 omhoog. Dat geeft (2, 1).',
+          'x = 0 geeft y = -2',
+          'x = 2 geeft y = {3/2}*2 - 2 = 1',
+          H(
+            dt([
+              ['x', '0', '2'],
+              ['y', '-2', '1'],
+            ]),
+          ),
           'Trek de lijn door (0, -2) en (2, 1).',
         ],
       },
@@ -270,9 +348,33 @@ export default {
         'Vul de x-coördinaat in de formule in. Komt de y-coördinaat eruit, dan ligt het punt op de lijn.',
       ],
       ex: {
-        q: T('Ligt A(6, 29) op l: y = 5x - 1?'),
-        steps: ['x = 6 geeft y = 5*6 - 1 = 29', 'Dus A ligt op l.'],
+        q: T('Ligt A(6, 30) op l: y = 5x - 1?'),
+        steps: ['x = 6 geeft y = 5*6 - 1 = 29 ≠ 30', 'Dus A ligt niet op l.'],
       },
+    },
+    {
+      t: 'De formule opstellen uit een grafiek',
+      how: [
+        'Ga uit van y = ax + b.',
+        'Lees het snijpunt met de y-as af. Daaruit volgt b.',
+        T('Kies nog een roosterpunt op de lijn. Dan is a = {verticaal/horizontaal}.'),
+        'Schrijf de formule op.',
+      ],
+      ex: {
+        q: T('Een lijn gaat door (0, 2) en door het roosterpunt (3, 0).'),
+        steps: ['Door (0, 2), dus b = 2.', 'a = {-2/3} = -{2/3}', 'Dus y = -{2/3}x + 2.'],
+      },
+    },
+    {
+      t: 'Twee bijzondere lijnen',
+      p: [
+        T(
+          'Bij a = 0 hoort de formule y = b. De grafiek is een horizontale lijn. Je spreekt dan van een constant verband.',
+        ),
+        T(
+          'Bij b = 0 hoort de formule y = ax. De grafiek gaat door de oorsprong. Je spreekt dan van een recht evenredig verband.',
+        ),
+      ],
     },
     {
       t: 'Formule opstellen door twee punten',
@@ -302,7 +404,7 @@ export default {
       ex: {
         q: T('l is evenwijdig met k: y = 3x + 1 en gaat door P(-5, 3).'),
         steps: [
-          'l // k, dus a = 3.',
+          'l // k, dus a = rc_l = rc_k = 3.',
           'y = 3x + b door P(-5, 3) geeft 3*-5 + b = 3',
           '-15 + b = 3',
           'b = 18',

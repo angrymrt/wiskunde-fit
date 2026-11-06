@@ -99,6 +99,7 @@ function geo({
   dash = [],
   pad = 30,
   off = {},
+  nums = [], // Nummers bij hoeken, zoals C_1 en C_2: { at: 'C', t: 1, off: [x, y] }.
 }) {
   const K = Object.keys(pts),
     xa = K.map((k) => pts[k][0]),
@@ -168,6 +169,10 @@ function geo({
       ox = off[k] ? off[k][0] : (ux / n) * 15,
       oy = off[k] ? off[k][1] : (uy / n) * 15;
     o += `<text class="ti" text-anchor="middle" x="${r2(p[0] + ox)}" y="${r2(p[1] + oy + 5)}">${k}</text>`;
+  });
+  nums.forEach(({ at, t, off: o2 }) => {
+    const p = P(at);
+    o += `<text class="tk" text-anchor="middle" x="${r2(p[0] + o2[0])}" y="${r2(p[1] + o2[1] + 4)}">${t}</text>`;
   });
   sides.forEach(({ a, b, t, flip }) => {
     const A = P(a),

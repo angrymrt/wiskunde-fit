@@ -53,7 +53,39 @@ function s21cross() {
     },
   };
 }
+// De tabel met x en een getal min x, bijvoorbeeld x | 5 - x over 3 | 2.
+function s21rest() {
+  for (let i = 0; i < 300; i++) {
+    const p = pick([2, 3, 4, 5, 6, 7, 8]),
+      q = pick([2, 3, 4, 5, 6, 7, 8, 9]),
+      c = pick([5, 6, 8, 9, 10, 12, 14, 15, 18, 20]),
+      x = (p * c) / (p + q);
+    if (!isNice(x, 1)) continue;
+    const top = ['x', `${c} - x`],
+      bot = [String(p), String(q)];
+    return {
+      q: T('Bereken x in de verhoudingstabel.') + vt(top, bot),
+      fields: [F('x =', x)],
+      hint: 'Kruislings vermenigvuldigen geeft een vergelijking met haakjes. Denk aan de haakjes om het tweede vakje.',
+      steps: [
+        H(vt(top, bot) + T(` geeft ${q}x = ${p}(${c} - x)`)),
+        `${q}x = ${p * c} - ${p}x`,
+        `${p + q}x = ${p * c}`,
+        `x = ${d(x)}`,
+      ],
+      traps: [
+        {
+          f: (v) => near(v[0], (p * c) / q),
+          m: `Denk aan de haakjes: ${p} keer ${c} - x betekent dat je ook x met ${p} vermenigvuldigt.`,
+        },
+      ],
+      v: () => near(q * x, p * (c - x)),
+    };
+  }
+  return s21cross();
+}
 function s21var() {
+  if (coin()) return s21rest();
   for (let i = 0; i < 300; i++) {
     const p = pick([2, 3, 4, 5, 6, 7, 8]),
       q = pick([2, 3, 4, 5, 6, 7, 8, 9, 12]);
@@ -61,7 +93,7 @@ function s21var() {
     const r = nz(-6, 6),
       s = nz(-6, 6);
     const x = (p * s - q * r) / (q - p);
-    if (!isNice(x, 1) || x === 0) continue;
+    if (!isNice(x, 1) || x === 0 || r === s || x + r === 0) continue;
     const c1 = `x${sg(r)}`,
       c2 = `x${sg(s)}`;
     return {
@@ -71,7 +103,7 @@ function s21var() {
       steps: [
         H(vt([c1, c2], [String(p), String(q)]) + T(` geeft ${q}(${c1}) = ${p}(${c2})`)),
         `${lin(q, q * r)} = ${lin(p, p * s)}`,
-        `${lin(q - p, 0)} = ${d(p * s - q * r)}`,
+        ...(q - p === 1 ? [] : [`${lin(q - p, 0)} = ${d(p * s - q * r)}`]),
         `x = ${d(x)}`,
       ],
       v: () => near(q * (x + r), p * (x + s)),
@@ -101,6 +133,40 @@ function s21tab3() {
     ],
     v: () => near(a * m, c * x, 1e-6) && near(a * y, c * e, 1e-6),
   };
+}
+// Een tabel met drie kolommen waarin een kolom een vergelijking geeft. Je splitst de tabel in twee stukken.
+function s21split() {
+  for (let i = 0; i < 300; i++) {
+    const a = pick([3, 4, 5, 6, 7, 8, 9, 10]),
+      c = pick([2, 3, 4, 5, 6, 8, 12]),
+      m = pick([6, 9, 10, 12, 14, 15, 18, 21, 24]),
+      s = nz(-20, 30);
+    if (a === c) continue;
+    const y = (c * s) / (a - c);
+    if (!Number.isInteger(y) || y === 0 || Math.abs(y) > 40) continue;
+    const x = (a * m) / c,
+      f = [RF('x =', x), F('y =', y)],
+      cell = `y${sg(s)}`;
+    return {
+      q:
+        T('Bereken x en y in de verhoudingstabel.') +
+        vt([String(a), 'x', cell], [String(c), String(m), 'y']) +
+        T(needRound(f)),
+      fields: f,
+      hint: T(
+        `Splits de tabel in twee stukken: de eerste kolom met de kolom van x, en de eerste kolom met de kolom van y. Denk aan de haakjes om ${cell}.`,
+      ),
+      steps: [
+        H(vt([String(a), 'x'], [String(c), String(m)]) + T(` geeft x = {${a}*${m}/${c}} ${ap(x)}`)),
+        H(vt([String(a), cell], [String(c), 'y']) + T(` geeft ${a}y = ${c}(${cell})`)),
+        `${a}y = ${lin(c, c * s, 'y')}`,
+        ...(a - c === 1 ? [] : [`${lin(a - c, 0, 'y')} = ${c * s}`]),
+        `y = ${y}`,
+      ],
+      v: () => near(a * m, c * x, 1e-6) && near(a * y, c * (y + s)),
+    };
+  }
+  return s21tab3();
 }
 function s21story() {
   if (coin()) {
@@ -226,7 +292,8 @@ export default {
     ['Met een letter in haakjes', s21var],
     ['Tabel met drie kolommen', s21tab3],
     ['Verhaalsom', s21story],
-    ['Evenwijdige lijnen', s21par],
+    ['Parallelprojectie', s21par],
+    ['Letters in de derde kolom', s21split],
   ],
   learn: [
     {
@@ -241,6 +308,22 @@ export default {
       ex: {
         q: vt(['x - 2', 'x + 2'], ['2', '3']),
         steps: ['3(x - 2) = 2(x + 2)', '3x - 6 = 2x + 4', 'x = 10'],
+      },
+      watch: 'Denk aan de haakjes als er een som of verschil in een vakje staat.',
+    },
+    {
+      t: 'Meer dan twee kolommen',
+      p: [
+        'Ook bij een tabel met drie kolommen zijn de kruisproducten gelijk, voor elk tweetal kolommen. Splits de tabel daarom in twee stukken: dan reken je per letter uit wat die is.',
+      ],
+      ex: {
+        q: vt(['4', 'x', 'y + 6'], ['3', '9', 'y']),
+        steps: [
+          H(vt(['4', 'x'], ['3', '9']) + T(' geeft x = {4*9/3} = 12')),
+          H(vt(['4', 'y + 6'], ['3', 'y']) + T(' geeft 4y = 3(y + 6)')),
+          '4y = 3y + 18',
+          'y = 18',
+        ],
       },
     },
     {

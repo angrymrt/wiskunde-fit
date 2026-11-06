@@ -2,6 +2,24 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.5.0
+
+### Nieuw
+
+- Paragraaf 1.1 heeft nu vragen over het constant en het recht evenredig verband, en over een formule opstellen met de richtingscoëfficiënt en een punt.
+- Paragraaf 1.2 heeft nu vragen waarbij je een grafiek tekent met andere letters dan `x` en `y`.
+- Paragraaf 2.1 heeft nu vragen over een tabel met een letter in de derde kolom, en tabellen zoals `x` en `5 - x`.
+- Paragraaf 2.4 heeft een nieuwe vraag over een klaptafel, in plaats van de vraag over de breedte van een rivier.
+
+### Verbeterd
+
+- Alle stof van hoofdstuk 1 en 2 is nu vergeleken met de theorie in het boek. De uitleg en uitwerkingen volgen daardoor beter de werkwijze uit het boek.
+- Een lijn of grafiek tekenen gaat in de uitwerking nu met een tabel.
+- Bij vergelijkingen ga je in de uitwerking nu direct naar de vorm `4x = 24`, en de uitleg begint met de breuken.
+- In de uitleg van 1.1 staat nu hoe je stap voor stap de formule uit een grafiek haalt.
+- In de uitleg van 2.1 staat nu hoe je een tabel met drie kolommen splitst.
+- Bij een figuur in 2.3 staan nu de nummers van de hoeken erbij.
+
 ## 1.4.0
 
 ### Nieuw

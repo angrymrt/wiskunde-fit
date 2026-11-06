@@ -61,8 +61,8 @@ for (const section of SECTIONS) {
 }
 
 test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
-  const drawing = SECTIONS.flatMap((s) => s.skills).filter((k) => k.name === 'Een lijn tekenen');
-  assert.equal(drawing.length, 2);
+  const drawing = SECTIONS.flatMap((s) => s.skills).filter((k) => /tekenen$/.test(k.name));
+  assert.equal(drawing.length, 3);
   for (const skill of drawing) {
     for (let i = 0; i < ROUNDS; i++) {
       const q = skill.gen();
