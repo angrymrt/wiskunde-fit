@@ -33,7 +33,10 @@ function inline(html, pattern, replacement) {
   return html.replace(pattern, () => replacement);
 }
 
+const icon = encodeURIComponent(await read('src/favicon.svg'));
+
 let html = await read('src/index.html');
+html = inline(html, /href="favicon\.svg"/, `href="data:image/svg+xml,${icon}"`);
 html = inline(html, /<link[^>]*href="styles\.css"[^>]*>/, `<style>\n${css}</style>`);
 html = inline(html, /<script[^>]*src="js\/main\.js"[^>]*><\/script>/, `<script>\n${js}</script>`);
 
