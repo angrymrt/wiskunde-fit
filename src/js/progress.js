@@ -34,6 +34,7 @@ const SCOPES = [
 const resetProgress = () => {
   prog.skills = {};
   prog.tests = [];
+  prog.scope = 'all';
   save();
 };
 

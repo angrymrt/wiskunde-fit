@@ -11,9 +11,10 @@ import {
   finishTest,
   fmtT,
 } from './ui/exam.js';
+import { vOver } from './ui/about.js';
 import { vHome } from './ui/home.js';
 import { vSec, newQuestion } from './ui/paragraph.js';
-import { topbar } from './ui/layout.js';
+import { topbar, footer } from './ui/layout.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { state, app } from './ui/state.js';
 import { mountWidgets } from './ui/widgets.js';
@@ -57,7 +58,8 @@ function render(focus) {
   else if (state.view.name === 'toets') html = vToetsSetup();
   else if (state.view.name === 'toetsrun') html = vToetsRun();
   else if (state.view.name === 'toetsres') html = vToetsRes();
-  app.innerHTML = `${topbar()}<main class="screen">${html}</main>`;
+  else if (state.view.name === 'over') html = vOver();
+  app.innerHTML = `${topbar()}<main class="screen">${html}</main>${footer()}`;
   mountWidgets();
   if (target && !focusOn(target)) focusOn('h1');
   if (state.view.name === 'toetsrun' && !state.timer)
@@ -75,6 +77,7 @@ app.addEventListener('click', (e) => {
     id = b.dataset.id;
   if (a === 'home') return go({ name: 'home' });
   if (a === 'toets') return go({ name: 'toets' });
+  if (a === 'over') return go({ name: 'over' });
   if (a === 'sec') return go({ name: 'sec', id, tab: 'uitleg' });
   if (a === 'secp') return go({ name: 'sec', id, tab: 'oefen' });
   if (a === 'tab') {

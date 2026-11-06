@@ -76,8 +76,8 @@ Doel 1 gaat voor op nieuwe functies en nieuwe stof.
 
 ### Fase 2: de basis op orde
 
-- [ ] Een over-pagina: wie erachter zit, geen band met uitgevers, hoe de stof is gemaakt en nagekeken, en een privacyverklaring.
-- [ ] Contact voor docenten, om te beginnen met een `mailto:` naar een eigen adres.
+- [x] Een over-pagina: wie erachter zit, geen band met uitgevers, hoe de stof is gemaakt en nagekeken, en een privacyverklaring.
+- [x] Contact voor docenten, voorlopig met een `mailto:` naar een bestaand adres. Vervang dat door een adres op `wiskundefit.nl` zodra dat er is (`MAIL` in `ui/about.js`).
 - [x] Titel, beschrijving en afbeelding voor linkvoorbeelden, zoals in WhatsApp.
 - [x] Een PNG-icoon voor het beginscherm, en de browsertest ook kunnen draaien op WebKit, de motor van Safari.
 - [ ] Testen op een echte iPhone. Dit kan alleen met de hand, en controleer dan ook het linkvoorbeeld en het icoon op het beginscherm.

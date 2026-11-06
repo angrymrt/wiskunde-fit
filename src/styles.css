@@ -184,6 +184,21 @@ input {
 .panel {
   gap: 16px;
 }
+.foot {
+  display: flex;
+  justify-content: center;
+}
+.linkbtn {
+  background: none;
+  border: 0;
+  padding: 4px;
+  color: var(--ch1);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.mail {
+  overflow-wrap: anywhere;
+}
 .wrap {
   max-width: 900px;
   margin: 0 auto;

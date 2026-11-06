@@ -2,6 +2,16 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.2.0
+
+### Nieuw
+
+- Een pagina over Wiskundefit: wie erachter zit, hoe de stof is gemaakt en wat er nog niet is nagekeken, hoe het zit met je privacy en hoe je contact opneemt. Je vindt de link onderaan elk scherm.
+
+### Verbeterd
+
+- Voortgang wissen zet nu ook je keuze van de stof voor de proeftoets terug.
+
 ## 1.1.1
 
 ### Verbeterd

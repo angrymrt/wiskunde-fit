@@ -98,6 +98,8 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
       await check('proeftoets met waarschuwing');
       await p.click('[data-act="tfin"]');
       await check('resultaat proeftoets');
+      await p.click('[data-act="over"]');
+      await check('over-pagina');
       await context.close();
     }
     assert.deepEqual([...found.values()], []);
@@ -160,6 +162,33 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
     await browser.close();
   }
 });
+
+test(
+  'de over-pagina is te bereiken en heeft een werkend mailadres',
+  { timeout: 60_000 },
+  async () => {
+    const browser = await launch();
+    try {
+      await mkdir(shotDir, { recursive: true });
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      await p.goto(siteUrl);
+      await p.click('[data-act="over"]');
+      assert.match(await p.textContent('h1'), /Over Wiskundefit/);
+      assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+      const mail = await p.getAttribute('a[href^="mailto:"]', 'href');
+      assert.match(mail, /^mailto:[^@\s]+@[^@\s]+\.nl$/);
+      assert.ok(await p.$('a[href$="/wiskunde-fit/issues/new"]'), 'link om een fout te melden');
+      assert.ok(await p.$('text=Privacy'));
+      const wide = await p.evaluate(
+        () => document.documentElement.scrollWidth > window.innerWidth + 1,
+      );
+      assert.equal(wide, false, 'breder dan de telefoon');
+      await p.screenshot({ path: `${shotDir}over.png`, fullPage: true });
+    } finally {
+      await browser.close();
+    }
+  },
+);
 
 test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => {
   await mkdir(shotDir, { recursive: true });
