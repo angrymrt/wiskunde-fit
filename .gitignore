@@ -2,8 +2,14 @@ node_modules/
 dist/
 test-results/
 
-# Lesmateriaal van de uitgever en de school: auteursrechtelijk beschermd, dus niet delen.
+# Lokaal naslagmateriaal: niet delen.
 lesstof/
+
+# Lokale instellingen en notities van Serena: die kunnen lokaal naslagmateriaal bevatten, dus niet delen.
+.serena/
+
+# Persoonlijke instellingen van Claude Code.
+.claude/settings.local.json
 
 *.log
 .DS_Store
