@@ -1,0 +1,10 @@
+node_modules/
+dist/
+test-results/
+
+# Lesmateriaal van de uitgever en de school: auteursrechtelijk beschermd, dus niet delen.
+lesstof/
+
+*.log
+.DS_Store
+Thumbs.db

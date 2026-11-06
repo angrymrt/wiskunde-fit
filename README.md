@@ -1,0 +1,84 @@
+# Wiskundefit
+
+Interactieve oefensite voor de wiskundetoets over hoofdstuk 1 (lineaire problemen) en hoofdstuk 2 (gelijkvormigheid) van havo 3. De site sluit aan op _Getal & Ruimte_, editie 13, FLEX-boek deel 1.
+
+![Het overzichtsscherm van de site](docs/overzicht.png)
+
+## Wat de site doet
+
+- **Uitleg per paragraaf**, met voorbeelden die stap voor stap verschijnen en interactieve onderdelen, zoals schuifjes voor `a` en `b` in `y = ax + b`.
+- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 49 soorten vragen, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
+- **Proeftoetsen** van 10 tot 30 vragen, met aan het eind een score per paragraaf en alle uitwerkingen.
+- **Video's** per paragraaf, als links naar YouTube.
+- **Voortgang** per vaardigheid, bewaard in de browser. Er is geen server en er is geen account nodig.
+
+## Snel beginnen
+
+Je hebt [Node.js](https://nodejs.org) 20 of nieuwer nodig.
+
+```sh
+npm install
+npm run dev
+```
+
+Open daarna <http://localhost:5173>. Wijzig je een bestand in `src/`, dan hoef je de pagina alleen te herladen. Open `src/index.html` niet rechtstreeks: browsers laten JavaScript-modules alleen via een webserver werken.
+
+Bij `npm install` meldt npm mogelijk dat het installatiescript van esbuild niet is uitgevoerd. Dat is geen probleem, de build werkt ook zonder.
+
+## Commando's
+
+| Commando               | Wat het doet                                                     |
+| ---------------------- | ---------------------------------------------------------------- |
+| `npm run dev`          | Start de site lokaal, zonder bouwstap                            |
+| `npm run build`        | Bouwt `dist/index.html`: de hele site in één bestand om te delen |
+| `npm test`             | Maakt van elke soort vraag 500 varianten en controleert die      |
+| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (duurt een paar minuten) |
+| `npm run format`       | Maakt de code netjes op met Prettier                             |
+
+Wil je de site delen? Stuur dan `dist/index.html` door. Dat bestand werkt zonder installatie door erop te dubbelklikken. Alleen de lettertypes komen van internet; zonder verbinding valt de site terug op andere lettertypes.
+
+## Zo zit het in elkaar
+
+```text
+src/
+├── index.html              De lege pagina die styles.css en js/main.js laadt
+├── styles.css              Alle opmaak, inclusief donkere modus
+└── js/
+    ├── main.js             Startpunt: kiest het scherm en verwerkt klikken
+    ├── math.js             Rekenhulp: toeval, breuken, getallen schrijven
+    ├── typeset.js          Zet tekst om naar wiskundezetting in HTML
+    ├── figures.js          Tekent grafieken en driehoeken als SVG
+    ├── answers.js          Leest en controleert antwoorden
+    ├── progress.js         Bewaart de voortgang in de browser
+    ├── paragraphs/         De lesstof: elk bestand is één paragraaf
+    │   ├── index.js        De lijst met alle paragrafen
+    │   ├── shared.js       Hulpmiddelen voor meerdere paragrafen
+    │   ├── voorkennis.js   Pythagoras
+    │   └── 1.1.js … 2.4.js
+    └── ui/                 De schermen
+        ├── home.js         Overzicht
+        ├── paragraph.js    Uitleg, oefenen en video's
+        ├── exam.js         Proeftoets
+        ├── question-form.js Invoervelden van een vraag
+        ├── widgets.js      Schuifjes en hoekendemo
+        ├── layout.js       De balk bovenaan
+        └── state.js        Gedeelde toestand van de schermen
+scripts/                    Build en ontwikkelserver
+tests/                      Generatortests en browsertest
+```
+
+De belangrijkste plek om te beginnen is een bestand in `src/js/paragraphs/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vaardigheden. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.
+
+In [AGENTS.md](AGENTS.md) staat hoe je een vraag of paragraaf toevoegt en welke afspraken gelden.
+
+## Lesmateriaal
+
+De map `lesstof/` is bewust niet opgenomen in deze repository (zie `.gitignore`). De uitwerkingen daarin zijn auteursrechtelijk beschermd materiaal van de uitgever. De site gebruikt ze alleen als naslag voor de werkwijze en notatie; de uitleg en vragen zijn zelf geschreven of worden automatisch gemaakt.
+
+Paragrafen 1.4, 1.5, 1.6 en 2.4 zijn gebaseerd op de onderwerpen van de video's, omdat daarvoor geen uitwerkingen beschikbaar waren. De aanpak kan daar iets afwijken van het boek. De site toont daarover een melding.
+
+Dit is een persoonlijk project en heeft geen band met Noordhoff of _Getal & Ruimte_. De video's zijn van het YouTube-kanaal Wiskunde met Bob Pruiksma.
+
+## Licentie
+
+De code en de zelf geschreven lesstof vallen onder de [MIT-licentie](LICENSE). Die geldt niet voor het materiaal van de uitgever of voor de video's waarnaar de site linkt.
