@@ -25,12 +25,13 @@ Al het werk wordt hieraan getoetst. Over de grenzen gaan we nooit heen. Binnen d
 ```sh
 npm run dev           # site lokaal op poort 5173, toont src/ zonder bouwstap
 npm test              # generatortests en releasecontrole, ongeveer 2 seconden
-npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer 1 minuut
+npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer anderhalve minuut
 npm run build         # maakt dist/index.html
+npm run images        # maakt de PNG's in src/ opnieuw, alleen nodig als het ontwerp verandert
 npm run format        # Prettier
 ```
 
-Draai `npm test` na elke wijziging in de lesstof. Draai `npm run test:browser` na wijzigingen in `ui/`, `main.js`, `styles.css` of de build. Bekijk daarna de schermafbeeldingen in `test-results/`, want de test ziet niet of een figuur er goed uitziet. Een andere browser kies je met de omgevingsvariabele `BROWSER`, bijvoorbeeld `chrome`.
+Draai `npm test` na elke wijziging in de lesstof. Draai `npm run test:browser` na wijzigingen in `ui/`, `main.js`, `styles.css` of de build. Bekijk daarna de schermafbeeldingen in `test-results/`, want de test ziet niet of een figuur er goed uitziet. Een andere browser kies je met de omgevingsvariabele `BROWSER`, bijvoorbeeld `chrome`, of `webkit` voor de motor van Safari. Die installeer je eenmalig met `npx playwright-core install webkit`. Dit vervangt geen test op een echte iPhone.
 
 De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor kleine wijzigingen. Draai bij grote wijzigingen, zoals in de schermen, de antwoordcontrole of de build, ook `ROUNDS=4 npm run test:browser` (in PowerShell: `$env:ROUNDS=4; npm run test:browser`). Dat duurt ongeveer 4 minuten. Voeg een gerichte test toe als je een bepaald randgeval wilt vastleggen.
 

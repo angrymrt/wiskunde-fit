@@ -12,6 +12,7 @@ const types = {
   '.js': 'text/javascript; charset=utf-8',
   '.woff2': 'font/woff2',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
 };
 
 createServer(async (req, res) => {

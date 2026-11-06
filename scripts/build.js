@@ -1,5 +1,5 @@
 // Bouwt dist/index.html: de hele site in één los te delen HTML-bestand.
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
@@ -42,4 +42,8 @@ html = inline(html, /<script[^>]*src="js\/main\.js"[^>]*><\/script>/, `<script>\
 
 await mkdir(new URL('dist/', root), { recursive: true });
 await writeFile(new URL('dist/index.html', root), html);
+// Linkvoorbeelden en het beginscherm hebben een echt bestand nodig. Zonder deze werkt de site ook.
+for (const file of ['og.png', 'apple-touch-icon.png']) {
+  await copyFile(new URL(`src/${file}`, root), new URL(`dist/${file}`, root));
+}
 console.log(`dist/index.html gebouwd (${Math.round(Buffer.byteLength(html) / 1024)} kB)`);

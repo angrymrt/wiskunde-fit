@@ -4,7 +4,6 @@ import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { SECTIONS, SEC } from '../paragraphs/index.js';
 import { prog, save, rec, inScope, SCOPES } from '../progress.js';
 import { esc, T, stepsHTML } from '../typeset.js';
-import { topbar } from './layout.js';
 import { fieldsHTML, readVals } from './question-form.js';
 import { state } from './state.js';
 
@@ -29,7 +28,7 @@ function buildTest(scope, n) {
 function vToetsSetup() {
   const scope = prog.scope || 'all',
     n = state.view.n || 20;
-  return `${topbar()}<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit alle gekozen paragrafen, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>
+  return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit alle gekozen paragrafen, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>
   <div class="setup"><b>Welke stof?</b><div class="chips">${SCOPES.map(([k, t]) => `<button class="chip" type="button" data-act="scope" data-id="${k}" aria-pressed="${scope === k}">${t}</button>`).join('')}</div>${scope === 'core' ? `<p class="small muted">Dat zijn Pythagoras en de paragrafen 1.1 tot en met 1.3 en 2.1 tot en met 2.3.</p>` : ''}</div>
   <div class="setup"><b>Hoeveel vragen?</b><div class="chips">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
   <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div></div>`;
@@ -42,11 +41,11 @@ function vToetsRun() {
   const filled = (x) =>
     x.vals.length && (x.q.mc ? x.vals[0] !== '' : x.vals.some((v) => String(v).trim()));
   const open = t.items.filter((x) => !filled(x)).length;
-  return `${topbar()}<div class="sheet"><div class="row" style="justify-content:space-between"><b>Vraag ${i + 1} van ${t.items.length}</b><span class="muted small">Tijd <span id="clock" style="font-variant-numeric:tabular-nums">${fmtT(Math.floor((Date.now() - t.start) / 1000))}</span></span></div>
+  return `<div class="sheet"><div class="row" style="justify-content:space-between"><h1 class="plain-h">Vraag ${i + 1} van ${t.items.length}</h1><span class="muted small">Tijd <span id="clock" style="font-variant-numeric:tabular-nums">${fmtT(Math.floor((Date.now() - t.start) / 1000))}</span></span></div>
   <div class="grid-nav">${t.items.map((x, k) => `<button class="gn ${filled(x) ? 'fill' : ''} ${k === i ? 'cur' : ''}" type="button" data-act="goto" data-id="${k}" aria-label="Ga naar vraag ${k + 1}">${k + 1}</button>`).join('')}</div>
-  <div class="small muted">${it.sec.num === 'V' ? 'Voorkennis' : 'Paragraaf ' + it.sec.num}</div><div class="q">${it.q.q}</div>${it.q.fig ? `<div class="figbox">${it.q.fig}</div>` : ''}
-  <form id="tform" class="block" novalidate>${fieldsHTML(it.q, 't', it.vals)}<div class="row"><button class="btn" type="button" data-act="tprev" ${i ? '' : 'disabled'}>Vorige</button>${i < t.items.length - 1 ? `<button class="btn main" type="submit">Volgende</button>` : ''}<button class="btn ${i === t.items.length - 1 ? 'main' : 'quiet'}" type="button" data-act="tfin">Inleveren</button></div>
-  ${t.warn ? `<div class="fb bad">Je hebt nog ${open} ${open === 1 ? 'vraag' : 'vragen'} open. Klik nog een keer op Inleveren als je toch wilt stoppen.</div>` : ''}</form></div>`;
+  <div class="small muted">${it.sec.num === 'V' ? 'Voorkennis' : 'Paragraaf ' + it.sec.num}</div><div class="q" id="tq">${it.q.q}</div>${it.q.fig ? `<div class="figbox">${it.q.fig}</div>` : ''}
+  <form id="tform" class="block" novalidate>${fieldsHTML(it.q, 't', it.vals)}<div class="row"><button class="btn" type="button" data-act="tprev" ${i ? '' : 'disabled'}>Vorige</button>${i < t.items.length - 1 ? `<button class="btn main" type="submit">Volgende</button>` : ''}<button class="btn ${i === t.items.length - 1 ? 'main' : 'quiet'}" type="button" data-act="tfin" ${t.warn ? 'aria-describedby="tfb"' : ''}>Inleveren</button></div>
+  ${t.warn ? `<div class="fb bad" id="tfb">Je hebt nog ${open} ${open === 1 ? 'vraag' : 'vragen'} open. Klik nog een keer op Inleveren als je toch wilt stoppen.</div>` : ''}</form></div>`;
 }
 function storeTest() {
   const it = state.test.items[state.test.i];
@@ -84,8 +83,8 @@ function vToetsRes() {
     weak = Object.entries(t.per)
       .map(([id, p]) => ({ s: SEC[id], ...p, r: p.got / p.max }))
       .sort((a, b) => a.r - b.r);
-  return `${topbar()}<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Je resultaat</h1><div class="row" style="gap:24px"><div class="score">${t.score}/${t.max}</div><div><div>punten in ${fmtT(t.time)} minuten</div><div class="muted small">Dat is ongeveer een ${d(rd(grade, 1))} met de formule cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</div></div></div>
-  <h3>Per paragraaf</h3><div class="res">${weak
+  return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Je resultaat</h1><div class="row" style="gap:24px"><div class="score">${t.score}/${t.max}</div><div><div>punten in ${fmtT(t.time)} minuten</div><div class="muted small">Dat is ongeveer een ${d(rd(grade, 1))} met de formule cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</div></div></div>
+  <h2 class="h3">Per paragraaf</h2><div class="res">${weak
     .map((w) => {
       const pc = Math.round(w.r * 100);
       return `<button class="par c${w.s.ch}" type="button" data-act="secp" data-id="${w.s.id}" style="border-top:0;padding:4px 0"><b>${w.s.num}</b><span>${T(w.s.title)}</span><span class="pct">${w.got} van ${w.max}</span><span class="bar ${pc >= 80 ? 'done' : ''}"><i style="width:${pc}%"></i></span></button>`;

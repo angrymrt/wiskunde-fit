@@ -105,6 +105,7 @@ function angles(el) {
       b.addEventListener('click', () => {
         cur = b.dataset.k;
         draw();
+        el.querySelector(`[data-k="${cur}"]`).focus();
       }),
     );
   };

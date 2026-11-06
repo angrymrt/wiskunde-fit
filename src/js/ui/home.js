@@ -2,7 +2,6 @@
 import { SECTIONS } from '../paragraphs/index.js';
 import { prog, secPct, inScope } from '../progress.js';
 import { T } from '../typeset.js';
-import { topbar } from './layout.js';
 import { state } from './state.js';
 
 function heroFig() {
@@ -35,8 +34,7 @@ function vHome() {
     )
       .map(secRow)
       .join('')}</section>`;
-  return `${topbar()}
-  <section class="hero"><div class="hero-txt"><h1>Klaar voor je wiskundetoets</h1><p class="lead">Lees per paragraaf de uitleg en oefen met vragen die steeds nieuwe getallen krijgen. Kom je er niet uit, dan zie je de uitwerking stap voor stap.</p>
+  return `<section class="hero"><div class="hero-txt"><h1>Op naar die voldoende!</h1><p class="lead">Oefen voor je wiskundetoets met uitleg, hints en steeds nieuwe vragen. Zo ga je goed voorbereid je toets in.</p>
   <div class="row"><button class="btn main" type="button" data-act="sec" data-id="${n.id}">${started ? 'Oefen' : 'Begin met'} ${n.num === 'V' ? 'Pythagoras' : n.num}</button><button class="btn" type="button" data-act="toets">Maak een proeftoets</button></div>
   ${last ? `<p class="small muted">Laatste proeftoets: ${last.score} van ${last.max} punten.</p>` : ''}</div>${heroFig()}</section>
   <div class="chs">${chapter(1, 'Lineaire problemen')}${chapter(2, 'Gelijkvormigheid')}</div>

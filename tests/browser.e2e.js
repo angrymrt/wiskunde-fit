@@ -1,16 +1,21 @@
 // Klikt de gebouwde site door in een echte browser, op telefoonformaat. Start: npm run test:browser
-// Gebruikt Edge; een andere browser kies je met de omgevingsvariabele BROWSER, bijvoorbeeld chrome.
+// Gebruikt Edge; een andere browser kies je met de omgevingsvariabele BROWSER, bijvoorbeeld chrome of webkit.
 // Standaard krijgt elke soort vraag 1 ronde; met de omgevingsvariabele ROUNDS kies je er meer.
 // Schermafbeeldingen om zelf na te kijken komen in test-results/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright-core';
+import { chromium, webkit } from 'playwright-core';
 
 const siteUrl = new URL('../dist/index.html', import.meta.url).href;
 const shotDir = fileURLToPath(new URL('../test-results/', import.meta.url));
 const rounds = Number(process.env.ROUNDS) || 1;
+// WebKit is de motor van Safari. Installeer die eenmalig met: npx playwright-core install webkit
+const launch = () =>
+  process.env.BROWSER === 'webkit'
+    ? webkit.launch({ headless: true })
+    : chromium.launch({ channel: process.env.BROWSER || 'msedge', headless: true });
 
 // Geeft de juiste antwoorden van een vraag, getypt zoals een leerling dat zou doen.
 const answerOf = `(q) => {
@@ -37,12 +42,128 @@ async function fill(page, prefix, vals, numericOverride) {
   }
 }
 
+test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () => {
+  const browser = await launch();
+  const found = new Map();
+  const axePath = fileURLToPath(new URL('../node_modules/axe-core/axe.min.js', import.meta.url));
+  try {
+    for (const colorScheme of ['light', 'dark']) {
+      const context = await browser.newContext({
+        viewport: { width: 390, height: 800 },
+        colorScheme,
+        // Zonder animaties meet axe de contrasten pas als alles helemaal zichtbaar is.
+        reducedMotion: 'reduce',
+      });
+      const p = await context.newPage();
+      await p.goto(siteUrl);
+      await p.addScriptTag({ path: axePath });
+      const check = async (where) => {
+        const { violations } = await p.evaluate(() =>
+          axe.run(document, {
+            runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'],
+          }),
+        );
+        for (const v of violations) {
+          // Per regel en element één keer, anders verdrinkt de rest in dezelfde melding per paragraaf.
+          for (const node of v.nodes) {
+            const key = `${v.id}: ${node.target} (${v.help})`;
+            if (!found.has(key))
+              found.set(key, `${key}, voor het eerst op ${where} in ${colorScheme}`);
+          }
+        }
+      };
+      await check('overzicht');
+      const ids = await p.evaluate(() => wiskundefit.SECTIONS.map((s) => s.id));
+      for (const id of ids) {
+        await p.evaluate((i) => wiskundefit.go({ name: 'sec', id: i, tab: 'uitleg' }), id);
+        for (const b of await p.$$('[data-act="exnext"]')) {
+          while (await b.isVisible()) await b.click();
+        }
+        await check(`${id} uitleg`);
+        await p.click('[role="tab"][data-tab="video"]');
+        await check(`${id} video's`);
+        await p.click('[role="tab"][data-tab="oefen"]');
+        await p.click('[data-act="hint"]');
+        await p.click('#pform button[type=submit]');
+        await check(`${id} oefenen met hint en melding`);
+        await p.click('[data-act="show"]');
+        await check(`${id} uitwerking`);
+      }
+      await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+      await check('proeftoets kiezen');
+      await p.click('[data-act="len"][data-id="10"]');
+      await p.click('[data-act="start"]');
+      await check('proeftoets');
+      await p.click('[data-act="tfin"]');
+      await check('proeftoets met waarschuwing');
+      await p.click('[data-act="tfin"]');
+      await check('resultaat proeftoets');
+      await context.close();
+    }
+    assert.deepEqual([...found.values()], []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
+  const browser = await launch();
+  try {
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(siteUrl);
+    const focused = () =>
+      p.evaluate(() => {
+        const el = document.activeElement;
+        return el.id || el.dataset.tab || el.dataset.act || el.className || el.tagName;
+      });
+
+    // Een nieuw scherm: de focus gaat naar de kop.
+    await p.click('[data-act="sec"][data-id="1.1"]:not(.btn)');
+    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+
+    // Tabbladen: met de pijltjes wisselen, en de focus blijft op het tabblad.
+    await p.focus('#tab-uitleg');
+    await p.keyboard.press('ArrowRight');
+    assert.equal(await focused(), 'tab-oefen');
+    assert.ok(await p.$('#pform'), 'het tabblad Oefenen staat open');
+
+    // Een leeg antwoord: de focus gaat naar de melding.
+    await p.click('.chip[data-id=""]');
+    assert.equal(await p.getAttribute('.chip[data-id=""]', 'aria-pressed'), 'true');
+    assert.equal(await focused(), 'filter');
+    await p.click('#pform button[type=submit]');
+    assert.equal(await focused(), 'pfb');
+
+    // Een hint: de focus gaat naar de hint.
+    await p.click('[data-act="hint"]');
+    assert.equal(await focused(), 'hintb');
+
+    // Uitwerking tonen en dan de volgende vraag: de focus gaat naar het eerste veld of de vraag.
+    await p.click('[data-act="show"]');
+    assert.equal(await focused(), 'sol');
+    await p.click('#nextq');
+    assert.match(await focused(), /^(pf0|pq)$/);
+
+    // Proeftoets: bij een andere vraag gaat de focus naar die vraag.
+    await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+    await p.click('[data-act="len"][data-id="10"]');
+    assert.equal(await p.getAttribute('[data-act="len"][data-id="10"]', 'aria-pressed'), 'true');
+    assert.equal(await focused(), 'len');
+    await p.click('[data-act="start"]');
+    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+    await p.click('[data-act="goto"][data-id="4"]');
+    assert.equal(await focused(), 'tq');
+    await p.click('[data-act="tfin"]');
+    assert.equal(await focused(), 'tfin');
+  } finally {
+    await browser.close();
+  }
+});
+
 test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => {
   await mkdir(shotDir, { recursive: true });
-  const browser = await chromium.launch({
-    channel: process.env.BROWSER || 'msedge',
-    headless: true,
-  });
+  const browser = await launch();
   const errors = [];
   const open = async (options) => {
     const context = await browser.newContext(options);

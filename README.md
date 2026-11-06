@@ -32,10 +32,11 @@ Bij `npm install` meldt npm mogelijk dat het installatiescript van esbuild niet 
 | `npm run dev`          | Start de site lokaal, zonder bouwstap                            |
 | `npm run build`        | Bouwt `dist/index.html`: de hele site in één bestand om te delen |
 | `npm test`             | Maakt van elke soort vraag 500 varianten en controleert die      |
-| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 1 minuut)      |
+| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 1,5 minuut)    |
+| `npm run images`       | Maakt het linkvoorbeeld en het icoon opnieuw                     |
 | `npm run format`       | Maakt de code netjes op met Prettier                             |
 
-Wil je de site delen? Stuur dan `dist/index.html` door. Dat bestand werkt zonder installatie door erop te dubbelklikken, ook zonder internet. Alleen de video's hebben een verbinding nodig.
+Wil je de site delen? Stuur dan `dist/index.html` door; de PNG's ernaast zijn alleen voor de online versie nodig. Dat bestand werkt zonder installatie door erop te dubbelklikken, ook zonder internet. Alleen de video's hebben een verbinding nodig.
 
 ## Online zetten
 
@@ -47,6 +48,8 @@ Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.git
 src/
 ├── index.html              De lege pagina die styles.css en js/main.js laadt
 ├── styles.css              Alle opmaak, inclusief donkere modus
+├── og.png                  Afbeelding voor linkvoorbeelden, gemaakt met npm run images
+├── apple-touch-icon.png    Icoon voor het beginscherm, gemaakt met npm run images
 ├── fonts/                  De lettertypes met hun licenties
 └── js/
     ├── main.js             Startpunt: kiest het scherm en verwerkt klikken
@@ -68,7 +71,7 @@ src/
         ├── widgets.js      Schuifjes en hoekendemo
         ├── layout.js       De balk bovenaan
         └── state.js        Gedeelde toestand van de schermen
-scripts/                    Build, ontwikkelserver en releasenotities
+scripts/                    Build, ontwikkelserver, afbeeldingen en releasenotities
 tests/                      Generatortests, releasecontrole en browsertest
 ```
 

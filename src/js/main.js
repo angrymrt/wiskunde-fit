@@ -13,6 +13,7 @@ import {
 } from './ui/exam.js';
 import { vHome } from './ui/home.js';
 import { vSec, newQuestion } from './ui/paragraph.js';
+import { topbar } from './ui/layout.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { state, app } from './ui/state.js';
 import { mountWidgets } from './ui/widgets.js';
@@ -24,20 +25,41 @@ const go = (v) => {
     clearInterval(state.timer);
     state.timer = null;
   }
-  render();
+  render('h1');
   try {
     window.scrollTo(0, 0);
   } catch (e) {}
 };
-function render() {
+// Geeft een selector voor het element met de focus, om dat na het vervangen terug te vinden.
+function focusedSelector() {
+  const el = document.activeElement;
+  if (!el || !app.contains(el)) return null;
+  if (el.id) return `#${el.id}`;
+  const { act, id } = el.dataset;
+  if (!act) return null;
+  return `[data-act="${act}"]${id === undefined ? '' : `[data-id="${id}"]`}`;
+}
+function focusOn(selector) {
+  const el = app.querySelector(selector);
+  if (!el) return false;
+  if (!el.matches('button, input, select')) el.tabIndex = -1;
+  el.focus();
+  return document.activeElement === el;
+}
+// render() vervangt het hele scherm en daarmee het element met de focus. Zonder dit begint wie
+// het toetsenbord of een schermlezer gebruikt na elke klik weer bovenaan de pagina.
+// Geef een selector mee om de focus ergens anders te zetten dan waar die stond.
+function render(focus) {
+  const target = focus || focusedSelector();
   let html = '';
   if (state.view.name === 'home') html = vHome();
   else if (state.view.name === 'sec') html = vSec(SEC[state.view.id]);
   else if (state.view.name === 'toets') html = vToetsSetup();
   else if (state.view.name === 'toetsrun') html = vToetsRun();
   else if (state.view.name === 'toetsres') html = vToetsRes();
-  app.innerHTML = html;
+  app.innerHTML = `${topbar()}<main class="screen">${html}</main>`;
   mountWidgets();
+  if (target && !focusOn(target)) focusOn('h1');
   if (state.view.name === 'toetsrun' && !state.timer)
     state.timer = setInterval(() => {
       const c = document.getElementById('clock');
@@ -47,6 +69,8 @@ function render() {
 app.addEventListener('click', (e) => {
   const b = e.target.closest('[data-act]');
   if (!b) return;
+  // Safari geeft een knop geen focus bij een klik, en dan vindt render() hem niet terug.
+  b.focus();
   const a = b.dataset.act,
     id = b.dataset.id;
   if (a === 'home') return go({ name: 'home' });
@@ -60,12 +84,12 @@ app.addEventListener('click', (e) => {
   }
   if (a === 'reset1') {
     state.confirmReset = true;
-    render();
+    render('[data-act="reset2"]');
     return;
   }
   if (a === 'reset0') {
     state.confirmReset = false;
-    render();
+    render('[data-act="reset1"]');
     return;
   }
   if (a === 'reset2') {
@@ -79,7 +103,11 @@ app.addEventListener('click', (e) => {
     const ex = b.closest('.ex'),
       hid = ex.querySelector('li[hidden]');
     if (hid) hid.hidden = false;
-    if (!ex.querySelector('li[hidden]')) b.hidden = true;
+    if (!ex.querySelector('li[hidden]')) {
+      b.hidden = true;
+      hid.tabIndex = -1;
+      hid.focus();
+    }
     return;
   }
   if (a === 'filter') {
@@ -94,7 +122,7 @@ app.addEventListener('click', (e) => {
     const st = state.prac[state.view.id];
     st.vals = readVals(st.q, 'p');
     st.hint = true;
-    render();
+    render('.hintb');
     return;
   }
   if (a === 'show') {
@@ -108,12 +136,12 @@ app.addEventListener('click', (e) => {
     st.status = 'shown';
     st.msg = '';
     st.marks = st.q.mc ? { each: [String(st.vals[0]) === String(st.q.mc.a)], reveal: true } : null;
-    render();
+    render('.sol');
     return;
   }
   if (a === 'showsol') {
     state.prac[state.view.id].sol = true;
-    render();
+    render('.sol');
     return;
   }
   if (a === 'scope') {
@@ -139,14 +167,14 @@ app.addEventListener('click', (e) => {
     storeTest();
     state.test.i = +id;
     state.test.warn = false;
-    render();
+    render('#tq');
     return;
   }
   if (a === 'tprev') {
     storeTest();
     state.test.i--;
     state.test.warn = false;
-    render();
+    render('#tq');
     return;
   }
   if (a === 'tfin') {
@@ -166,15 +194,25 @@ app.addEventListener('click', (e) => {
     return go({ name: 'toetsres' });
   }
 });
+// De tabbladen werken met de pijltjestoetsen, zoals een schermlezer dat aankondigt.
+app.addEventListener('keydown', (e) => {
+  if (!e.target.matches('[role="tab"]')) return;
+  const tabs = [...app.querySelectorAll('[role="tab"]')],
+    i = tabs.indexOf(e.target),
+    n = tabs.length,
+    to = { ArrowRight: (i + 1) % n, ArrowLeft: (i + n - 1) % n, Home: 0, End: n - 1 }[e.key];
+  if (to === undefined) return;
+  e.preventDefault();
+  tabs[to].click();
+});
 app.addEventListener('submit', (e) => {
   e.preventDefault();
   if (e.target.id === 'tform') {
     storeTest();
     state.test.i++;
     state.test.warn = false;
-    render();
-    const n = document.getElementById('tf0');
-    if (n) n.focus();
+    render('#tq');
+    focusOn('#tf0');
     return;
   }
   if (e.target.id === 'pform') {
@@ -182,9 +220,8 @@ app.addEventListener('submit', (e) => {
       st = state.prac[s.id];
     if (st.status === 'right' || st.status === 'shown') {
       newQuestion(s);
-      render();
-      const n = document.getElementById('pf0');
-      if (n) n.focus();
+      render('#pq');
+      focusOn('#pf0');
       return;
     }
     const vals = readVals(st.q, 'p');
@@ -193,14 +230,14 @@ app.addEventListener('submit', (e) => {
       st.status = 'wrong';
       st.msg = 'Vul eerst alle antwoorden in.';
       st.marks = null;
-      render();
+      render('#pfb');
       return;
     }
     if (unreadable(st.q, vals)) {
       st.status = 'wrong';
       st.msg = 'Dit getal kan ik niet lezen. Schrijf bijvoorbeeld -2, 3,5 of 1 1/2.';
       st.marks = null;
-      render();
+      render('#pfb');
       return;
     }
     const c = checkAnswer(st.q, vals);
@@ -218,9 +255,7 @@ app.addEventListener('submit', (e) => {
       st.status = 'wrong';
       st.msg = findTrap(st.q, vals) || 'Nog niet goed. Probeer het nog eens, of bekijk de hint.';
     }
-    render();
-    const n = document.getElementById('nextq');
-    if (n) n.focus();
+    render(c.ok ? '#nextq' : '#pfb');
   }
 });
 /* Alleen voor tests/browser.e2e.js: zo kan de browsertest de juiste antwoorden opvragen. */

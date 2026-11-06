@@ -46,7 +46,7 @@
   --rule: #c4d4e3;
   --ch1: #0b6ab0;
   --ch1-soft: #ddeefa;
-  --ch2: #b85600;
+  --ch2: #a84e00;
   --ch2-soft: #fbebda;
   --pink: #cf1f68;
   --green: #4e8a12;
@@ -127,7 +127,8 @@ table {
 }
 h1,
 h2,
-h3 {
+h3,
+.h3 {
   font-family: var(--display);
   line-height: 1.15;
   text-wrap: balance;
@@ -142,7 +143,8 @@ h2 {
   font-size: 1.45rem;
   font-weight: 800;
 }
-h3 {
+h3,
+.h3 {
   font-size: 1.12rem;
   font-weight: 600;
 }
@@ -161,6 +163,26 @@ input {
 :focus-visible {
   outline: 3px solid var(--pink);
   outline-offset: 2px;
+}
+/* Tekst die de focus krijgt zodat een schermlezer hem voorleest, zoals een kop na een nieuw scherm. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+.plain-h {
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.screen,
+.panel {
+  display: grid;
+  min-width: 0;
+}
+.screen {
+  gap: 22px;
+}
+.panel {
+  gap: 16px;
 }
 .wrap {
   max-width: 900px;

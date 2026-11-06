@@ -45,7 +45,7 @@ De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 11 paragrafen en 4
 | Teksten               | `ui/home.js`, `ui/paragraph.js`, `index.html` | De titel, de voettekst en de melding bij `core: false` gaan uit van dit ene boek.                                                                             |
 | Adressen en HTML      | Hele site                                     | Er zijn geen URL's per scherm en de lesstof staat pas na JavaScript in de pagina. Je kunt niet naar een paragraaf linken en zoekmachines zien de stof slecht. |
 | Willekeurige vragen   | `paragraphs/`, `math.js`                      | Een vraag is niet te herhalen. Een foutmelding of een gedeelde proeftoets kan dus niet naar precies dezelfde vraag wijzen.                                    |
-| Browsertest           | `tests/browser.e2e.js`                        | Duurt nu 59 seconden, groeit mee met de lesstof, draait alleen lokaal en test Safari niet.                                                                    |
+| Browsertest           | `tests/browser.e2e.js`                        | Duurt nu anderhalve minuut, groeit mee met de lesstof en draait alleen lokaal. Safari is alleen via WebKit te testen.                                         |
 
 ## Laagmodel: de vaardigheid als kern
 
@@ -78,10 +78,11 @@ Doel 1 gaat voor op nieuwe functies en nieuwe stof.
 
 - [ ] Een over-pagina: wie erachter zit, geen band met uitgevers, hoe de stof is gemaakt en nagekeken, en een privacyverklaring.
 - [ ] Contact voor docenten, om te beginnen met een `mailto:` naar een eigen adres.
-- [ ] Titel, beschrijving en afbeelding voor linkvoorbeelden, zoals in WhatsApp.
-- [ ] Testen op Safari en iPhone, en een PNG-icoon voor het beginscherm.
-- [ ] Toegankelijkheid: `axe-core` in de browsertest, en de focus goed zetten wanneer `render()` het scherm vervangt.
-- [ ] De melding bij `core: false` herschrijven, want die gaat uit van één klas.
+- [x] Titel, beschrijving en afbeelding voor linkvoorbeelden, zoals in WhatsApp.
+- [x] Een PNG-icoon voor het beginscherm, en de browsertest ook kunnen draaien op WebKit, de motor van Safari.
+- [ ] Testen op een echte iPhone. Dit kan alleen met de hand, en controleer dan ook het linkvoorbeeld en het icoon op het beginscherm.
+- [x] Toegankelijkheid: `axe-core` in de browsertest, en de focus goed zetten wanneer `render()` het scherm vervangt.
+- [x] De melding bij `core: false` herschrijven, want die gaat uit van één klas.
 - [ ] Juridisch laten nakijken welke vorm van anonieme statistieken mag.
 - [ ] De regel "geen tracking" in `AGENTS.md` vervangen door "geen persoonsgegevens en geen cookies".
 - [ ] Weergaven per les en tellers per functie meten, met opslag in de EU en het script op onze eigen site. Tel op naam van de les en niet op adres, want de adressen veranderen in fase 3. Unieke bezoekers alleen als het juridische advies dat toelaat.

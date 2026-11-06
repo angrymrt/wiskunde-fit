@@ -2,6 +2,17 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.1.1
+
+### Verbeterd
+
+- Deel je de site in WhatsApp of een andere app, dan zie je nu een net voorbeeld met titel en afbeelding.
+- Zet je de site op het beginscherm van je iPhone, dan krijgt hij een eigen icoon.
+- De site werkt beter met het toetsenbord en een schermlezer. Na een klik blijf je op een logische plek, de tabbladen werken met de pijltjestoetsen en een schermlezer leest nu ook de vraag en de melding voor.
+- De oranje tekst is iets donkerder en daardoor beter te lezen.
+- De melding bij paragrafen die zonder de uitwerkingen uit het boek zijn gemaakt, is duidelijker.
+- De startpagina heeft een nieuwe tekst.
+
 ## 1.1.0
 
 ### Verbeterd
