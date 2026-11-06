@@ -15,7 +15,13 @@ const bundle = await build({
   write: false,
 });
 const js = bundle.outputFiles[0].text;
-const css = await read('src/styles.css');
+// Zet de lettertypes als data-URL in de CSS, zodat het ene bestand alles bevat.
+const fonts = /url\('(fonts\/[^']+\.woff2)'\)/g;
+let css = await read('src/styles.css');
+for (const [ref, path] of css.matchAll(fonts)) {
+  const data = await readFile(new URL(`src/${path}`, root), 'base64');
+  css = css.replace(ref, () => `url('data:font/woff2;base64,${data}')`);
+}
 
 if (js.includes('</script') || css.includes('</style')) {
   throw new Error('De code bevat een sluittag die het inlinen zou breken.');

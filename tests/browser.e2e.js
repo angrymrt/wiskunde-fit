@@ -1,5 +1,6 @@
 // Klikt de gebouwde site door in een echte browser, op telefoonformaat. Start: npm run test:browser
 // Gebruikt Edge; een andere browser kies je met de omgevingsvariabele BROWSER, bijvoorbeeld chrome.
+// Standaard krijgt elke soort vraag 1 ronde; met de omgevingsvariabele ROUNDS kies je er meer.
 // Schermafbeeldingen om zelf na te kijken komen in test-results/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,6 +10,7 @@ import { chromium } from 'playwright-core';
 
 const siteUrl = new URL('../dist/index.html', import.meta.url).href;
 const shotDir = fileURLToPath(new URL('../test-results/', import.meta.url));
+const rounds = Number(process.env.ROUNDS) || 1;
 
 // Geeft de juiste antwoorden van een vraag, getypt zoals een leerling dat zou doen.
 const answerOf = `(q) => {
@@ -88,7 +90,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
 
       const skills = await p.evaluate((i) => wiskundefit.SEC[i].skills.map((k) => k.id), id);
       for (const skill of skills) {
-        for (let round = 0; round < 4; round++) {
+        for (let round = 0; round < rounds; round++) {
           await p.click(`.chip[data-id="${skill}"]`);
           await checkOverflow(`${skill} vraag`);
           const a = await p.evaluate(

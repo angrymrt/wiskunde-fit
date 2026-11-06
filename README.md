@@ -32,10 +32,14 @@ Bij `npm install` meldt npm mogelijk dat het installatiescript van esbuild niet 
 | `npm run dev`          | Start de site lokaal, zonder bouwstap                            |
 | `npm run build`        | Bouwt `dist/index.html`: de hele site in één bestand om te delen |
 | `npm test`             | Maakt van elke soort vraag 500 varianten en controleert die      |
-| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (duurt een paar minuten) |
+| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 1 minuut)      |
 | `npm run format`       | Maakt de code netjes op met Prettier                             |
 
-Wil je de site delen? Stuur dan `dist/index.html` door. Dat bestand werkt zonder installatie door erop te dubbelklikken. Alleen de lettertypes komen van internet; zonder verbinding valt de site terug op andere lettertypes.
+Wil je de site delen? Stuur dan `dist/index.html` door. Dat bestand werkt zonder installatie door erop te dubbelklikken, ook zonder internet. Alleen de video's hebben een verbinding nodig.
+
+## Online zetten
+
+Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app.
 
 ## Zo zit het in elkaar
 
@@ -43,6 +47,7 @@ Wil je de site delen? Stuur dan `dist/index.html` door. Dat bestand werkt zonder
 src/
 ├── index.html              De lege pagina die styles.css en js/main.js laadt
 ├── styles.css              Alle opmaak, inclusief donkere modus
+├── fonts/                  De lettertypes met hun licenties
 └── js/
     ├── main.js             Startpunt: kiest het scherm en verwerkt klikken
     ├── math.js             Rekenhulp: toeval, breuken, getallen schrijven
@@ -81,4 +86,4 @@ Dit is een persoonlijk project en heeft geen band met Noordhoff of _Getal & Ruim
 
 ## Licentie
 
-De code en de zelf geschreven lesstof vallen onder de [MIT-licentie](LICENSE). Die geldt niet voor het materiaal van de uitgever of voor de video's waarnaar de site linkt.
+De code en de zelf geschreven lesstof vallen onder de [MIT-licentie](LICENSE). Die geldt niet voor het materiaal van de uitgever of voor de video's waarnaar de site linkt. De lettertypes in `src/fonts/` vallen onder de SIL Open Font License; de teksten staan in die map.
