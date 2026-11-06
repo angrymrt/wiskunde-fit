@@ -2,6 +2,13 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.1.0
+
+### Verbeterd
+
+- Bij elke paragraaf staan nu ook video's van Math with Menno, naast die van Wiskunde met Bob Pruiksma. Zo kun je de uitleg kiezen die jou het best helpt.
+- Ook bij de voorkennis over Pythagoras vind je nu video's.
+
 ## 1.0.0
 
 De eerste versie van Wiskundefit, de site waarmee je oefent voor je wiskundetoets in havo 3.

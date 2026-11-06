@@ -148,10 +148,16 @@ export default {
   num: '2.4',
   title: 'Een lengte x stellen en ruimtefiguren',
   core: false,
-  videos: [
-    ['2.4 A Een lengte x stellen', 'UorHPuOjZ90'],
-    ['2.4 B Gelijkvormige driehoeken in ruimtefiguren', 'tThkWlWtso8'],
-  ],
+  videos: {
+    menno: [
+      ['Een lengte x stellen', 'PdS3qjpN9gY'],
+      ['Gelijkvormigheid bij ruimtefiguren', 'MGeexCYSuOI'],
+    ],
+    bob: [
+      ['Een lengte x stellen', 'UorHPuOjZ90'],
+      ['Gelijkvormige driehoeken in ruimtefiguren', 'tThkWlWtso8'],
+    ],
+  },
   skills: [
     ['Een lengte x stellen', s24x],
     ['Piramide', s24pyr],

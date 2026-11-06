@@ -346,10 +346,16 @@ export default {
   num: '2.3',
   title: 'Gelijkvormigheid aantonen',
   core: true,
-  videos: [
-    ['2.3 A Gelijkvormige driehoeken aantonen', 'ghmQ7N--bFA'],
-    ['2.3 B Gelijke hoeken zoeken', 'lx8uuYjVNMc'],
-  ],
+  videos: {
+    menno: [
+      ['Gelijkvormige driehoeken aantonen', 'v82_TCJTSks'],
+      ['Gelijke hoeken zoeken', 'cqP_DHCfdy8'],
+    ],
+    bob: [
+      ['Gelijkvormige driehoeken aantonen', 'ghmQ7N--bFA'],
+      ['Gelijke hoeken zoeken', 'lx8uuYjVNMc'],
+    ],
+  },
   skills: [
     ['F, Z of overstaand', s23kind],
     ['De juiste reden', s23why],

@@ -145,12 +145,20 @@ export default {
   num: '1.4',
   title: 'Lineaire ongelijkheden',
   core: false,
-  videos: [
-    ['1.4 A Lineaire ongelijkheden oplossen met grafieken', '_20Rwdzb5So'],
-    ['1.4 B Lineaire ongelijkheden oplossen zonder grafieken', 'TG6G3qZ3BwM'],
-    ['1.4 C Het omklappen van het ongelijkheidsteken', '94XxGpvkLNY'],
-    ['1.4 D Lineaire ongelijkheden oplossen', 'WwyGUKpUMa4'],
-  ],
+  videos: {
+    menno: [
+      ['Lineaire ongelijkheden oplossen met grafieken', '016gEKebUGM'],
+      ['Lineaire ongelijkheden oplossen zonder grafieken', '5l1zGO5-6NQ'],
+      ['Het omklappen van het ongelijkheidsteken', 'QoExM-o8uGs'],
+      ['Lineaire ongelijkheden oplossen', 'nRI_665QMks'],
+    ],
+    bob: [
+      ['Lineaire ongelijkheden oplossen met grafieken', '_20Rwdzb5So'],
+      ['Lineaire ongelijkheden oplossen zonder grafieken', 'TG6G3qZ3BwM'],
+      ['Het omklappen van het ongelijkheidsteken', '94XxGpvkLNY'],
+      ['Lineaire ongelijkheden oplossen', 'WwyGUKpUMa4'],
+    ],
+  },
   skills: [
     ['Ongelijkheid oplossen', s14basic],
     ['Ongelijkheid met haakjes', s14br],

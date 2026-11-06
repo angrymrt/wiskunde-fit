@@ -181,11 +181,18 @@ export default {
   num: '1.1',
   title: 'De formule y = ax + b',
   core: true,
-  videos: [
-    ['1.1 A De grafiek van een lineaire formule', 'ZS_74Ceblcc'],
-    ['1.1 B De formule y = ax + b', 'FCfyW3WxE0c'],
-    ['1.1 C Evenwijdige lijnen', 'gqdacQ_meW4'],
-  ],
+  videos: {
+    menno: [
+      ['De grafiek van een lineaire formule', '67AA66Z_hIw'],
+      ['De formule y = ax + b', 'RpDZhdELvFY'],
+      ['Evenwijdige lijnen', 'PvmOG5SswVw'],
+    ],
+    bob: [
+      ['De grafiek van een lineaire formule', 'ZS_74Ceblcc'],
+      ['De formule y = ax + b', 'FCfyW3WxE0c'],
+      ['Evenwijdige lijnen', 'gqdacQ_meW4'],
+    ],
+  },
   skills: [
     ['Punt op een lijn', s11point],
     ['Coördinaat berekenen', s11coord],

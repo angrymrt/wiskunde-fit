@@ -132,13 +132,21 @@ export default {
   num: '1.5',
   title: 'Functies',
   core: false,
-  videos: [
-    ['1.5 A Functie en functievoorschrift', 'bTmZ16Xc0QI'],
-    ['1.5 B Het functievoorschrift', 'tKVU0t9LzKg'],
-    ['1.5 C De functie f(x) = ax + b', '8S-LnzejdhE'],
-    ['1.5 D Snijpunten met de x-as en de y-as', '2NIdNlJIDrM'],
-    ['1.5 E Snijpunten van grafieken van functies', 'Q4JkCIf48nQ'],
-  ],
+  videos: {
+    menno: [
+      ['Het functievoorschrift', 'AHmbhTZX_7w'],
+      ['De functie f(x) = ax + b', 'BAMvDpmp-AM'],
+      ['Snijpunten met de x-as en de y-as', 'tdHnhUP7sgQ'],
+      ['Snijpunten van grafieken van functies', 'aE6hAgajF0A'],
+    ],
+    bob: [
+      ['Functie en functievoorschrift', 'bTmZ16Xc0QI'],
+      ['Het functievoorschrift', 'tKVU0t9LzKg'],
+      ['De functie f(x) = ax + b', '8S-LnzejdhE'],
+      ['Snijpunten met de x-as en de y-as', '2NIdNlJIDrM'],
+      ['Snijpunten van grafieken van functies', 'Q4JkCIf48nQ'],
+    ],
+  },
   skills: [
     ['Functiewaarde', s15value],
     ['Terugrekenen', s15orig],

@@ -290,11 +290,18 @@ export default {
   num: '2.2',
   title: 'Gelijkvormigheid',
   core: true,
-  videos: [
-    ['2.2 A Gelijkvormigheid en verhoudingstabellen', 'bkPR3r5A0pc'],
-    ['2.2 B Zijden berekenen bij gelijkvormigheid', 'gQxkRZxO5lU'],
-    ['2.2 C Gelijkvormige driehoeken en gelijke hoeken', 'Kn5RV8Tyb30'],
-  ],
+  videos: {
+    menno: [
+      ['Gelijkvormigheid', 'cVu2DqhSueY'],
+      ['Zijden berekenen bij gelijkvormigheid', 'AUG0yTp8s3c'],
+      ['Gelijkvormige driehoeken en gelijke hoeken', 'Nu3EUket9G0'],
+    ],
+    bob: [
+      ['Gelijkvormigheid en verhoudingstabellen', 'bkPR3r5A0pc'],
+      ['Zijden berekenen bij gelijkvormigheid', 'gQxkRZxO5lU'],
+      ['Gelijkvormige driehoeken en gelijke hoeken', 'Kn5RV8Tyb30'],
+    ],
+  },
   skills: [
     ['Vergrotingsfactor', s22factor],
     ['Letters in de goede volgorde', s22note],

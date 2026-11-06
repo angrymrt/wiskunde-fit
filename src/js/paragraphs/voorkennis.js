@@ -72,7 +72,12 @@ export default {
   num: 'V',
   title: 'Voorkennis: Pythagoras',
   core: true,
-  videos: [],
+  videos: {
+    menno: [
+      ['De stelling van Pythagoras', 'zAnoHcHsKfM'],
+      ['Schuine zijde en rechthoekszijde', 'TVxaJL7ABx0'],
+    ],
+  },
   skills: [
     ['Schuine zijde', sPyHyp],
     ['Rechthoekszijde', sPyLeg],

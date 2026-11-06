@@ -210,11 +210,18 @@ export default {
   num: '2.1',
   title: 'Verhoudingstabellen',
   core: true,
-  videos: [
-    ['2.1 A Kruislings vermenigvuldigen', '18SFop_Itmg'],
-    ['2.1 B Verhoudingstabellen met meer dan twee kolommen', 'hjC0AqJWgP8'],
-    ['2.1 C Parallelprojecties en verhoudingstabellen', 'hEdnD9kUCfY'],
-  ],
+  videos: {
+    menno: [
+      ['Kruislings vermenigvuldigen', 't8xn6N4Cf3M'],
+      ['Verhoudingstabellen met meer dan twee kolommen', 'SN5oycJWwpk'],
+      ['Projecties en verhoudingstabellen', '5fec_7LvtBs'],
+    ],
+    bob: [
+      ['Kruislings vermenigvuldigen', '18SFop_Itmg'],
+      ['Verhoudingstabellen met meer dan twee kolommen', 'hjC0AqJWgP8'],
+      ['Parallelprojecties en verhoudingstabellen', 'hEdnD9kUCfY'],
+    ],
+  },
   skills: [
     ['Kruislings vermenigvuldigen', s21cross],
     ['Met een letter in haakjes', s21var],

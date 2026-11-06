@@ -260,7 +260,10 @@ export default {
   num: '1.2',
   title: 'Lineaire verbanden',
   core: true,
-  videos: [['1.2 A Formules met andere letters dan x en y', 'g8s5J0GeRJQ']],
+  videos: {
+    menno: [['Formules met andere letters dan x en y', 'rFEA-kT63qQ']],
+    bob: [['Formules met andere letters dan x en y', 'g8s5J0GeRJQ']],
+  },
   skills: [
     ['Rekenen met een formule', s12value],
     ['Formule bij een schaal', s12scale],

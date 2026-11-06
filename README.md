@@ -80,9 +80,9 @@ In [AGENTS.md](AGENTS.md) staat hoe je een vraag of paragraaf toevoegt en welke 
 
 De map `lesstof/` is bewust niet opgenomen in deze repository (zie `.gitignore`). De uitwerkingen daarin zijn auteursrechtelijk beschermd materiaal van de uitgever. De site gebruikt ze alleen als naslag voor de werkwijze en notatie; de uitleg en vragen zijn zelf geschreven of worden automatisch gemaakt.
 
-Paragrafen 1.4, 1.5, 1.6 en 2.4 zijn gebaseerd op de onderwerpen van de video's, omdat daarvoor geen uitwerkingen beschikbaar waren. De aanpak kan daar iets afwijken van het boek. De site toont daarover een melding.
+Paragrafen 1.4, 1.5, 1.6 en 2.4 zijn gebaseerd op de onderwerpen van uitlegvideo's, omdat daarvoor geen uitwerkingen beschikbaar waren. De aanpak kan daar iets afwijken van het boek. De site toont daarover een melding.
 
-Dit is een persoonlijk project en heeft geen band met Noordhoff of _Getal & Ruimte_. De video's zijn van het YouTube-kanaal Wiskunde met Bob Pruiksma.
+Dit is een persoonlijk project en heeft geen band met Noordhoff of _Getal & Ruimte_. De video's zijn van de YouTube-kanalen Math with Menno en Wiskunde met Bob Pruiksma.
 
 ## Licentie
 

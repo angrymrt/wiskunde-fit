@@ -86,7 +86,14 @@ export default {
   num: '1.6',
   title: 'Vergelijkingen met twee variabelen',
   core: false,
-  videos: [['Vergelijkingen met twee variabelen', 'yuGhiBebZfU']],
+  videos: {
+    menno: [
+      ['Getallenparen', 'fr2kg8fWaBU'],
+      ['De vergelijking px + qy = r', 'ao0c11rk_lE'],
+      ['Herleiden tot de vorm y = ax + b', 'yPUP3-Yajw8'],
+    ],
+    bob: [['Vergelijkingen met twee variabelen', 'yuGhiBebZfU']],
+  },
   skills: [
     ['Getallenparen', s16pair],
     ['Schrijven als y = ax + b', s16iso],

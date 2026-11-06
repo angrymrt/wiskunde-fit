@@ -20,10 +20,12 @@ function vLearn(s) {
     `<div class="row"><button class="btn main" type="button" data-act="tab" data-tab="oefen">Ga oefenen</button></div>`
   );
 }
+const CHANNELS = { menno: 'Math with Menno', bob: 'Wiskunde met Bob Pruiksma' };
 function vVideos(s) {
-  return s.videos.length
-    ? `<p class="muted small">Video's van Wiskunde met Bob Pruiksma. Ze openen op YouTube.</p><ul class="vids">${s.videos.map(([t, id]) => `<li><a href="https://youtu.be/${id}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join('')}</ul>`
-    : '<p>Bij deze voorkennis staat geen video in de lijst.</p>';
+  const groups = Object.keys(CHANNELS).filter((k) => s.videos[k]?.length);
+  return groups.length
+    ? `<p class="muted small">Kies de uitleg die jou het best helpt. De video's openen op YouTube.</p>${groups.map((k) => `<div class="block"><h3>${CHANNELS[k]}</h3><ul class="vids">${s.videos[k].map(([t, id]) => `<li><a href="https://youtu.be/${id}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join('')}</ul></div>`).join('')}`
+    : '<p>Bij deze paragraaf staat nog geen video.</p>';
 }
 function newQuestion(s) {
   const st = state.prac[s.id];
@@ -71,7 +73,7 @@ function vSec(s) {
         ? vPractice(s)
         : `<div class="sheet">${vVideos(s)}</div>`;
   return `${topbar()}<div class="c${c}" style="display:grid;gap:16px"><div class="head"><span class="small muted">Hoofdstuk ${c}</span><h1>${s.num === 'V' ? '' : s.num + ' '}${T(s.title)}</h1></div>
-  ${s.core ? '' : `<p class="notice">Voor deze paragraaf heb je geen uitwerkingen uit het boek. De uitleg en vragen volgen de onderwerpen van de video's. Vraag je docent of dit bij de toets hoort.</p>`}
+  ${s.core ? '' : `<p class="notice">Voor deze paragraaf heb je geen uitwerkingen uit het boek. De uitleg en vragen volgen de onderwerpen van uitlegvideo's. Vraag je docent of dit bij de toets hoort.</p>`}
   <div class="tabs" role="tablist">${[
     ['uitleg', 'Uitleg'],
     ['oefen', 'Oefenen'],

@@ -299,13 +299,21 @@ export default {
   num: '1.3',
   title: 'Lineaire vergelijkingen',
   core: true,
-  videos: [
-    ['1.3 A Lineaire vergelijkingen', 'SZHO7hYFrZA'],
-    ['1.3 B Lineaire vergelijkingen oplossen', '8xrYbLuUy1U'],
-    ['1.3 C Lineaire vergelijkingen met haakjes', '2oUrlUVE0fs'],
-    ['1.3 D Lineaire vergelijkingen met breuken', 'w1Dvc4nHdRo'],
-    ['1.3 E Lineaire formules vergelijken', '2KAxh0NF8zU'],
-  ],
+  videos: {
+    menno: [
+      ['Lineaire vergelijkingen oplossen', '-yl6BWQ3ZQM'],
+      ['Lineaire vergelijkingen met haakjes', '1hKmkRoXBAo'],
+      ['Lineaire vergelijkingen met breuken', 'LRgqvIRdjw0'],
+      ['Lineaire formules vergelijken', 'Zlneq6od-BM'],
+    ],
+    bob: [
+      ['Lineaire vergelijkingen', 'SZHO7hYFrZA'],
+      ['Lineaire vergelijkingen oplossen', '8xrYbLuUy1U'],
+      ['Lineaire vergelijkingen met haakjes', '2oUrlUVE0fs'],
+      ['Lineaire vergelijkingen met breuken', 'w1Dvc4nHdRo'],
+      ['Lineaire formules vergelijken', '2KAxh0NF8zU'],
+    ],
+  },
   skills: [
     ['Termen links en rechts', s13basic],
     ['Haakjes wegwerken', s13expand],
