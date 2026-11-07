@@ -1,4 +1,4 @@
-// Voorkennis: Pythagoras. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Stelling van Pythagoras. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { geo, rightTriFig } from '../figures.js';
 import { ri, coin, near, rd, isNice, d } from '../math.js';
 import { RF, needRound } from './shared.js';
@@ -162,10 +162,8 @@ function sPyHeight() {
 }
 
 export default {
-  id: 'v2',
-  ch: 2,
-  num: 'V',
-  title: 'Voorkennis: Pythagoras',
+  slug: 'stelling-van-pythagoras',
+  title: 'Stelling van Pythagoras',
   videos: {
     menno: [
       ['De stelling van Pythagoras', 'zAnoHcHsKfM'],

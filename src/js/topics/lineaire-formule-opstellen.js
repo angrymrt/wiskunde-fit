@@ -1,57 +1,9 @@
-// Paragraaf 1.1: De formule y = ax + b. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Lineaire formule opstellen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { graph } from '../figures.js';
 import { ri, nz, pick, coin, gcd, Q, qv, qSub, qMul, near, fr, lin } from '../math.js';
-import { F, MC, plug, drawLine, inGrid, lineTable, fillIn, H } from './shared.js';
+import { F, plug, LV } from './shared.js';
 import { T, dt } from '../typeset.js';
 
-function s11point() {
-  const a = pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 8]),
-    b = nz(-13, 13),
-    x = nz(-10, 10),
-    y = a * x + b,
-    on = coin(),
-    gy = on ? y : y + pick([-10, -2, -1, 1, 2, 10]),
-    P = pick('ABCDEFG'),
-    l = pick('klmn');
-  return {
-    q: T(`Ligt het punt ${P}(${x}, ${gy}) op de lijn ${l}: y = ${lin(a, b)}?`),
-    mc: MC([T(`Ja, ${P} ligt op ${l}`), T(`Nee, ${P} ligt niet op ${l}`)], on ? 0 : 1),
-    hint: T(`Vul x = ${x} in de formule in en vergelijk de uitkomst met ${gy}.`),
-    steps: [
-      `x = ${x} geeft y = ${plug(a, x, b)} = ${y}${on ? '' : ` ≠ ${gy}`}`,
-      on ? `Dus ${P} ligt op ${l}.` : `Dus ${P} ligt niet op ${l}.`,
-    ],
-    v: () => (a * x + b === gy) === on,
-  };
-}
-function s11coord() {
-  const a = pick([-5, -4, -3, -2, 2, 3, 4, 5, 8]),
-    b = nz(-13, 13),
-    x = nz(-9, 9),
-    y = a * x + b,
-    l = pick('klmn');
-  if (coin())
-    return {
-      q: T(`Het punt A(${x}, c) ligt op de lijn ${l}: y = ${lin(a, b)}. Bereken c.`),
-      fields: [F('c =', y)],
-      hint: T(`Vul x = ${x} in de formule in.`),
-      steps: [`x = ${x} en y = c geeft c = ${plug(a, x, b)} = ${y}`],
-      v: () => a * x + b === y,
-    };
-  return {
-    q: T(`Het punt B(d, ${y}) ligt op de lijn ${l}: y = ${lin(a, b)}. Bereken d.`),
-    fields: [F('d =', x)],
-    hint: T(`Vul y = ${y} in. Je krijgt dan een vergelijking met d.`),
-    steps: [`x = d en y = ${y} geeft ${lin(a, b, 'd')} = ${y}`, `${a}d = ${y - b}`, `d = ${x}`],
-    traps: [
-      {
-        f: (v) => near(v[0], -x) && x !== 0,
-        m: 'Het getal klopt bijna. Kijk nog eens naar het minteken.',
-      },
-    ],
-    v: () => a * x + b === y,
-  };
-}
 function s11read() {
   let b, run, rise;
   do {
@@ -176,29 +128,6 @@ function s11par() {
     v: () => near(qv(a) * px + qv(b), py),
   };
 }
-function s11draw() {
-  let b, run, rise, a;
-  do {
-    b = ri(-4, 4);
-    run = pick([1, 1, 2, 3]);
-    rise = nz(-4, 4);
-    a = Q(rise, run);
-  } while (!inGrid(a.d, b + a.n));
-  const l = pick('klmn'),
-    p = [0, b],
-    q = [a.d, b + a.n];
-  return {
-    q: T(
-      `Teken de lijn ${l}: y = ${lin(a, b)}. Tik in het rooster twee punten van de lijn aan, of vul de coördinaten in.`,
-    ),
-    ...drawLine(qv(a), b, p, q),
-    hint: T(
-      `Maak een tabel met twee punten. Neem x = 0 en een x waarbij y geen breuk wordt, bijvoorbeeld x = ${a.d}.`,
-    ),
-    steps: [fillIn(a, b, 0), fillIn(a, b, a.d), ...lineTable(p, q, { a: qv(a), b, name: l })],
-    v: () => [p, q].every(([x, y]) => near((rise * x) / run + b, y)),
-  };
-}
 // Met de richtingscoëfficiënt en een punt bereken je b. De lijn is niet altijd evenwijdig met een andere.
 function s11rc() {
   const a = pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]),
@@ -275,79 +204,210 @@ function s11special() {
     v: () => near(qv(a) * x, y),
   };
 }
+function s12scale() {
+  const xs = pick([25, 50, 100, 250]),
+    ys = pick([10, 20, 50, 100, 500]);
+  let b0, r0, c0;
+  do {
+    b0 = ri(0, 3);
+    r0 = ri(2, 5);
+    c0 = nz(-3, 3);
+  } while (b0 + c0 < 0 || b0 + c0 > 6);
+  const b = b0 * ys,
+    run = r0 * xs,
+    rise = c0 * ys,
+    a = Q(rise, run),
+    [y, x] = pick(LV);
+  return {
+    q: T(`Stel de formule op bij de grafiek: ${y} = a​${x} + b. Let op de schaal op de assen.`),
+    fig: graph({
+      xr: [0, 6],
+      yr: [0, 6],
+      xs,
+      ys,
+      xn: x,
+      yn: y,
+      u: 40,
+      lines: [{ a: qv(a), b }],
+      pts: [
+        { x: 0, y: b },
+        { x: run, y: b + rise },
+      ],
+    }),
+    fields: [F('a =', a), F('b =', b)],
+    hint: 'Lees twee punten af met de getallen op de assen, niet met het aantal hokjes.',
+    steps: [
+      `Door (0, ${b}), dus b = ${b}.`,
+      `a = {${rise}/${run}}${a.d === run && a.n === rise ? '' : ' = ' + fr(a)}`,
+      `Dus ${y} = ${lin(a, b, x)}.`,
+    ],
+    traps: [
+      {
+        f: (v) => near(v[0], c0 / r0) && !near(c0 / r0, qv(a)),
+        m: 'Je hebt hokjes geteld. Reken met de getallen die bij de assen staan.',
+      },
+    ],
+    v: () => near(qv(a) * run + b, b + rise),
+  };
+}
+const STORIES = [
+  () => {
+    const a = pick([2, 3, 4, 5, 6, 8]),
+      b = pick([5, 8, 10, 12]);
+    return {
+      t: `Een fietsverhuur rekent €${b} vast en €${a} per uur. P is de prijs in euro bij n uur huren.`,
+      y: 'P',
+      x: 'n',
+      a,
+      b,
+      why: [
+        `Per uur komt er €${a} bij, dus a = ${a}.`,
+        `De vaste kosten zijn €${b}, dus b = ${b}.`,
+      ],
+    };
+  },
+  () => {
+    const a = pick([10, 15, 20, 25, 30]),
+      b = a * pick([6, 8, 10, 12]);
+    return {
+      t: `In een regenton zit ${b} liter water. Per dag gebruik je ${a} liter voor de tuin. W is het aantal liter na d dagen.`,
+      y: 'W',
+      x: 'd',
+      a: -a,
+      b,
+      why: [
+        `Per dag gaat er ${a} liter af, dus a = -${a}.`,
+        `Op d = 0 zit er ${b} liter in, dus b = ${b}.`,
+      ],
+    };
+  },
+  () => {
+    const a = pick([250, 350, 400, 450, 500]),
+      b = pick([1800, 2200, 2400, 2600, 3000]);
+    return {
+      t: `Een wandelaar begint op ${b} meter hoogte in de bergen en daalt ${a} meter per uur. H is de hoogte in meter na u uur.`,
+      y: 'H',
+      x: 'u',
+      a: -a,
+      b,
+      why: [
+        `Per uur daalt de wandelaar ${a} meter, dus a = -${a}.`,
+        `De beginhoogte is ${b} meter, dus b = ${b}.`,
+      ],
+    };
+  },
+  () => {
+    const a = pick([5, 10, 12, 15, 20]),
+      b = pick([60, 80, 120, 150, 200]);
+    return {
+      t: `Mila heeft €${b} gespaard en spaart er elke week €${a} bij. S is het bedrag in euro na t weken.`,
+      y: 'S',
+      x: 't',
+      a,
+      b,
+      why: [`Elke week komt er €${a} bij, dus a = ${a}.`, `Ze begint met €${b}, dus b = ${b}.`],
+    };
+  },
+  () => {
+    const a = pick([250, 350, 450, 600]),
+      b = pick([12000, 15000, 18000, 24000]);
+    return {
+      t: `Een app heeft ${b} gebruikers en er komen elke dag ${a} gebruikers bij. G is het aantal gebruikers na d dagen.`,
+      y: 'G',
+      x: 'd',
+      a,
+      b,
+      why: [`Per dag komen er ${a} bij, dus a = ${a}.`, `Het startgetal is ${b}, dus b = ${b}.`],
+    };
+  },
+];
+// Leest het startgetal, de stap en de richting uit de tekst en loopt het verhaal na met de formule.
+function storyFits(s) {
+  const [start, step] = s.t.match(/\d+/g).map(Number);
+  const change = /gebruik je|daalt/.test(s.t) ? -step : step;
+  let y = start;
+  for (let x = 0; x <= 3; x++) {
+    if (s.a * x + s.b !== y) return false;
+    y += change;
+  }
+  return s.t.includes(`${s.y} is`) && s.t.includes(` ${s.x} `);
+}
+function s12story() {
+  const s = pick(STORIES)();
+  return {
+    q: T(`${s.t} Stel de formule op: ${s.y} = a​${s.x} + b.`),
+    fields: [F('a =', s.a), F('b =', s.b)],
+    hint: 'b is het startgetal. a is wat er per stap bij komt of af gaat. Gaat er iets af, dan is a negatief.',
+    steps: [...s.why, `Dus ${s.y} = ${lin(s.a, s.b, s.x)}.`],
+    traps: [
+      {
+        f: (v) => near(v[0], -s.a),
+        m: 'Kijk of de hoeveelheid toeneemt of afneemt. Bij afnemen is a negatief.',
+      },
+    ],
+    v: () => storyFits(s),
+  };
+}
+function s12table() {
+  const stap = 10,
+    a = pick([12, 16, 22, 25, 40]),
+    b = pick([400, 650, 800, 1100, 1500]),
+    t = ri(11, 39);
+  const rows = [
+    ['t', 0, 10, 20, 30],
+    ['L', b, b + a * 10, b + a * 20, b + a * 30],
+  ].map((r) => r.map(String));
+  return {
+    q:
+      T(
+        `De tabel hoort bij een lineair verband. L is het aantal leden van een sportclub, t is de tijd in jaren.`,
+      ) +
+      dt(rows) +
+      T(`Stel de formule op en bereken L voor t = ${t}.`),
+    fields: [F('a =', a), F('b =', b), F('L =', a * t + b)],
+    hint: T(
+      `De tabel gaat met stappen van ${stap} jaar. Deel de toename door ${stap} om de toename per jaar te krijgen.`,
+    ),
+    steps: [
+      `Per ${stap} jaar komen er ${a * stap} leden bij, dus per jaar ${a}. Dus a = ${a}.`,
+      `Op t = 0 zijn er ${b} leden, dus b = ${b}.`,
+      `L = ${lin(a, b, 't')}`,
+      `t = ${t} geeft L = ${plug(a, t, b)} = ${a * t + b}`,
+    ],
+    traps: [
+      {
+        f: (v) => near(v[0], a * stap),
+        m: 'Dat is de toename per 10 jaar. Je zoekt de toename per jaar.',
+      },
+    ],
+    v: () => b + a * 10 === +rows[1][2],
+  };
+}
 
 export default {
-  id: '1.1',
-  ch: 1,
-  num: '1.1',
-  title: 'De formule y = ax + b',
+  slug: 'lineaire-formule-opstellen',
+  title: 'Lineaire formule opstellen',
   videos: {
     menno: [
-      ['De grafiek van een lineaire formule', '67AA66Z_hIw'],
       ['De formule y = ax + b', 'RpDZhdELvFY'],
       ['Evenwijdige lijnen', 'PvmOG5SswVw'],
     ],
     bob: [
-      ['De grafiek van een lineaire formule', 'ZS_74Ceblcc'],
       ['De formule y = ax + b', 'FCfyW3WxE0c'],
       ['Evenwijdige lijnen', 'gqdacQ_meW4'],
     ],
   },
   skills: [
-    [3, 'Punt op een lijn', s11point],
-    [4, 'Coördinaat berekenen', s11coord],
     [5, 'Formule uit grafiek', s11read],
     [6, 'Formule door twee punten', s11two],
     [7, 'Evenwijdige lijnen', s11par],
-    [8, 'Een lijn tekenen', s11draw],
     [9, 'Formule met een punt', s11rc],
     [10, 'Constant en recht evenredig', s11special],
+    [12, 'Formule bij een schaal', s12scale],
+    [13, 'Formule uit een verhaal', s12story],
+    [15, 'Formule uit een tabel', s12table],
   ],
   learn: [
-    {
-      t: 'Wat betekenen a en b?',
-      p: [
-        T(
-          'In y = ax + b is b de y-coördinaat van het snijpunt met de y-as. De lijn gaat dus door (0, b).',
-        ),
-        T(
-          'a is de richtingscoëfficiënt, ook wel de helling genoemd: ga je 1 naar rechts, dan ga je a omhoog. Is a negatief, dan ga je omlaag. De richtingscoëfficiënt van lijn l schrijf je als rc_l.',
-        ),
-      ],
-      widget: 'slope',
-    },
-    {
-      t: 'Een lijn tekenen',
-      p: [
-        T(
-          'Voor een lijn heb je twee punten nodig. Maak daarom een tabel met twee x-waarden. Neem x = 0 en een x waarbij y geen breuk wordt. Teken de punten en trek de lijn erdoor. Zet de letter van de lijn erbij.',
-        ),
-      ],
-      ex: {
-        q: T('Teken de lijn y = {3/2}x - 2.'),
-        steps: [
-          'x = 0 geeft y = {3/2}*0 - 2 = -2',
-          'x = 2 geeft y = {3/2}*2 - 2 = 1',
-          H(
-            dt([
-              ['x', '0', '2'],
-              ['y', '-2', '1'],
-            ]),
-          ),
-          'Dus de lijn gaat door de punten (0, -2) en (2, 1).',
-        ],
-      },
-    },
-    {
-      t: 'Ligt een punt op de lijn?',
-      p: [
-        'Vul de x-coördinaat in de formule in. Komt de y-coördinaat eruit, dan ligt het punt op de lijn.',
-      ],
-      ex: {
-        q: T('Ligt A(6, 30) op l: y = 5x - 1?'),
-        steps: ['x = 6 geeft y = 5*6 - 1 = 29 ≠ 30', 'Dus A ligt niet op l.'],
-      },
-    },
     {
       t: 'De formule opstellen uit een grafiek',
       how: [
@@ -407,6 +467,30 @@ export default {
           'Dus l: y = 3x + 18.',
         ],
       },
+    },
+    {
+      t: 'Verhaal naar formule',
+      p: [
+        'In een verhaal is b het startgetal (vaste kosten, beginhoeveelheid). a is wat er per stap bij komt of af gaat.',
+      ],
+      ex: {
+        q: T('Een regenton bevat 640 liter. Per dag gebruik je 40 liter.'),
+        steps: [
+          'Het startgetal is 640, dus b = 640.',
+          'Per dag gaat er 40 af, dus a = -40.',
+          'W = -40d + 640',
+        ],
+      },
+      watch:
+        'Een tabel met stappen van 10 jaar? Deel de toename eerst door 10. Dan heb je de toename per jaar.',
+    },
+    {
+      t: 'Let op de schaal',
+      p: [
+        T(
+          'Bij een grafiek reken je met de getallen op de assen. Gaat de grafiek door (0, 100) en (60, 180), dan is a = {80/60} = {1 1/3}.',
+        ),
+      ],
     },
   ],
 };

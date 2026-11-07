@@ -1,6 +1,6 @@
 // Startpunt van de app: kiest het juiste scherm en verwerkt klikken en formulieren.
 import { checkAnswer, findTrap } from './answers.js';
-import { SECTIONS, SEC } from './paragraphs/index.js';
+import { TOPICS, TOPIC } from './topics/index.js';
 import { prog, save, rec, resetProgress } from './progress.js';
 import {
   buildTest,
@@ -13,7 +13,7 @@ import {
 } from './ui/exam.js';
 import { vOver } from './ui/about.js';
 import { vHome } from './ui/home.js';
-import { vSec, newQuestion } from './ui/paragraph.js';
+import { vTopic, newQuestion } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
 import { topbar, footer } from './ui/layout.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
@@ -55,7 +55,7 @@ function render(focus) {
   const target = focus || focusedSelector();
   let html = '';
   if (state.view.name === 'home') html = vHome();
-  else if (state.view.name === 'sec') html = vSec(SEC[state.view.id]);
+  else if (state.view.name === 'topic') html = vTopic(TOPIC[state.view.slug]);
   else if (state.view.name === 'toets') html = vToetsSetup();
   else if (state.view.name === 'toetsrun') html = vToetsRun();
   else if (state.view.name === 'toetsres') html = vToetsRes();
@@ -83,8 +83,8 @@ app.addEventListener('click', (e) => {
   if (a === 'home') return go({ name: 'home' });
   if (a === 'toets') return go({ name: 'toets' });
   if (a === 'over') return go({ name: 'over' });
-  if (a === 'sec') return go({ name: 'sec', id, tab: 'uitleg' });
-  if (a === 'secp') return go({ name: 'sec', id, tab: 'oefen' });
+  if (a === 'topic') return go({ name: 'topic', slug: id, tab: 'uitleg' });
+  if (a === 'topicp') return go({ name: 'topic', slug: id, tab: 'oefen' });
   if (a === 'tab') {
     state.view.tab = b.dataset.tab;
     render();
@@ -119,22 +119,22 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'filter') {
-    const s = SEC[state.view.id],
-      st = state.prac[s.id];
+    const s = TOPIC[state.view.slug],
+      st = state.prac[s.slug];
     st.filter = id ? Number(id) : null;
     newQuestion(s);
     render();
     return;
   }
   if (a === 'hint') {
-    const st = state.prac[state.view.id];
+    const st = state.prac[state.view.slug];
     st.vals = readVals(st.q, 'p');
     st.hint = true;
     render('.hintb');
     return;
   }
   if (a === 'show') {
-    const st = state.prac[state.view.id];
+    const st = state.prac[state.view.slug];
     st.vals = readVals(st.q, 'p');
     if (st.first) {
       rec(st.skill.id, false);
@@ -148,7 +148,7 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'showsol') {
-    state.prac[state.view.id].sol = true;
+    state.prac[state.view.slug].sol = true;
     render('.sol');
     return;
   }
@@ -224,8 +224,8 @@ app.addEventListener('submit', (e) => {
     return;
   }
   if (e.target.id === 'pform') {
-    const s = SEC[state.view.id],
-      st = state.prac[s.id];
+    const s = TOPIC[state.view.slug],
+      st = state.prac[s.slug];
     if (st.status === 'right' || st.status === 'shown') {
       newQuestion(s);
       render('#pq');
@@ -267,5 +267,5 @@ app.addEventListener('submit', (e) => {
   }
 });
 /* Alleen voor tests/browser.e2e.js: zo kan de browsertest de juiste antwoorden opvragen. */
-window.wiskundefit = { state, SECTIONS, SEC, prog, go };
+window.wiskundefit = { state, TOPICS, TOPIC, prog, go };
 render();

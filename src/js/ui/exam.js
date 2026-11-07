@@ -1,34 +1,34 @@
 // De proeftoets: samenstellen, afnemen en nakijken.
 import { checkAnswer } from '../answers.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
-import { SECTIONS, SEC } from '../paragraphs/index.js';
+import { TOPICS, TOPIC } from '../topics/index.js';
 import { prog, save, rec, inScope, SCOPES } from '../progress.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { fieldsHTML, readVals } from './question-form.js';
 import { state } from './state.js';
 
 function buildTest(scope, n) {
-  const secs = SECTIONS.filter((s) => inScope(s, scope)),
-    pools = new Map(secs.map((s) => [s.id, shuffle(s.skills)])),
+  const topics = TOPICS.filter((s) => inScope(s, scope)),
+    pools = new Map(topics.map((s) => [s.slug, shuffle(s.skills)])),
     out = [];
-  let round = shuffle(secs);
+  let round = shuffle(topics);
   while (out.length < n) {
     for (const s of round) {
       if (out.length >= n) break;
-      const p = pools.get(s.id);
-      if (!p.length) pools.set(s.id, shuffle(s.skills));
-      const sk = pools.get(s.id).pop();
-      out.push({ sec: s, skill: sk, q: sk.gen(), vals: [] });
+      const p = pools.get(s.slug);
+      if (!p.length) pools.set(s.slug, shuffle(s.skills));
+      const sk = pools.get(s.slug).pop();
+      out.push({ topic: s, skill: sk, q: sk.gen(), vals: [] });
     }
   }
-  const order = SECTIONS.map((s) => s.id);
-  out.sort((a, b) => order.indexOf(a.sec.id) - order.indexOf(b.sec.id));
+  const order = TOPICS.map((s) => s.slug);
+  out.sort((a, b) => order.indexOf(a.topic.slug) - order.indexOf(b.topic.slug));
   return out;
 }
 function vToetsSetup() {
   const scope = prog.scope || 'all',
     n = state.view.n || 20;
-  return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit alle gekozen paragrafen, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>
+  return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit de gekozen stof, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>
   <div class="setup"><b>Welke stof?</b><div class="chips">${SCOPES.map(([k, t]) => `<button class="chip" type="button" data-act="scope" data-id="${k}" aria-pressed="${scope === k}">${t}</button>`).join('')}</div></div>
   <div class="setup"><b>Hoeveel vragen?</b><div class="chips">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
   <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div></div>`;
@@ -43,7 +43,7 @@ function vToetsRun() {
   const open = t.items.filter((x) => !filled(x)).length;
   return `<div class="sheet"><div class="row" style="justify-content:space-between"><h1 class="plain-h">Vraag ${i + 1} van ${t.items.length}</h1><span class="muted small">Tijd <span id="clock" style="font-variant-numeric:tabular-nums">${fmtT(Math.floor((Date.now() - t.start) / 1000))}</span></span></div>
   <div class="grid-nav">${t.items.map((x, k) => `<button class="gn ${filled(x) ? 'fill' : ''} ${k === i ? 'cur' : ''}" type="button" data-act="goto" data-id="${k}" aria-label="Ga naar vraag ${k + 1}">${k + 1}</button>`).join('')}</div>
-  <div class="small muted">${it.sec.num === 'V' ? 'Voorkennis' : 'Paragraaf ' + it.sec.num}</div><div class="q" id="tq">${it.q.q}</div>${it.q.fig ? `<div class="figbox">${it.q.fig}</div>` : ''}
+  <div class="small muted">${T(it.topic.title)}</div><div class="q" id="tq">${it.q.q}</div>${it.q.fig ? `<div class="figbox">${it.q.fig}</div>` : ''}
   <form id="tform" class="block" novalidate>${fieldsHTML(it.q, 't', it.vals)}<div class="row"><button class="btn" type="button" data-act="tprev" ${i ? '' : 'disabled'}>Vorige</button>${i < t.items.length - 1 ? `<button class="btn main" type="submit">Volgende</button>` : ''}<button class="btn ${i === t.items.length - 1 ? 'main' : 'quiet'}" type="button" data-act="tfin" ${t.warn ? 'aria-describedby="tfb"' : ''}>Inleveren</button></div>
   ${t.warn ? `<div class="fb bad" id="tfb">Je hebt nog ${open} ${open === 1 ? 'vraag' : 'vragen'} open. Klik nog een keer op Inleveren als je toch wilt stoppen.</div>` : ''}</form></div>`;
 }
@@ -65,7 +65,7 @@ function finishTest() {
     score += x.got;
     max += x.max;
     rec(x.skill.id, c.ok);
-    const p = per[x.sec.id] || (per[x.sec.id] = { got: 0, max: 0 });
+    const p = per[x.topic.slug] || (per[x.topic.slug] = { got: 0, max: 0 });
     p.got += x.got;
     p.max += x.max;
   });
@@ -81,16 +81,16 @@ function vToetsRes() {
   const t = state.test,
     grade = 1 + (9 * t.score) / t.max,
     weak = Object.entries(t.per)
-      .map(([id, p]) => ({ s: SEC[id], ...p, r: p.got / p.max }))
+      .map(([slug, p]) => ({ s: TOPIC[slug], ...p, r: p.got / p.max }))
       .sort((a, b) => a.r - b.r);
   return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Je resultaat</h1><div class="row" style="gap:24px"><div class="score">${t.score}/${t.max}</div><div><div>punten in ${fmtT(t.time)} minuten</div><div class="muted small">Dat is ongeveer een ${d(rd(grade, 1))} met de formule cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</div></div></div>
-  <h2 class="h3">Per paragraaf</h2><div class="res">${weak
+  <h2 class="h3">Per onderwerp</h2><div class="res">${weak
     .map((w) => {
       const pc = Math.round(w.r * 100);
-      return `<button class="par c${w.s.ch}" type="button" data-act="secp" data-id="${w.s.id}" style="border-top:0;padding:4px 0"><b>${w.s.num}</b><span>${T(w.s.title)}</span><span class="pct">${w.got} van ${w.max}</span><span class="bar ${pc >= 80 ? 'done' : ''}"><i style="width:${pc}%"></i></span></button>`;
+      return `<button class="par color-${w.s.domain.color}" type="button" data-act="topicp" data-id="${w.s.slug}" style="border-top:0;padding:4px 0"><span>${T(w.s.title)}</span><span class="pct">${w.got} van ${w.max}</span><span class="bar ${pc >= 80 ? 'done' : ''}"><i style="width:${pc}%"></i></span></button>`;
     })
     .join('')}</div>
-  <p class="small muted">Klik op een paragraaf om die verder te oefenen.</p><div class="row"><button class="btn main" type="button" data-act="toets">Nieuwe proeftoets</button></div></div>
+  <p class="small muted">Klik op een onderwerp om dat verder te oefenen.</p><div class="row"><button class="btn main" type="button" data-act="toets">Nieuwe proeftoets</button></div></div>
   <div class="sheet"><h2>Alle vragen nakijken</h2><div class="res">${t.items
     .map((x, i) => {
       const ok = x.c.ok;

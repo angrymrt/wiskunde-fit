@@ -1,4 +1,4 @@
-// Paragraaf 1.4: Snijpunten van grafieken. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Snijpunten van lijnen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, nz, pick, coin, Q, qv, near, d, fr, lin, dlin, sg } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
@@ -99,10 +99,8 @@ function s14compare() {
 }
 
 export default {
-  id: '1.4',
-  ch: 1,
-  num: '1.4',
-  title: 'Snijpunten van grafieken',
+  slug: 'snijpunten-van-lijnen',
+  title: 'Snijpunten van lijnen',
   videos: {
     menno: [
       ['Snijpunten met de x-as en de y-as', 'tdHnhUP7sgQ'],

@@ -1,4 +1,4 @@
-// Paragraaf 1.6: Vergelijkingen met twee variabelen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Vergelijkingen met twee variabelen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, nz, pick, coin, gcd, Q, qv, near, fr, lin, d, dlin } from '../math.js';
 import { F, MC, drawLine, inGrid, lineTable, euro } from './shared.js';
 import { T } from '../typeset.js';
@@ -221,9 +221,7 @@ function s16story() {
 }
 
 export default {
-  id: '1.6',
-  ch: 1,
-  num: '1.6',
+  slug: 'vergelijkingen-met-twee-variabelen',
   title: 'Vergelijkingen met twee variabelen',
   videos: {
     menno: [

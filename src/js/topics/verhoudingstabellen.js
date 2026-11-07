@@ -1,4 +1,4 @@
-// Paragraaf 2.1: Verhoudingstabellen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Verhoudingstabellen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { geo } from '../figures.js';
 import { ri, nz, pick, coin, near, rd, isNice, d, ap, lin, sg } from '../math.js';
 import { H, F, RF, needRound } from './shared.js';
@@ -271,9 +271,7 @@ function s21par() {
 }
 
 export default {
-  id: '2.1',
-  ch: 2,
-  num: '2.1',
+  slug: 'verhoudingstabellen',
   title: 'Verhoudingstabellen',
   videos: {
     menno: [

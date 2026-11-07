@@ -44,10 +44,12 @@
   --muted: #4f607f;
   --grid: #d9e7f2;
   --rule: #c4d4e3;
-  --ch1: #0b6ab0;
-  --ch1-soft: #ddeefa;
-  --ch2: #a84e00;
-  --ch2-soft: #fbebda;
+  --blue: #0b6ab0;
+  --blue-soft: #ddeefa;
+  --orange: #a84e00;
+  --orange-soft: #fbebda;
+  --forest: #14683a;
+  --forest-soft: #dff3e6;
   --pink: #cf1f68;
   --green: #4e8a12;
   --mark: #ffe75e;
@@ -68,10 +70,12 @@
     --muted: #a6b5cf;
     --grid: #1c2a42;
     --rule: #33445f;
-    --ch1: #6dbbf2;
-    --ch1-soft: #14324b;
-    --ch2: #ffae66;
-    --ch2-soft: #42280f;
+    --blue: #6dbbf2;
+    --blue-soft: #14324b;
+    --orange: #ffae66;
+    --orange-soft: #42280f;
+    --forest: #7ad69e;
+    --forest-soft: #143524;
     --pink: #ff7fb0;
     --green: #a6d96a;
     --mark: #5c4f10;
@@ -90,10 +94,12 @@
   --muted: #a6b5cf;
   --grid: #1c2a42;
   --rule: #33445f;
-  --ch1: #6dbbf2;
-  --ch1-soft: #14324b;
-  --ch2: #ffae66;
-  --ch2-soft: #42280f;
+  --blue: #6dbbf2;
+  --blue-soft: #14324b;
+  --orange: #ffae66;
+  --orange-soft: #42280f;
+  --forest: #7ad69e;
+  --forest-soft: #143524;
   --pink: #ff7fb0;
   --green: #a6d96a;
   --mark: #5c4f10;
@@ -152,7 +158,7 @@ p {
   margin: 0;
 }
 a {
-  color: var(--ch1);
+  color: var(--blue);
 }
 button,
 select,
@@ -192,7 +198,7 @@ input {
   background: none;
   border: 0;
   padding: 4px;
-  color: var(--ch1);
+  color: var(--blue);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -319,13 +325,13 @@ sub {
 .vt td {
   padding: 2px 9px;
   text-align: center;
-  border-right: 1.5px solid var(--ch1);
+  border-right: 1.5px solid var(--blue);
 }
 .vt td:last-child {
   border-right: 0;
 }
 .vt tr:first-child td {
-  border-bottom: 1.5px solid var(--ch1);
+  border-bottom: 1.5px solid var(--blue);
 }
 .dt {
   margin: 2px 0;
@@ -339,7 +345,7 @@ sub {
   font-weight: 400;
 }
 .dt th {
-  background: var(--ch1-soft);
+  background: var(--blue-soft);
 }
 .scroll {
   overflow-x: auto;
@@ -398,7 +404,7 @@ sub {
   fill: none;
 }
 .fig .l2 {
-  stroke: var(--ch1);
+  stroke: var(--blue);
   stroke-width: 2.4;
   fill: none;
 }
@@ -413,7 +419,7 @@ sub {
   fill: none;
 }
 .fig .a2 {
-  stroke: var(--ch1);
+  stroke: var(--blue);
   stroke-width: 2;
   fill: none;
 }
@@ -428,7 +434,7 @@ sub {
   stroke: none;
 }
 .fig .w2 {
-  fill: var(--ch1);
+  fill: var(--blue);
   opacity: 0.55;
   stroke: none;
 }
@@ -437,7 +443,7 @@ sub {
   font-size: 14px;
 }
 .fig .t2 {
-  fill: var(--ch1);
+  fill: var(--blue);
   font-size: 14px;
 }
 .fig .t3 {
@@ -448,15 +454,15 @@ sub {
   fill: var(--ink);
 }
 .fig .sf {
-  fill: var(--ch1-soft);
+  fill: var(--blue-soft);
   stroke: none;
 }
 .fig .sf2 {
-  fill: var(--ch2-soft);
+  fill: var(--orange-soft);
   stroke: none;
 }
 .fig .tp {
-  stroke: var(--ch2);
+  stroke: var(--orange);
   stroke-width: 2.2;
   stroke-dasharray: 5 4;
   fill: none;
@@ -499,49 +505,50 @@ sub {
     display: none;
   }
 }
-.chs {
+.domains {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   align-items: start;
 }
 @media (max-width: 720px) {
-  .chs {
+  .domains {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-.ch {
+.domain {
   background: var(--sheet);
   border: 1px solid var(--rule);
   border-radius: 6px;
   display: grid;
   overflow: hidden;
 }
-.chh {
+.domain-head {
+  margin: 0;
   padding: 13px 16px;
   font: 800 1.08rem var(--display);
-  color: var(--chc);
-  background: var(--chs);
+  color: var(--accent);
+  background: var(--accent-soft);
   display: flex;
   gap: 10px;
   justify-content: space-between;
   align-items: baseline;
 }
-.chh small {
-  font: 400 0.86rem var(--body);
-  color: var(--muted);
+.color-blue {
+  --accent: var(--blue);
+  --accent-soft: var(--blue-soft);
 }
-.c1 {
-  --chc: var(--ch1);
-  --chs: var(--ch1-soft);
+.color-orange {
+  --accent: var(--orange);
+  --accent-soft: var(--orange-soft);
 }
-.c2 {
-  --chc: var(--ch2);
-  --chs: var(--ch2-soft);
+.color-forest {
+  --accent: var(--forest);
+  --accent-soft: var(--forest-soft);
 }
 .par {
   display: grid;
-  grid-template-columns: 3.1em minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 2px 8px;
   align-items: center;
   padding: 11px 16px;
@@ -553,12 +560,7 @@ sub {
   width: 100%;
 }
 .par:hover {
-  background: var(--chs);
-}
-.par b {
-  color: var(--chc);
-  font-family: var(--display);
-  font-variant-numeric: tabular-nums;
+  background: var(--accent-soft);
 }
 .par .pct {
   font-size: 0.86rem;
@@ -566,7 +568,7 @@ sub {
   font-variant-numeric: tabular-nums;
 }
 .bar {
-  grid-column: 2/4;
+  grid-column: 1/3;
   height: 6px;
   background: var(--grid);
   border-radius: 3px;
@@ -575,7 +577,7 @@ sub {
 .bar i {
   display: block;
   height: 100%;
-  background: var(--chc, var(--ch1));
+  background: var(--accent, var(--blue));
 }
 .bar.done i {
   background: var(--good);
@@ -596,7 +598,7 @@ sub {
   font-weight: 700;
 }
 
-/* paragraaf */
+/* onderwerp */
 .head {
   display: grid;
   gap: 6px;
@@ -604,7 +606,7 @@ sub {
 }
 .head h1 {
   font-size: clamp(1.6rem, 5vw, 2.3rem);
-  color: var(--chc);
+  color: var(--accent);
 }
 .tabs {
   display: flex;
@@ -826,7 +828,7 @@ ol.how {
   color: var(--bad);
 }
 .hintb {
-  background: var(--ch1-soft);
+  background: var(--blue-soft);
   padding: 10px 14px;
   border-radius: 4px;
 }
@@ -850,7 +852,7 @@ ol.how {
   font-variant-numeric: tabular-nums;
 }
 .gn.fill {
-  background: var(--ch1-soft);
+  background: var(--blue-soft);
 }
 .gn.cur {
   border: 2px solid var(--ink);

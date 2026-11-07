@@ -33,7 +33,7 @@ function checkAnswer(q, vals) {
     const hit = vals[0] !== '' && vals[0] != null && +vals[0] === q.mc.a;
     return { each: [hit], ok: hit };
   }
-  // Is er meer dan één goed antwoord, dan kijkt de vraag zelf na. Zie drawLine in paragraphs/shared.js.
+  // Is er meer dan één goed antwoord, dan kijkt de vraag zelf na. Zie drawLine in topics/shared.js.
   const each = q.check
     ? q.check(q.fields.map((f, i) => parseNum(vals[i] ?? '')))
     : q.fields.map((f, i) => checkField(f, vals[i] ?? ''));

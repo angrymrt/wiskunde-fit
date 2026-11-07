@@ -1,4 +1,4 @@
-// Paragraaf 1.3: Lineaire vergelijkingen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Lineaire vergelijkingen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, nz, pick, coin, lcm, Q, qv, near, fr, lin, sg } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
@@ -263,9 +263,7 @@ function s13param() {
 }
 
 export default {
-  id: '1.3',
-  ch: 1,
-  num: '1.3',
+  slug: 'lineaire-vergelijkingen',
   title: 'Lineaire vergelijkingen',
   videos: {
     menno: [

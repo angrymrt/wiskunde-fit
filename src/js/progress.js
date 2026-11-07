@@ -133,7 +133,7 @@ const skillPct = (id) => {
   const a = prog.skills[id] || [];
   return a.reduce((t, x) => t + x, 0) / 5;
 };
-const secPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
+const topicPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
 const inScope = (s, scope) => (scope === 'h1' ? s.ch === 1 : scope === 'h2' ? s.ch === 2 : true);
 const SCOPES = [
   ['all', 'Heel hoofdstuk 1 en 2'],
@@ -152,7 +152,7 @@ export {
   save,
   rec,
   skillPct,
-  secPct,
+  topicPct,
   inScope,
   SCOPES,
   resetProgress,

@@ -1,6 +1,6 @@
-// Het overzichtsscherm met alle paragrafen.
-import { SECTIONS } from '../paragraphs/index.js';
-import { prog, secPct, inScope } from '../progress.js';
+// Het overzichtsscherm met alle onderwerpen per domein.
+import { DOMAINS, TOPICS } from '../topics/index.js';
+import { prog, topicPct, inScope } from '../progress.js';
 import { T } from '../typeset.js';
 import { state } from './state.js';
 
@@ -15,29 +15,25 @@ function heroFig() {
   <text x="${X(2) - 4}" y="${Y(1.5) + 17}">2</text><text x="${X(3) + 6}" y="${Y(2) + 5}">1</text><text x="${X(5) - 4}" y="${Y(2.5) + 17}">4</text><text x="${X(7) + 6}" y="${Y(3.5) + 5}">2</text>
   <text class="ti t1" x="${X(0.5)}" y="${Y(3.6)}">y = ½x + 1</text></svg>`;
 }
-function nextSec() {
+function nextTopic() {
   const scope = prog.scope || 'all';
-  return SECTIONS.filter((s) => inScope(s, scope)).sort((a, b) => secPct(a) - secPct(b))[0];
+  return TOPICS.filter((s) => inScope(s, scope)).sort((a, b) => topicPct(a) - topicPct(b))[0];
 }
 function vHome() {
-  const n = nextSec(),
+  const n = nextTopic(),
     last = prog.tests[prog.tests.length - 1];
   const started = Object.keys(prog.skills).length > 0;
-  const secRow = (s) => {
-    const p = Math.round(secPct(s) * 100),
+  const topicRow = (s) => {
+    const p = Math.round(topicPct(s) * 100),
       done = p >= 80;
-    return `<button class="par" type="button" data-act="sec" data-id="${s.id}"><b>${s.num}</b><span>${T(s.title)}</span><span class="pct">${done ? '<span class="pill good">Beheerst</span>' : p ? p + '%' : ''}</span><span class="bar ${done ? 'done' : ''}"><i style="width:${p}%"></i></span></button>`;
+    return `<button class="par" type="button" data-act="topic" data-id="${s.slug}"><span>${T(s.title)}</span><span class="pct">${done ? '<span class="pill good">Beheerst</span>' : p ? p + '%' : ''}</span><span class="bar ${done ? 'done' : ''}"><i style="width:${p}%"></i></span></button>`;
   };
-  const chapter = (c, title) =>
-    `<section class="ch c${c}"><div class="chh">Hoofdstuk ${c}<small>${title}</small></div>${SECTIONS.filter(
-      (s) => s.ch === c,
-    )
-      .map(secRow)
-      .join('')}</section>`;
+  const domain = (d) =>
+    `<section class="domain color-${d.color}" id="${d.slug}"><h2 class="domain-head">${d.name}</h2>${d.topics.map(topicRow).join('')}</section>`;
   return `<section class="hero"><div class="hero-txt"><h1>Op naar die voldoende!</h1><p class="lead">Oefen voor je wiskundetoets met uitleg, hints en steeds nieuwe vragen. Zo ga je goed voorbereid je toets in.</p>
-  <div class="row"><button class="btn main" type="button" data-act="sec" data-id="${n.id}">${started ? 'Oefen' : 'Begin met'} ${n.num === 'V' ? n.title.replace('Voorkennis: ', '') : n.num}</button><button class="btn" type="button" data-act="toets">Maak een proeftoets</button></div>
+  <div class="row"><button class="btn main" type="button" data-act="topic" data-id="${n.slug}">${started ? 'Oefen' : 'Begin met'} ${T(n.title)}</button><button class="btn" type="button" data-act="toets">Maak een proeftoets</button></div>
   ${last ? `<p class="small muted">Laatste proeftoets: ${last.score} van ${last.max} punten.</p>` : ''}</div>${heroFig()}</section>
-  <div class="chs">${chapter(1, 'Lineaire problemen')}${chapter(2, 'Gelijkvormigheid')}</div>
+  <div class="domains">${DOMAINS.map(domain).join('')}</div>
   <div class="row small muted"><span>Oefenstof voor havo 3 die aansluit op Getal &amp; Ruimte editie 13, FLEX-boek deel 1. Dit is een eigen project zonder band met Noordhoff of Getal &amp; Ruimte. Je voortgang blijft in deze browser bewaard.</span>${started ? (state.confirmReset ? `<button class="btn quiet" type="button" data-act="reset2">Ja, wis alles</button><button class="btn quiet" type="button" data-act="reset0">Annuleren</button>` : `<button class="btn quiet" type="button" data-act="reset1">Voortgang wissen</button>`) : ''}</div>`;
 }
 

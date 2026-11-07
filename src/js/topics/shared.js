@@ -3,6 +3,15 @@ import { geo, graph } from '../figures.js';
 import { shuffle, Q, qv, isNice, sg, near, fr } from '../math.js';
 import { dt } from '../typeset.js';
 
+// Letterparen voor een formule met andere letters dan x en y.
+const LV = [
+  ['N', 't'],
+  ['K', 'q'],
+  ['B', 'k'],
+  ['R', 'p'],
+  ['W', 's'],
+  ['V', 'u'],
+];
 const H = (html) => ({ h: html });
 const F = (pre, a, post = '') => ({ pre, a: qv(a), post });
 const RF = (pre, x, n = 1, post = '') =>
@@ -125,6 +134,7 @@ function drawLine(a, b, p, q, xn = 'x', yn = 'y') {
 }
 
 export {
+  LV,
   H,
   F,
   RF,

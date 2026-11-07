@@ -1,7 +1,7 @@
-// Paragraaf 2.4: Lengtes van lijnstukken berekenen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Lengtes van lijnstukken berekenen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { geo } from '../figures.js';
 import { pick, near, ap, isNice, d, lin } from '../math.js';
-import { s22comm } from './2.2.js';
+import { s22comm } from './gelijkvormige-driehoeken.js';
 import { H, RF, needRound, nestedFig } from './shared.js';
 import { T, vt } from '../typeset.js';
 
@@ -619,9 +619,7 @@ function cableStory() {
 const s24story = () => pick([tableStory, cableStory])();
 
 export default {
-  id: '2.4',
-  ch: 2,
-  num: '2.4',
+  slug: 'lengtes-van-lijnstukken-berekenen',
   title: 'Lengtes van lijnstukken berekenen',
   videos: {
     menno: [

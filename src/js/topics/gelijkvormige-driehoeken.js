@@ -1,4 +1,4 @@
-// Paragraaf 2.2: Gelijkvormigheid. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Gelijkvormige driehoeken. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { triFromSides, xf, geo } from '../figures.js';
 import { ri, pick, coin, shuffle, near, rd, d, ap } from '../math.js';
 import { H, F, RF, needRound, MC, TRP, nestedFig } from './shared.js';
@@ -285,10 +285,8 @@ function s22py() {
 }
 
 export default {
-  id: '2.2',
-  ch: 2,
-  num: '2.2',
-  title: 'Gelijkvormigheid',
+  slug: 'gelijkvormige-driehoeken',
+  title: 'Gelijkvormige driehoeken',
   videos: {
     menno: [
       ['Gelijkvormigheid', 'cVu2DqhSueY'],

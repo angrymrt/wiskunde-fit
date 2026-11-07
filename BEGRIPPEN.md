@@ -4,7 +4,7 @@ Deze lijst legt vast welke woorden we gebruiken als we over Wiskundefit praten, 
 
 Teksten voor leerlingen volgen dezelfde betekenis, maar mogen gewonere woorden gebruiken. Zie [Voor de leerling](#voor-de-leerling).
 
-De namen in de code veranderen pas in fase 3 van de [roadmap](ROADMAP.md), net als de site zelf. Tot die tijd staan de onderwerpen nog als paragrafen op de site en in `paragraphs/`.
+De stof staat in de code per onderwerp in `topics/`. De methode-indeling en de stofkeuze komen nog in fase 3 van de [roadmap](ROADMAP.md).
 
 ## Het overzicht
 
@@ -47,20 +47,20 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 | Begrip      | Betekenis                                                                                                                                                                           | In de code           | Niet gebruiken              |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | --------------------------- |
 | Stof        | Alles wat een leerling op de site kan leren en oefenen.                                                                                                                             |                      | lesstof, content, materiaal |
-| Domein      | Een aantal onderwerpen die bij elkaar horen, zoals Meetkunde. We kiezen de domeinen zelf: het is geen officiële lijst uit de kerndoelen of examenprogramma's en geen hoofdstuk.     | nog niet             | groep, hoofdstuk            |
-| Onderwerp   | De plek waar je iets leert: uitleg, video's en vraagsoorten. Onafhankelijk van een methode.                                                                                         | nu `SECTIONS`        | les, paragraaf              |
+| Domein      | Een aantal onderwerpen die bij elkaar horen, zoals Meetkunde. We kiezen de domeinen zelf: het is geen officiële lijst uit de kerndoelen of examenprogramma's en geen hoofdstuk.     | `DOMAINS`            | groep, hoofdstuk            |
+| Onderwerp   | De plek waar je iets leert: uitleg, video's en vraagsoorten. Onafhankelijk van een methode.                                                                                         | `TOPICS`             | les, paragraaf              |
 | Vraagsoort  | Eén soort vraag die je kunt oefenen, met een vaste id en een generator, zoals Zijden berekenen. Per vraag verschillen alleen de getallen of het verhaal.                            | `skills`             | skill in lopende tekst      |
 | Vaardigheid | Wat een leerling leert kunnen. Eén vaardigheid kan bij meer vraagsoorten horen. Het woord is breed en kan ook iets als modelleren betekenen. Daarom is het nu geen laag op de site. | nog niet             |                             |
 | Vraag       | Eén concrete vraag met eigen getallen, gemaakt door een generator.                                                                                                                  | `q` en de rest ervan | som, opgave, opdracht       |
 | Generator   | De functie die vragen maakt bij een vraagsoort.                                                                                                                                     | `gen`                |                             |
 | Seed        | Het getal waarmee je precies dezelfde vraag opnieuw kunt maken.                                                                                                                     | nog niet             |                             |
-| Voorkennis  | Stof die je al moet kennen voordat je aan een onderwerp begint. Is zelf gewone stof, met een verwijzing vanuit het onderwerp.                                                       | nu `v1`, `v2`        |                             |
+| Voorkennis  | Stof die je al moet kennen voordat je aan een onderwerp begint. Een kenmerk van een onderwerp: de uitleg verwijst ernaar, en het hoort niet bij de stofkeuze.                       | `prerequisites`      |                             |
 | Uitleg      | De tekst bij een onderwerp die de stof uitlegt.                                                                                                                                     |                      | theorie (dat is de methode) |
 | Hint        | Een tip bij een vraag, zonder het antwoord.                                                                                                                                         | `hint`               |                             |
 | Uitwerking  | De stappen naar het goede antwoord.                                                                                                                                                 | `steps`              | oplossing, antwoord         |
 | Feedback    | Een bericht dat ingaat op een fout die een leerling maakte.                                                                                                                         | `traps`              |                             |
 | Id          | Het vaste nummer van een vraagsoort voor de site. Verandert nooit en zegt niets over de plek in de stof. De voortgang hangt hieraan.                                                | `id`                 |                             |
-| Adres       | Het webadres van een pagina, zoals `/snijpunten-van-lijnen`. Is voor mensen en mag veranderen, met een doorverwijzing vanaf het oude adres.                                         | nog niet             |                             |
+| Adres       | Het webadres van een pagina, zoals `/snijpunten-van-lijnen`. Is voor mensen en mag veranderen, met een doorverwijzing vanaf het oude adres.                                         | `slug`               |                             |
 
 ## De methode-indeling en het kiezen van stof
 
@@ -77,7 +77,7 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 | Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                               |              |
 | Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                | `ui/exam.js` |
 | Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.              | `prog`       |
-| Beheerst         | De voortgang is 80% of meer.                                                            | `secPct`     |
+| Beheerst         | De voortgang is 80% of meer.                                                            | `topicPct`   |
 | Overzichtsscherm | Het eerste scherm van de site. Het woord beginscherm is voor het icoon op een telefoon. | `ui/home.js` |
 
 ## Controleren

@@ -58,15 +58,13 @@ src/
     ├── figures.js          Tekent grafieken en driehoeken als SVG
     ├── answers.js          Leest en controleert antwoorden
     ├── progress.js         Bewaart de voortgang in de browser
-    ├── paragraphs/         De stof: elk bestand is één paragraaf
-    │   ├── index.js        De lijst met alle paragrafen
-    │   ├── shared.js       Hulpmiddelen voor meerdere paragrafen
-    │   ├── voorkennis-lineair.js  Lineaire formules
-│   ├── voorkennis.js   Pythagoras
-    │   └── 1.1.js … 2.4.js
+    ├── topics/             De stof: elk bestand is één onderwerp
+    │   ├── index.js        De domeinen, hun onderwerpen en de voorkennis
+    │   ├── shared.js       Hulpmiddelen voor meerdere onderwerpen
+    │   └── snijpunten-van-lijnen.js … de andere onderwerpen
     └── ui/                 De schermen
         ├── home.js         Overzicht
-        ├── paragraph.js    Uitleg, oefenen en video's
+        ├── topic.js        Uitleg en oefenen bij een onderwerp
         ├── exam.js         Proeftoets
         ├── question-form.js Invoervelden van een vraag
         ├── widgets.js      Schuifjes en hoekendemo
@@ -77,9 +75,9 @@ scripts/                    Build, ontwikkelserver, afbeeldingen en releasenotit
 tests/                      Generatortests, releasecontrole en browsertest
 ```
 
-De belangrijkste plek om te beginnen is een bestand in `src/js/paragraphs/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vraagsoorten. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.
+De belangrijkste plek om te beginnen is een bestand in `src/js/topics/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vraagsoorten. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.
 
-In [AGENTS.md](AGENTS.md) staat hoe je een vraag of paragraaf toevoegt en welke afspraken gelden. De woorden die we gebruiken staan in [BEGRIPPEN.md](BEGRIPPEN.md).
+In [AGENTS.md](AGENTS.md) staat hoe je een vraag of onderwerp toevoegt en welke afspraken gelden. De woorden die we gebruiken staan in [BEGRIPPEN.md](BEGRIPPEN.md).
 
 ## Lesmateriaal
 

@@ -33,7 +33,7 @@ function vOver() {
   <div class="block"><h3>Als je ons mailt</h3>
   <p>Dan zien we je e-mailadres en je bericht. We gebruiken die alleen om je te antwoorden. Wil je dat we je bericht verwijderen, mail dan naar ${mail}.</p></div>
   <div class="block"><h3>Als dit verandert</h3>
-  <p>Misschien gaan we later anonieme totalen meten, zoals hoe vaak een paragraaf wordt bekeken. Dat zijn nooit gegevens per leerling. We passen deze tekst eerst aan voordat er iets verandert.</p>
+  <p>Misschien gaan we later anonieme totalen meten, zoals hoe vaak een onderwerp wordt bekeken. Dat zijn nooit gegevens per leerling. We passen deze tekst eerst aan voordat er iets verandert.</p>
   <p class="small muted">Bijgewerkt op 6 november 2026.</p></div></div>`;
 }
 

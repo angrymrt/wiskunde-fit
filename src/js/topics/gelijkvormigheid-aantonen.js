@@ -1,4 +1,4 @@
-// Paragraaf 2.3: Gelijkvormigheid aantonen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Gelijkvormigheid aantonen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { geo, angleFig } from '../figures.js';
 import { ri, pick, coin, near, rd, isNice, d, ap } from '../math.js';
 import { H, F, RF, needRound, MC, TRP, nestedPts, nestedFig } from './shared.js';
@@ -352,9 +352,7 @@ function s23alt() {
 }
 
 export default {
-  id: '2.3',
-  ch: 2,
-  num: '2.3',
+  slug: 'gelijkvormigheid-aantonen',
   title: 'Gelijkvormigheid aantonen',
   videos: {
     menno: [

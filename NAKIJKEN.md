@@ -2,7 +2,7 @@
 
 Fijn dat je wilt meekijken. De automatische tests vinden rekenfouten, maar geen onduidelijke uitleg of een verkeerde aanpak. Daarvoor is deze lijst. De stof is vergeleken met Getal & Ruimte editie 13, havo 3, FLEX deel 1, en mede gemaakt met AI.
 
-Je hoeft niet alles na te kijken. Eén paragraaf helpt ook al. Een paragraaf kijk je na op [wiskundefit.nl](https://wiskundefit.nl). Kies de paragraaf, lees de uitleg en maak onder Oefenen van elke vraagsoort een paar vragen. Open daarbij ook de uitwerking.
+Je hoeft niet alles na te kijken. Eén onderwerp helpt ook al. Een onderwerp kijk je na op [wiskundefit.nl](https://wiskundefit.nl). Kies het onderwerp, lees de uitleg en maak onder Oefenen van elke vraagsoort een paar vragen. Open daarbij ook de uitwerking.
 
 ## Waar we op letten
 
@@ -23,22 +23,22 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - Een getekende lijn controleert de site aan de hand van twee punten in een rooster. Lijnen die niet door twee roosterpunten gaan, komen daarom niet voor.
 - De site heeft geen gemengde opgaven en geen onderzoeken, zoals die aan het eind van een hoofdstuk in het boek staan.
 
-## Paragrafen
+## Onderwerpen
 
-| Paragraaf                              | Nagekeken door | Datum |
-| -------------------------------------- | -------------- | ----- |
-| Voorkennis Lineaire formules           |                |       |
-| 1.1 De formule y = ax + b              |                |       |
-| 1.2 Lineaire verbanden                 |                |       |
-| 1.3 Lineaire vergelijkingen            |                |       |
-| 1.4 Snijpunten van grafieken           |                |       |
-| 1.5 Lineaire ongelijkheden             |                |       |
-| 1.6 Vergelijkingen met twee variabelen |                |       |
-| Voorkennis De stelling van Pythagoras  |                |       |
-| 2.1 Verhoudingstabellen                |                |       |
-| 2.2 Gelijkvormigheid                   |                |       |
-| 2.3 Gelijkvormigheid aantonen          |                |       |
-| 2.4 Lengtes van lijnstukken berekenen  |                |       |
+| Onderwerp                          | Nagekeken door | Datum |
+| ---------------------------------- | -------------- | ----- |
+| Rekenen met een formule            |                |       |
+| Lineaire grafieken tekenen         |                |       |
+| Lineaire formule opstellen         |                |       |
+| Snijpunten van lijnen              |                |       |
+| Lineaire vergelijkingen            |                |       |
+| Lineaire ongelijkheden             |                |       |
+| Vergelijkingen met twee variabelen |                |       |
+| Stelling van Pythagoras            |                |       |
+| Verhoudingstabellen                |                |       |
+| Gelijkvormige driehoeken           |                |       |
+| Gelijkvormigheid aantonen          |                |       |
+| Lengtes van lijnstukken berekenen  |                |       |
 
 Je naam zetten we hier alleen bij als je dat wilt.
 

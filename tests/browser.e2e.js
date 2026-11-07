@@ -73,15 +73,13 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
         }
       };
       await check('overzicht');
-      const ids = await p.evaluate(() => wiskundefit.SECTIONS.map((s) => s.id));
+      const ids = await p.evaluate(() => wiskundefit.TOPICS.map((s) => s.slug));
       for (const id of ids) {
-        await p.evaluate((i) => wiskundefit.go({ name: 'sec', id: i, tab: 'uitleg' }), id);
+        await p.evaluate((i) => wiskundefit.go({ name: 'topic', slug: i, tab: 'uitleg' }), id);
         for (const b of await p.$$('[data-act="exnext"]')) {
           while (await b.isVisible()) await b.click();
         }
         await check(`${id} uitleg`);
-        await p.click('[role="tab"][data-tab="video"]');
-        await check(`${id} video's`);
         await p.click('[role="tab"][data-tab="oefen"]');
         await p.click('[data-act="hint"]');
         await p.click('#pform button[type=submit]');
@@ -120,7 +118,7 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
       });
 
     // Een nieuw scherm: de focus gaat naar de kop.
-    await p.click('[data-act="sec"][data-id="1.1"]:not(.btn)');
+    await p.click('[data-act="topic"][data-id="lineaire-grafieken-tekenen"]:not(.btn)');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
 
     // Tabbladen: met de pijltjes wisselen, en de focus blijft op het tabblad.
@@ -197,12 +195,20 @@ test('een lijn tekenen werkt met tikken en met typen', { timeout: 60_000 }, asyn
     // Hoog genoeg voor het hele rooster: een muisklik buiten het scherm raakt niets.
     const p = await browser.newPage({ viewport: { width: 390, height: 1300 } });
     await p.goto(siteUrl);
-    await p.evaluate(() => wiskundefit.go({ name: 'sec', id: '1.1', tab: 'oefen' }));
+    await p.evaluate(() =>
+      wiskundefit.go({ name: 'topic', slug: 'lineaire-grafieken-tekenen', tab: 'oefen' }),
+    );
     const id = await p.evaluate(
-      () => wiskundefit.SEC['1.1'].skills.find((k) => k.name === 'Een lijn tekenen').id,
+      () =>
+        wiskundefit.TOPIC['lineaire-grafieken-tekenen'].skills.find(
+          (k) => k.name === 'Een lijn tekenen',
+        ).id,
     );
     await p.click(`.chip[data-id="${id}"]`);
-    const q = () => p.evaluate(() => wiskundefit.state.prac['1.1'].q.fields.map((f) => f.a));
+    const q = () =>
+      p.evaluate(() =>
+        wiskundefit.state.prac['lineaire-grafieken-tekenen'].q.fields.map((f) => f.a),
+      );
     const inputs = () => p.$$eval('#pform .fld input', (els) => els.map((e) => e.value));
     // Tikt op een punt van het rooster, ook als de figuur op het scherm is geschaald.
     const tap = async (x, y) => {
@@ -267,9 +273,12 @@ test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 },
       ),
     );
     await p.reload();
-    const first = await p.evaluate(() => wiskundefit.SEC['1.5'].skills[0].id);
+    const first = await p.evaluate(() => wiskundefit.TOPIC['lineaire-ongelijkheden'].skills[0].id);
     assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { [first]: [1, 1] });
-    assert.equal(await p.evaluate(() => wiskundefit.SEC['1.5'].title), 'Lineaire ongelijkheden');
+    assert.equal(
+      await p.evaluate(() => wiskundefit.TOPIC['lineaire-ongelijkheden'].title),
+      'Lineaire ongelijkheden',
+    );
     assert.equal(await p.evaluate(() => wiskundefit.prog.v), 3);
 
     // Voortgang op de id's uit paragraaf en volgorde krijgt het vaste nummer.
@@ -280,7 +289,9 @@ test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 },
       ),
     );
     await p.reload();
-    const story = await p.evaluate(() => wiskundefit.SEC['2.4'].skills[7].id);
+    const story = await p.evaluate(
+      () => wiskundefit.TOPIC['lengtes-van-lijnstukken-berekenen'].skills[7].id,
+    );
     assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { [story]: [1, 0, 1] });
     assert.equal(await p.evaluate(() => wiskundefit.prog.scope), 'h2');
     await p.evaluate(() => localStorage.clear());
@@ -317,11 +328,11 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     const failures = [];
     let answered = 0;
 
-    const ids = await p.evaluate(() => wiskundefit.SECTIONS.map((s) => s.id));
+    const ids = await p.evaluate(() => wiskundefit.TOPICS.map((s) => s.slug));
     for (const id of ids) {
       await p.evaluate(() => wiskundefit.go({ name: 'home' }));
       await checkOverflow('overzicht');
-      await p.click(`[data-act="sec"][data-id="${id}"]:not(.btn)`);
+      await p.click(`[data-act="topic"][data-id="${id}"]:not(.btn)`);
       await checkOverflow(`${id} uitleg`);
       for (const b of await p.$$('[data-act="exnext"]')) {
         while (await b.isVisible()) await b.click();
@@ -337,10 +348,9 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
         });
       }
       await checkOverflow(`${id} schuifjes op maximum`);
-      await p.click('[role="tab"][data-tab="video"]');
       await p.click('[role="tab"][data-tab="oefen"]');
 
-      const skills = await p.evaluate((i) => wiskundefit.SEC[i].skills.map((k) => k.id), id);
+      const skills = await p.evaluate((i) => wiskundefit.TOPIC[i].skills.map((k) => k.id), id);
       for (const skill of skills) {
         for (let round = 0; round < rounds; round++) {
           await p.click(`.chip[data-id="${skill}"]`);
@@ -400,7 +410,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     await p.click('[data-act="tfin"]');
     const blank = await p.evaluate(() => ({
       score: wiskundefit.state.test.score,
-      onlyH1: wiskundefit.state.test.items.every((x) => x.sec.ch === 1),
+      onlyH1: wiskundefit.state.test.items.every((x) => x.topic.ch === 1),
     }));
     assert.deepEqual(blank, { score: 0, onlyH1: true });
 
@@ -408,7 +418,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     await p.reload();
     await p.waitForTimeout(200);
     const kept = await p.evaluate(() => Object.keys(wiskundefit.prog.skills).length);
-    const total = await p.evaluate(() => wiskundefit.SECTIONS.flatMap((s) => s.skills).length);
+    const total = await p.evaluate(() => wiskundefit.TOPICS.flatMap((s) => s.skills).length);
     assert.equal(kept, total, 'voortgang na herladen');
 
     assert.deepEqual([...overflowing], [], 'schermen die breder zijn dan de telefoon');
@@ -418,10 +428,10 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
       page.screenshot({ path: `${shotDir}${name}.png`, fullPage });
     const light = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'light' });
     await shot(light, 'overzicht');
-    await light.click('[data-act="sec"][data-id="1.1"]:not(.btn)');
+    await light.click('[data-act="topic"][data-id="lineaire-grafieken-tekenen"]:not(.btn)');
     await shot(light, 'uitleg', true);
     const dark = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'dark' });
-    await dark.click('[data-act="sec"][data-id="2.2"]:not(.btn)');
+    await dark.click('[data-act="topic"][data-id="gelijkvormige-driehoeken"]:not(.btn)');
     await dark.click('[role="tab"][data-tab="oefen"]');
     await dark.click('[data-act="show"]');
     await shot(dark, 'oefenen-donker', true);

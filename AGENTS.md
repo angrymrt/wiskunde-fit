@@ -44,12 +44,12 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 - **Schrijf Nederlands voor de leerling.** Spreek de leerling aan met "je", in korte, gewone zinnen. Ook de code-opmerkingen en documentatie zijn Nederlands.
 - **Houd de site statisch.** Geen server, geen accounts, geen persoonsgegevens, geen cookies en geen externe scripts. Let op: de cookieregels gelden ook voor een script dat zonder cookie iets naar een server stuurt. De lettertypes staan in `src/fonts/`. Alleen de links naar YouTube en GitHub en het mailadres gebruiken internet.
 - **Wijzig `dist/` niet.** Die map wordt gebouwd en staat niet in git.
-- **Houd stof en schermen gescheiden.** `math.js`, `typeset.js`, `figures.js`, `answers.js` en `paragraphs/` mogen geen DOM gebruiken, want de tests draaien ze in Node. DOM-code hoort in `ui/` en `main.js`.
+- **Houd stof en schermen gescheiden.** `math.js`, `typeset.js`, `figures.js`, `answers.js` en `topics/` mogen geen DOM gebruiken, want de tests draaien ze in Node. DOM-code hoort in `ui/` en `main.js`.
 - **Kleuren staan als tokens in `:root`.** Definieer elke nieuwe kleur ook voor de donkere modus. Dat gebeurt op twee plekken: in de `prefers-color-scheme`-regel en bij `[data-theme='dark']`.
 
 ## Een vraag toevoegen
 
-1. Schrijf in het juiste bestand in `src/js/paragraphs/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen.
+1. Schrijf in het juiste bestand in `src/js/topics/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen.
 2. Zet de functie in de lijst `skills` onderaan het bestand, met het eerstvolgende vrije nummer: `[66, 'Naam van de vraagsoort', mijnFunctie]`.
 3. Zet hetzelfde nummer in `tests/vraagsoort-ids.js`: `66: 'mijnFunctie'`.
 4. Draai `npm test`. De test vindt de nieuwe vraag vanzelf en zegt welk nummer vrij is.
@@ -87,7 +87,7 @@ function s15value() {
 | `check`   | nee         | Eigen nakijken bij meer goede antwoorden: `(getallen) => [true, false, ...]` |
 | `compact` | nee         | Smalle velden, voor een formule of punt op één regel                         |
 
-Veldhulpen in `paragraphs/shared.js`:
+Veldhulpen in `topics/shared.js`:
 
 - `F(label, antwoord, achterLabel)` maakt een exact veld. Breuken uit `Q(...)` mogen als antwoord.
 - `RF(label, antwoord, decimalen, achterLabel)` maakt een veld dat afronden alleen toestaat als het antwoord niet precies uitkomt. Zet `needRound(velden)` achter de vraag voor de zin "Rond af op ...".
@@ -114,12 +114,13 @@ Let op: een losse letter wordt altijd als variabele gezet, dus schrijf `meter` i
 
 Handige hulpen uit `math.js` zijn `lin(a, b, 'x')` voor een nette formule zonder `+ -3`, `fr(q)` voor een breuk in T-notatie, `d(x)` voor een getal met komma en `ap(x)` voor `= 3,5` of `≈ 3,5`.
 
-## Een paragraaf toevoegen
+## Een onderwerp toevoegen
 
-1. Kopieer een bestand in `src/js/paragraphs/` en pas de `export default` aan.
-2. Voeg het toe aan de lijst in `paragraphs/index.js`.
+1. Kopieer een bestand in `src/js/topics/` en pas de `export default` aan. Het adres (`slug`) is de titel in kleine letters met streepjes. Kies een titel die ook later niet botst, zoals Lineaire formule opstellen in plaats van Formule opstellen.
+2. Zet het onderwerp in een domein in `topics/index.js`, op de plek waar het in de volgorde hoort.
+3. Zet de voorkennis in `PREREQUISITES` in hetzelfde bestand. Voorkennis is een kenmerk van een onderwerp, ook als die in een boek als los stukje voor een hoofdstuk staat. Maak dus geen apart onderwerp voor voorkennis.
 
-Wijzig het nummer van een vraagsoort nooit, want de opgeslagen voortgang verwijst daarnaar. De naam, de volgorde en de paragraaf van een vraagsoort mogen wel veranderen. Stopt een vraagsoort, zet dan `null` achter het nummer in `tests/vraagsoort-ids.js`, leg in `progress.js` vast waar de voortgang heen gaat en gebruik het nummer nooit opnieuw.
+Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.css`. Wijzig het nummer van een vraagsoort nooit, want de opgeslagen voortgang verwijst daarnaar. De naam, de volgorde en het onderwerp van een vraagsoort mogen wel veranderen. Stopt een vraagsoort, zet dan `null` achter het nummer in `tests/vraagsoort-ids.js`, leg in `progress.js` vast waar de voortgang heen gaat en gebruik het nummer nooit opnieuw.
 
 ## Zo werken de schermen
 

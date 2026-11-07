@@ -1,4 +1,4 @@
-// Paragraaf 1.5: Lineaire ongelijkheden. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
+// Onderwerp: Lineaire ongelijkheden. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { graph } from '../figures.js';
 import { ri, nz, pick, Q, near, lin, dlin, sg, d } from '../math.js';
 import { F, euro } from './shared.js';
@@ -330,9 +330,7 @@ function s15story() {
 }
 
 export default {
-  id: '1.5',
-  ch: 1,
-  num: '1.5',
+  slug: 'lineaire-ongelijkheden',
   title: 'Lineaire ongelijkheden',
   videos: {
     menno: [

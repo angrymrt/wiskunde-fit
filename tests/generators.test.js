@@ -2,7 +2,7 @@
 // Meer rondes kan met de omgevingsvariabele QUESTIONS, bijvoorbeeld QUESTIONS=5000.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SECTIONS } from '../src/js/paragraphs/index.js';
+import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
 import { checkAnswer, checkField, parseNum } from '../src/js/answers.js';
 import { migrateIds, migrateSkills } from '../src/js/progress.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
@@ -51,8 +51,8 @@ function assertSound(q) {
   assert.ok(!checkAnswer(q, wrong).ok, `fout antwoord goedgekeurd: ${q.q}`);
 }
 
-for (const section of SECTIONS) {
-  test(`${section.num} ${section.title}`, async (t) => {
+for (const section of TOPICS) {
+  test(section.title, async (t) => {
     for (const skill of section.skills) {
       await t.test(skill.name, () => {
         for (let i = 0; i < ROUNDS; i++) assertSound(skill.gen());
@@ -62,7 +62,7 @@ for (const section of SECTIONS) {
 }
 
 test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
-  const drawing = SECTIONS.flatMap((s) => s.skills).filter((k) => /tekenen$/.test(k.name));
+  const drawing = TOPICS.flatMap((s) => s.skills).filter((k) => /tekenen$/.test(k.name));
   assert.equal(drawing.length, 3);
   for (const skill of drawing) {
     for (let i = 0; i < ROUNDS; i++) {
@@ -80,7 +80,7 @@ test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
 });
 
 test('oude voortgang verhuist mee met de nieuwe indeling', () => {
-  const ids = new Set(SECTIONS.flatMap((s) => s.skills.map((k) => k.id)));
+  const ids = new Set(TOPICS.flatMap((s) => s.skills.map((k) => k.id)));
   const old = [
     ['1.1#0', '1.1#0'],
     ['1.3#4', '1.3#4'],
@@ -103,10 +103,25 @@ test('oude voortgang verhuist mee met de nieuwe indeling', () => {
   }
 });
 
+test('elk onderwerp heeft een adres dat bij de titel past', () => {
+  const reserved = ['methode-indeling', 'boek', 'jouw-stof', 'proeftoets', 'over', 'cijfers'];
+  const slugs = TOPICS.map((t) => t.slug);
+  assert.equal(new Set(slugs).size, slugs.length, 'Twee onderwerpen hebben hetzelfde adres');
+  for (const t of TOPICS) {
+    assert.equal(t.slug, t.title.toLowerCase().replaceAll(' ', '-'), t.title);
+    assert.ok(!reserved.includes(t.slug), `${t.slug} is gereserveerd`);
+    assert.ok(t.skills.length > 0, `${t.title} heeft geen vraagsoorten`);
+    assert.ok(DOMAINS.includes(t.domain), `${t.title} hoort niet bij een domein`);
+    for (const p of t.prerequisites) {
+      assert.ok(TOPICS.includes(p) && p !== t, `Verkeerde voorkennis bij ${t.title}`);
+    }
+  }
+});
+
 test('elke vraagsoort houdt haar vaste nummer', () => {
   const seen = new Set();
   const next = Math.max(...Object.keys(KNOWN_IDS).map(Number)) + 1;
-  for (const k of SECTIONS.flatMap((s) => s.skills)) {
+  for (const k of TOPICS.flatMap((s) => s.skills)) {
     assert.ok(Number.isInteger(k.id) && k.id > 0, `${k.name}: het id moet een positief getal zijn`);
     assert.ok(!seen.has(k.id), `Nummer ${k.id} komt twee keer voor`);
     seen.add(k.id);
@@ -131,7 +146,7 @@ test('elke vraagsoort houdt haar vaste nummer', () => {
 });
 
 test('voortgang op de oude id verhuist naar het vaste nummer', () => {
-  const skills = SECTIONS.flatMap((s) => s.skills);
+  const skills = TOPICS.flatMap((s) => s.skills);
   const byGen = (name) => skills.find((k) => k.gen.name === name).id;
   const cases = [
     ['v1#0', 'svValue'],
