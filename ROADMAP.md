@@ -20,23 +20,30 @@ Al het werk wordt getoetst aan de grenzen en doelen in de [principes in AGENTS.m
 
 ## Besluiten
 
-| Besluit                                                                                                                                                                | Reden                                                                                                                                                                                                                                                                                             |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| We bouwen voor leerlingen in het Nederlandse schoolstelsel. Docenten zijn de tweede doelgroep, voorlopig vooral om feedback te geven.                                  | Zo blijft duidelijk voor wie een functie is. Inloggen voor docenten is iets voor de verre toekomst.                                                                                                                                                                                               |
-| We gebruiken het laagmodel uit deze roadmap, mits het haalbaar blijkt.                                                                                                 | Een nieuwe methode of een nieuw leerjaar wordt dan vooral een gegevensbestand. In fase 3 moet blijken of het werkt.                                                                                                                                                                               |
-| De site krijgt echte adressen in plaats van hash-routes, met vooraf gebouwde HTML per onderwerp.                                                                       | De site moet vindbaar zijn via Google, en dat lukt niet met hash-routes en tekst die pas met JavaScript verschijnt. Adressen zijn later duur om te wijzigen.                                                                                                                                      |
-| Vindbaarheid in AI-antwoorden krijgt geen eigen werk.                                                                                                                  | Echte adressen, duidelijke uitleg en een over-pagina helpen daar ook.                                                                                                                                                                                                                             |
-| We volgen de AVG en bouwen zo dat er geen cookiebanner nodig is: geen cookies, of alleen functionele.                                                                  | Een banner zit leerlingen in de weg en we hebben geen gegevens over bezoekers nodig. Heeft iets toestemming nodig, dan bouwen we het niet.                                                                                                                                                        |
-| We meten alleen anonieme totalen, in een vorm die geen toestemming nodig heeft, en we vragen hiervoor geen apart juridisch advies.                                     | We willen weten hoeveel de site wordt gebruikt en wat populair is. Daar zijn geen gegevens per leerling voor nodig.                                                                                                                                                                               |
-| Inloggen heeft de laagste prioriteit.                                                                                                                                  | Het is niet nodig om te oefenen, en het brengt persoonsgegevens van vooral minderjarigen en een server met zich mee.                                                                                                                                                                              |
-| Donaties, subsidie en een vergoeding van scholen mogen.                                                                                                                | Zo kunnen eventuele kosten worden betaald, zonder reclame of betaalmuur voor leerlingen.                                                                                                                                                                                                          |
-| Elke release komt automatisch na een geslaagde deploy. Alleen de eigenaar besluit over een major-versie.                                                               | Niemand hoeft handmatig te publiceren, terwijl de eigenaar bepaalt wanneer er iets ingrijpends verandert.                                                                                                                                                                                         |
-| De site zegt niet welke stof bij een toets hoort.                                                                                                                      | Dat hangt af van de methode en van wat de docent opgeeft. Leerlingen kiezen het zelf.                                                                                                                                                                                                             |
-| Onderwerpen zijn de hoofdingang van de site. Het overzichtsscherm toont ze per domein, met daarboven een knop om uit je boek te kiezen.                                | Hoofdstukken verschillen sterk per methode, onderwerpen veel minder. Een leerling met een toets kan toch snel op paragraaf kiezen ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)). De navigatie wordt verder uitgewerkt in [#21](https://github.com/angrymrt/wiskunde-fit/issues/21). |
-| Een onderwerp krijgt een plat adres zonder methode of leerjaar, zoals `/snijpunten-van-lijnen`.                                                                        | Juist de ordening verandert nog. Dezelfde titel kan in één methode twee keer voorkomen, dus de naam moet zeggen om welke stof het gaat.                                                                                                                                                           |
-| Een methode-indeling koppelt elke paragraaf aan losse vraagsoorten en bevat ook wat we niet dekken.                                                                    | Een paragraaf past niet altijd op één onderwerp, en een vraag bestaat zo maar één keer. We dekken 10 van de 46 paragrafen van Getal & Ruimte havo 3, en een leerling moet zien wat ontbreekt.                                                                                                     |
-| Een methode-indeling noemt een paragraaf op nummer per editie, met een korte eigen omschrijving. We nemen geen inhoudsopgave één op één over en geen creatieve titels. | Verwijzen helpt een leerling de juiste stof te kiezen, en de omschrijving laat zien of de editie klopt. In de zaak GEU tegen Snappet vond het hof het niet onrechtmatig om te zeggen dat materiaal aansluit op een methode. Dit is onze eigen inschatting en geen juridisch advies.               |
-| We gebruiken de woorden uit [BEGRIPPEN.md](BEGRIPPEN.md).                                                                                                              | Eén ding heeft één naam. De termen sluiten aan op wat in het voortgezet onderwijs gebruikelijk is.                                                                                                                                                                                                |
+| Besluit                                                                                                                                                                           | Reden                                                                                                                                                                                                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| We bouwen voor leerlingen in het Nederlandse schoolstelsel. Docenten zijn de tweede doelgroep, voorlopig vooral om feedback te geven.                                             | Zo blijft duidelijk voor wie een functie is. Inloggen voor docenten is iets voor de verre toekomst.                                                                                                                                                                                               |
+| We gebruiken het laagmodel uit deze roadmap, mits het haalbaar blijkt.                                                                                                            | Een nieuwe methode of een nieuw leerjaar wordt dan vooral een gegevensbestand. In fase 3 moet blijken of het werkt.                                                                                                                                                                               |
+| De site krijgt echte adressen in plaats van hash-routes, met vooraf gebouwde HTML per onderwerp.                                                                                  | De site moet vindbaar zijn via Google, en dat lukt niet met hash-routes en tekst die pas met JavaScript verschijnt. Adressen zijn later duur om te wijzigen.                                                                                                                                      |
+| Vindbaarheid in AI-antwoorden krijgt geen eigen werk.                                                                                                                             | Echte adressen, duidelijke uitleg en een over-pagina helpen daar ook.                                                                                                                                                                                                                             |
+| We volgen de AVG en bouwen zo dat er geen cookiebanner nodig is: geen cookies, of alleen functionele.                                                                             | Een banner zit leerlingen in de weg en we hebben geen gegevens over bezoekers nodig. Heeft iets toestemming nodig, dan bouwen we het niet.                                                                                                                                                        |
+| We meten alleen anonieme totalen, in een vorm die geen toestemming nodig heeft, en we vragen hiervoor geen apart juridisch advies.                                                | We willen weten hoeveel de site wordt gebruikt en wat populair is. Daar zijn geen gegevens per leerling voor nodig.                                                                                                                                                                               |
+| Inloggen heeft de laagste prioriteit.                                                                                                                                             | Het is niet nodig om te oefenen, en het brengt persoonsgegevens van vooral minderjarigen en een server met zich mee.                                                                                                                                                                              |
+| Donaties, subsidie en een vergoeding van scholen mogen.                                                                                                                           | Zo kunnen eventuele kosten worden betaald, zonder reclame of betaalmuur voor leerlingen.                                                                                                                                                                                                          |
+| Elke release komt automatisch na een geslaagde deploy. Alleen de eigenaar besluit over een major-versie.                                                                          | Niemand hoeft handmatig te publiceren, terwijl de eigenaar bepaalt wanneer er iets ingrijpends verandert.                                                                                                                                                                                         |
+| De site zegt niet welke stof bij een toets hoort.                                                                                                                                 | Dat hangt af van de methode en van wat de docent opgeeft. Leerlingen kiezen het zelf.                                                                                                                                                                                                             |
+| Onderwerpen zijn de hoofdingang van de site. Het overzichtsscherm toont ze per domein, met daarboven een knop om uit je boek te kiezen.                                           | Hoofdstukken verschillen sterk per methode, onderwerpen veel minder. Een leerling met een toets kan toch snel op paragraaf kiezen ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)). De navigatie wordt verder uitgewerkt in [#21](https://github.com/angrymrt/wiskunde-fit/issues/21). |
+| Een onderwerp krijgt een plat adres zonder methode of leerjaar, zoals `/snijpunten-van-lijnen`.                                                                                   | Juist de ordening verandert nog. Dezelfde titel kan in één methode twee keer voorkomen, dus de naam moet zeggen om welke stof het gaat.                                                                                                                                                           |
+| Een methode-indeling koppelt elke paragraaf aan losse vraagsoorten en bevat ook wat we niet dekken.                                                                               | Een paragraaf past niet altijd op één onderwerp, en een vraag bestaat zo maar één keer. We dekken 10 van de 46 paragrafen van Getal & Ruimte havo 3, en een leerling moet zien wat ontbreekt.                                                                                                     |
+| Een methode-indeling noemt een paragraaf op nummer per editie, met een korte eigen omschrijving. We nemen geen inhoudsopgave één op één over en geen creatieve titels.            | Verwijzen helpt een leerling de juiste stof te kiezen, en de omschrijving laat zien of de editie klopt. In de zaak GEU tegen Snappet vond het hof het niet onrechtmatig om te zeggen dat materiaal aansluit op een methode. Dit is onze eigen inschatting en geen juridisch advies.               |
+| We gebruiken de woorden uit [BEGRIPPEN.md](BEGRIPPEN.md).                                                                                                                         | Eén ding heeft één naam. De termen sluiten aan op wat in het voortgezet onderwijs gebruikelijk is.                                                                                                                                                                                                |
+| Een stofkeuze heeft één eigen plek: het scherm Jouw stof, met de gekozen stof, de uitleg, oefenen, de proeftoets en wat we niet dekken.                                           | Een paragraaf kan maar een deel van een onderwerp beslaan. Op een eigen scherm blijven uitleg en oefenen toch bij elkaar en is te zien wat ontbreekt ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)).                                                                                 |
+| Het overzichtsscherm toont alle onderwerpen open. Een domein krijgt geen eigen adres. Inklappen komt pas als de lijst te lang wordt.                                              | Bij twaalf onderwerpen is elk onderwerp zo één tik weg. Een domein kan nog verhuizen, en een adres extra moeten we stabiel houden.                                                                                                                                                                |
+| Een onderwerp heeft twee tabbladen: Uitleg en Oefenen. De video's staan bij de uitleg.                                                                                            | Zo zijn de video's beter te vinden en is er een adres minder om stabiel te houden.                                                                                                                                                                                                                |
+| Het adres van een onderwerp is de titel in kleine letters met streepjes.                                                                                                          | Eén ding heeft één naam. Daarom is een titel precies genoeg om later niet te botsen, ook als die daardoor iets langer wordt.                                                                                                                                                                      |
+| Adressen staan los van de voortgang. De voortgang hangt alleen aan het vaste id van een vraagsoort.                                                                               | Zo kunnen we een naam, adres, onderwerp of volgorde later wijzigen zonder dat een leerling voortgang kwijtraakt.                                                                                                                                                                                  |
+| Elke methode-indeling heeft een eigen adres onder `/methode-indeling`. Een methode alleen krijgt geen adres. Je vindt de juiste indeling via niveau, leerjaar, methode en editie. | Een methode-indeling is precies wat op de pagina staat, terwijl een boek maar één deel is. Paragrafen en dekking verschillen per editie, niveau en leerjaar, dus pas daar valt iets te kiezen.                                                                                                    |
+| De proeftoets gaat altijd over Jouw stof. Zonder stofkeuze kies je eerst: uit je boek, op onderwerp of alle stof.                                                                 | Alle stof als vaste keuze werkt niet meer zodra er stof van andere leerjaren bijkomt.                                                                                                                                                                                                             |
 
 ## Waar we nu staan
 
@@ -59,8 +66,8 @@ De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 12 paragrafen en 6
 Een methode is vooral een volgorde en een indeling van vraagsoorten. De site zelf ordenen we op onderwerp, en een methode-indeling koppelt een methode daaraan. Dit is de uitkomst van [#10](https://github.com/angrymrt/wiskunde-fit/issues/10). Daarom kiezen we, mits het haalbaar blijkt, voor deze lagen:
 
 ```text
-Vraagsoort        stabiel id + generator
-Onderwerp         uitleg, video's, vraagsoorten
+Vraagsoort        vast id + naam + generator
+Onderwerp         vast id + adres + uitleg, video's, vraagsoorten
 Domein            onderwerpen die bij elkaar horen
 Methode-indeling  methode, editie, niveau, leerjaar → hoofdstukken → paragrafen → vraagsoorten
 ```
@@ -69,17 +76,80 @@ Een nieuwe methode is dan vooral een nieuw gegevensbestand. Een methode-indeling
 
 We beginnen met twaalf onderwerpen. Negen paragrafen zijn eigenlijk al een onderwerp. Alleen `v1`, 1.1 en 1.2 lopen door elkaar en worden drie nieuwe onderwerpen.
 
-| Domein                          | Onderwerpen                                                                                             |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Formules en grafieken           | Rekenen met een formule, Formule opstellen, Lijnen tekenen, Snijpunten van lijnen                       |
-| Vergelijkingen en ongelijkheden | Lineaire vergelijkingen, Lineaire ongelijkheden, Vergelijkingen met twee variabelen                     |
-| Meetkunde                       | Pythagoras, Verhoudingstabellen, Gelijkvormige driehoeken, Gelijkvormigheid aantonen, Lengtes berekenen |
+| Domein                          | Onderwerpen                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Formules en grafieken           | Rekenen met een formule, Lineaire formule opstellen, Lijnen tekenen, Snijpunten van lijnen                                           |
+| Vergelijkingen en ongelijkheden | Lineaire vergelijkingen, Lineaire ongelijkheden, Vergelijkingen met twee variabelen                                                  |
+| Meetkunde                       | Stelling van Pythagoras, Verhoudingstabellen, Gelijkvormige driehoeken, Gelijkvormigheid aantonen, Lengtes van lijnstukken berekenen |
 
 We tonen alleen domeinen waar stof in zit. Voor een heel leerjaar lijken er drie bij te komen: herleiden, rekenen en procenten, en statistiek en kans. Een onderwerp kan makkelijk verhuizen, want het domein staat niet in het adres.
 
 Ook is hergebruik lastiger dan het lijkt: "Evenwijdige lijnen" betekent iets anders in 1.1 dan in 2.1, en `s11coord`, `s12value` en `s15value` rekenen vrijwel hetzelfde uit met een andere notatie. Daarom zetten we de 65 vraagsoorten eerst één op één om en voegen we pas samen als dezelfde vraag en uitwerking echt in beide methodes passen.
 
 Dit model moet nog bewijzen dat het werkt. De inhoudsopgaven van Getal & Ruimte en Moderne Wiskunde passen goed op deze onderwerpen ([#2](https://github.com/angrymrt/wiskunde-fit/issues/2)), maar over de werkwijze zeggen ze niets. Verschilt die per methode of niveau, dan krijgt een vraagsoort een variant of een eigen neutrale werkwijze, en moet de regel "volg de werkwijze van de methode" worden herzien. Adressen en id's blijven dan gelijk, dus dit houdt fase 3 niet op. Bij een video komt te staan bij welke methode die hoort.
+
+## Navigatie
+
+Dit is de uitkomst van [#21](https://github.com/angrymrt/wiskunde-fit/issues/21). Een gewijzigd adres kost een doorverwijzing en mag geen bestaande links breken, dus deze ligt vast voordat we bouwen.
+
+```text
+/                                             overzichtsscherm: onderwerpen per domein
+/snijpunten-van-lijnen                        onderwerp: uitleg en video's, vooraf gebouwd
+/snijpunten-van-lijnen/oefenen                oefenen, ?soort=... kiest een vraagsoort
+/methode-indeling                             kies niveau, leerjaar, methode en editie
+/methode-indeling/getal-en-ruimte-13-havo-3   paragrafen, dekking en vinkjes
+/jouw-stof                                    de stofkeuze bekijken en wijzigen, ook op onderwerp
+/jouw-stof/oefenen                            de stofkeuze door elkaar oefenen
+/proeftoets                                   instellen, maken en uitslag
+/over                                         over de site, privacy en contact
+```
+
+De namen `methode-indeling`, `boek`, `jouw-stof`, `proeftoets`, `over` en `cijfers` zijn gereserveerd en mogen geen adres van een onderwerp worden. Een test bewaakt dat.
+
+**Id's en adressen**
+
+Een id is voor de site en verandert nooit. Een adres is voor mensen en mag wel veranderen.
+
+- De voortgang en de stofkeuze bewaren alleen id's van vraagsoorten. De voortgang van een onderwerp, paragraaf of domein wordt daaruit berekend en niet opgeslagen. Zo verhuist de voortgang vanzelf mee als een vraagsoort naar een ander onderwerp gaat.
+- Een id is een geheel getal dat we doortellen en nooit opnieuw gebruiken. Het zegt dus niets over de plek van een vraagsoort: geen paragraafnummer, geen methode en geen volgorde. Dat is het verschil met `1.1#0`. Het adres bevat al leesbare tekst, dus die hoeft niet nog een keer in het id. Zo blijft ook een link met een stofkeuze kort, zoals `?stof=3,7,12`.
+- Een onderwerp heeft een eigen id naast het adres. Domeinen, verwijzingen naar voorkennis en andere onderwerpen gebruiken dat id, zodat een nieuw adres maar op één plek staat.
+- Krijgt een onderwerp een nieuw adres, dan blijft het oude adres in de gegevens staan. De build maakt daar een doorverwijzing van, zodat links van docenten en zoekresultaten blijven werken.
+- Links met `?soort=` en `?stof=` gebruiken id's, dus die overleven een nieuwe naam ook.
+- Stopt een vraagsoort of wordt die gesplitst, dan legt een tabel vast waar het id naartoe gaat, of dat het vervalt. Een test vergelijkt de id's met een lijst van alle eerder gebruikte id's, zodat er geen id ongemerkt verdwijnt of opnieuw wordt gebruikt.
+
+**Bewegen door de site**
+
+- Het hoofdmenu bevat Overzicht, Jouw stof en Proeftoets.
+- Boven de titel van een onderwerp staat `Overzicht › Meetkunde`. Die tweede link gaat naar `/#meetkunde`.
+- Een onderwerp noemt bovenaan de voorkennis, als die er is, en onderaan het volgende onderwerp in het domein.
+- Oefenen op een onderwerp verandert de stofkeuze niet. De voortgang telt per vraagsoort, dus die telt overal mee.
+
+**Het overzichtsscherm**
+
+- De hoofdknop is `Oefen voor je toets: kies uit je boek`, of `Verder met jouw stof` als er al een stofkeuze is. Daarnaast staat `Maak een proeftoets`. De knop `Begin met ...`, die het onderwerp met de laagste voortgang kiest, vervalt.
+- Elk domein krijgt een eigen kleur, in plaats van elk hoofdstuk. Is een domein leeg, dan tonen we het niet.
+- De zin over Getal & Ruimte verhuist naar de pagina's onder `/methode-indeling` en de over-pagina, want het overzicht hoort niet meer bij één methode.
+
+**Stof kiezen en dekking**
+
+- `/methode-indeling` is een eenvoudig scherm met vier keuzelijsten: niveau, leerjaar, methode en editie. Elke lijst toont alleen wat bij de eerdere keuzes bestaat, en je gaat verder met een knop, zodat een schermlezer niet ongevraagd van pagina wisselt. Is er maar één mogelijkheid, dan staat die al ingevuld. Zonder JavaScript zie je een gewone lijst met links, die ook zoekmachines kunnen lezen.
+- Op de site blijft de knop "Kies uit je boek" heten, want zo zegt een leerling het. Alleen het adres gebruikt het woord methode-indeling.
+- `/methode-indeling/...` is een gewone pagina die zonder JavaScript leesbaar blijft: paragrafen op nummer, met een korte eigen omschrijving en links naar de onderwerpen. JavaScript voegt de vinkjes toe.
+- Bij een paragraaf zonder vraagsoorten staat "Dit kun je hier nog niet oefenen." Bij een deels gedekte paragraaf staat wat er wel is.
+- Staat je boek er niet bij, dan verwijst `/methode-indeling` naar kiezen op onderwerp op `/jouw-stof`.
+- Later kunnen landingspagina's onder `/boek/...` helpen om via Google snel bij de juiste stof te komen. Daarom is `boek` gereserveerd. Dit bouwen we nu niet.
+- Later, voor [#23](https://github.com/angrymrt/wiskunde-fit/issues/23): een link van een docent wijst naar `/jouw-stof?stof=...`. De leerling bevestigt die keuze, zodat de eigen stofkeuze niet ongevraagd verdwijnt.
+
+**Techniek**
+
+- Alles waarmee je ergens heen gaat, wordt een gewone link. De tabbladen worden ook links, met `aria-current="page"`, want ze hebben nu eigen adressen.
+- De schermen blijven wisselen met `render()`, nu met `pushState` en `popstate`. Zo overleeft een half gemaakte vraag of een lopende proeftoets de terugknop. De vooraf gebouwde HTML is er voor de eerste keer laden en voor zoekmachines.
+- `?soort=` en later `&seed=` werken zonder eigen pagina. Daar kan de foutmelding uit fase 4 op voortbouwen.
+- Een eigen pagina met cijfers ([#22](https://github.com/angrymrt/wiskunde-fit/issues/22)) krijgt `/cijfers`, met een link in de voettekst.
+
+**Meegroeien**
+
+Bij ongeveer dertig onderwerpen maken we de domeinen inklapbaar met `<details>`. Komen er meer leerjaren, dan filtert het overzicht op het gekozen boek. Dat bouwen we nu niet, en de platte adressen houden het open.
 
 ## Fases
 
@@ -122,14 +192,14 @@ Dit kan naast de andere fases, en doel 1 gaat voor op nieuwe functies. Zie open 
 
 Geen nieuwe stof, wel alles wat later duur wordt om te veranderen. Eén uitzondering: de uitleg van `v1`, 1.1 en 1.2 wordt opnieuw geordend en moet dus opnieuw worden nagekeken.
 
-- [ ] De navigatie van de site ontwerpen, voordat we de adressen vastleggen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)).
-- [ ] Stabiele id's voor vraagsoorten, met een migratie van de bestaande voortgang.
-- [ ] Onderwerpen en domeinen als structuur van de site. `v1`, 1.1 en 1.2 opdelen in Rekenen met een formule, Formule opstellen en Lijnen tekenen. Voorkennis wordt een verwijzing naar een gewoon onderwerp.
+- [x] De navigatie van de site ontwerpen, voordat we de adressen vastleggen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)). Zie [Navigatie](#navigatie).
+- [ ] Vaste id's voor vraagsoorten en onderwerpen, los van adressen, met een migratie van de bestaande voortgang en een test die de id's bewaakt. De oude keuzes voor hoofdstuk 1, hoofdstuk 2 of alles worden een stofkeuze. Werk daarna de regel over `skills` in `AGENTS.md` bij.
+- [ ] Onderwerpen en domeinen als structuur van de site. `v1`, 1.1 en 1.2 opdelen in Rekenen met een formule, Lineaire formule opstellen en Lijnen tekenen. Voorkennis wordt een verwijzing naar een gewoon onderwerp. De video's verhuizen naar de uitleg.
 - [ ] Domeinen, onderwerpen, titels en kleuren uit gegevens halen in plaats van uit de schermcode.
 - [ ] Een structuur voor methode-indelingen, voorlopig met alleen Getal & Ruimte havo 3. Daarin staan alle paragrafen op nummer, met een korte eigen omschrijving, ook de paragrafen die we niet dekken. Hoofdstuknummers zijn tekst.
-- [ ] Een stofkeuze op paragraaf, hoofdstuk of onderwerp, voor oefenen en de proeftoets, in plaats van de vaste keuzes in `SCOPES`.
+- [ ] Een stofkeuze op paragraaf, hoofdstuk of onderwerp, voor oefenen en de proeftoets, in plaats van de vaste keuzes in `SCOPES`. Het scherm Jouw stof wordt de plek daarvoor.
 - [ ] Een knop op het overzichtsscherm om stof uit je boek te kiezen, met een melding bij wat we nog niet dekken.
-- [ ] Echte adressen en vooraf gebouwde HTML per onderwerp, plus een pagina per methode-indeling die naar de onderwerpen verwijst, met een `staticwebapp.config.json` en een nette 404-pagina.
+- [ ] Echte adressen en vooraf gebouwde HTML per onderwerp, plus een pagina per methode-indeling die naar de onderwerpen verwijst, met een `staticwebapp.config.json` en een nette 404-pagina. Controleer daarna de terugknop, een telefoon en een schermlezer.
 - [ ] Lettertypes en code uit de HTML halen, zodat de browser ze kan bewaren. Het losse bestand wordt een optionele export.
 - [ ] Vragen met een seed, zodat elke vraag precies te herhalen is.
 - [ ] Zoekmachines helpen: een sitemap, unieke titels en beschrijvingen.
@@ -184,8 +254,8 @@ Bij een vraag staat onze voorlopige voorkeur als die er is.
 7. **Wie controleert de wiskunde?** De `v`-functies vinden rekenfouten, maar geen slechte uitleg of een verkeerde aanpak. _Voorkeur: per hoofdstuk een nakijkronde, en een knop om een fout te melden._
 8. **Wat mag er over boeken op de site?** _Besloten: we verwijzen naar de methode, de editie en het paragraafnummer, met een korte eigen omschrijving. De werkwijze volgen mag, zolang teksten, opgaven en uitwerkingen van onszelf zijn. Dit is onze eigen inschatting. Willen we complete titellijsten tonen of veel methodes toevoegen, dan laten we dit eerst nakijken door een advocaat ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10))._
 9. **Hoe gaan we om met het curriculum?** Moeten we aansluiten op landelijke leerdoelen? Dat kan helpen om onafhankelijk van een methode te worden. Onze domeinen lijken al op de conceptkerndoelen voor de onderbouw uit 2023, maar de nieuwste versie is nog niet vergeleken.
-10. **Moet de opmaak mee veranderen?** De kleuren per hoofdstuk en de overzichtspagina zijn ontworpen voor twee hoofdstukken. Bij tien hoofdstukken moet het overzicht opnieuw worden doordacht. Dit hoort bij de navigatie ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)).
+10. **Moet de opmaak mee veranderen?** _Besloten: elk domein krijgt een eigen kleur en het overzicht toont de onderwerpen per domein. Zie [Navigatie](#navigatie) voor hoe het meegroeit ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21))._
 
 ## Hier beginnen we
 
-Fase 1 en 2 zijn af, op de test op een echte iPhone na ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)). Het voorstel over onderwerpen is uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)). Zoek nu uit hoe de site verschilt van het FLEX-aanbod en of Neon past ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)), want dat kan de keuzes voor fase 3 en verder veranderen. Ontwerp daarna de navigatie ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)) en maak een concreet plan voor stabiele id's, adressen en de migratie van de voortgang.
+Fase 1 en 2 zijn af, op de test op een echte iPhone na ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)). Het voorstel over onderwerpen is uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)) en de navigatie is ontworpen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)). De volgende stap is een concreet plan voor stabiele id's en de migratie van de voortgang. Hoe de site verschilt van het FLEX-aanbod en of Neon past, staat nog open ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)). De navigatie hangt daar niet van af, omdat onderwerpen los staan van een methode, maar de keuzes voor later kunnen er wel door veranderen.

@@ -59,6 +59,8 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 | Hint        | Een tip bij een vraag, zonder het antwoord.                                                                                                                                         | `hint`               |                             |
 | Uitwerking  | De stappen naar het goede antwoord.                                                                                                                                                 | `steps`              | oplossing, antwoord         |
 | Feedback    | Een bericht dat ingaat op een fout die een leerling maakte.                                                                                                                         | `traps`              |                             |
+| Id          | Het vaste nummer van een vraagsoort of onderwerp voor de site. Verandert nooit en zegt niets over de plek in de stof. De voortgang hangt hieraan.                                   | `id`                 |                             |
+| Adres       | Het webadres van een pagina, zoals `/snijpunten-van-lijnen`. Is voor mensen en mag veranderen, met een doorverwijzing vanaf het oude adres.                                         | nog niet             |                             |
 
 ## De methode-indeling en het kiezen van stof
 
@@ -97,5 +99,6 @@ Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat
 | Domein                   | Alleen de naam, zoals "Meetkunde"                                 |
 | Methode                  | De naam zelf, of "je boek"                                        |
 | Methode-indeling         | "Je boek", zoals in "Kies uit je boek"                            |
+| Stofkeuze                | "Jouw stof"                                                       |
 | Vraagsoort               | "Soort vraag", of de naam van de vraagsoort                       |
 | Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen." |
