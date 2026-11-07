@@ -1,4 +1,5 @@
 // Voortgang van de leerling. Blijft alleen in deze browser bewaard (localStorage).
+import { MAPPING } from './mappings/index.js';
 
 // Oude naam van de site. Laat dit staan: een nieuwe sleutel wist de opgeslagen voortgang.
 const STORE = 'lijn-driehoek-v1';
@@ -102,7 +103,14 @@ function migrateIds(skills) {
   }
   return out;
 }
-const prog = { v: 3, skills: {}, tests: [], scope: 'all' };
+// De oude keuze voor de proeftoets wordt een stofkeuze. 'all' was ook de standaard en zegt dus niet
+// dat een leerling iets koos. Dat wordt geen stofkeuze.
+function migrateScope(scope) {
+  const number = { h1: '1', h2: '2' }[scope];
+  const chapter = MAPPING['gr13-havo3'].chapters.find((c) => c.number === number);
+  return chapter ? chapter.paragraphs.flatMap((p) => p.skills) : null;
+}
+const prog = { v: 4, skills: {}, tests: [], stof: null, mapping: null };
 try {
   const raw = localStorage.getItem(STORE);
   if (raw) {
@@ -114,7 +122,12 @@ try {
     }
     // Altijd omzetten: een tabblad met de oude code kan nog een oude id hebben bewaard.
     saved.skills = migrateIds(saved.skills || {});
-    saved.v = 3;
+    if ('scope' in saved) {
+      saved.stof = migrateScope(saved.scope);
+      saved.mapping = saved.stof ? 'gr13-havo3' : null;
+      delete saved.scope;
+    }
+    saved.v = 4;
     Object.assign(prog, saved);
   }
 } catch (e) {}
@@ -134,16 +147,11 @@ const skillPct = (id) => {
   return a.reduce((t, x) => t + x, 0) / 5;
 };
 const topicPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
-const inScope = (s, scope) => (scope === 'h1' ? s.ch === 1 : scope === 'h2' ? s.ch === 2 : true);
-const SCOPES = [
-  ['all', 'Heel hoofdstuk 1 en 2'],
-  ['h1', 'Alleen hoofdstuk 1'],
-  ['h2', 'Alleen hoofdstuk 2'],
-];
 const resetProgress = () => {
   prog.skills = {};
   prog.tests = [];
-  prog.scope = 'all';
+  prog.stof = null;
+  prog.mapping = null;
   save();
 };
 
@@ -153,9 +161,8 @@ export {
   rec,
   skillPct,
   topicPct,
-  inScope,
-  SCOPES,
   resetProgress,
   migrateSkills,
   migrateIds,
+  migrateScope,
 };

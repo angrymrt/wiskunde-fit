@@ -2,6 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MAPPING, MAPPINGS } from '../src/js/mappings/index.js';
+import { migrateScope, prog } from '../src/js/progress.js';
+import { ALL_IDS, chosenTopics, setStof, stofGaps, toggleStof } from '../src/js/stof.js';
 import { TOPICS } from '../src/js/topics/index.js';
 import { T } from '../src/js/typeset.js';
 
@@ -97,4 +99,51 @@ test('elk deel heeft een leerboek en een FLEX-boek met een geldig ISBN', () => {
       );
     }
   }
+});
+
+test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () => {
+  setStof([]);
+  assert.equal(prog.stof, null);
+  toggleStof([25, 23]);
+  assert.deepEqual(prog.stof, [23, 25]);
+  toggleStof([24, 25]);
+  assert.deepEqual(prog.stof, [23, 24, 25]);
+  toggleStof([24, 25]);
+  assert.deepEqual(prog.stof, [23]);
+  assert.deepEqual(
+    chosenTopics([38, 23]).map((g) => g.topic.slug),
+    ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
+  );
+  setStof(ALL_IDS);
+  assert.equal(prog.stof.length, 65);
+  setStof([]);
+});
+
+test('jouw stof noemt alleen wat ontbreekt in de gekozen hoofdstukken', () => {
+  prog.mapping = 'gr13-hv2';
+  setStof([38]);
+  assert.deepEqual(
+    stofGaps().map((p) => [p.number, p.coverage]),
+    [
+      ['6.1', 'niet'],
+      ['6.2', 'deels'],
+      ['6.3', 'deels'],
+      ['6.4', 'deels'],
+      ['6.5', 'niet'],
+    ],
+  );
+  prog.mapping = 'gr13-havo3';
+  setStof([3]);
+  assert.deepEqual(stofGaps(), [], 'hoofdstuk 1 van havo 3 is helemaal gedekt');
+  prog.mapping = null;
+  assert.deepEqual(stofGaps(), [], 'op onderwerp gekozen: geen boek om mee te vergelijken');
+  setStof([]);
+});
+
+test('een oude keuze voor een hoofdstuk wordt een stofkeuze', () => {
+  assert.equal(migrateScope('all'), null);
+  assert.equal(migrateScope('iets anders'), null);
+  assert.equal(migrateScope('h1').length, 35);
+  assert.equal(migrateScope('h2').length, 25);
+  assert.ok(!migrateScope('h2').includes(38), 'voorkennis hoort er niet bij');
 });

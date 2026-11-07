@@ -4,7 +4,7 @@ Deze lijst legt vast welke woorden we gebruiken als we over Wiskundefit praten, 
 
 Teksten voor leerlingen volgen dezelfde betekenis, maar mogen gewonere woorden gebruiken. Zie [Voor de leerling](#voor-de-leerling).
 
-De stof staat in de code per onderwerp in `topics/`, de methode-indelingen staan in `mappings/`. De stofkeuze komt nog in fase 3 van de [roadmap](ROADMAP.md).
+De stof staat in de code per onderwerp in `topics/`, de methode-indelingen staan in `mappings/`. De stofkeuze staat in `stof.js`. Zie ook de [roadmap](ROADMAP.md).
 
 ## Het overzicht
 
@@ -64,11 +64,11 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 
 ## De methode-indeling en het kiezen van stof
 
-| Begrip           | Betekenis                                                                                                                                                                                                                                                    | In de code      | Niet gebruiken |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------------- |
-| Methode-indeling | Onze beschrijving van één methode, editie, niveau en leerjaar: de hoofdstukken en paragrafen op nummer, met een korte eigen omschrijving en de vraagsoorten die erbij horen. Bevat ook wat we niet dekken, maar neemt de inhoudsopgave niet één op één over. | `MAPPINGS`      | indeling, boek |
-| Dekking          | Of een paragraaf op de site te oefenen is: gedekt, deels gedekt of niet gedekt.                                                                                                                                                                              | `coverage`      |                |
-| Stofkeuze        | De vraagsoorten die een leerling wil oefenen, gekozen op paragraaf, hoofdstuk of onderwerp. Blijft op het apparaat.                                                                                                                                          | nu `prog.scope` |                |
+| Begrip           | Betekenis                                                                                                                                                                                                                                                    | In de code  | Niet gebruiken |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- | -------------- |
+| Methode-indeling | Onze beschrijving van één methode, editie, niveau en leerjaar: de hoofdstukken en paragrafen op nummer, met een korte eigen omschrijving en de vraagsoorten die erbij horen. Bevat ook wat we niet dekken, maar neemt de inhoudsopgave niet één op één over. | `MAPPINGS`  | indeling, boek |
+| Dekking          | Of een paragraaf op de site te oefenen is: gedekt, deels gedekt of niet gedekt.                                                                                                                                                                              | `coverage`  |                |
+| Stofkeuze        | De vraagsoorten die een leerling wil oefenen, gekozen op paragraaf, hoofdstuk of onderwerp. Blijft op het apparaat.                                                                                                                                          | `prog.stof` |                |
 
 ## Oefenen en voortgang
 

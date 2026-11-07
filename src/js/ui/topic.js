@@ -1,5 +1,6 @@
 // Het scherm van een onderwerp met de tabbladen Uitleg en Oefenen.
 import { prog, skillPct } from '../progress.js';
+import { topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { fieldsHTML } from './question-form.js';
 import { state } from './state.js';
@@ -58,7 +59,9 @@ function vPractice(s) {
   if (!st.q) newQuestion(s);
   const q = st.q,
     done = st.status === 'right' || st.status === 'shown';
-  const chips = `<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${s.skills.map((k) => `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`).join('')}</div>`;
+  const chips = s.mixed
+    ? `<p class="small">Uitleg bij deze vraag: ${topicLink(topicOf(st.skill.id))}</p>`
+    : `<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${s.skills.map((k) => `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`).join('')}</div>`;
   return `${chips}<div class="sheet fade"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span>${st.total ? `${st.right} van ${st.total} goed deze ronde` : ''}</span></div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !q.check && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
@@ -88,4 +91,4 @@ function vTopic(s) {
     )}</div><div class="panel" role="tabpanel" id="paneel" aria-labelledby="tab-${tab}">${body}</div></div>`;
 }
 
-export { vTopic, newQuestion };
+export { vTopic, vPractice, newQuestion, topicLink };

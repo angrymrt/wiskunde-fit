@@ -1,7 +1,9 @@
 // Startpunt van de app: kiest het juiste scherm en verwerkt klikken en formulieren.
 import { checkAnswer, findTrap } from './answers.js';
 import { TOPICS, TOPIC } from './topics/index.js';
+import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, save, rec, resetProgress } from './progress.js';
+import { ALL_IDS, setStof, stofTopic, toggleStof } from './stof.js';
 import {
   buildTest,
   vToetsSetup,
@@ -18,6 +20,7 @@ import { showDrawn, tapGrid } from './ui/draw.js';
 import { topbar, footer } from './ui/layout.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { state, app } from './ui/state.js';
+import { pickedMapping, vPick, vMapping, vStof, vStofPractice } from './ui/stof.js';
 import { mountWidgets } from './ui/widgets.js';
 
 const go = (v) => {
@@ -60,6 +63,10 @@ function render(focus) {
   else if (state.view.name === 'toetsrun') html = vToetsRun();
   else if (state.view.name === 'toetsres') html = vToetsRes();
   else if (state.view.name === 'over') html = vOver();
+  else if (state.view.name === 'kies') html = vPick();
+  else if (state.view.name === 'mapping') html = vMapping(MAPPING[state.view.id]);
+  else if (state.view.name === 'stof') html = vStof();
+  else if (state.view.name === 'stofoefen') html = vStofPractice();
   app.innerHTML = `${topbar()}<main class="screen">${html}</main>${footer()}`;
   mountWidgets();
   showDrawn();
@@ -83,6 +90,51 @@ app.addEventListener('click', (e) => {
   if (a === 'home') return go({ name: 'home' });
   if (a === 'toets') return go({ name: 'toets' });
   if (a === 'over') return go({ name: 'over' });
+  if (a === 'stof') return go({ name: 'stof' });
+  if (a === 'kies')
+    return go(prog.mapping ? { name: 'mapping', id: prog.mapping } : { name: 'kies' });
+  if (a === 'kiesanders') return go({ name: 'kies' });
+  if (a === 'pick') {
+    const at = id.indexOf(':');
+    state.pick[id.slice(0, at)] = id.slice(at + 1);
+    render();
+    return;
+  }
+  if (a === 'kiesgo') {
+    prog.mapping = pickedMapping().id;
+    save();
+    return go({ name: 'mapping', id: prog.mapping });
+  }
+  if (a === 'para' || a === 'chapter') {
+    const chapters = MAPPING[state.view.id].chapters;
+    const paragraphs =
+      a === 'chapter'
+        ? chapters.find((c) => c.number === id).paragraphs
+        : chapters.flatMap((c) => c.paragraphs).filter((p) => p.number === id);
+    toggleStof(paragraphs.flatMap((p) => p.skills));
+    render();
+    return;
+  }
+  if (a === 'topicpick') {
+    toggleStof(TOPIC[id].skills.map((k) => k.id));
+    render();
+    return;
+  }
+  if (a === 'stofall') {
+    setStof(ALL_IDS);
+    render();
+    return;
+  }
+  if (a === 'stofclear') {
+    setStof([]);
+    render('h1');
+    return;
+  }
+  if (a === 'stofprac') {
+    // De stof kan zijn gewijzigd sinds de vorige ronde, dus begin met een nieuwe vraag.
+    delete state.prac['jouw-stof'];
+    return go({ name: 'stofoefen', slug: 'jouw-stof' });
+  }
   if (a === 'topic') return go({ name: 'topic', slug: id, tab: 'uitleg' });
   if (a === 'topicp') return go({ name: 'topic', slug: id, tab: 'oefen' });
   if (a === 'tab') {
@@ -152,12 +204,6 @@ app.addEventListener('click', (e) => {
     render('.sol');
     return;
   }
-  if (a === 'scope') {
-    prog.scope = id;
-    save();
-    render();
-    return;
-  }
   if (a === 'len') {
     state.view.n = +id;
     render();
@@ -165,7 +211,7 @@ app.addEventListener('click', (e) => {
   }
   if (a === 'start') {
     state.test = {
-      items: buildTest(prog.scope || 'all', state.view.n || 20),
+      items: buildTest(prog.stof, state.view.n || 20),
       i: 0,
       start: Date.now(),
     };
@@ -224,7 +270,7 @@ app.addEventListener('submit', (e) => {
     return;
   }
   if (e.target.id === 'pform') {
-    const s = TOPIC[state.view.slug],
+    const s = state.view.name === 'stofoefen' ? stofTopic() : TOPIC[state.view.slug],
       st = state.prac[s.slug];
     if (st.status === 'right' || st.status === 'shown') {
       newQuestion(s);
@@ -267,5 +313,5 @@ app.addEventListener('submit', (e) => {
   }
 });
 /* Alleen voor tests/browser.e2e.js: zo kan de browsertest de juiste antwoorden opvragen. */
-window.wiskundefit = { state, TOPICS, TOPIC, prog, go };
+window.wiskundefit = { state, TOPICS, TOPIC, MAPPINGS, prog, go };
 render();

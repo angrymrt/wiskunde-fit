@@ -58,6 +58,7 @@ src/
     ├── figures.js          Tekent grafieken en driehoeken als SVG
     ├── answers.js          Leest en controleert antwoorden
     ├── progress.js         Bewaart de voortgang in de browser
+    ├── stof.js             De stofkeuze: welke vraagsoorten een leerling oefent
     ├── mappings/           De methode-indelingen: paragrafen en hun vraagsoorten
     ├── topics/             De stof: elk bestand is één onderwerp
     │   ├── index.js        De domeinen, hun onderwerpen en de voorkennis

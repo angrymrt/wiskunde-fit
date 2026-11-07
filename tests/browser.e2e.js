@@ -87,8 +87,23 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
         await p.click('[data-act="show"]');
         await check(`${id} uitwerking`);
       }
+      await p.evaluate(() => wiskundefit.go({ name: 'kies' }));
+      await check('kiezen uit je boek');
+      for (const id of await p.evaluate(() => wiskundefit.MAPPINGS.map((m) => m.id))) {
+        await p.evaluate((i) => wiskundefit.go({ name: 'mapping', id: i }), id);
+        await check(`methode-indeling ${id}`);
+      }
+      await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
+      await check('jouw stof zonder keuze');
       await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+      await check('proeftoets zonder stof');
+      await p.click('[data-act="stofall"]');
       await check('proeftoets kiezen');
+      await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
+      await check('jouw stof met keuze');
+      await p.click('[data-act="stofprac"]');
+      await check('jouw stof oefenen');
+      await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
       await p.click('[data-act="len"][data-id="10"]');
       await p.click('[data-act="start"]');
       await check('proeftoets');
@@ -146,6 +161,8 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
 
     // Proeftoets: bij een andere vraag gaat de focus naar die vraag.
     await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+    await p.click('[data-act="stofall"]');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
     await p.click('[data-act="len"][data-id="10"]');
     assert.equal(await p.getAttribute('[data-act="len"][data-id="10"]', 'aria-pressed'), 'true');
@@ -279,7 +296,8 @@ test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 },
       await p.evaluate(() => wiskundefit.TOPIC['lineaire-ongelijkheden'].title),
       'Lineaire ongelijkheden',
     );
-    assert.equal(await p.evaluate(() => wiskundefit.prog.v), 3);
+    assert.equal(await p.evaluate(() => wiskundefit.prog.v), 4);
+    assert.equal(await p.evaluate(() => wiskundefit.prog.stof), null);
 
     // Voortgang op de id's uit paragraaf en volgorde krijgt het vaste nummer.
     await p.evaluate(() =>
@@ -293,7 +311,105 @@ test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 },
       () => wiskundefit.TOPIC['lengtes-van-lijnstukken-berekenen'].skills[7].id,
     );
     assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { [story]: [1, 0, 1] });
-    assert.equal(await p.evaluate(() => wiskundefit.prog.scope), 'h2');
+    // Een oude keuze voor een hoofdstuk wordt een stofkeuze.
+    const stof = await p.evaluate(() => wiskundefit.prog.stof);
+    assert.equal(stof.length, 25);
+    assert.ok(stof.includes(story));
+    assert.equal(await p.evaluate(() => 'scope' in wiskundefit.prog), false);
+    await p.evaluate(() => localStorage.clear());
+  } finally {
+    await browser.close();
+  }
+});
+
+test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 }, async () => {
+  await mkdir(shotDir, { recursive: true });
+  const browser = await launch();
+  try {
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(siteUrl);
+    const stof = () => p.evaluate(() => wiskundefit.prog.stof);
+    const fits = async (where) =>
+      assert.ok(
+        await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        `${where} is breder dan de telefoon`,
+      );
+
+    // Havo: leerjaar, methode en editie hebben maar één mogelijkheid en staan dus al ingevuld.
+    await p.click('.hero [data-act="kies"]');
+    assert.ok(await p.isDisabled('[data-act="kiesgo"]'));
+    await p.click('[data-act="pick"][data-id="level:havo"]');
+    assert.equal(await p.getAttribute('[data-id="level:havo"]', 'aria-pressed'), 'true');
+    assert.equal(
+      await p.evaluate(() => document.activeElement.dataset.id),
+      'level:havo',
+      'de focus blijft op de knop',
+    );
+    assert.equal(await p.getAttribute('[data-id="year:3"]', 'aria-pressed'), 'true');
+    await fits('kiezen uit je boek');
+    await p.screenshot({ path: `${shotDir}kies-uit-je-boek.png`, fullPage: true });
+    await p.click('[data-act="kiesgo"]');
+
+    // Een paragraaf aan- en uitvinken, en een heel hoofdstuk kiezen.
+    assert.equal(await p.locator('.chapter').count(), 9);
+    await p.click('[data-act="para"][data-id="1.4"]');
+    assert.deepEqual(await stof(), [23, 24, 25]);
+    assert.ok(await p.isChecked('[data-act="para"][data-id="1.4"]'));
+    assert.equal(
+      await p.evaluate(() => document.activeElement.dataset.id),
+      '1.4',
+      'de focus blijft op het vinkje',
+    );
+    await p.click('[data-act="para"][data-id="1.4"]');
+    assert.equal(await stof(), null);
+    await p.click('[data-act="chapter"][data-id="2"]');
+    assert.equal((await stof()).length, 25);
+    assert.ok(await p.isChecked('[data-act="para"][data-id="2.3"]'));
+    await p.click('[data-act="para"][data-id="2.3"]');
+    assert.equal((await stof()).length, 20);
+    assert.equal(await p.isChecked('[data-act="chapter"][data-id="2"]'), false);
+    await p.click('[data-act="para"][data-id="2.3"]');
+    assert.equal(await p.locator('[data-act="chapter"][data-id="3"]').count(), 0);
+    assert.match(await p.textContent('.chapter:nth-of-type(3)'), /nog niet oefenen/);
+    await fits('methode-indeling');
+    await p.screenshot({ path: `${shotDir}methode-indeling.png`, fullPage: true });
+
+    // Jouw stof: oefenen en proeftoets gaan alleen over de gekozen stof.
+    await p.click('.stof-bar [data-act="stof"]');
+    assert.equal(await p.locator('.stof-list .par').count(), 4);
+    await fits('jouw stof');
+    await p.screenshot({ path: `${shotDir}jouw-stof.png`, fullPage: true });
+    await p.click('[data-act="stofprac"]');
+    const chosen = await stof();
+    for (let i = 0; i < 12; i++) {
+      const id = await p.evaluate(() => wiskundefit.state.prac['jouw-stof'].skill.id);
+      assert.ok(chosen.includes(id), `vraagsoort ${id} is niet gekozen`);
+      await p.click('[data-act="show"]');
+      await p.click('#nextq');
+    }
+    await p.reload();
+    assert.deepEqual(await stof(), chosen, 'de stofkeuze blijft bewaard');
+    assert.match(await p.textContent('.hero .btn.main'), /Verder met jouw stof/);
+    await p.click('.hero [data-act="toets"]');
+    await p.click('[data-act="len"][data-id="10"]');
+    await p.click('[data-act="start"]');
+    const asked = await p.evaluate(() => wiskundefit.state.test.items.map((x) => x.skill.id));
+    assert.ok(asked.every((id) => chosen.includes(id)));
+
+    // Havo/vwo 2: alleen deels gedekt, met de melding dat het niet is vergeleken.
+    await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
+    await p.click('[data-act="stofclear"]');
+    await p.evaluate(() => wiskundefit.go({ name: 'kies' }));
+    await p.click('[data-act="pick"][data-id="level:havo/vwo"]');
+    assert.ok(await p.isDisabled('[data-act="kiesgo"]'));
+    await p.click('[data-act="pick"][data-id="year:2"]');
+    await p.click('[data-act="kiesgo"]');
+    assert.match(await p.textContent('.watch'), /nog niet met dit boek vergeleken/);
+    await p.click('[data-act="para"][data-id="6.2"]');
+    assert.deepEqual(await stof(), [38]);
+    await p.click('.stof-bar [data-act="stof"]');
+    assert.match(await p.textContent('.watch'), /Ook de uitleg is voor havo 3 geschreven/);
+    assert.match(await p.textContent('.stof-gaps'), /6\.5/);
     await p.evaluate(() => localStorage.clear());
   } finally {
     await browser.close();
@@ -385,6 +501,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
 
     // Proeftoets met alles goed.
     await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+    await p.click('[data-act="stofall"]');
     await p.click('[data-act="len"][data-id="10"]');
     await p.click('[data-act="start"]');
     for (let i = 0; i < 10; i++) {
@@ -401,8 +518,10 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     await checkOverflow('resultaat proeftoets');
 
     // Lege proeftoets: eerst een waarschuwing, daarna nul punten.
+    await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
+    await p.click('[data-act="stofclear"]');
+    await p.click('[data-act="topicpick"][data-id="stelling-van-pythagoras"]');
     await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
-    await p.click('[data-act="scope"][data-id="h1"]');
     await p.click('[data-act="len"][data-id="10"]');
     await p.click('[data-act="start"]');
     await p.click('[data-act="tfin"]');
@@ -410,9 +529,11 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     await p.click('[data-act="tfin"]');
     const blank = await p.evaluate(() => ({
       score: wiskundefit.state.test.score,
-      onlyH1: wiskundefit.state.test.items.every((x) => x.topic.ch === 1),
+      onlyChosen: wiskundefit.state.test.items.every(
+        (x) => x.topic.slug === 'stelling-van-pythagoras',
+      ),
     }));
-    assert.deepEqual(blank, { score: 0, onlyH1: true });
+    assert.deepEqual(blank, { score: 0, onlyChosen: true });
 
     // Voortgang blijft bewaard na herladen.
     await p.reload();

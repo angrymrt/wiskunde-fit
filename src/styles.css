@@ -884,6 +884,123 @@ ol.how {
   display: grid;
   gap: 6px;
 }
+.pick-lists {
+  display: grid;
+  gap: 14px;
+}
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+}
+.toggle {
+  min-height: 44px;
+  padding: 8px 16px;
+  background: var(--sheet);
+  border: 1px solid var(--muted);
+  margin-left: -1px;
+  cursor: pointer;
+}
+.toggle:first-child {
+  margin-left: 0;
+  border-radius: 6px 0 0 6px;
+}
+.toggle:last-child {
+  border-radius: 0 6px 6px 0;
+}
+.toggle:only-child {
+  border-radius: 6px;
+}
+.toggle:hover {
+  background: var(--blue-soft);
+}
+/* De gekozen knop ligt boven zijn buren, zodat de gekleurde rand helemaal zichtbaar is. */
+.toggle[aria-pressed='true'] {
+  position: relative;
+  background: var(--blue-soft);
+  border-color: var(--blue);
+  color: var(--blue);
+  font-weight: 700;
+}
+.toggle:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+.chapter {
+  display: grid;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+.chapter h2 {
+  margin: 0;
+}
+.picks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.pick {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 2px 8px;
+  padding: 7px 0;
+  align-items: start;
+}
+label.pick {
+  cursor: pointer;
+}
+.pick input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--blue);
+}
+.pick-all {
+  font-weight: 700;
+}
+.pick-note {
+  display: block;
+}
+.pick-topics {
+  display: block;
+  padding-left: 32px;
+}
+.pick.off {
+  color: var(--muted);
+}
+/* Zo valt een vinkje dat de focus krijgt niet achter de balk onderaan. */
+html:has(.stof-bar) {
+  scroll-padding-bottom: 80px;
+}
+.stof-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  background: var(--sheet);
+  border-top: 1px solid var(--rule);
+}
+.stof-list {
+  display: grid;
+  border-bottom: 1px solid var(--rule);
+}
+.stof-list .par {
+  padding-left: 0;
+  padding-right: 0;
+}
+.stof-skills {
+  grid-column: 1/3;
+}
+.stof-gaps {
+  margin: 0;
+  padding-left: 18px;
+}
 @media (prefers-reduced-motion: no-preference) {
   .fade {
     animation: fd 0.18s ease-out;

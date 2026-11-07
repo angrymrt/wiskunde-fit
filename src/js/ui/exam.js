@@ -2,23 +2,23 @@
 import { checkAnswer } from '../answers.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { TOPICS, TOPIC } from '../topics/index.js';
-import { prog, save, rec, inScope, SCOPES } from '../progress.js';
+import { prog, save, rec } from '../progress.js';
+import { chosenTopics } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { fieldsHTML, readVals } from './question-form.js';
 import { state } from './state.js';
 
-function buildTest(scope, n) {
-  const topics = TOPICS.filter((s) => inScope(s, scope)),
-    pools = new Map(topics.map((s) => [s.slug, shuffle(s.skills)])),
+function buildTest(ids, n) {
+  const groups = chosenTopics(ids),
+    pools = new Map(groups.map((g) => [g.topic.slug, shuffle(g.skills)])),
     out = [];
-  let round = shuffle(topics);
+  let round = shuffle(groups);
   while (out.length < n) {
-    for (const s of round) {
+    for (const { topic, skills } of round) {
       if (out.length >= n) break;
-      const p = pools.get(s.slug);
-      if (!p.length) pools.set(s.slug, shuffle(s.skills));
-      const sk = pools.get(s.slug).pop();
-      out.push({ topic: s, skill: sk, q: sk.gen(), vals: [] });
+      if (!pools.get(topic.slug).length) pools.set(topic.slug, shuffle(skills));
+      const sk = pools.get(topic.slug).pop();
+      out.push({ topic, skill: sk, q: sk.gen(), vals: [] });
     }
   }
   const order = TOPICS.map((s) => s.slug);
@@ -26,10 +26,13 @@ function buildTest(scope, n) {
   return out;
 }
 function vToetsSetup() {
-  const scope = prog.scope || 'all',
-    n = state.view.n || 20;
-  return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit de gekozen stof, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>
-  <div class="setup"><b>Welke stof?</b><div class="chips">${SCOPES.map(([k, t]) => `<button class="chip" type="button" data-act="scope" data-id="${k}" aria-pressed="${scope === k}">${t}</button>`).join('')}</div></div>
+  const n = state.view.n || 20,
+    groups = chosenTopics();
+  const intro = `<h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit jouw stof, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>`;
+  if (!groups.length)
+    return `<div class="sheet">${intro}<div class="setup"><b>Welke stof?</b><p class="small muted">Een proeftoets gaat over jouw stof. Kies die eerst.</p><div class="row"><button class="btn main" type="button" data-act="kies">Kies uit je boek</button><button class="btn" type="button" data-act="stof">Kies op onderwerp</button><button class="btn" type="button" data-act="stofall">Alle stof</button></div></div></div>`;
+  return `<div class="sheet">${intro}
+  <div class="setup"><b>Welke stof?</b><p class="small">Jouw stof: ${groups.map((g) => T(g.topic.title)).join(', ')}.</p><div><button class="linkbtn" type="button" data-act="stof">Wijzig jouw stof</button></div></div>
   <div class="setup"><b>Hoeveel vragen?</b><div class="chips">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
   <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div></div>`;
 }

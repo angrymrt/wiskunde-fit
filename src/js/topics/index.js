@@ -12,27 +12,23 @@ import gelijkvormig from './gelijkvormige-driehoeken.js';
 import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
 
-// ch is tijdelijk: de proeftoets kiest nog op hoofdstuk, tot de stofkeuze er is.
 const DOMAINS = [
   {
     slug: 'formules-en-grafieken',
     name: 'Formules en grafieken',
     color: 'blue',
-    ch: 1,
     topics: [rekenen, lijnen, opstellen, snijpunten],
   },
   {
     slug: 'vergelijkingen-en-ongelijkheden',
     name: 'Vergelijkingen en ongelijkheden',
     color: 'forest',
-    ch: 1,
     topics: [vergelijkingen, ongelijkheden, tweeVariabelen],
   },
   {
     slug: 'meetkunde',
     name: 'Meetkunde',
     color: 'orange',
-    ch: 2,
     topics: [pythagoras, verhoudingen, gelijkvormig, aantonen, lengtes],
   },
 ];
@@ -55,7 +51,6 @@ const TOPIC = Object.fromEntries(TOPICS.map((t) => [t.slug, t]));
 for (const domain of DOMAINS) {
   domain.topics.forEach((t, i) => {
     t.domain = domain;
-    t.ch = domain.ch;
     t.next = domain.topics[i + 1] || null;
     t.prerequisites = PREREQUISITES.get(t) || [];
     t.skills = t.skills.map(([id, name, gen]) => ({ id, name, gen }));
