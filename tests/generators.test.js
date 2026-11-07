@@ -110,6 +110,8 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
   for (const t of TOPICS) {
     assert.equal(t.slug, t.title.toLowerCase().replaceAll(' ', '-'), t.title);
     assert.ok(!reserved.includes(t.slug), `${t.slug} is gereserveerd`);
+    assert.ok(t.intro, `${t.title} heeft geen intro`);
+    assert.ok(!/[{}<]/.test(t.intro), `${t.title}: de intro is geen gewone tekst`);
     assert.ok(t.skills.length > 0, `${t.title} heeft geen vraagsoorten`);
     assert.ok(DOMAINS.includes(t.domain), `${t.title} hoort niet bij een domein`);
     for (const p of t.prerequisites) {

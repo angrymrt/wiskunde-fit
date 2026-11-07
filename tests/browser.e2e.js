@@ -75,12 +75,12 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
       await check('overzicht');
       const ids = await p.evaluate(() => wiskundefit.TOPICS.map((s) => s.slug));
       for (const id of ids) {
-        await p.evaluate((i) => wiskundefit.go({ name: 'topic', slug: i, tab: 'uitleg' }), id);
+        await p.evaluate((i) => wiskundefit.go({ name: 'topic', slug: i }), id);
         for (const b of await p.$$('[data-act="exnext"]')) {
           while (await b.isVisible()) await b.click();
         }
         await check(`${id} uitleg`);
-        await p.click('[role="tab"][data-tab="oefen"]');
+        await p.click('[data-act="topicp"]');
         await p.click('[data-act="hint"]');
         await p.click('#pform button[type=submit]');
         await check(`${id} oefenen met hint en melding`);
@@ -129,18 +129,21 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
     const focused = () =>
       p.evaluate(() => {
         const el = document.activeElement;
-        return el.id || el.dataset.tab || el.dataset.act || el.className || el.tagName;
+        return el.id || el.dataset.act || el.className || el.tagName;
       });
 
     // Een nieuw scherm: de focus gaat naar de kop.
     await p.click('[data-act="topic"][data-id="lineaire-grafieken-tekenen"]:not(.btn)');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
 
-    // Tabbladen: met de pijltjes wisselen, en de focus blijft op het tabblad.
-    await p.focus('#tab-uitleg');
-    await p.keyboard.press('ArrowRight');
-    assert.equal(await focused(), 'tab-oefen');
-    assert.ok(await p.$('#pform'), 'het tabblad Oefenen staat open');
+    // Van de uitleg naar het oefenscherm en terug: de focus gaat naar de kop.
+    await p.click('[data-act="topicp"]');
+    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+    assert.ok(await p.$('#pform'), 'het oefenscherm staat open');
+    await p.click('.head [data-act="topic"]');
+    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+    assert.equal(await p.$('#pform'), null, 'de uitleg staat open');
+    await p.click('.sheet [data-act="topicp"]');
 
     // Een leeg antwoord: de focus gaat naar de melding.
     await p.click('.chip[data-id=""]');
@@ -213,7 +216,7 @@ test('een lijn tekenen werkt met tikken en met typen', { timeout: 60_000 }, asyn
     const p = await browser.newPage({ viewport: { width: 390, height: 1300 } });
     await p.goto(siteUrl);
     await p.evaluate(() =>
-      wiskundefit.go({ name: 'topic', slug: 'lineaire-grafieken-tekenen', tab: 'oefen' }),
+      wiskundefit.go({ name: 'topic', slug: 'lineaire-grafieken-tekenen', oefen: true }),
     );
     const id = await p.evaluate(
       () =>
@@ -454,7 +457,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
         while (await b.isVisible()) await b.click();
       }
       await checkOverflow(`${id} voorbeelden open`);
-      if (/&(lt|gt|amp);/.test(await p.textContent('#paneel'))) {
+      if (/&(lt|gt|amp);/.test(await p.textContent('main'))) {
         failures.push(`${id}: dubbel omgezette tekens in de uitleg`);
       }
       for (const r of await p.$$('input[type=range]')) {
@@ -464,7 +467,15 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
         });
       }
       await checkOverflow(`${id} schuifjes op maximum`);
-      await p.click('[role="tab"][data-tab="oefen"]');
+      // Elke video staat er één keer, en de link bovenaan gaat naar de video's.
+      const videos = await p.evaluate((i) => {
+        const v = wiskundefit.TOPIC[i].videos;
+        return Object.values(v).flat().length;
+      }, id);
+      assert.equal(await p.locator('.vid-links a').count(), videos, `${id}: video's`);
+      assert.ok(await p.$('a[href="#videos"]'), `${id}: link naar de video's`);
+      assert.ok(await p.$('h2#videos'), `${id}: kop van de video's`);
+      await p.click('[data-act="topicp"]');
 
       const skills = await p.evaluate((i) => wiskundefit.TOPIC[i].skills.map((k) => k.id), id);
       for (const skill of skills) {
@@ -553,7 +564,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     await shot(light, 'uitleg', true);
     const dark = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'dark' });
     await dark.click('[data-act="topic"][data-id="gelijkvormige-driehoeken"]:not(.btn)');
-    await dark.click('[role="tab"][data-tab="oefen"]');
+    await dark.click('[data-act="topicp"]');
     await dark.click('[data-act="show"]');
     await shot(dark, 'oefenen-donker', true);
     await shot(await open({ viewport: { width: 390, height: 800 } }), 'telefoon', true);

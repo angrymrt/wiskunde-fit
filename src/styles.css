@@ -179,16 +179,10 @@ input {
   font-weight: 700;
   letter-spacing: 0;
 }
-.screen,
-.panel {
+.screen {
   display: grid;
   min-width: 0;
-}
-.screen {
   gap: 22px;
-}
-.panel {
-  gap: 16px;
 }
 .foot {
   display: flex;
@@ -608,27 +602,6 @@ sub {
   font-size: clamp(1.6rem, 5vw, 2.3rem);
   color: var(--accent);
 }
-.tabs {
-  display: flex;
-  gap: 6px;
-  border-bottom: 2px solid var(--ink);
-  flex-wrap: wrap;
-}
-.tab {
-  background: none;
-  border: 2px solid transparent;
-  border-bottom: 0;
-  padding: 8px 16px;
-  cursor: pointer;
-  border-radius: 6px 6px 0 0;
-  font-weight: 700;
-  margin-bottom: -2px;
-}
-.tab[aria-selected='true'] {
-  background: var(--sheet);
-  border-color: var(--ink);
-  border-bottom: 2px solid var(--sheet);
-}
 .block {
   display: grid;
   gap: 10px;
@@ -716,6 +689,15 @@ ol.how {
 }
 .vids li:first-child {
   border-top: 0;
+}
+.vid-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  font-size: 0.9rem;
+}
+.vid-links a {
+  padding: 4px 0;
 }
 
 /* vragen */

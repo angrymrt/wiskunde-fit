@@ -116,7 +116,7 @@ Handige hulpen uit `math.js` zijn `lin(a, b, 'x')` voor een nette formule zonder
 
 ## Een onderwerp toevoegen
 
-1. Kopieer een bestand in `src/js/topics/` en pas de `export default` aan. Het adres (`slug`) is de titel in kleine letters met streepjes. Kies een titel die ook later niet botst, zoals Lineaire formule opstellen in plaats van Formule opstellen.
+1. Kopieer een bestand in `src/js/topics/` en pas de `export default` aan. Het adres (`slug`) is de titel in kleine letters met streepjes. Kies een titel die ook later niet botst, zoals Lineaire formule opstellen in plaats van Formule opstellen. Schrijf bij `intro` in twee of drie zinnen wat de stof is en wat de leerling hier leert, zonder HTML.
 2. Zet het onderwerp in een domein in `topics/index.js`, op de plek waar het in de volgorde hoort.
 3. Zet de voorkennis in `PREREQUISITES` in hetzelfde bestand. Voorkennis is een kenmerk van een onderwerp, ook als die in een boek als los stukje voor een hoofdstuk staat. Maak dus geen apart onderwerp voor voorkennis.
 

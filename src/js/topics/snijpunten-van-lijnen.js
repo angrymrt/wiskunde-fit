@@ -101,6 +101,8 @@ function s14compare() {
 export default {
   slug: 'snijpunten-van-lijnen',
   title: 'Snijpunten van lijnen',
+  intro:
+    'Twee lijnen kunnen elkaar snijden, en een lijn snijdt ook de assen. Hier leer je uitrekenen waar dat gebeurt. Zo kun je ook bepalen wanneer twee hoeveelheden even groot zijn.',
   videos: {
     menno: [
       ['Snijpunten met de x-as en de y-as', 'tdHnhUP7sgQ'],

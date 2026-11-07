@@ -354,6 +354,8 @@ function s23alt() {
 export default {
   slug: 'gelijkvormigheid-aantonen',
   title: 'Gelijkvormigheid aantonen',
+  intro:
+    'Voordat je met gelijkvormigheid mag rekenen, moet je laten zien dat de driehoeken gelijkvormig zijn. Hier leer je dat met twee paar gelijke hoeken, en hoe je het opschrijft.',
   videos: {
     menno: [
       ['Gelijkvormige driehoeken aantonen', 'v82_TCJTSks'],

@@ -387,6 +387,8 @@ function s12table() {
 export default {
   slug: 'lineaire-formule-opstellen',
   title: 'Lineaire formule opstellen',
+  intro:
+    'Soms heb je een grafiek, twee punten of een verhaal en zoek je de formule die daarbij hoort. Hier leer je hoe je a en b vindt.',
   videos: {
     menno: [
       ['De formule y = ax + b', 'RpDZhdELvFY'],

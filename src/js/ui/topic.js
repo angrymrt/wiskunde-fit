@@ -1,5 +1,5 @@
-// Het scherm van een onderwerp met de tabbladen Uitleg en Oefenen.
-import { prog, skillPct } from '../progress.js';
+// De schermen van een onderwerp: de uitleg en het oefenen.
+import { prog, skillPct, topicPct } from '../progress.js';
 import { topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { fieldsHTML } from './question-form.js';
@@ -13,23 +13,31 @@ const topicLink = (t) =>
   `<button class="linkbtn" type="button" data-act="topic" data-id="${t.slug}">${T(t.title)}</button>`;
 const nextHTML = (s) =>
   s.next ? `<p class="small">Volgend onderwerp: ${topicLink(s.next)}</p>` : '';
+const practiceButton = (s) =>
+  `<button class="btn main" type="button" data-act="topicp" data-id="${s.slug}">Ga oefenen</button>`;
 function vLearn(s) {
   return (
-    vVideos(s) +
     s.learn
       .map(
         (b, i) =>
           `<div class="block"><h2 class="h3">${T(b.t)}</h2>${(b.p || []).map((x) => `<p>${/<span|<table/.test(x) ? x : T(x)}</p>`).join('')}${b.how ? `<ol class="how">${b.how.map((x) => `<li>${/<span/.test(x) ? x : T(x)}</li>`).join('')}</ol>` : ''}${b.widget ? `<div data-widget="${b.widget}"></div>` : ''}${b.ex ? exampleHTML(b.ex, i) : ''}${b.watch ? `<p class="watch"><b>Let op:</b> ${/<span/.test(b.watch) ? b.watch : T(b.watch)}</p>` : ''}</div>`,
       )
       .join('') +
-    `<div class="row"><button class="btn main" type="button" data-act="tab" data-tab="oefen">Ga oefenen</button></div>${nextHTML(s)}`
+    vVideos(s) +
+    `<div class="row">${practiceButton(s)}</div>${nextHTML(s)}`
   );
 }
 const CHANNELS = { menno: 'Math with Menno', bob: 'Wiskunde met Bob Pruiksma' };
 function vVideos(s) {
-  const groups = Object.keys(CHANNELS).filter((k) => s.videos[k]?.length);
-  return groups.length
-    ? `<div class="block"><h2 class="h3">Liever kijken?</h2><p class="muted small">Kies de uitleg die jou het best helpt. De video's openen op YouTube.</p>${groups.map((k) => `<h3>${CHANNELS[k]}</h3><ul class="vids">${s.videos[k].map(([t, id]) => `<li><a href="https://youtu.be/${id}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join('')}</ul>`).join('')}</div>`
+  // Per video-onderwerp in plaats van per kanaal, want de kanalen behandelen vaak dezelfde stof.
+  const groups = new Map();
+  for (const k of Object.keys(CHANNELS)) {
+    for (const [title, id] of s.videos[k] || []) {
+      groups.set(title, [...(groups.get(title) || []), [k, id]]);
+    }
+  }
+  return groups.size
+    ? `<div class="block"><h2 class="h3" id="videos">Video's</h2><p class="muted small">Kies de uitleg die jou het best helpt. De video's openen op YouTube.</p><ul class="vids">${[...groups].map(([title, links]) => `<li>${esc(title)}<span class="vid-links">${links.map(([k, id]) => `<a href="https://youtu.be/${id}" target="_blank" rel="noopener" aria-label="${esc(title)}, ${CHANNELS[k]}">${CHANNELS[k]}</a>`).join('')}</span></li>`).join('')}</ul></div>`
     : '';
 }
 function newQuestion(s) {
@@ -71,24 +79,18 @@ function vPractice(s) {
   ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div>`;
 }
 function vTopic(s) {
-  const tab = state.view.tab === 'oefen' ? 'oefen' : 'uitleg';
-  const body =
-    tab === 'uitleg' ? `<div class="sheet">${vLearn(s)}</div>` : `${vPractice(s)}${nextHTML(s)}`;
+  const domain = `<span class="small muted">${s.domain.name}</span>`;
+  if (state.view.oefen) {
+    return `<div class="color-${s.domain.color}" style="display:grid;gap:16px"><div class="head">${domain}<h1>${T(s.title)} oefenen</h1><p class="small"><button class="linkbtn" type="button" data-act="topic" data-id="${s.slug}">Terug naar de uitleg</button></p></div>${vPractice(s)}${nextHTML(s)}</div>`;
+  }
+  const p = Math.round(topicPct(s) * 100);
   const prerequisites = s.prerequisites.length
-    ? `<p class="small">Voorkennis: ${s.prerequisites.map(topicLink).join(' en ')}</p>`
+    ? `<p class="small">Voorkennis: ${s.prerequisites.map(topicLink).join(' ')}</p>`
     : '';
-  return `<div class="color-${s.domain.color}" style="display:grid;gap:16px"><div class="head"><span class="small muted">${s.domain.name}</span><h1>${T(s.title)}</h1>${prerequisites}</div>
-  <div class="tabs" role="tablist">${[
-    ['uitleg', 'Uitleg'],
-    ['oefen', 'Oefenen'],
-  ]
-    .map(
-      ([k, n]) =>
-        `<button class="tab" type="button" role="tab" id="tab-${k}" aria-selected="${tab === k}" aria-controls="paneel" tabindex="${tab === k ? 0 : -1}" data-act="tab" data-tab="${k}">${n}</button>`,
-    )
-    .join(
-      '',
-    )}</div><div class="panel" role="tabpanel" id="paneel" aria-labelledby="tab-${tab}">${body}</div></div>`;
+  return `<div class="color-${s.domain.color}" style="display:grid;gap:16px"><div class="head">${domain}<h1>${T(s.title)}</h1><p class="lead">${T(s.intro)}</p>
+  <div class="row">${practiceButton(s)}${p ? `<span class="small muted">${p}% geoefend</span>` : ''}</div>
+  <p class="small">Liever een video? <a href="#videos">Ga naar de video's</a></p>${prerequisites}</div>
+  <div class="sheet">${vLearn(s)}</div></div>`;
 }
 
 export { vTopic, vPractice, newQuestion, topicLink };

@@ -265,6 +265,8 @@ function s13param() {
 export default {
   slug: 'lineaire-vergelijkingen',
   title: 'Lineaire vergelijkingen',
+  intro:
+    'Bij een vergelijking zoek je de x waarvoor links en rechts hetzelfde uitkomt. Hier leer je dat met een vast stappenplan, ook als er haakjes of breuken in staan.',
   videos: {
     menno: [
       ['Lineaire vergelijkingen oplossen', '-yl6BWQ3ZQM'],

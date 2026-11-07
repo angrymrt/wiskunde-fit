@@ -273,6 +273,8 @@ function s21par() {
 export default {
   slug: 'verhoudingstabellen',
   title: 'Verhoudingstabellen',
+  intro:
+    'In een verhoudingstabel horen de getallen in een vaste verhouding bij elkaar. Hier leer je met kruislings vermenigvuldigen een onbekend getal berekenen, ook als er letters in staan.',
   videos: {
     menno: [
       ['Kruislings vermenigvuldigen', 't8xn6N4Cf3M'],

@@ -56,6 +56,8 @@ function s12draw() {
 export default {
   slug: 'lineaire-grafieken-tekenen',
   title: 'Lineaire grafieken tekenen',
+  intro:
+    'Bij een formule als y = ax + b hoort een rechte lijn. Hier leer je wat a en b over die lijn zeggen en hoe je de lijn tekent met een tabel.',
   videos: {
     menno: [['De grafiek van een lineaire formule', '67AA66Z_hIw']],
     bob: [['De grafiek van een lineaire formule', 'ZS_74Ceblcc']],

@@ -164,6 +164,8 @@ function sPyHeight() {
 export default {
   slug: 'stelling-van-pythagoras',
   title: 'Stelling van Pythagoras',
+  intro:
+    'In een driehoek met een rechte hoek kun je een ontbrekende zijde uitrekenen als je de andere twee kent. Dat doe je met de stelling van Pythagoras.',
   videos: {
     menno: [
       ['De stelling van Pythagoras', 'zAnoHcHsKfM'],

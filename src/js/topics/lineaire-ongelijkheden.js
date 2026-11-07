@@ -332,6 +332,8 @@ function s15story() {
 export default {
   slug: 'lineaire-ongelijkheden',
   title: 'Lineaire ongelijkheden',
+  intro:
+    'Bij een ongelijkheid zoek je niet één getal, maar alle x waarvoor iets groter of kleiner is. Hier leer je dat oplossen, met en zonder grafieken.',
   videos: {
     menno: [
       ['Lineaire ongelijkheden oplossen met grafieken', '016gEKebUGM'],

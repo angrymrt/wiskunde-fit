@@ -135,13 +135,8 @@ app.addEventListener('click', (e) => {
     delete state.prac['jouw-stof'];
     return go({ name: 'stofoefen', slug: 'jouw-stof' });
   }
-  if (a === 'topic') return go({ name: 'topic', slug: id, tab: 'uitleg' });
-  if (a === 'topicp') return go({ name: 'topic', slug: id, tab: 'oefen' });
-  if (a === 'tab') {
-    state.view.tab = b.dataset.tab;
-    render();
-    return;
-  }
+  if (a === 'topic') return go({ name: 'topic', slug: id });
+  if (a === 'topicp') return go({ name: 'topic', slug: id, oefen: true });
   if (a === 'reset1') {
     state.confirmReset = true;
     render('[data-act="reset2"]');
@@ -247,17 +242,6 @@ app.addEventListener('click', (e) => {
     finishTest();
     return go({ name: 'toetsres' });
   }
-});
-// De tabbladen werken met de pijltjestoetsen, zoals een schermlezer dat aankondigt.
-app.addEventListener('keydown', (e) => {
-  if (!e.target.matches('[role="tab"]')) return;
-  const tabs = [...app.querySelectorAll('[role="tab"]')],
-    i = tabs.indexOf(e.target),
-    n = tabs.length,
-    to = { ArrowRight: (i + 1) % n, ArrowLeft: (i + n - 1) % n, Home: 0, End: n - 1 }[e.key];
-  if (to === undefined) return;
-  e.preventDefault();
-  tabs[to].click();
 });
 app.addEventListener('submit', (e) => {
   e.preventDefault();
