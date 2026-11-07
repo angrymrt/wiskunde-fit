@@ -50,7 +50,7 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 ## Een vraag toevoegen
 
 1. Schrijf in het juiste bestand in `src/js/paragraphs/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen.
-2. Zet de functie in de lijst `skills` onderaan het bestand: `['Naam van de vaardigheid', mijnFunctie]`.
+2. Zet de functie in de lijst `skills` onderaan het bestand: `['Naam van de vraagsoort', mijnFunctie]`.
 3. Draai `npm test`. De test vindt de nieuwe vraag vanzelf.
 
 Een eenvoudig voorbeeld:

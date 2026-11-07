@@ -7,10 +7,10 @@ Interactieve oefensite voor de wiskundetoets over hoofdstuk 1 (lineaire probleme
 ## Wat de site doet
 
 - **Uitleg per paragraaf**, met voorbeelden die stap voor stap verschijnen en interactieve onderdelen, zoals schuifjes voor `a` en `b` in `y = ax + b`.
-- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 65 vaardigheden, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
+- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 65 vraagsoorten, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
 - **Proeftoetsen** van 10 tot 30 vragen, met aan het eind een score per paragraaf en alle uitwerkingen.
 - **Video's** per paragraaf, als links naar YouTube.
-- **Voortgang** per vaardigheid, bewaard in de browser. Er is geen server en er is geen account nodig.
+- **Voortgang** per vraagsoort, bewaard in de browser. Er is geen server en er is geen account nodig.
 
 ## Snel beginnen
 
@@ -31,7 +31,7 @@ Bij `npm install` meldt npm mogelijk dat het installatiescript van esbuild niet 
 | ---------------------- | ---------------------------------------------------------------- |
 | `npm run dev`          | Start de site lokaal, zonder bouwstap                            |
 | `npm run build`        | Bouwt `dist/index.html`: de hele site in één bestand om te delen |
-| `npm test`             | Maakt van elke vaardigheid 500 varianten en controleert die      |
+| `npm test`             | Maakt van elke vraagsoort 500 varianten en controleert die       |
 | `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 1,5 minuut)    |
 | `npm run images`       | Maakt het linkvoorbeeld en het icoon opnieuw                     |
 | `npm run format`       | Maakt de code netjes op met Prettier                             |
@@ -77,7 +77,7 @@ scripts/                    Build, ontwikkelserver, afbeeldingen en releasenotit
 tests/                      Generatortests, releasecontrole en browsertest
 ```
 
-De belangrijkste plek om te beginnen is een bestand in `src/js/paragraphs/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vaardigheden. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.
+De belangrijkste plek om te beginnen is een bestand in `src/js/paragraphs/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vraagsoorten. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.
 
 In [AGENTS.md](AGENTS.md) staat hoe je een vraag of paragraaf toevoegt en welke afspraken gelden. De woorden die we gebruiken staan in [BEGRIPPEN.md](BEGRIPPEN.md).
 

@@ -15,11 +15,11 @@ De methode                         Wiskundefit
 
 Methode    Getal & Ruimte          Domein       Meetkunde
 Editie     13e editie              Onderwerp    Gelijkvormige driehoeken
-Niveau     havo                    Vaardigheid  Zijden berekenen
+Niveau     havo                    Vraagsoort   Zijden berekenen
 Leerjaar   3                       Vraag        één vraag met eigen getallen
 Boek       deel 1
 Hoofdstuk  2
-Paragraaf  2.2  ── methode-indeling ──>  een of meer vaardigheden
+Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 ```
 
 ## School en methode
@@ -44,36 +44,37 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vaardigheden
 
 ## De stof op de site
 
-| Begrip      | Betekenis                                                                                                                                                                          | In de code           | Niet gebruiken                      |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----------------------------------- |
-| Stof        | Alles wat een leerling op de site kan leren en oefenen.                                                                                                                            |                      | lesstof, content, materiaal         |
-| Domein      | Een aantal onderwerpen die bij elkaar horen, zoals Meetkunde. We kiezen de domeinen zelf: het is geen officiële lijst uit de kerndoelen of examenprogramma's en geen hoofdstuk.    | nog niet             | groep, hoofdstuk                    |
-| Onderwerp   | De plek waar je iets leert: uitleg, video's en vaardigheden. Onafhankelijk van een methode.                                                                                        | nu `SECTIONS`        | les, paragraaf                      |
-| Vaardigheid | Eén ding dat je leert doen, met een vaste id en een generator, zoals Zijden berekenen. Het gaat vooral om standaardprocedures en routinetaken, niet om iets breeds als modelleren. | `skills`             | soort vraag, skill in lopende tekst |
-| Vraag       | Eén concrete vraag met eigen getallen, gemaakt door een generator.                                                                                                                 | `q` en de rest ervan | som, opgave, opdracht               |
-| Generator   | De functie die vragen maakt bij een vaardigheid.                                                                                                                                   | `gen`                |                                     |
-| Seed        | Het getal waarmee je precies dezelfde vraag opnieuw kunt maken.                                                                                                                    | nog niet             |                                     |
-| Voorkennis  | Stof die je al moet kennen voordat je aan een onderwerp begint. Is zelf gewone stof, met een verwijzing vanuit het onderwerp.                                                      | nu `v1`, `v2`        |                                     |
-| Uitleg      | De tekst bij een onderwerp die de stof uitlegt.                                                                                                                                    |                      | theorie (dat is de methode)         |
-| Hint        | Een tip bij een vraag, zonder het antwoord.                                                                                                                                        | `hint`               |                                     |
-| Uitwerking  | De stappen naar het goede antwoord.                                                                                                                                                | `steps`              | oplossing, antwoord                 |
-| Feedback    | Een bericht dat ingaat op een fout die een leerling maakte.                                                                                                                        | `traps`              |                                     |
+| Begrip      | Betekenis                                                                                                                                                                           | In de code           | Niet gebruiken              |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | --------------------------- |
+| Stof        | Alles wat een leerling op de site kan leren en oefenen.                                                                                                                             |                      | lesstof, content, materiaal |
+| Domein      | Een aantal onderwerpen die bij elkaar horen, zoals Meetkunde. We kiezen de domeinen zelf: het is geen officiële lijst uit de kerndoelen of examenprogramma's en geen hoofdstuk.     | nog niet             | groep, hoofdstuk            |
+| Onderwerp   | De plek waar je iets leert: uitleg, video's en vraagsoorten. Onafhankelijk van een methode.                                                                                         | nu `SECTIONS`        | les, paragraaf              |
+| Vraagsoort  | Eén soort vraag die je kunt oefenen, met een vaste id en een generator, zoals Zijden berekenen. Per vraag verschillen alleen de getallen of het verhaal.                            | `skills`             | skill in lopende tekst      |
+| Vaardigheid | Wat een leerling leert kunnen. Eén vaardigheid kan bij meer vraagsoorten horen. Het woord is breed en kan ook iets als modelleren betekenen. Daarom is het nu geen laag op de site. | nog niet             |                             |
+| Vraag       | Eén concrete vraag met eigen getallen, gemaakt door een generator.                                                                                                                  | `q` en de rest ervan | som, opgave, opdracht       |
+| Generator   | De functie die vragen maakt bij een vraagsoort.                                                                                                                                     | `gen`                |                             |
+| Seed        | Het getal waarmee je precies dezelfde vraag opnieuw kunt maken.                                                                                                                     | nog niet             |                             |
+| Voorkennis  | Stof die je al moet kennen voordat je aan een onderwerp begint. Is zelf gewone stof, met een verwijzing vanuit het onderwerp.                                                       | nu `v1`, `v2`        |                             |
+| Uitleg      | De tekst bij een onderwerp die de stof uitlegt.                                                                                                                                     |                      | theorie (dat is de methode) |
+| Hint        | Een tip bij een vraag, zonder het antwoord.                                                                                                                                         | `hint`               |                             |
+| Uitwerking  | De stappen naar het goede antwoord.                                                                                                                                                 | `steps`              | oplossing, antwoord         |
+| Feedback    | Een bericht dat ingaat op een fout die een leerling maakte.                                                                                                                         | `traps`              |                             |
 
 ## De methode-indeling en het kiezen van stof
 
-| Begrip           | Betekenis                                                                                                                                                                      | In de code      | Niet gebruiken |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------------- |
-| Methode-indeling | Onze beschrijving van één methode, editie, niveau en leerjaar: de hoofdstukken en paragrafen, met per paragraaf de vaardigheden die erbij horen. Bevat ook wat we niet dekken. | nog niet        | indeling, boek |
-| Dekking          | Of een paragraaf op de site te oefenen is: gedekt, deels gedekt of niet gedekt.                                                                                                | nog niet        |                |
-| Stofkeuze        | De vaardigheden die een leerling wil oefenen, gekozen op paragraaf, hoofdstuk of onderwerp. Blijft op het apparaat.                                                            | nu `prog.scope` |                |
+| Begrip           | Betekenis                                                                                                                                                                                                                                                    | In de code      | Niet gebruiken |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------------- |
+| Methode-indeling | Onze beschrijving van één methode, editie, niveau en leerjaar: de hoofdstukken en paragrafen op nummer, met een korte eigen omschrijving en de vraagsoorten die erbij horen. Bevat ook wat we niet dekken, maar neemt de inhoudsopgave niet één op één over. | nog niet        | indeling, boek |
+| Dekking          | Of een paragraaf op de site te oefenen is: gedekt, deels gedekt of niet gedekt.                                                                                                                                                                              | nog niet        |                |
+| Stofkeuze        | De vraagsoorten die een leerling wil oefenen, gekozen op paragraaf, hoofdstuk of onderwerp. Blijft op het apparaat.                                                                                                                                          | nu `prog.scope` |                |
 
 ## Oefenen en voortgang
 
 | Begrip           | Betekenis                                                                               | In de code   |
 | ---------------- | --------------------------------------------------------------------------------------- | ------------ |
-| Oefenen          | Vragen maken bij een vaardigheid, met hints en uitwerking.                              |              |
+| Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                               |              |
 | Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                | `ui/exam.js` |
-| Voortgang        | Wat de site per vaardigheid onthoudt. Blijft in de browser op het apparaat.             | `prog`       |
+| Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.              | `prog`       |
 | Beheerst         | De voortgang is 80% of meer.                                                            | `secPct`     |
 | Overzichtsscherm | Het eerste scherm van de site. Het woord beginscherm is voor het icoon op een telefoon. | `ui/home.js` |
 
@@ -96,5 +97,5 @@ Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat
 | Domein                   | Alleen de naam, zoals "Meetkunde"                                 |
 | Methode                  | De naam zelf, of "je boek"                                        |
 | Methode-indeling         | "Je boek", zoals in "Kies uit je boek"                            |
-| Vaardigheid              | "Soort vraag", of de naam van de vaardigheid                      |
+| Vraagsoort               | "Soort vraag", of de naam van de vraagsoort                       |
 | Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen." |
