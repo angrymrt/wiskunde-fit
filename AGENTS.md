@@ -24,7 +24,7 @@ Al het werk wordt hieraan getoetst. Over de grenzen gaan we nooit heen. Binnen d
 
 ```sh
 npm run dev           # site lokaal op poort 5173, toont src/ zonder bouwstap
-npm test              # generatortests en releasecontrole, ongeveer 2 seconden
+npm test              # generatortests, methode-indelingen en releasecontrole, ongeveer 2 seconden
 npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer anderhalve minuut
 npm run build         # maakt dist/index.html
 npm run images        # maakt de PNG's in src/ opnieuw, alleen nodig als het ontwerp verandert
@@ -44,7 +44,7 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 - **Schrijf Nederlands voor de leerling.** Spreek de leerling aan met "je", in korte, gewone zinnen. Ook de code-opmerkingen en documentatie zijn Nederlands.
 - **Houd de site statisch.** Geen server, geen accounts, geen persoonsgegevens, geen cookies en geen externe scripts. Let op: de cookieregels gelden ook voor een script dat zonder cookie iets naar een server stuurt. De lettertypes staan in `src/fonts/`. Alleen de links naar YouTube en GitHub en het mailadres gebruiken internet.
 - **Wijzig `dist/` niet.** Die map wordt gebouwd en staat niet in git.
-- **Houd stof en schermen gescheiden.** `math.js`, `typeset.js`, `figures.js`, `answers.js` en `topics/` mogen geen DOM gebruiken, want de tests draaien ze in Node. DOM-code hoort in `ui/` en `main.js`.
+- **Houd stof en schermen gescheiden.** `math.js`, `typeset.js`, `figures.js`, `answers.js`, `topics/` en `mappings/` mogen geen DOM gebruiken, want de tests draaien ze in Node. DOM-code hoort in `ui/` en `main.js`.
 - **Kleuren staan als tokens in `:root`.** Definieer elke nieuwe kleur ook voor de donkere modus. Dat gebeurt op twee plekken: in de `prefers-color-scheme`-regel en bij `[data-theme='dark']`.
 
 ## Een vraag toevoegen
@@ -121,6 +121,13 @@ Handige hulpen uit `math.js` zijn `lin(a, b, 'x')` voor een nette formule zonder
 3. Zet de voorkennis in `PREREQUISITES` in hetzelfde bestand. Voorkennis is een kenmerk van een onderwerp, ook als die in een boek als los stukje voor een hoofdstuk staat. Maak dus geen apart onderwerp voor voorkennis.
 
 Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.css`. Wijzig het nummer van een vraagsoort nooit, want de opgeslagen voortgang verwijst daarnaar. De naam, de volgorde en het onderwerp van een vraagsoort mogen wel veranderen. Stopt een vraagsoort, zet dan `null` achter het nummer in `tests/vraagsoort-ids.js`, leg in `progress.js` vast waar de voortgang heen gaat en gebruik het nummer nooit opnieuw.
+
+## Een methode-indeling toevoegen
+
+1. Kopieer een bestand in `src/js/mappings/` en zet het in de lijst in `mappings/index.js`. Elk leerjaar krijgt per editie één bestand.
+2. Zet er alle boeken in, met volledige naam en ISBN, en alle paragrafen op nummer met een korte eigen omschrijving. Neem geen inhoudsopgave één op één over en schrijf ook geen titels over. Hoofdstuknummers zijn tekst. Voorkennis hoort er niet in.
+3. Een paragraaf is `['1.1', 'Omschrijving', [3, 4]]`. Zonder vraagsoorten is die niet gedekt. Schrijf `'deels'` als vierde waarde als er nog stof ontbreekt of als de stof niet met dit boek is vergeleken, en leg dat laatste uit in `note`.
+4. Zet het aantal paragrafen in `tests/methode-indelingen.test.js` en draai `npm test`.
 
 ## Zo werken de schermen
 

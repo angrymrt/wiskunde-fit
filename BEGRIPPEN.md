@@ -4,7 +4,7 @@ Deze lijst legt vast welke woorden we gebruiken als we over Wiskundefit praten, 
 
 Teksten voor leerlingen volgen dezelfde betekenis, maar mogen gewonere woorden gebruiken. Zie [Voor de leerling](#voor-de-leerling).
 
-De stof staat in de code per onderwerp in `topics/`. De methode-indeling en de stofkeuze komen nog in fase 3 van de [roadmap](ROADMAP.md).
+De stof staat in de code per onderwerp in `topics/`, de methode-indelingen staan in `mappings/`. De stofkeuze komt nog in fase 3 van de [roadmap](ROADMAP.md).
 
 ## Het overzicht
 
@@ -24,23 +24,23 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 
 ## School en methode
 
-| Begrip    | Betekenis                                                                                                              | Niet gebruiken         |
-| --------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| Uitgever  | Het bedrijf dat een methode uitbrengt, bijvoorbeeld Noordhoff.                                                         |                        |
-| Methode   | De lesmethode, zoals Getal & Ruimte of Moderne Wiskunde.                                                               | boek, lesmethode       |
-| Editie    | De versie van een methode, zoals de 13e editie.                                                                        | druk, versie           |
-| Niveau    | Havo, vwo of vmbo. Bij vmbo hoort daar ook de leerweg bij.                                                             | schoolsoort, opleiding |
-| Leerjaar  | Het jaar op school. "Havo 3" is niveau plus leerjaar.                                                                  | klas                   |
-| Vak       | In de bovenbouw kan het vak verschillen, zoals wiskunde A of B.                                                        |                        |
-| Boek      | Eén los boek van een methode, met een eigen deelnummer zoals deel 1 of 3A. Een leerjaar kan uit meer boeken bestaan.   |                        |
-| FLEX      | De naam die de uitgever geeft aan boeken met online materiaal. We noemen het alleen om een boek precies aan te duiden. |                        |
-| Hoofdstuk | Een hoofdstuk van een methode. Het nummer is uniek binnen het leerjaar en hoeft geen getal te zijn, zoals `11A`.       |                        |
-| Paragraaf | Een paragraaf van een methode, zoals 2.2. Dit woord gebruiken we alleen voor de methode.                               | sectie, les            |
-| Opgave    | Een opdracht in een boek. Onze eigen opdrachten heten vragen.                                                          |                        |
-| Werkwijze | Hoe een methode een soort opgave voordoet en opschrijft. Die kan per methode verschillen.                              | aanpak, notatie        |
-| Toets     | De toets die de docent op school geeft. Wat er in een toets zit, bepaalt de docent en zegt de site niet.               | proefwerk, examen      |
-| Docent    | De wiskundedocent van een leerling, of iemand die de stof voor ons nakijkt.                                            | leraar                 |
-| Naslag    | Materiaal uit boeken in de map `naslag/`, dat we alleen gebruiken om de werkwijze op te zoeken. Komt nooit in git.     | lesstof                |
+| Begrip    | Betekenis                                                                                                                                                                                                    | Niet gebruiken         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| Uitgever  | Het bedrijf dat een methode uitbrengt, bijvoorbeeld Noordhoff.                                                                                                                                               |                        |
+| Methode   | De lesmethode, zoals Getal & Ruimte of Moderne Wiskunde.                                                                                                                                                     | boek, lesmethode       |
+| Editie    | De versie van een methode, zoals de 13e editie.                                                                                                                                                              | druk, versie           |
+| Niveau    | Havo, vwo of vmbo. Bij vmbo hoort daar ook de leerweg bij.                                                                                                                                                   | schoolsoort, opleiding |
+| Leerjaar  | Het jaar op school. "Havo 3" is niveau plus leerjaar.                                                                                                                                                        | klas                   |
+| Vak       | In de bovenbouw kan het vak verschillen, zoals wiskunde A of B.                                                                                                                                              |                        |
+| Boek      | Eén los boek van een methode, met een eigen deelnummer zoals deel 1 of 3A. Een leerjaar kan uit meer boeken bestaan. Van een deel bestaat vaak een gewoon leerboek en een FLEX-boek, elk met een eigen ISBN. |                        |
+| FLEX      | De naam die de uitgever geeft aan boeken met online materiaal. We noemen het alleen om een boek precies aan te duiden.                                                                                       |                        |
+| Hoofdstuk | Een hoofdstuk van een methode. Het nummer is uniek binnen het leerjaar en hoeft geen getal te zijn, zoals `11A`.                                                                                             |                        |
+| Paragraaf | Een paragraaf van een methode, zoals 2.2. Dit woord gebruiken we alleen voor de methode.                                                                                                                     | sectie, les            |
+| Opgave    | Een opdracht in een boek. Onze eigen opdrachten heten vragen.                                                                                                                                                |                        |
+| Werkwijze | Hoe een methode een soort opgave voordoet en opschrijft. Die kan per methode verschillen.                                                                                                                    | aanpak, notatie        |
+| Toets     | De toets die de docent op school geeft. Wat er in een toets zit, bepaalt de docent en zegt de site niet.                                                                                                     | proefwerk, examen      |
+| Docent    | De wiskundedocent van een leerling, of iemand die de stof voor ons nakijkt.                                                                                                                                  | leraar                 |
+| Naslag    | Materiaal uit boeken in de map `naslag/`, dat we alleen gebruiken om de werkwijze op te zoeken. Komt nooit in git.                                                                                           | lesstof                |
 
 ## De stof op de site
 
@@ -66,8 +66,8 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 
 | Begrip           | Betekenis                                                                                                                                                                                                                                                    | In de code      | Niet gebruiken |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------------- |
-| Methode-indeling | Onze beschrijving van één methode, editie, niveau en leerjaar: de hoofdstukken en paragrafen op nummer, met een korte eigen omschrijving en de vraagsoorten die erbij horen. Bevat ook wat we niet dekken, maar neemt de inhoudsopgave niet één op één over. | nog niet        | indeling, boek |
-| Dekking          | Of een paragraaf op de site te oefenen is: gedekt, deels gedekt of niet gedekt.                                                                                                                                                                              | nog niet        |                |
+| Methode-indeling | Onze beschrijving van één methode, editie, niveau en leerjaar: de hoofdstukken en paragrafen op nummer, met een korte eigen omschrijving en de vraagsoorten die erbij horen. Bevat ook wat we niet dekken, maar neemt de inhoudsopgave niet één op één over. | `MAPPINGS`      | indeling, boek |
+| Dekking          | Of een paragraaf op de site te oefenen is: gedekt, deels gedekt of niet gedekt.                                                                                                                                                                              | `coverage`      |                |
 | Stofkeuze        | De vraagsoorten die een leerling wil oefenen, gekozen op paragraaf, hoofdstuk of onderwerp. Blijft op het apparaat.                                                                                                                                          | nu `prog.scope` |                |
 
 ## Oefenen en voortgang
