@@ -2,7 +2,7 @@
 
 Fijn dat je wilt meekijken. De automatische tests vinden rekenfouten, maar geen onduidelijke uitleg of een verkeerde aanpak. Daarvoor is deze lijst. De stof is vergeleken met Getal & Ruimte editie 13, havo 3, FLEX deel 1, en mede gemaakt met AI.
 
-Je hoeft niet alles na te kijken. Eén paragraaf helpt ook al. Een paragraaf kijk je na op [wiskundefit.nl](https://wiskundefit.nl). Kies de paragraaf, lees de uitleg en maak onder Oefenen van elke soort vraag een paar vragen. Open daarbij ook de uitwerking.
+Je hoeft niet alles na te kijken. Eén paragraaf helpt ook al. Een paragraaf kijk je na op [wiskundefit.nl](https://wiskundefit.nl). Kies de paragraaf, lees de uitleg en maak onder Oefenen van elke vaardigheid een paar vragen. Open daarbij ook de uitwerking.
 
 ## Waar we op letten
 
@@ -44,4 +44,4 @@ Je naam zetten we hier alleen bij als je dat wilt.
 
 ## Iets gevonden?
 
-Maak een [issue op GitHub](https://github.com/angrymrt/wiskunde-fit/issues/new) of stuur een mail via de pagina Over Wiskundefit. Zet erbij bij welke paragraaf en soort vraag het hoort, wat er staat en wat er volgens jou moet staan. Issues zijn openbaar, dus zet er geen namen of gegevens van leerlingen in, en geen materiaal uit het boek.
+Maak een [issue op GitHub](https://github.com/angrymrt/wiskunde-fit/issues/new) of stuur een mail via de pagina Over Wiskundefit. Zet erbij bij welke paragraaf en vaardigheid het hoort, wat er staat en wat er volgens jou moet staan. Issues zijn openbaar, dus zet er geen namen of gegevens van leerlingen in, en geen materiaal uit een boek.

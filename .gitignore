@@ -3,7 +3,7 @@ dist/
 test-results/
 
 # Lokaal naslagmateriaal: niet delen.
-lesstof/
+naslag/
 
 # Lokale instellingen en notities van Serena: die kunnen lokaal naslagmateriaal bevatten, dus niet delen.
 .serena/

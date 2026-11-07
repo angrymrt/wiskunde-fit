@@ -1,0 +1,100 @@
+# Begrippen
+
+Deze lijst legt vast welke woorden we gebruiken als we over Wiskundefit praten, schrijven en bouwen. Eén ding heeft één naam. Gebruik deze woorden in code-opmerkingen, documentatie, issues en commits. Kom je iets tegen dat hier niet in staat, voeg het dan toe.
+
+Teksten voor leerlingen volgen dezelfde betekenis, maar mogen gewonere woorden gebruiken. Zie [Voor de leerling](#voor-de-leerling).
+
+De namen in de code veranderen pas in fase 3 van de [roadmap](ROADMAP.md), net als de site zelf. Tot die tijd staan de onderwerpen nog als paragrafen op de site en in `paragraphs/`.
+
+## Het overzicht
+
+Er zijn twee kanten: hoe een uitgever de stof ordent en hoe wij dat doen. De methode-indeling verbindt die twee.
+
+```text
+De methode                         Wiskundefit
+
+Methode    Getal & Ruimte          Domein       Meetkunde
+Editie     13e editie              Onderwerp    Gelijkvormige driehoeken
+Niveau     havo                    Vaardigheid  Zijden berekenen
+Leerjaar   3                       Vraag        één vraag met eigen getallen
+Boek       deel 1
+Hoofdstuk  2
+Paragraaf  2.2  ── methode-indeling ──>  een of meer vaardigheden
+```
+
+## School en methode
+
+| Begrip    | Betekenis                                                                                                              | Niet gebruiken         |
+| --------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| Uitgever  | Het bedrijf dat een methode uitbrengt, bijvoorbeeld Noordhoff.                                                         |                        |
+| Methode   | De lesmethode, zoals Getal & Ruimte of Moderne Wiskunde.                                                               | boek, lesmethode       |
+| Editie    | De versie van een methode, zoals de 13e editie.                                                                        | druk, versie           |
+| Niveau    | Havo, vwo of vmbo. Bij vmbo hoort daar ook de leerweg bij.                                                             | schoolsoort, opleiding |
+| Leerjaar  | Het jaar op school. "Havo 3" is niveau plus leerjaar.                                                                  | klas                   |
+| Vak       | In de bovenbouw kan het vak verschillen, zoals wiskunde A of B.                                                        |                        |
+| Boek      | Eén los boek van een methode, met een eigen deelnummer zoals deel 1 of 3A. Een leerjaar kan uit meer boeken bestaan.   |                        |
+| FLEX      | De naam die de uitgever geeft aan boeken met online materiaal. We noemen het alleen om een boek precies aan te duiden. |                        |
+| Hoofdstuk | Een hoofdstuk van een methode. Het nummer is uniek binnen het leerjaar en hoeft geen getal te zijn, zoals `11A`.       |                        |
+| Paragraaf | Een paragraaf van een methode, zoals 2.2. Dit woord gebruiken we alleen voor de methode.                               | sectie, les            |
+| Opgave    | Een opdracht in een boek. Onze eigen opdrachten heten vragen.                                                          |                        |
+| Werkwijze | Hoe een methode een soort opgave voordoet en opschrijft. Die kan per methode verschillen.                              | aanpak, notatie        |
+| Toets     | De toets die de docent op school geeft. Wat er in een toets zit, bepaalt de docent en zegt de site niet.               | proefwerk, examen      |
+| Docent    | De wiskundedocent van een leerling, of iemand die de stof voor ons nakijkt.                                            | leraar                 |
+| Naslag    | Materiaal uit boeken in de map `naslag/`, dat we alleen gebruiken om de werkwijze op te zoeken. Komt nooit in git.     | lesstof                |
+
+## De stof op de site
+
+| Begrip      | Betekenis                                                                                                                                                                          | In de code           | Niet gebruiken                      |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----------------------------------- |
+| Stof        | Alles wat een leerling op de site kan leren en oefenen.                                                                                                                            |                      | lesstof, content, materiaal         |
+| Domein      | Een aantal onderwerpen die bij elkaar horen, zoals Meetkunde. We kiezen de domeinen zelf: het is geen officiële lijst uit de kerndoelen of examenprogramma's en geen hoofdstuk.    | nog niet             | groep, hoofdstuk                    |
+| Onderwerp   | De plek waar je iets leert: uitleg, video's en vaardigheden. Onafhankelijk van een methode.                                                                                        | nu `SECTIONS`        | les, paragraaf                      |
+| Vaardigheid | Eén ding dat je leert doen, met een vaste id en een generator, zoals Zijden berekenen. Het gaat vooral om standaardprocedures en routinetaken, niet om iets breeds als modelleren. | `skills`             | soort vraag, skill in lopende tekst |
+| Vraag       | Eén concrete vraag met eigen getallen, gemaakt door een generator.                                                                                                                 | `q` en de rest ervan | som, opgave, opdracht               |
+| Generator   | De functie die vragen maakt bij een vaardigheid.                                                                                                                                   | `gen`                |                                     |
+| Seed        | Het getal waarmee je precies dezelfde vraag opnieuw kunt maken.                                                                                                                    | nog niet             |                                     |
+| Voorkennis  | Stof die je al moet kennen voordat je aan een onderwerp begint. Is zelf gewone stof, met een verwijzing vanuit het onderwerp.                                                      | nu `v1`, `v2`        |                                     |
+| Uitleg      | De tekst bij een onderwerp die de stof uitlegt.                                                                                                                                    |                      | theorie (dat is de methode)         |
+| Hint        | Een tip bij een vraag, zonder het antwoord.                                                                                                                                        | `hint`               |                                     |
+| Uitwerking  | De stappen naar het goede antwoord.                                                                                                                                                | `steps`              | oplossing, antwoord                 |
+| Feedback    | Een bericht dat ingaat op een fout die een leerling maakte.                                                                                                                        | `traps`              |                                     |
+
+## De methode-indeling en het kiezen van stof
+
+| Begrip           | Betekenis                                                                                                                                                                      | In de code      | Niet gebruiken |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------------- |
+| Methode-indeling | Onze beschrijving van één methode, editie, niveau en leerjaar: de hoofdstukken en paragrafen, met per paragraaf de vaardigheden die erbij horen. Bevat ook wat we niet dekken. | nog niet        | indeling, boek |
+| Dekking          | Of een paragraaf op de site te oefenen is: gedekt, deels gedekt of niet gedekt.                                                                                                | nog niet        |                |
+| Stofkeuze        | De vaardigheden die een leerling wil oefenen, gekozen op paragraaf, hoofdstuk of onderwerp. Blijft op het apparaat.                                                            | nu `prog.scope` |                |
+
+## Oefenen en voortgang
+
+| Begrip           | Betekenis                                                                               | In de code   |
+| ---------------- | --------------------------------------------------------------------------------------- | ------------ |
+| Oefenen          | Vragen maken bij een vaardigheid, met hints en uitwerking.                              |              |
+| Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                | `ui/exam.js` |
+| Voortgang        | Wat de site per vaardigheid onthoudt. Blijft in de browser op het apparaat.             | `prog`       |
+| Beheerst         | De voortgang is 80% of meer.                                                            | `secPct`     |
+| Overzichtsscherm | Het eerste scherm van de site. Het woord beginscherm is voor het icoon op een telefoon. | `ui/home.js` |
+
+## Controleren
+
+Drie dingen lijken op elkaar, maar zijn iets anders.
+
+| Begrip      | Betekenis                                                                        | In de code            |
+| ----------- | -------------------------------------------------------------------------------- | --------------------- |
+| Nakijken    | De site beoordeelt het antwoord van een leerling.                                | `answers.js`, `check` |
+| Controle    | Een test die rekent of het antwoord van een generator klopt met de vraag.        | `v`                   |
+| Nakijkronde | Een docent leest de stof na op uitleg en aanpak. Zie [NAKIJKEN.md](NAKIJKEN.md). |                       |
+
+## Voor de leerling
+
+Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat dus ook, zolang de betekenis hierboven klopt.
+
+| Intern                   | Op de site                                                        |
+| ------------------------ | ----------------------------------------------------------------- |
+| Domein                   | Alleen de naam, zoals "Meetkunde"                                 |
+| Methode                  | De naam zelf, of "je boek"                                        |
+| Methode-indeling         | "Je boek", zoals in "Kies uit je boek"                            |
+| Vaardigheid              | "Soort vraag", of de naam van de vaardigheid                      |
+| Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen." |
