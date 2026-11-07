@@ -1,7 +1,7 @@
 // Paragraaf 1.1: De formule y = ax + b. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { graph } from '../figures.js';
-import { ri, nz, pick, coin, gcd, Q, qv, qSub, qMul, near, fr, lin, sg } from '../math.js';
-import { F, MC, plug, drawLine, inGrid, lineTable, H } from './shared.js';
+import { ri, nz, pick, coin, gcd, Q, qv, qSub, qMul, near, fr, lin } from '../math.js';
+import { F, MC, plug, drawLine, inGrid, lineTable, fillIn, H } from './shared.js';
 import { T, dt } from '../typeset.js';
 
 function s11point() {
@@ -195,11 +195,7 @@ function s11draw() {
     hint: T(
       `Maak een tabel met twee punten. Neem x = 0 en een x waarbij y geen breuk wordt, bijvoorbeeld x = ${a.d}.`,
     ),
-    steps: [
-      `x = 0 geeft y = ${b}`,
-      `x = ${a.d} geeft y = ${fr(a)}*${a.d}${b ? sg(b) : ''} = ${q[1]}`,
-      ...lineTable(p, q, { a: qv(a), b, name: l }),
-    ],
+    steps: [fillIn(a, b, 0), fillIn(a, b, a.d), ...lineTable(p, q, { a: qv(a), b, name: l })],
     v: () => [p, q].every(([x, y]) => near((rise * x) / run + b, y)),
   };
 }
@@ -315,7 +311,7 @@ export default {
           'In y = ax + b is b de y-coördinaat van het snijpunt met de y-as. De lijn gaat dus door (0, b).',
         ),
         T(
-          'a is de richtingscoëfficiënt: ga je 1 naar rechts, dan ga je a omhoog. Is a negatief, dan ga je omlaag.',
+          'a is de richtingscoëfficiënt, ook wel de helling genoemd: ga je 1 naar rechts, dan ga je a omhoog. Is a negatief, dan ga je omlaag. De richtingscoëfficiënt van lijn l schrijf je als rc_l.',
         ),
       ],
       widget: 'slope',
@@ -330,7 +326,7 @@ export default {
       ex: {
         q: T('Teken de lijn y = {3/2}x - 2.'),
         steps: [
-          'x = 0 geeft y = -2',
+          'x = 0 geeft y = {3/2}*0 - 2 = -2',
           'x = 2 geeft y = {3/2}*2 - 2 = 1',
           H(
             dt([
@@ -338,7 +334,7 @@ export default {
               ['y', '-2', '1'],
             ]),
           ),
-          'Trek de lijn door (0, -2) en (2, 1).',
+          'Dus de lijn gaat door de punten (0, -2) en (2, 1).',
         ],
       },
     },

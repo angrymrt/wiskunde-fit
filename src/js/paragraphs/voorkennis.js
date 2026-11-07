@@ -1,7 +1,7 @@
 // Voorkennis: Pythagoras. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { geo, rightTriFig } from '../figures.js';
-import { ri, near, rd, d } from '../math.js';
-import { RF } from './shared.js';
+import { ri, coin, near, rd, isNice, d } from '../math.js';
+import { RF, needRound } from './shared.js';
 import { T } from '../typeset.js';
 
 function sPyHyp() {
@@ -65,6 +65,101 @@ function sPyLeg() {
     v: () => near(a * a + b * b, c * c, 1e-6),
   };
 }
+// Een tussenantwoord rond je niet af: je schrijft 7,90... en rekent verder met je rekenmachine.
+const midway = (x) =>
+  isNice(x, 2) ? `= ${d(x)}` : `= ${(Math.trunc(x * 100) / 100).toFixed(2).replace('.', ',')}...`;
+// Een hoogtelijn verdeelt de driehoek in twee rechthoekige driehoeken.
+function sPyHeight() {
+  const h = rd(ri(20, 60) / 10, 1),
+    c = rd(h + ri(5, 30) / 10, 1),
+    kn2 = c * c - h * h,
+    kn = Math.sqrt(kn2);
+  const first = [
+    `In △KNM is ∠N = 90°, dus KN^2 + MN^2 = KM^2`,
+    `KN^2 + ${d(h)}^2 = ${d(c)}^2`,
+    `KN^2 = ${d(c)}^2 - ${d(h)}^2 = ${d(rd(kn2, 4))}`,
+    `KN = √${d(rd(kn2, 4))} ${midway(kn)}`,
+  ];
+  if (coin()) {
+    const kl = 2 * kn,
+      f = [RF('KL =', kl, 2, 'cm')];
+    return {
+      q: T(
+        `△KLM is gelijkbenig met KM = LM = ${d(c)} cm. De hoogtelijn MN staat loodrecht op KL, met MN = ${d(h)} cm. Bereken KL in cm.${needRound(f)}`,
+      ),
+      fig: geo({
+        pts: { K: [0, 0], N: [kn, 0], L: [kl, 0], M: [kn, h] },
+        segs: ['KL', 'LM', 'MK', 'MN'],
+        rights: [{ at: 'N', p: 'L', q: 'M' }],
+        sides: [
+          { a: 'K', b: 'M', t: d(c) },
+          { a: 'L', b: 'M', t: d(c) },
+          { a: 'M', b: 'N', t: d(h), flip: true },
+        ],
+        off: { N: [0, 16] },
+        w: 300,
+        maxH: 210,
+      }),
+      fields: f,
+      hint: T(
+        'De hoogtelijn deelt KL in twee gelijke stukken. Bereken eerst KN met de stelling van Pythagoras.',
+      ),
+      steps: [
+        ...first,
+        `Dus KL = 2*${midway(kn).slice(2)} ${isNice(kl, 2) ? '=' : '≈'} ${d(rd(kl, 2))} cm`,
+      ],
+      traps: [
+        {
+          f: (v) => near(v[0], kn, 0.02),
+          m: 'Dit is de lengte van KN. KL is twee keer zo lang.',
+        },
+      ],
+      v: () => near(kn * kn + h * h, c * c, 1e-6) && near(kl / 2, kn),
+    };
+  }
+  const s = rd(ri(15, 50) / 10, 1),
+    lm2 = s * s + h * h,
+    lm = Math.sqrt(lm2),
+    o = kn + s + lm + c,
+    f = [RF('omtrek =', o, 1, 'cm')];
+  return {
+    q: T(
+      `In △KLM staat de hoogtelijn MN loodrecht op KL. Gegeven is KM = ${d(c)} cm, MN = ${d(h)} cm en LN = ${d(s)} cm. Bereken de omtrek van △KLM in cm.${needRound(f)}`,
+    ),
+    fig: geo({
+      pts: { K: [0, 0], N: [kn, 0], L: [kn + s, 0], M: [kn, h] },
+      segs: ['KL', 'LM', 'MK', 'MN'],
+      rights: [{ at: 'N', p: 'L', q: 'M' }],
+      sides: [
+        { a: 'K', b: 'M', t: d(c) },
+        { a: 'M', b: 'N', t: d(h), flip: true },
+        { a: 'N', b: 'L', t: d(s) },
+      ],
+      off: { N: [0, 16] },
+      w: 300,
+      maxH: 210,
+    }),
+    fields: f,
+    hint: T(
+      'Je mist KN en LM. Bereken ze allebei met de stelling van Pythagoras. Tel daarna alle zijden op.',
+    ),
+    steps: [
+      ...first,
+      `In △LNM is ∠N = 90°, dus LN^2 + MN^2 = LM^2`,
+      `${d(s)}^2 + ${d(h)}^2 = LM^2`,
+      `LM^2 = ${d(rd(lm2, 4))}`,
+      `LM = √${d(rd(lm2, 4))} ${midway(lm)}`,
+      `De omtrek van △KLM is ${midway(kn).slice(2)} + ${d(s)} + ${midway(lm).slice(2)} + ${d(c)} ${isNice(o, 1) ? '=' : '≈'} ${d(rd(o, 1))} cm`,
+    ],
+    traps: [
+      {
+        f: (v) => near(v[0], kn + s + lm, 0.06),
+        m: 'Je mist een zijde. De omtrek is KN + LN + LM + KM.',
+      },
+    ],
+    v: () => near(kn * kn + h * h, c * c, 1e-6) && near(s * s + h * h, lm * lm, 1e-6),
+  };
+}
 
 export default {
   id: 'v2',
@@ -80,6 +175,7 @@ export default {
   skills: [
     ['Schuine zijde', sPyHyp],
     ['Rechthoekszijde', sPyLeg],
+    ['Hoogtelijn in een driehoek', sPyHeight],
   ],
   learn: [
     {
@@ -100,6 +196,13 @@ export default {
       },
       watch:
         'Zoek je een rechthoekszijde, dan trek je af. Zoek je de schuine zijde, dan tel je op.',
+    },
+    {
+      t: 'Een hoogtelijn in een driehoek',
+      p: [
+        'Een hoogtelijn verdeelt een driehoek in twee rechthoekige driehoeken. Daarin gebruik je de stelling van Pythagoras. In een gelijkbenige driehoek zijn de twee stukken van de basis even lang.',
+      ],
+      watch: 'Rond een tussenantwoord niet af. Rond pas af bij het eindantwoord.',
     },
   ],
 };

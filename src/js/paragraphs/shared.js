@@ -1,6 +1,6 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
 import { geo, graph } from '../figures.js';
-import { shuffle, qv, isNice, sg, near } from '../math.js';
+import { shuffle, Q, qv, isNice, sg, near, fr } from '../math.js';
 import { dt } from '../typeset.js';
 
 const H = (html) => ({ h: html });
@@ -54,7 +54,11 @@ function nestedFig(ab, bc, ac, ad, opts) {
 const DRAW_X = [-5, 5];
 const DRAW_Y = [-6, 6];
 const inGrid = (x, y) => x >= DRAW_X[0] && x <= DRAW_X[1] && y >= DRAW_Y[0] && y <= DRAW_Y[1];
-// De uitwerking zoals in het boek: een tabel met twee punten, en daarna de lijn door die punten.
+// De uitwerking zoals in het boek: de invulling, een tabel met twee punten en de lijn door die punten.
+const fillIn = (a, b, x, xn = 'x', yn = 'y') => {
+  const q = Q(a);
+  return `${xn} = ${x} geeft ${yn} = ${fr(q)}*${x}${b ? sg(b) : ''} = ${(q.n * x) / q.d + b}`;
+};
 const lineTable = (p, q, line, xn = 'x', yn = 'y') => [
   H(
     dt([
@@ -62,6 +66,7 @@ const lineTable = (p, q, line, xn = 'x', yn = 'y') => [
       [yn, String(p[1]), String(q[1])],
     ]),
   ),
+  `Dus ${line.name ? `lijn ${line.name}` : 'de grafiek'} gaat door de punten (${p[0]}, ${p[1]}) en (${q[0]}, ${q[1]}).`,
   H(
     graph({
       xr: DRAW_X,
@@ -133,4 +138,5 @@ export {
   drawLine,
   inGrid,
   lineTable,
+  fillIn,
 };

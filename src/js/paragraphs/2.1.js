@@ -31,7 +31,7 @@ function s21cross() {
       vt([cell(tl), cell(tr)], [cell(bl), cell(br)]) +
       T(needRound(f)),
     fields: f,
-    hint: 'Kruislings vermenigvuldigen: de twee vermenigvuldigingen over het kruis zijn gelijk.',
+    hint: 'Kruislings vermenigvuldigen: de kruisproducten zijn gelijk.',
     steps: [
       H(
         vt([cell(tl), cell(tr)], [cell(bl), cell(br)]) +
@@ -299,7 +299,7 @@ export default {
     {
       t: 'Kruislings vermenigvuldigen',
       p: [
-        'In een verhoudingstabel zijn de twee vermenigvuldigingen over het kruis gelijk. Daarmee reken je een onbekend getal uit.',
+        'Vermenigvuldig je in een verhoudingstabel de getallen die schuin tegenover elkaar staan, dan krijg je twee kruisproducten. Die zijn gelijk. Daarmee reken je een onbekend getal uit. Dat heet kruislings vermenigvuldigen.',
       ],
       ex: { q: vt(['6', 'x'], ['3', '5']), steps: ['3*x = 6*5', 'x = {6*5/3} = 10'] },
     },

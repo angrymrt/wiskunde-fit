@@ -1,7 +1,7 @@
 // Paragraaf 1.2: Lineaire verbanden. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vaardigheden onderaan.
 import { graph } from '../figures.js';
 import { ri, nz, pick, coin, Q, qv, qAdd, qMul, near, d, fr, lin, sg } from '../math.js';
-import { F, plug, drawLine, inGrid, lineTable } from './shared.js';
+import { F, plug, drawLine, inGrid, lineTable, fillIn } from './shared.js';
 import { T, dt } from '../typeset.js';
 
 const LV = [
@@ -272,8 +272,8 @@ function s12draw() {
       `Maak een tabel met twee punten. Neem ${x} = 0 en ${x} = ${a.d}. De ${x}-as is horizontaal en de ${y}-as is verticaal.`,
     ),
     steps: [
-      `${x} = 0 geeft ${y} = ${b}`,
-      `${x} = ${a.d} geeft ${y} = ${fr(a)}*${a.d}${b ? sg(b) : ''} = ${q[1]}`,
+      fillIn(a, b, 0, x, y),
+      fillIn(a, b, a.d, x, y),
       ...lineTable(p, q, { a: qv(a), b }, x, y),
     ],
     v: () => [p, q].every(([s, t]) => near((a.n * s) / a.d + b, t)),

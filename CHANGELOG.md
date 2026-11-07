@@ -10,6 +10,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 - Paragraaf 1.2 heeft nu vragen waarbij je een grafiek tekent met andere letters dan `x` en `y`.
 - Paragraaf 2.1 heeft nu vragen over een tabel met een letter in de derde kolom, en tabellen zoals `x` en `5 - x`.
 - Paragraaf 2.4 heeft een nieuwe vraag over een klaptafel, in plaats van de vraag over de breedte van een rivier.
+- De voorkennis over Pythagoras heeft nu vragen over een hoogtelijn in een driehoek.
 
 ### Verbeterd
 
