@@ -4,8 +4,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SECTIONS } from '../src/js/paragraphs/index.js';
 import { checkAnswer, checkField, parseNum } from '../src/js/answers.js';
-import { migrateSkills } from '../src/js/progress.js';
+import { migrateIds, migrateSkills } from '../src/js/progress.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
+import KNOWN_IDS from './vraagsoort-ids.js';
 
 const ROUNDS = Number(process.env.QUESTIONS) || 500;
 
@@ -94,11 +95,57 @@ test('oude voortgang verhuist mee met de nieuwe indeling', () => {
   ];
   for (const [from, to] of old) {
     assert.deepEqual(migrateSkills({ [from]: [1, 0] }), { [to]: [1, 0] }, from);
-    assert.ok(ids.has(to), `${to} bestaat niet`);
+    const [id] = Object.keys(migrateIds({ [to]: [1, 0] }));
+    assert.ok(ids.has(Number(id)), `${to} bestaat niet`);
   }
   for (const gone of ['1.5#1', '1.5#4', '2.4#1', '2.4#2']) {
     assert.deepEqual(migrateSkills({ [gone]: [1] }), {}, gone);
   }
+});
+
+test('elke vraagsoort houdt haar vaste nummer', () => {
+  const seen = new Set();
+  const next = Math.max(...Object.keys(KNOWN_IDS).map(Number)) + 1;
+  for (const k of SECTIONS.flatMap((s) => s.skills)) {
+    assert.ok(Number.isInteger(k.id) && k.id > 0, `${k.name}: het id moet een positief getal zijn`);
+    assert.ok(!seen.has(k.id), `Nummer ${k.id} komt twee keer voor`);
+    seen.add(k.id);
+    assert.ok(
+      k.id in KNOWN_IDS,
+      `Nieuwe vraagsoort ${k.name}: geef die nummer ${next} en zet ${next}: '${k.gen.name}' in tests/vraagsoort-ids.js`,
+    );
+    assert.notEqual(KNOWN_IDS[k.id], null, `Nummer ${k.id} is vervallen en mag niet terugkomen`);
+    assert.equal(
+      k.gen.name,
+      KNOWN_IDS[k.id],
+      `Nummer ${k.id} hoort bij ${KNOWN_IDS[k.id]}. Heb je de generator hernoemd? Pas dan tests/vraagsoort-ids.js aan.`,
+    );
+  }
+  for (const [id, gen] of Object.entries(KNOWN_IDS)) {
+    if (gen)
+      assert.ok(
+        seen.has(Number(id)),
+        `Nummer ${id} (${gen}) is verdwenen. Zet het op null in tests/vraagsoort-ids.js en leg in progress.js vast waar de voortgang heen gaat.`,
+      );
+  }
+});
+
+test('voortgang op de oude id verhuist naar het vaste nummer', () => {
+  const skills = SECTIONS.flatMap((s) => s.skills);
+  const byGen = (name) => skills.find((k) => k.gen.name === name).id;
+  const cases = [
+    ['v1#0', 'svValue'],
+    ['1.1#0', 's11point'],
+    ['1.2#5', 's12draw'],
+    ['2.4#0', 's24x'],
+    ['2.4#7', 's24story'],
+  ];
+  for (const [old, gen] of cases) {
+    assert.deepEqual(migrateIds({ [old]: [1, 0] }), { [byGen(gen)]: [1, 0] }, old);
+  }
+  // Nieuwe voortgang blijft staan en wordt niet nog eens omgezet.
+  assert.deepEqual(migrateIds({ 3: [1] }), { 3: [1] });
+  assert.deepEqual(migrateIds({ 3: [1], '1.1#0': [0] }), { 3: [1] });
 });
 
 test('parseNum leest kommagetallen, breuken en mintekens', () => {

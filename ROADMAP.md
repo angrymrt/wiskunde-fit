@@ -51,8 +51,6 @@ De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 12 paragrafen en 6
 
 | Wat                   | Waar                                          | Probleem                                                                                                                                                     |
 | --------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Id's van vraagsoorten | `paragraphs/index.js`                         | `1.1#0` hangt af van de volgorde in de lijst en is niet uniek over methodes en leerjaren.                                                                    |
-| Voortgang             | `progress.js`                                 | Is opgeslagen onder die id's. Een nieuw schema heeft dus een migratie nodig.                                                                                 |
 | Lijst met paragrafen  | `paragraphs/index.js`                         | Eén platte lijst met losse imports. Alles wordt altijd geladen.                                                                                              |
 | Hoofdstukken          | `ui/home.js:42`, `progress.js` (`SCOPES`)     | Hoofdstuk 1 en 2, hun titels en de keuzes voor de proeftoets staan vast in de code. Een hoofdstuk is een getal, terwijl een methode ook `11A` kan gebruiken. |
 | Kleuren per hoofdstuk | `styles.css` (`.c1`, `.c2`)                   | Er zijn maar twee hoofdstukkleuren.                                                                                                                          |
@@ -67,7 +65,7 @@ Een methode is vooral een volgorde en een indeling van vraagsoorten. De site zel
 
 ```text
 Vraagsoort        vast id + naam + generator
-Onderwerp         vast id + adres + uitleg, video's, vraagsoorten
+Onderwerp         adres + uitleg, video's, vraagsoorten
 Domein            onderwerpen die bij elkaar horen
 Methode-indeling  methode, editie, niveau, leerjaar → hoofdstukken → paragrafen → vraagsoorten
 ```
@@ -112,7 +110,7 @@ Een id is voor de site en verandert nooit. Een adres is voor mensen en mag wel v
 
 - De voortgang en de stofkeuze bewaren alleen id's van vraagsoorten. De voortgang van een onderwerp, paragraaf of domein wordt daaruit berekend en niet opgeslagen. Zo verhuist de voortgang vanzelf mee als een vraagsoort naar een ander onderwerp gaat.
 - Een id is een geheel getal dat we doortellen en nooit opnieuw gebruiken. Het zegt dus niets over de plek van een vraagsoort: geen paragraafnummer, geen methode en geen volgorde. Dat is het verschil met `1.1#0`. Het adres bevat al leesbare tekst, dus die hoeft niet nog een keer in het id. Zo blijft ook een link met een stofkeuze kort, zoals `?stof=3,7,12`.
-- Een onderwerp heeft een eigen id naast het adres. Domeinen, verwijzingen naar voorkennis en andere onderwerpen gebruiken dat id, zodat een nieuw adres maar op één plek staat.
+- Een onderwerp krijgt voorlopig geen eigen id, want we slaan er niets op op. Domeinen en verwijzingen naar voorkennis gebruiken in de code het onderwerp zelf, zodat een nieuw adres maar op één plek staat. Is een id later toch nodig, dan kan dat er zonder migratie bij.
 - Krijgt een onderwerp een nieuw adres, dan blijft het oude adres in de gegevens staan. De build maakt daar een doorverwijzing van, zodat links van docenten en zoekresultaten blijven werken.
 - Links met `?soort=` en `?stof=` gebruiken id's, dus die overleven een nieuwe naam ook.
 - Stopt een vraagsoort of wordt die gesplitst, dan legt een tabel vast waar het id naartoe gaat, of dat het vervalt. Een test vergelijkt de id's met een lijst van alle eerder gebruikte id's, zodat er geen id ongemerkt verdwijnt of opnieuw wordt gebruikt.
@@ -137,7 +135,7 @@ Een id is voor de site en verandert nooit. Een adres is voor mensen en mag wel v
 - `/methode-indeling/...` is een gewone pagina die zonder JavaScript leesbaar blijft: paragrafen op nummer, met een korte eigen omschrijving en links naar de onderwerpen. JavaScript voegt de vinkjes toe.
 - Bij een paragraaf zonder vraagsoorten staat "Dit kun je hier nog niet oefenen." Bij een deels gedekte paragraaf staat wat er wel is.
 - Staat je boek er niet bij, dan verwijst `/methode-indeling` naar kiezen op onderwerp op `/jouw-stof`.
-- Later kunnen landingspagina's onder `/boek/...` helpen om via Google snel bij de juiste stof te komen. Daarom is `boek` gereserveerd. Dit bouwen we nu niet.
+- Later kunnen landingspagina's onder `/boek/...` helpen om via Google snel bij de juiste stof te komen. Daarom is `boek` gereserveerd. Dit bouwen we nu niet ([#25](https://github.com/angrymrt/wiskunde-fit/issues/25)).
 - Later, voor [#23](https://github.com/angrymrt/wiskunde-fit/issues/23): een link van een docent wijst naar `/jouw-stof?stof=...`. De leerling bevestigt die keuze, zodat de eigen stofkeuze niet ongevraagd verdwijnt.
 
 **Techniek**
@@ -193,11 +191,12 @@ Dit kan naast de andere fases, en doel 1 gaat voor op nieuwe functies. Zie open 
 Geen nieuwe stof, wel alles wat later duur wordt om te veranderen. Eén uitzondering: de uitleg van `v1`, 1.1 en 1.2 wordt opnieuw geordend en moet dus opnieuw worden nagekeken.
 
 - [x] De navigatie van de site ontwerpen, voordat we de adressen vastleggen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)). Zie [Navigatie](#navigatie).
-- [ ] Vaste id's voor vraagsoorten en onderwerpen, los van adressen, met een migratie van de bestaande voortgang en een test die de id's bewaakt. De oude keuzes voor hoofdstuk 1, hoofdstuk 2 of alles worden een stofkeuze. Werk daarna de regel over `skills` in `AGENTS.md` bij.
+- [x] Vaste id's voor vraagsoorten, los van adressen, met een migratie van de bestaande voortgang en een test die de id's bewaakt.
+- [ ] De migratie van oude voortgang vanaf 1 december 2026 weer verwijderen ([#26](https://github.com/angrymrt/wiskunde-fit/issues/26)).
 - [ ] Onderwerpen en domeinen als structuur van de site. `v1`, 1.1 en 1.2 opdelen in Rekenen met een formule, Lineaire formule opstellen en Lijnen tekenen. Voorkennis wordt een verwijzing naar een gewoon onderwerp. De video's verhuizen naar de uitleg.
 - [ ] Domeinen, onderwerpen, titels en kleuren uit gegevens halen in plaats van uit de schermcode.
 - [ ] Een structuur voor methode-indelingen, voorlopig met alleen Getal & Ruimte havo 3. Daarin staan alle paragrafen op nummer, met een korte eigen omschrijving, ook de paragrafen die we niet dekken. Hoofdstuknummers zijn tekst.
-- [ ] Een stofkeuze op paragraaf, hoofdstuk of onderwerp, voor oefenen en de proeftoets, in plaats van de vaste keuzes in `SCOPES`. Het scherm Jouw stof wordt de plek daarvoor.
+- [ ] Een stofkeuze op paragraaf, hoofdstuk of onderwerp, voor oefenen en de proeftoets, in plaats van de vaste keuzes in `SCOPES`. Het scherm Jouw stof wordt de plek daarvoor. De oude keuzes voor hoofdstuk 1, hoofdstuk 2 of alles worden een stofkeuze.
 - [ ] Een knop op het overzichtsscherm om stof uit je boek te kiezen, met een melding bij wat we nog niet dekken.
 - [ ] Echte adressen en vooraf gebouwde HTML per onderwerp, plus een pagina per methode-indeling die naar de onderwerpen verwijst, met een `staticwebapp.config.json` en een nette 404-pagina. Controleer daarna de terugknop, een telefoon en een schermlezer.
 - [ ] Lettertypes en code uit de HTML halen, zodat de browser ze kan bewaren. Het losse bestand wordt een optionele export.
@@ -258,4 +257,4 @@ Bij een vraag staat onze voorlopige voorkeur als die er is.
 
 ## Hier beginnen we
 
-Fase 1 en 2 zijn af, op de test op een echte iPhone na ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)). Het voorstel over onderwerpen is uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)) en de navigatie is ontworpen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)). De volgende stap is een concreet plan voor stabiele id's en de migratie van de voortgang. Hoe de site verschilt van het FLEX-aanbod en of Neon past, staat nog open ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)). De navigatie hangt daar niet van af, omdat onderwerpen los staan van een methode, maar de keuzes voor later kunnen er wel door veranderen.
+Fase 1 en 2 zijn af, op de test op een echte iPhone na ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)). Het voorstel over onderwerpen is uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)) en de navigatie is ontworpen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)). De vraagsoorten hebben vaste id's. De volgende stap is de structuur van onderwerpen en domeinen. Hoe de site verschilt van het FLEX-aanbod en of Neon past, staat nog open ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)). De navigatie hangt daar niet van af, omdat onderwerpen los staan van een methode, maar de keuzes voor later kunnen er wel door veranderen.

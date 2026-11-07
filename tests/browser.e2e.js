@@ -267,8 +267,22 @@ test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 },
       ),
     );
     await p.reload();
-    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { '1.5#0': [1, 1] });
+    const first = await p.evaluate(() => wiskundefit.SEC['1.5'].skills[0].id);
+    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { [first]: [1, 1] });
     assert.equal(await p.evaluate(() => wiskundefit.SEC['1.5'].title), 'Lineaire ongelijkheden');
+    assert.equal(await p.evaluate(() => wiskundefit.prog.v), 3);
+
+    // Voortgang op de id's uit paragraaf en volgorde krijgt het vaste nummer.
+    await p.evaluate(() =>
+      localStorage.setItem(
+        'lijn-driehoek-v1',
+        JSON.stringify({ v: 2, skills: { '2.4#7': [1, 0, 1] }, tests: [], scope: 'h2' }),
+      ),
+    );
+    await p.reload();
+    const story = await p.evaluate(() => wiskundefit.SEC['2.4'].skills[7].id);
+    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { [story]: [1, 0, 1] });
+    assert.equal(await p.evaluate(() => wiskundefit.prog.scope), 'h2');
     await p.evaluate(() => localStorage.clear());
   } finally {
     await browser.close();

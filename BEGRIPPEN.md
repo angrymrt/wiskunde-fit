@@ -59,7 +59,7 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 | Hint        | Een tip bij een vraag, zonder het antwoord.                                                                                                                                         | `hint`               |                             |
 | Uitwerking  | De stappen naar het goede antwoord.                                                                                                                                                 | `steps`              | oplossing, antwoord         |
 | Feedback    | Een bericht dat ingaat op een fout die een leerling maakte.                                                                                                                         | `traps`              |                             |
-| Id          | Het vaste nummer van een vraagsoort of onderwerp voor de site. Verandert nooit en zegt niets over de plek in de stof. De voortgang hangt hieraan.                                   | `id`                 |                             |
+| Id          | Het vaste nummer van een vraagsoort voor de site. Verandert nooit en zegt niets over de plek in de stof. De voortgang hangt hieraan.                                                | `id`                 |                             |
 | Adres       | Het webadres van een pagina, zoals `/snijpunten-van-lijnen`. Is voor mensen en mag veranderen, met een doorverwijzing vanaf het oude adres.                                         | nog niet             |                             |
 
 ## De methode-indeling en het kiezen van stof

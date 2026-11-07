@@ -116,9 +116,9 @@ export default {
     ],
   },
   skills: [
-    ['Snijpunten met de assen', s14axes],
-    ['Snijpunt van twee lijnen', s14cut],
-    ['Formules vergelijken', s14compare],
+    [23, 'Snijpunten met de assen', s14axes],
+    [24, 'Snijpunt van twee lijnen', s14cut],
+    [25, 'Formules vergelijken', s14compare],
   ],
   learn: [
     {

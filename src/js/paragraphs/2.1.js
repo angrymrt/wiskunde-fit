@@ -288,12 +288,12 @@ export default {
     ],
   },
   skills: [
-    ['Kruislings vermenigvuldigen', s21cross],
-    ['Met een letter in haakjes', s21var],
-    ['Tabel met drie kolommen', s21tab3],
-    ['Verhaalsom', s21story],
-    ['Parallelprojectie', s21par],
-    ['Letters in de derde kolom', s21split],
+    [41, 'Kruislings vermenigvuldigen', s21cross],
+    [42, 'Met een letter in haakjes', s21var],
+    [43, 'Tabel met drie kolommen', s21tab3],
+    [44, 'Verhaalsom', s21story],
+    [45, 'Parallelprojectie', s21par],
+    [46, 'Letters in de derde kolom', s21split],
   ],
   learn: [
     {

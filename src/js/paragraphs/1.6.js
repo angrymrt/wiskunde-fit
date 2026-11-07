@@ -234,12 +234,12 @@ export default {
     bob: [['Vergelijkingen met twee variabelen', 'yuGhiBebZfU']],
   },
   skills: [
-    ['Getallenparen', s16pair],
-    ['Herleiden tot y = ax + b', s16iso],
-    ['Snijpunten met de assen', s16ax],
-    ['Is het een oplossing?', s16check],
-    ['Een lijn tekenen', s16draw],
-    ['Vergelijking uit een verhaal', s16story],
+    [32, 'Getallenparen', s16pair],
+    [33, 'Herleiden tot y = ax + b', s16iso],
+    [34, 'Snijpunten met de assen', s16ax],
+    [35, 'Is het een oplossing?', s16check],
+    [36, 'Een lijn tekenen', s16draw],
+    [37, 'Vergelijking uit een verhaal', s16story],
   ],
   learn: [
     {

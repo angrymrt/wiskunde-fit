@@ -173,9 +173,9 @@ export default {
     ],
   },
   skills: [
-    ['Schuine zijde', sPyHyp],
-    ['Rechthoekszijde', sPyLeg],
-    ['Hoogtelijn in een driehoek', sPyHeight],
+    [38, 'Schuine zijde', sPyHyp],
+    [39, 'Rechthoekszijde', sPyLeg],
+    [40, 'Hoogtelijn in een driehoek', sPyHeight],
   ],
   learn: [
     {

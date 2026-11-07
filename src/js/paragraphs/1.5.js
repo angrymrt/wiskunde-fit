@@ -349,12 +349,12 @@ export default {
     ],
   },
   skills: [
-    ['Ongelijkheid oplossen', s15basic],
-    ['Ongelijkheid met haakjes', s15br],
-    ['Oplossen met grafieken', s15gr],
-    ['Het teken omklappen', s15flip],
-    ['Schets zonder ruitjes', s15sketch],
-    ['Ongelijkheid uit een verhaal', s15story],
+    [26, 'Ongelijkheid oplossen', s15basic],
+    [27, 'Ongelijkheid met haakjes', s15br],
+    [28, 'Oplossen met grafieken', s15gr],
+    [29, 'Het teken omklappen', s15flip],
+    [30, 'Schets zonder ruitjes', s15sketch],
+    [31, 'Ongelijkheid uit een verhaal', s15story],
   ],
   learn: [
     {

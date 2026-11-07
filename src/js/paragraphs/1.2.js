@@ -290,12 +290,12 @@ export default {
     bob: [['Formules met andere letters dan x en y', 'g8s5J0GeRJQ']],
   },
   skills: [
-    ['Rekenen met een formule', s12value],
-    ['Formule bij een schaal', s12scale],
-    ['Formule uit een verhaal', s12story],
-    ['Wanneer is het leeg?', s12empty],
-    ['Formule uit een tabel', s12table],
-    ['Een grafiek tekenen', s12draw],
+    [11, 'Rekenen met een formule', s12value],
+    [12, 'Formule bij een schaal', s12scale],
+    [13, 'Formule uit een verhaal', s12story],
+    [14, 'Wanneer is het leeg?', s12empty],
+    [15, 'Formule uit een tabel', s12table],
+    [16, 'Een grafiek tekenen', s12draw],
   ],
   learn: [
     {

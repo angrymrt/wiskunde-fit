@@ -302,12 +302,12 @@ export default {
     ],
   },
   skills: [
-    ['Vergrotingsfactor', s22factor],
-    ['Letters in de goede volgorde', s22note],
-    ['De goede tabel kiezen', s22tab],
-    ['Zijden berekenen', s22sides],
-    ['Gemeenschappelijke hoek', s22comm],
-    ['Eerst Pythagoras', s22py],
+    [47, 'Vergrotingsfactor', s22factor],
+    [48, 'Letters in de goede volgorde', s22note],
+    [49, 'De goede tabel kiezen', s22tab],
+    [50, 'Zijden berekenen', s22sides],
+    [51, 'Gemeenschappelijke hoek', s22comm],
+    [52, 'Eerst Pythagoras', s22py],
   ],
   learn: [
     {

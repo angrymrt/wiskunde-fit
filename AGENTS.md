@@ -50,8 +50,9 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 ## Een vraag toevoegen
 
 1. Schrijf in het juiste bestand in `src/js/paragraphs/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen.
-2. Zet de functie in de lijst `skills` onderaan het bestand: `['Naam van de vraagsoort', mijnFunctie]`.
-3. Draai `npm test`. De test vindt de nieuwe vraag vanzelf.
+2. Zet de functie in de lijst `skills` onderaan het bestand, met het eerstvolgende vrije nummer: `[66, 'Naam van de vraagsoort', mijnFunctie]`.
+3. Zet hetzelfde nummer in `tests/vraagsoort-ids.js`: `66: 'mijnFunctie'`.
+4. Draai `npm test`. De test vindt de nieuwe vraag vanzelf en zegt welk nummer vrij is.
 
 Een eenvoudig voorbeeld:
 
@@ -118,7 +119,7 @@ Handige hulpen uit `math.js` zijn `lin(a, b, 'x')` voor een nette formule zonder
 1. Kopieer een bestand in `src/js/paragraphs/` en pas de `export default` aan.
 2. Voeg het toe aan de lijst in `paragraphs/index.js`.
 
-Wijzig de `id` van een bestaande paragraaf of de volgorde van de `skills` niet zomaar: de opgeslagen voortgang verwijst daarnaar (`1.1#0`).
+Wijzig het nummer van een vraagsoort nooit, want de opgeslagen voortgang verwijst daarnaar. De naam, de volgorde en de paragraaf van een vraagsoort mogen wel veranderen. Stopt een vraagsoort, zet dan `null` achter het nummer in `tests/vraagsoort-ids.js`, leg in `progress.js` vast waar de voortgang heen gaat en gebruik het nummer nooit opnieuw.
 
 ## Zo werken de schermen
 

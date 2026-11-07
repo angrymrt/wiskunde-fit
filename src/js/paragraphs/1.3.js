@@ -281,12 +281,12 @@ export default {
     ],
   },
   skills: [
-    ['Termen links en rechts', s13basic],
-    ['Haakjes wegwerken', s13expand],
-    ['Vergelijking met haakjes', s13brackets],
-    ['Kleinste veelvoud', s13kgv],
-    ['Vergelijking met breuken', s13frac],
-    ['Uitdaging: p berekenen', s13param],
+    [17, 'Termen links en rechts', s13basic],
+    [18, 'Haakjes wegwerken', s13expand],
+    [19, 'Vergelijking met haakjes', s13brackets],
+    [20, 'Kleinste veelvoud', s13kgv],
+    [21, 'Vergelijking met breuken', s13frac],
+    [22, 'Uitdaging: p berekenen', s13param],
   ],
   learn: [
     {

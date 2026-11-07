@@ -634,14 +634,14 @@ export default {
     ],
   },
   skills: [
-    ['Een lengte x stellen', s24x],
-    ['Deel van een bekende lengte', s24sum],
-    ['Balk', s24balk],
-    ['Balk met x', s24balkx],
-    ['Kubus', s24cube],
-    ['Rechthoek', s24rect],
-    ['Parallellogram', s24par],
-    ['Lengte uit een verhaal', s24story],
+    [58, 'Een lengte x stellen', s24x],
+    [59, 'Deel van een bekende lengte', s24sum],
+    [60, 'Balk', s24balk],
+    [61, 'Balk met x', s24balkx],
+    [62, 'Kubus', s24cube],
+    [63, 'Rechthoek', s24rect],
+    [64, 'Parallellogram', s24par],
+    [65, 'Lengte uit een verhaal', s24story],
   ],
   learn: [
     {

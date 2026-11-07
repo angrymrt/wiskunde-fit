@@ -63,8 +63,8 @@ export default {
   title: 'Voorkennis: Lineaire formules',
   videos: {},
   skills: [
-    ['y berekenen', svValue],
-    ['Tabel en toename', svTable],
+    [1, 'y berekenen', svValue],
+    [2, 'Tabel en toename', svTable],
   ],
   learn: [
     {

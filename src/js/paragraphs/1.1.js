@@ -294,14 +294,14 @@ export default {
     ],
   },
   skills: [
-    ['Punt op een lijn', s11point],
-    ['Coördinaat berekenen', s11coord],
-    ['Formule uit grafiek', s11read],
-    ['Formule door twee punten', s11two],
-    ['Evenwijdige lijnen', s11par],
-    ['Een lijn tekenen', s11draw],
-    ['Formule met een punt', s11rc],
-    ['Constant en recht evenredig', s11special],
+    [3, 'Punt op een lijn', s11point],
+    [4, 'Coördinaat berekenen', s11coord],
+    [5, 'Formule uit grafiek', s11read],
+    [6, 'Formule door twee punten', s11two],
+    [7, 'Evenwijdige lijnen', s11par],
+    [8, 'Een lijn tekenen', s11draw],
+    [9, 'Formule met een punt', s11rc],
+    [10, 'Constant en recht evenredig', s11special],
   ],
   learn: [
     {

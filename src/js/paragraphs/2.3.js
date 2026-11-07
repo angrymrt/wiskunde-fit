@@ -367,11 +367,11 @@ export default {
     ],
   },
   skills: [
-    ['F, Z of overstaand', s23kind],
-    ['De juiste reden', s23why],
-    ['Zandloperfiguur', s23x],
-    ['Schaduw en spiegel', s23shadow],
-    ['Hoogtelijn', s23alt],
+    [53, 'F, Z of overstaand', s23kind],
+    [54, 'De juiste reden', s23why],
+    [55, 'Zandloperfiguur', s23x],
+    [56, 'Schaduw en spiegel', s23shadow],
+    [57, 'Hoogtelijn', s23alt],
   ],
   learn: [
     {

@@ -121,7 +121,7 @@ app.addEventListener('click', (e) => {
   if (a === 'filter') {
     const s = SEC[state.view.id],
       st = state.prac[s.id];
-    st.filter = id || null;
+    st.filter = id ? Number(id) : null;
     newQuestion(s);
     render();
     return;
