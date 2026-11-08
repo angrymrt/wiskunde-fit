@@ -24,9 +24,9 @@ Al het werk wordt hieraan getoetst. Over de grenzen gaan we nooit heen. Binnen d
 
 ```sh
 npm run dev           # bouwt de site en toont die op poort 5173 zoals Azure; bouwt opnieuw na een wijziging
-npm test              # generatortests, methode-indelingen en releasecontrole, ongeveer 2 seconden
-npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer anderhalve minuut
-npm run build         # maakt dist/index.html
+npm test              # generatortests, adressen, schermen, server en releasecontrole, ongeveer 3 seconden
+npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer 2,5 minuut
+npm run build         # maakt de site in dist/, met een HTML-bestand per pagina
 npm run images        # maakt de PNG's in src/ opnieuw, alleen nodig als het ontwerp verandert
 npm run fonts         # maakt het lettertype voor de koppen en het logo, alleen nodig als het ontwerp verandert
 npm run format        # Prettier
@@ -34,7 +34,7 @@ npm run format        # Prettier
 
 Draai `npm test` na elke wijziging in de stof. Draai `npm run test:browser` na wijzigingen in `ui/`, `main.js`, `styles.css` of de build. Bekijk daarna de schermafbeeldingen in `test-results/`, want de test ziet niet of een figuur er goed uitziet. Een andere browser kies je met de omgevingsvariabele `BROWSER`, bijvoorbeeld `chrome`, of `webkit` voor de motor van Safari. Die installeer je eenmalig met `npx playwright-core install webkit`. Dit vervangt geen test op een echte iPhone.
 
-De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor kleine wijzigingen. Draai bij grote wijzigingen, zoals in de schermen, de antwoordcontrole of de build, ook `ROUNDS=4 npm run test:browser` (in PowerShell: `$env:ROUNDS=4; npm run test:browser`). Dat duurt ongeveer 4 minuten. Voeg een gerichte test toe als je een bepaald randgeval wilt vastleggen.
+De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor kleine wijzigingen. Draai bij grote wijzigingen, zoals in de schermen, de antwoordcontrole of de build, ook `ROUNDS=4 npm run test:browser` (in PowerShell: `$env:ROUNDS=4; npm run test:browser`). Dat duurt ongeveer 6 minuten. Voeg een gerichte test toe als je een bepaald randgeval wilt vastleggen.
 
 ## Regels
 
@@ -136,7 +136,7 @@ Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.c
 
 Alle schermen zijn functies die een HTML-tekst teruggeven. `screenHTML()` in `ui/screens.js` maakt daarmee het hele scherm, en `render()` in `main.js` zet dat in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`.
 
-Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarmee je ergens heen gaat, is een gewone link met `<a href>`, zodat openen in een nieuw tabblad werkt. Een knop is voor iets dat op dit scherm gebeurt. Een nieuw eerste deel van een adres moet ook in de lijst met gereserveerde namen in `tests/generators.test.js`. `staticwebapp.config.json` zorgt dat Azure bij elk adres de site toont, en `scripts/server.js` volgt die regel voor `npm run dev` en de browsertest.
+Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarmee je ergens heen gaat, is een gewone link met `<a href>`, zodat openen in een nieuw tabblad werkt. Een knop is voor iets dat op dit scherm gebeurt. Een nieuw eerste deel van een adres moet ook in de lijst met gereserveerde namen in `tests/generators.test.js`. De build maakt bij elk adres een vooraf gebouwde pagina of een schil (`src/js/pages.js`). Een adres zonder bestand geeft een echte 404. `staticwebapp.config.json` bevat de regels voor Azure, en `scripts/server.js` volgt die voor `npm run dev` en de browsertest. Wijzig je die regels, controleer dan ook de preview met `node scripts/controleer-site.js <adres>`.
 
 `window.wiskundefit` bestaat alleen zodat `tests/browser.e2e.js` de juiste antwoorden kan opvragen. Gebruik het niet in de site zelf.
 

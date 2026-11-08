@@ -62,6 +62,14 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 | Id          | Het vaste nummer van een vraagsoort voor de site. Verandert nooit en zegt niets over de plek in de stof. De voortgang hangt hieraan.                                                | `id`                 |                             |
 | Adres       | Het webadres van een pagina, zoals `/snijpunten-van-lijnen`. Is voor mensen en mag veranderen, met een doorverwijzing vanaf het oude adres.                                         | `slug`               |                             |
 
+## Pagina's
+
+| Begrip                 | Betekenis                                                                                                                                                                                                 | In de code              | Niet gebruiken            |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------- |
+| Vooraf gebouwde pagina | Een pagina die de build al met alle tekst maakt, zoals de uitleg bij een onderwerp. Je kunt die zonder JavaScript lezen en zoekmachines zien de stof. Daarna neemt JavaScript de pagina over.             | `PAGES` in `pages.js`   | prerender, statische HTML |
+| Schil                  | Een vooraf gebouwde pagina met alleen het menu, de kop en `noindex`, voor een scherm dat afhangt van wat in de browser is bewaard, zoals oefenen, Mijn stof en de proeftoets. JavaScript vult de rest in. | `shellHTML`             | lege pagina, shell        |
+| Doorverwijzing         | Een oud adres dat met een 301 naar het nieuwe adres gaat, zodat links van docenten en zoekresultaten blijven werken. Komt uit `oldSlugs` in de gegevens.                                                  | `redirects`, `oldSlugs` | redirect, omleiding       |
+
 ## De methode-indeling en het kiezen van stof
 
 | Begrip           | Betekenis                                                                                                                                                                                                                                                    | In de code  | Niet gebruiken |

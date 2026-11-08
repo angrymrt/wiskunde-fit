@@ -21,26 +21,50 @@ npm install
 npm run dev
 ```
 
-Open daarna <http://localhost:5173>. Wijzig je een bestand in `src/`, dan hoef je de pagina alleen te herladen. Open `src/index.html` niet rechtstreeks: browsers laten JavaScript-modules alleen via een webserver werken.
+Open daarna <http://localhost:5173>. `npm run dev` bouwt de site in `dist/` en toont die zoals Azure dat doet. Wijzig je een bestand in `src/`, dan bouwt hij opnieuw en hoef je de pagina alleen te herladen.
 
 Bij `npm install` meldt npm mogelijk dat het installatiescript van esbuild niet is uitgevoerd. Dat is geen probleem, de build werkt ook zonder.
 
 ## Commando's
 
-| Commando               | Wat het doet                                                  |
-| ---------------------- | ------------------------------------------------------------- |
-| `npm run dev`          | Start de site lokaal, zonder bouwstap                         |
-| `npm run build`        | Bouwt de site in `dist/`, klaar om online te zetten           |
-| `npm test`             | Maakt van elke vraagsoort 500 varianten en controleert die    |
-| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 1,5 minuut) |
-| `npm run images`       | Maakt het linkvoorbeeld en het icoon opnieuw                  |
-| `npm run format`       | Maakt de code netjes op met Prettier                          |
+| Commando               | Wat het doet                                                         |
+| ---------------------- | -------------------------------------------------------------------- |
+| `npm run dev`          | Bouwt de site en toont die lokaal, en bouwt opnieuw na een wijziging |
+| `npm run build`        | Bouwt de site in `dist/`, klaar om online te zetten                  |
+| `npm test`             | Maakt van elke vraagsoort 500 varianten en controleert die           |
+| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 2,5 minuut)        |
+| `npm run images`       | Maakt het linkvoorbeeld en het icoon opnieuw                         |
+| `npm run fonts`        | Maakt het lettertype voor de koppen en het logo opnieuw              |
+| `npm run format`       | Maakt de code netjes op met Prettier                                 |
 
 De site werkt alleen via een webserver, want elk scherm heeft een eigen adres. Dubbelklikken op `dist/index.html` werkt dus niet. Gebruik `npm run dev` of [wiskundefit.nl](https://wiskundefit.nl).
 
 ## Online zetten
 
-Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app. In [staticwebapp.config.json](staticwebapp.config.json) staat dat Azure bij elk adres de site toont, en de build zet dat bestand in `dist/`. Na elke deploy controleert de workflow dat een adres als `/over` rechtstreeks werkt.
+Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app. In [staticwebapp.config.json](staticwebapp.config.json) staan de regels voor Azure: een adres dat niet bestaat geeft de 404-pagina, en de bestanden in `assets/` mag de browser een jaar bewaren. De build zet dat bestand in `dist/`, met de doorverwijzingen van oude adressen erachter. Na elke deploy controleert `scripts/controleer-site.js` dat de site precies `dist/` is, met de juiste status, doorverwijzingen en cache. Dat kan ook met de hand: `node scripts/controleer-site.js <adres>`.
+
+### Wat er in `dist/` staat
+
+```text
+dist/
+├── index.html                       Home, vooraf gebouwd
+├── 404.html                         De pagina voor een adres dat niet bestaat
+├── meetkunde/index.html             Een domein, vooraf gebouwd
+├── snijpunten-van-lijnen/
+│   ├── index.html                   De uitleg bij een onderwerp, vooraf gebouwd
+│   └── oefenen/index.html           Oefenen: een schil met noindex
+├── methode-indeling/
+│   ├── index.html                   Kies uit je boek, met de hele lijst met boeken
+│   └── getal-en-ruimte-13-havo-3/   Een methode-indeling, vooraf gebouwd
+├── over/, privacy/, contact/        Vooraf gebouwd
+├── mijn-stof/, proeftoets/          Schillen met noindex, ook mijn-stof/oefenen en proeftoets/uitslag
+├── assets/                          Code, CSS, lettertypes en logo, met een hash in de naam
+├── sitemap.xml, robots.txt          Voor zoekmachines
+├── staticwebapp.config.json         De regels voor Azure, met de doorverwijzingen
+└── favicon.svg, apple-touch-icon.png, og.png
+```
+
+Een vooraf gebouwde pagina bevat al alle tekst, zodat je die zonder JavaScript kunt lezen en zoekmachines de stof zien. Een schil heeft alleen het menu en de kop, want wat erop staat hangt af van wat in de browser is bewaard. Azure toont `over/index.html` op `/over`, en stuurt `/over/` en `/over/index.html` met een 301 daarheen. De lijst met pagina's staat in `src/js/pages.js`.
 
 Een pull request naar `main` komt op een eigen preview-adres, dat Azure als reactie bij de pull request zet. Dat adres is openbaar, en het verdwijnt als de pull request dicht gaat. Het gratis plan heeft ruimte voor drie previews tegelijk. Een pull request uit een fork komt niet online.
 
@@ -48,7 +72,7 @@ Een pull request naar `main` komt op een eigen preview-adres, dat Azure als reac
 
 ```text
 src/
-├── index.html              De lege pagina die styles.css en js/main.js laadt
+├── index.html              Het sjabloon voor elke pagina; de build vult de inhoud in
 ├── styles.css              Alle opmaak, inclusief donkere modus
 ├── og.png                  Afbeelding voor linkvoorbeelden, gemaakt met npm run images
 ├── apple-touch-icon.png    Icoon voor het beginscherm, gemaakt met npm run images
@@ -61,14 +85,17 @@ src/
     ├── answers.js          Leest en controleert antwoorden
     ├── progress.js         Bewaart de voortgang in de browser
     ├── routes.js           De adressen: welk scherm bij welk adres hoort
+    ├── pages.js            De pagina's die de build maakt, de sitemap en de doorverwijzingen
     ├── stof.js             De stofkeuze: welke vraagsoorten een leerling oefent
     ├── mappings/           De methode-indelingen: paragrafen en hun vraagsoorten
     ├── topics/             De stof: elk bestand is één onderwerp
     │   ├── index.js        De domeinen, hun onderwerpen en de voorkennis
     │   ├── shared.js       Hulpmiddelen voor meerdere onderwerpen
     │   └── snijpunten-van-lijnen.js … de andere onderwerpen
-    └── ui/                 De schermen
-        ├── home.js         Overzicht
+    └── ui/                 De schermen, ook in Node te maken voor de build
+        ├── screens.js      Kiest het scherm bij de toestand en maakt de hele pagina
+        ├── home.js         Overzicht en domeinen
+        ├── stof.js         Mijn stof, Kies uit je boek en de methode-indelingen
         ├── topic.js        Uitleg en oefenen bij een onderwerp
         ├── exam.js         Proeftoets
         ├── question-form.js Invoervelden van een vraag
@@ -76,8 +103,10 @@ src/
         ├── about.js        De pagina's Over, Privacy en Contact
         ├── layout.js       Het menu, het kruimelpad en de voettekst
         └── state.js        Gedeelde toestand van de schermen
-scripts/                    Build, ontwikkelserver, afbeeldingen en releasenotities
-tests/                      Generatortests, releasecontrole en browsertest
+scripts/                    Build, ontwikkelserver, controle na de deploy, meting, afbeeldingen,
+                            lettertypes en releasenotities
+tests/                      Generatortests, adressen, schermen, pagina's, server, releasecontrole
+                            en browsertest
 ```
 
 De belangrijkste plek om te beginnen is een bestand in `src/js/topics/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vraagsoorten. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.
