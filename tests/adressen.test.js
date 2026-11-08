@@ -87,6 +87,25 @@ test('een streep aan het eind maakt niet uit', () => {
   assert.deepEqual(open('/index.html'), { name: 'home' });
 });
 
+test('de filters van Kies uit je boek staan in het adres, in een vaste volgorde', () => {
+  const view = open('/methode-indeling?leerjaar=9,3&niveau=vwo,havo,mbo&x=1');
+  assert.deepEqual(view, { name: 'kies', filters: { niveau: ['havo', 'vwo'], leerjaar: ['3'] } });
+  assert.equal(pathFor(view), '/methode-indeling?niveau=havo,vwo&leerjaar=3');
+  assert.deepEqual(open(pathFor(view)), view, 'heen en terug');
+  assert.deepEqual(open('/methode-indeling?niveau=mbo&methode='), { name: 'kies' });
+  assert.deepEqual(open('/methode-indeling?methode=getal-en-ruimte&editie=13'), {
+    name: 'kies',
+    filters: { methode: ['getal-en-ruimte'], editie: ['13'] },
+  });
+});
+
+test('Azure toont Home ook op /index, en dan gaat het adres naar /', () => {
+  for (const address of ['/index', '/index/', '/index.html']) {
+    assert.deepEqual(open(address), { name: 'home' }, address);
+    assert.equal(pathFor(open(address)), '/', address);
+  }
+});
+
 test('elk scherm hoort bij een deel van het menu en het kruimelpad eindigt bij het scherm', () => {
   const t = TOPICS.find((x) => x.slug === 'gelijkvormige-driehoeken');
   const crumbs = (address) =>

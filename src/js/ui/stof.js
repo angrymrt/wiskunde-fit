@@ -1,5 +1,5 @@
 // De schermen om stof te kiezen: uit je boek, de paragrafen van een boek, en Mijn stof.
-import { MAPPING, MAPPINGS } from '../mappings/index.js';
+import { FILTERS, MAPPING, MAPPINGS, matches } from '../mappings/index.js';
 import { prog, skillPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import {
@@ -30,34 +30,63 @@ const skillNames = (skills) => skills.map((k) => T(k.name)).join(', ');
 const list = (items) =>
   items.length > 1 ? `${items.slice(0, -1).join(', ')} en ${items.at(-1)}` : items[0];
 
-const PICK_FIELDS = [
-  ['level', 'Niveau'],
-  ['year', 'Leerjaar'],
-  ['method', 'Methode'],
-  ['edition', 'Editie'],
-];
-// Elke lijst toont alleen wat bij de eerdere keuzes past. Is er maar één mogelijkheid, dan staat
-// die al ingevuld.
-function pickLists() {
-  let matches = MAPPINGS;
-  const lists = PICK_FIELDS.map(([key, label]) => {
-    const options = [...new Set(matches.map((m) => String(m[key])))];
-    if (!options.includes(state.pick[key]))
-      state.pick[key] = options.length === 1 ? options[0] : '';
-    if (state.pick[key]) matches = matches.filter((m) => String(m[key]) === state.pick[key]);
-    return { key, label, options, value: state.pick[key] };
-  });
-  return { lists, mapping: lists.every((l) => l.value) ? matches[0] : null };
+// Kies uit je boek: een lijst met boeken en filters, zoals in een webshop. De filters staan in het
+// adres, zoals ?niveau=havo. Zonder JavaScript zie je de hele lijst. Het gekozen boek staat bovenaan.
+const plural = (n, one, more) => `${n} ${n === 1 ? one : more}`;
+const bookKind = (b) => (/FLEX/.test(b.name) ? 'FLEX-boek' : 'leerboek');
+function booksText(m) {
+  const parts = [...new Set(m.books.map((b) => b.part))];
+  const text = `${list(parts)}, ${[...new Set(m.books.map(bookKind))].join(' of ')}`;
+  return text[0].toUpperCase() + text.slice(1);
 }
-const pickedMapping = () => pickLists().mapping;
+function coverageText(m) {
+  const paragraphs = m.chapters.flatMap((c) => c.paragraphs);
+  const some = paragraphs.filter((p) => p.coverage !== 'niet').length;
+  const part = paragraphs.filter((p) => p.coverage === 'deels').length;
+  const start = `${some} van de ${paragraphs.length} paragrafen kun je hier`;
+  if (!part) return `${start} oefenen.`;
+  return part === some ? `${start} deels oefenen.` : `${start} oefenen, ${part} daarvan deels.`;
+}
+function bookHTML(m) {
+  const mine = m.id === prog.mapping;
+  const isbns = m.books.map((b) => `<li>${esc(b.part)}, ${bookKind(b)}: ${esc(b.isbn)}</li>`);
+  return `<li class="sheet book-card${mine ? ' mine' : ''}">
+  <h2 class="h3">${mine ? '<span class="mine-tag">Je boek<span class="sr">: </span></span>' : ''}<a href="${pathFor({ name: 'mapping', id: m.id })}" data-act="kiesgo" data-id="${m.id}">${mappingName(m)}</a></h2>
+  <p>${esc(booksText(m))}</p><p class="small">${coverageText(m)}</p>
+  <details class="small"><summary>ISBN's</summary><ul>${isbns.join('')}</ul></details></li>`;
+}
+// Het getal achter een keuze: zoveel boeken zie je als je die keuze erbij zet.
+function filterHTML(filter, chosen) {
+  const { key, label, options, values, name } = filter;
+  const count = (v) =>
+    MAPPINGS.filter((m) => matches(m, chosen, key) && values(m).includes(v)).length;
+  const option = (v) =>
+    `<label class="pick"><input type="checkbox" data-act="boekfilter" data-id="${key}:${esc(v)}"${chosen[key]?.includes(v) ? ' checked' : ''}><span>${esc(name(v))} <span class="muted" aria-hidden="true">(${count(v)})</span><span class="sr">, ${plural(count(v), 'boek', 'boeken')}</span></span></label>`;
+  return `<fieldset class="filter"><legend>${label}</legend>${options.map(option).join('')}</fieldset>`;
+}
 function vPick() {
-  const { lists, mapping } = pickLists();
-  const toggles = ({ key, label, options, value }) =>
-    `<div class="setup"><b id="pick-${key}">${label}</b><div class="toggles" role="group" aria-labelledby="pick-${key}">${options.map((o) => `<button class="toggle" type="button" data-act="pick" data-id="${esc(`${key}:${o}`)}" aria-pressed="${o === value}">${esc(o)}${key === 'edition' ? 'e editie' : ''}</button>`).join('')}</div></div>`;
-  return `${pageHead('Kies uit je boek')}<div class="sheet"><p>Kies wat op je boek staat. Daarna zie je de paragrafen en wat je daarvan hier kunt oefenen.</p>
-  <div class="pick-lists">${lists.map(toggles).join('')}</div>
-  <div class="row">${mapping ? `<a class="btn main" data-act="kiesgo" href="${pathFor({ name: 'mapping', id: mapping.id })}">Bekijk de paragrafen</a>` : `<button class="btn main" type="button" data-act="kiesgo" disabled>Bekijk de paragrafen</button>`}</div>
-  <p class="small">Staat je boek er niet bij? <a class="linkbtn" href="${to('stof')}#onderwerp">Kies op onderwerp</a></p></div>`;
+  const chosen = state.view.filters || {};
+  const active = Object.values(chosen).flat().length;
+  const found = MAPPINGS.filter((m) => matches(m, chosen)).sort(
+    (a, b) => (b.id === prog.mapping) - (a.id === prog.mapping),
+  );
+  const n = found.length;
+  const status = !active
+    ? plural(n, 'boek', 'boeken')
+    : n
+      ? `${plural(n, 'boek past', 'boeken passen')} bij je filters`
+      : 'Geen boek past bij je filters';
+  const open = state.filtersOpen;
+  return `${pageHead('Kies uit je boek', '<p class="lead">Zoek je boek en bekijk wat je daaruit hier kunt oefenen.</p>')}
+  <div class="shop">
+  <div class="filters needs-js">
+  <button class="btn filter-toggle" type="button" data-act="boekfilters" aria-expanded="${open}" aria-controls="filters">Filters${active ? ` (${active})` : ''}</button>
+  <div class="filter-panel${open ? ' open' : ''}" id="filters">${FILTERS.map((f) => filterHTML(f, chosen)).join('')}
+  <button class="btn main filter-done" type="button" data-act="boekfiltersdone">Toon ${plural(n, 'boek', 'boeken')}</button></div></div>
+  <div class="found">
+  <div class="row found-count"><p role="status">${status}</p>${active ? '<button class="linkbtn" type="button" data-act="boekfilterclear">Wis filters</button>' : ''}</div>
+  ${n ? `<ul class="book-cards">${found.map(bookHTML).join('')}</ul>` : ''}
+  <p class="small">Staat je boek er niet bij? <a class="linkbtn" href="${to('stof')}#onderwerp">Kies op onderwerp</a></p></div></div>`;
 }
 
 function paragraphHTML(p) {
@@ -161,4 +190,4 @@ function vStofPractice() {
   return `<div class="screen-grid">${pageHead('Mijn stof oefenen')}${vPractice(stofTopic())}</div>`;
 }
 
-export { list, mappingName, pickedMapping, vPick, vMapping, vStof, vStofPractice };
+export { list, mappingName, vPick, vMapping, vStof, vStofPractice };

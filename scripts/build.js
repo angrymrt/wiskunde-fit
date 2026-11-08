@@ -2,7 +2,8 @@
 // de lettertypes als losse bestanden met een hash in de naam, en wat Azure en zoekmachines nodig
 // hebben. Met --dev wordt de code niet kleiner gemaakt, zodat je die in de browser kunt lezen.
 import { execFileSync } from 'node:child_process';
-import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { copyFile, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
@@ -48,6 +49,21 @@ const { metafile } = await build({
   metafile: true,
   define: { __VERSIE__: JSON.stringify(version), __DATUM__: JSON.stringify(date) },
 });
+// esbuild rekent bij de code ook de paden van de modules mee in de hash, en Windows schrijft die
+// met \. Dan heet dezelfde code lokaal anders dan online, en kan scripts/controleer-site.js een
+// preview niet met dist/ vergelijken. Daarom krijgt de code een hash van alleen de inhoud.
+for (const [path, output] of Object.entries(metafile.outputs)) {
+  if (!path.endsWith('.js')) continue;
+  const file = new URL(path, root);
+  const hash = createHash('sha256')
+    .update(await readFile(file))
+    .digest('hex')
+    .slice(0, 8);
+  const renamed = path.replace(/-\w+\.js$/, `-${hash.toUpperCase()}.js`);
+  await rename(file, new URL(renamed, root));
+  delete metafile.outputs[path];
+  metafile.outputs[renamed] = output;
+}
 const assets = Object.keys(metafile.outputs).map((path) => path.replace(/^dist/, ''));
 const asset = (pattern) => {
   const found = assets.find((path) => pattern.test(path));

@@ -1,8 +1,10 @@
 // Webserver voor npm run dev en de browsertest. Volgt de regels die Azure Static Web Apps leest uit
 // staticwebapp.config.json in de map zelf, zodat een adres hier hetzelfde werkt als online:
-// - een map toont index.html, en met trailingSlash "never" gaat /over/ met een 301 naar /over;
 // - routes worden op volgorde gelezen en de eerste die past telt: een doorverwijzing of headers;
-// - wat niet bestaat, krijgt de pagina uit responseOverrides, met status 404;
+// - /over toont over/index.html en /404 toont 404.html. Bestaat het bestand, dan gaan /over/,
+//   /over/index en /over/index.html met een 301 naar /over, en /404.html naar /404. Home staat op
+//   / en op /index, en /index.html gaat naar /index. Zo deed de preview het in november 2026;
+// - wat niet bestaat, krijgt de pagina uit responseOverrides, met status 404, ook /over.html;
 // - zonder eigen header mag de browser een bestand 30 seconden bewaren, en tekst gaat met brotli.
 // Hoofdletters tellen, net als bij Azure. Controleer na een wijziging ook de preview, met
 // scripts/controleer-site.js.
@@ -38,6 +40,25 @@ async function isFile(dir, path) {
   if (!(await stat(path).catch(() => null))?.isFile()) return false;
   return (await realpath(path)).endsWith(path.slice(dir.length));
 }
+// Zoekt het bestand bij een adres zonder streep aan het eind: het bestand zelf, met .html erachter,
+// of index.html in die map.
+async function findFile(dir, path) {
+  for (const candidate of [path, `${path}.html`, `${path}/index.html`]) {
+    const file = normalize(join(dir, candidate));
+    if (!file.startsWith(dir + sep)) continue;
+    if (await isFile(dir, file)) return file;
+  }
+  return null;
+}
+// Het adres waarop Azure een bestand toont: zonder .html en zonder /index, behalve bij Home.
+function addressOf(dir, file) {
+  const path = file
+    .slice(dir.length)
+    .split(sep)
+    .join('/')
+    .replace(/\.html$/, '');
+  return path === '/index' ? path : path.replace(/\/index$/, '');
+}
 
 function startServer(dir, port) {
   const server = createServer(async (req, res) => {
@@ -46,11 +67,8 @@ function startServer(dir, port) {
     const url = new URL(req.url, 'http://localhost');
     const path = decodeURIComponent(url.pathname);
     const redirect = (to, code = 301) => res.writeHead(code, { Location: to + url.search }).end();
-    if (config.trailingSlash === 'never') {
-      if (/\/index\.html$/.test(path)) return redirect(path.replace(/\/index\.html$/, '') || '/');
-      if (path.length > 1 && path.endsWith('/')) return redirect(path.replace(/\/+$/, ''));
-    }
-    const rule = (config.routes || []).find((r) => routeRegex(r.route).test(path));
+    const bare = path.replace(/\/+$/, '') || '/';
+    const rule = (config.routes || []).find((r) => routeRegex(r.route).test(bare));
     if (rule?.redirect) return redirect(rule.redirect, rule.statusCode || 302);
 
     const send = async (file, status, extra = {}) => {
@@ -69,11 +87,12 @@ function startServer(dir, port) {
       res.writeHead(status, headers);
       res.end(req.method === 'HEAD' ? undefined : body);
     };
-    const file = normalize(join(dir, path));
-    if (file.startsWith(dir + sep) || file === dir) {
-      for (const candidate of [file, join(file, 'index.html')]) {
-        if (await isFile(dir, candidate)) return send(candidate, 200, rule?.headers);
-      }
+    const file = await findFile(dir, bare);
+    if (file) {
+      const address = addressOf(dir, file);
+      const home = address === '/index' && path === '/';
+      if (config.trailingSlash === 'never' && path !== address && !home) return redirect(address);
+      return send(file, 200, rule?.headers);
     }
     const missing = config.responseOverrides?.['404'];
     if (missing) return send(join(dir, missing.rewrite), missing.statusCode || 404);

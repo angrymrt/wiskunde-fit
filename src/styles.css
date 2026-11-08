@@ -1294,46 +1294,94 @@ ol.how {
   display: grid;
   gap: 6px;
 }
-.pick-lists {
+/* Kies uit je boek: de filters links en de boeken rechts. Op een telefoon passen de filters daar
+   niet, en dan klap je ze uit met de knop Filters. */
+.shop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.filter-panel {
   display: grid;
   gap: 14px;
 }
-.toggles {
-  display: flex;
-  flex-wrap: wrap;
+.filter {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
 }
-.toggle {
-  min-height: 44px;
-  padding: 8px 16px;
-  background: var(--sheet);
-  border: 1px solid var(--muted);
-  margin-left: -1px;
-  cursor: pointer;
-}
-.toggle:first-child {
-  margin-left: 0;
-  border-radius: 6px 0 0 6px;
-}
-.toggle:last-child {
-  border-radius: 0 6px 6px 0;
-}
-.toggle:only-child {
-  border-radius: 6px;
-}
-.toggle:hover {
-  background: var(--blue-soft);
-}
-/* De gekozen knop ligt boven zijn buren, zodat de gekleurde rand helemaal zichtbaar is. */
-.toggle[aria-pressed='true'] {
-  position: relative;
-  background: var(--blue-soft);
-  border-color: var(--blue);
-  color: var(--blue);
+.filter legend {
+  padding: 0;
   font-weight: 700;
 }
-.toggle:focus-visible {
-  position: relative;
-  z-index: 1;
+.filter .pick {
+  padding: 5px 0;
+}
+.filter-toggle {
+  justify-self: start;
+}
+.found {
+  display: grid;
+  gap: 12px;
+}
+.found-count p {
+  margin: 0;
+  font-weight: 700;
+}
+.book-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.book-card {
+  gap: 6px;
+}
+.book-card h2,
+.book-card p {
+  margin: 0;
+}
+.book-card.mine {
+  border: 2px solid var(--blue);
+}
+.mine-tag {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+@media (max-width: 759px) {
+  .filters {
+    display: grid;
+    gap: 12px;
+  }
+  .filter-panel:not(.open) {
+    display: none;
+  }
+  .filter-panel {
+    padding: 14px 16px;
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+  }
+  .filter-done {
+    justify-self: start;
+  }
+}
+@media (min-width: 760px) {
+  .shop {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 28px;
+  }
+  .filter-toggle,
+  .filter-done {
+    display: none;
+  }
 }
 .chapter {
   display: grid;

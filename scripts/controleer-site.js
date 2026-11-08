@@ -43,12 +43,38 @@ async function check(site, { wait = 0 } = {}) {
     expect(res.status === 200 && (await res.text()) === (await read(file)), `/${file} klopt niet`);
   }
 
-  // Wat niet bestaat, is een echte 404. Hoofdletters tellen.
-  for (const path of ['/Over', '/favicon.ico', '/bestaat-niet.png', '/assets/bestaat-niet.js']) {
+  // Azure toont Home ook op /index en de 404-pagina ook op /404, allebei met status 200. Home heeft
+  // een canonical naar /, en JavaScript zet het adres op /.
+  for (const [path, file] of [
+    ['/index', 'index.html'],
+    ['/404', '404.html'],
+  ]) {
+    const res = await get(path);
+    expect(
+      res.status === 200 && (await res.text()) === (await read(file)),
+      `${path} is niet ${file}`,
+    );
+  }
+
+  // Wat niet bestaat, is een echte 404. Hoofdletters tellen, en een doorverwijzing komt er alleen
+  // als het bestand bestaat.
+  for (const path of [
+    '/Over',
+    '/Over/',
+    '/over.html',
+    '/bestaat-niet/',
+    '/bestaat-niet/index',
+    '/404/index',
+    '/favicon',
+    '/favicon.ico',
+    '/bestaat-niet.png',
+    '/assets/bestaat-niet.js',
+  ]) {
     expect((await get(path)).status === 404, `${path} geeft geen 404`);
   }
 
-  // Een streep aan het eind of index.html gaat met een 301 naar het adres zonder, met de parameters.
+  // Een streep aan het eind, .html of /index gaat met een 301 naar het adres zonder, met de
+  // parameters. Bij Home blijft /index staan.
   const moved = async (from, to, status = 301) => {
     const res = await get(from);
     const location = res.headers.get('location');
@@ -60,7 +86,15 @@ async function check(site, { wait = 0 } = {}) {
   };
   await moved('/over/', '/over');
   await moved('/over/?soort=3', '/over?soort=3');
-  await moved('/index.html', '/');
+  await moved('/over/index', '/over');
+  await moved('/over/index.html?soort=3', '/over?soort=3');
+  await moved('/over/index/', '/over');
+  await moved('/meetkunde/index', '/meetkunde');
+  await moved('/mijn-stof/oefenen/index', '/mijn-stof/oefenen');
+  await moved('/index.html', '/index');
+  await moved('/index/', '/index');
+  await moved('/404.html', '/404');
+  await moved('/sitemap.xml/', '/sitemap.xml');
   for (const route of config.routes.filter((r) => r.redirect)) {
     await moved(route.route, route.redirect, route.statusCode || 302);
   }

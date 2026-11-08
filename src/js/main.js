@@ -22,7 +22,6 @@ import { showDrawn, tapGrid } from './ui/draw.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';
-import { pickedMapping } from './ui/stof.js';
 import { mountWidgets } from './ui/widgets.js';
 
 const here = () => location.pathname + location.search;
@@ -165,7 +164,7 @@ app.addEventListener('click', (e) => {
     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     if (link.dataset.act === 'kiesgo') {
-      prog.mapping = pickedMapping().id;
+      prog.mapping = link.dataset.id;
       save();
     }
     const { pathname, search, hash } = new URL(link.href);
@@ -178,10 +177,29 @@ app.addEventListener('click', (e) => {
   b.focus();
   const a = b.dataset.act,
     id = b.dataset.id;
-  if (a === 'pick') {
-    const at = id.indexOf(':');
-    state.pick[id.slice(0, at)] = id.slice(at + 1);
-    render();
+  if (a === 'boekfilter' || a === 'boekfilterclear') {
+    const filters = { ...state.view.filters };
+    if (a === 'boekfilter') {
+      const [key, value] = [id.slice(0, id.indexOf(':')), id.slice(id.indexOf(':') + 1)];
+      const values = filters[key] || [];
+      filters[key] = values.includes(value)
+        ? values.filter((v) => v !== value)
+        : [...values, value];
+    }
+    // Via het adres, zodat de volgorde net zo wordt als bij een gedeelde link.
+    const { pathname, search } = new URL(
+      pathFor({ name: 'kies', filters: a === 'boekfilter' ? filters : {} }),
+      location.href,
+    );
+    state.view = viewFor(pathname, search);
+    // Een ander filter is geen nieuw scherm, dus de terugknop slaat dat over.
+    history.replaceState(history.state, '', pathFor(state.view));
+    render(a === 'boekfilterclear' ? '.found-count [role="status"]' : undefined);
+    return;
+  }
+  if (a === 'boekfilters' || a === 'boekfiltersdone') {
+    state.filtersOpen = a === 'boekfilters' && !state.filtersOpen;
+    render(a === 'boekfiltersdone' ? '.found-count [role="status"]' : undefined);
     return;
   }
   if (a === 'para' || a === 'chapter') {

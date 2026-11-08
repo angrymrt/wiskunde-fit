@@ -1,5 +1,5 @@
 // De adressen van de site: bij elk scherm hoort één adres en andersom. Bevat geen DOM-code.
-import { MAPPING, MAPPINGS } from './mappings/index.js';
+import { FILTERS, MAPPING, MAPPINGS } from './mappings/index.js';
 import { DOMAIN, TOPIC } from './topics/index.js';
 
 const SCREENS = {
@@ -18,6 +18,10 @@ function pathFor(v) {
   if (v.name === 'missing') return v.path;
   if (v.name === 'mapping') return `/methode-indeling/${MAPPING[v.id].slug}`;
   if (v.name === 'domain') return `/${v.slug}`;
+  if (v.name === 'kies' && v.filters) {
+    const query = Object.entries(v.filters).map(([key, values]) => `${key}=${values.join(',')}`);
+    return `${SCREENS.kies.path}?${query.join('&')}`;
+  }
   if (v.name !== 'topic') return SCREENS[v.name].path;
   if (!v.oefen) return `/${v.slug}`;
   return `/${v.slug}/oefenen${v.soort ? `?soort=${v.soort}` : ''}`;
@@ -31,10 +35,24 @@ function practiceView(slug, search) {
     ? { name: 'topic', slug, oefen: true, soort }
     : { name: 'topic', slug, oefen: true };
 }
+// De filters op Kies uit je boek, zoals ?niveau=havo,vwo&leerjaar=3. Wat niet bestaat, negeren
+// we, en de volgorde in het adres ligt vast.
+function kiesView(search) {
+  const params = new URLSearchParams(search);
+  const filters = {};
+  for (const { key, options } of FILTERS) {
+    const asked = (params.get(key) || '').split(',');
+    const values = options.filter((o) => asked.includes(o));
+    if (values.length) filters[key] = values;
+  }
+  return Object.keys(filters).length ? { name: 'kies', filters } : { name: 'kies' };
+}
 function viewFor(pathname, search = '') {
   const path = pathname.replace(/\/+$/, '') || '/';
-  if (path === '/index.html') return { name: 'home' };
+  // Azure toont Home ook op /index, en stuurt /index.html daarheen.
+  if (path === '/index' || path === '/index.html') return { name: 'home' };
   for (const [name, { path: screen, slug }] of Object.entries(SCREENS)) {
+    if (path === screen && name === 'kies') return kiesView(search);
     if (path === screen) return slug ? { name, slug } : { name };
   }
   const [, first, second, ...rest] = path.split('/');

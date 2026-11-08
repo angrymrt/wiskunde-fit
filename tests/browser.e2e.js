@@ -4,12 +4,14 @@
 // Schermafbeeldingen om zelf na te kijken komen in test-results/.
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, readFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { brotliCompressSync, constants } from 'node:zlib';
 import { chromium, webkit } from 'playwright-core';
 import { check } from '../scripts/controleer-site.js';
 import { startServer } from '../scripts/server.js';
 import { MAPPINGS } from '../src/js/mappings/index.js';
+import { PAGES } from '../src/js/pages.js';
 import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
 
 const server = await startServer(fileURLToPath(new URL('../dist', import.meta.url)), 0);
@@ -512,20 +514,44 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
         `${where} is breder dan de telefoon`,
       );
 
-    // Havo: leerjaar, methode en editie hebben maar één mogelijkheid en staan dus al ingevuld.
+    // Kies uit je boek: alle boeken, en op een telefoon staan de filters achter een knop.
     await p.click('.hero a[href="/methode-indeling"]');
-    assert.ok(await p.isDisabled('[data-act="kiesgo"]'));
-    await p.click('[data-act="pick"][data-id="level:havo"]');
-    assert.equal(await p.getAttribute('[data-id="level:havo"]', 'aria-pressed'), 'true');
-    assert.equal(
-      await p.evaluate(() => document.activeElement.dataset.id),
-      'level:havo',
-      'de focus blijft op de knop',
-    );
-    assert.equal(await p.getAttribute('[data-id="year:3"]', 'aria-pressed'), 'true');
-    await fits('kiezen uit je boek');
+    const status = () => p.textContent('.found-count [role="status"]');
+    const search = () => new URL(p.url()).search;
+    assert.equal(await p.locator('.book-card').count(), 3);
+    assert.ok(await p.isHidden('#filters'), 'de filters staan eerst dicht');
     await p.screenshot({ path: `${shotDir}kies-uit-je-boek.png`, fullPage: true });
-    await p.click('[data-act="kiesgo"]');
+    await p.click('[data-act="boekfilters"]');
+    assert.equal(await p.getAttribute('[data-act="boekfilters"]', 'aria-expanded'), 'true');
+    await p.click('[data-act="boekfilter"][data-id="niveau:vwo"]');
+    assert.equal(await status(), '2 boeken passen bij je filters');
+    assert.equal(search(), '?niveau=vwo');
+    await p.click('[data-act="boekfilterclear"]');
+    assert.equal(await status(), '3 boeken');
+    assert.equal(search(), '');
+    // Een boek voor havo 3: twee filters, en de focus blijft op het vinkje.
+    await p.click('label:has([data-id="niveau:havo"])');
+    await p.click('[data-act="boekfilter"][data-id="leerjaar:3"]');
+    assert.equal(search(), '?niveau=havo&leerjaar=3');
+    assert.equal(await p.evaluate(() => document.activeElement.dataset.id), 'leerjaar:3');
+    assert.equal(await status(), '1 boek past bij je filters');
+    assert.match(await p.textContent('[data-act="boekfilters"]'), /Filters \(2\)/);
+    await fits('kiezen uit je boek');
+    await p.screenshot({ path: `${shotDir}kies-uit-je-boek-filters.png`, fullPage: true });
+    await p.click('[data-act="boekfiltersdone"]');
+    assert.ok(await p.isHidden('#filters'));
+    assert.equal(await p.evaluate(() => document.activeElement.getAttribute('role')), 'status');
+    // De filters blijven bij herladen, en op een breed scherm staan ze altijd open.
+    await p.reload();
+    assert.equal(await p.locator('.book-card').count(), 1);
+    await p.setViewportSize({ width: 1200, height: 800 });
+    assert.ok(await p.isVisible('#filters'));
+    assert.ok(await p.isHidden('[data-act="boekfilters"]'));
+    await p.click('[data-act="boekfilterclear"]');
+    await p.screenshot({ path: `${shotDir}kies-uit-je-boek-breed.png`, fullPage: true });
+    await p.click('[data-act="boekfilter"][data-id="leerjaar:3"]');
+    await p.setViewportSize({ width: 390, height: 800 });
+    await p.click('.book-card a');
 
     // Een paragraaf aan- en uitvinken, en een heel hoofdstuk kiezen.
     assert.equal(await p.locator('.chapter').count(), 9);
@@ -578,11 +604,17 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     // Havo/vwo 2: alleen deels gedekt, met de melding dat het niet is vergeleken.
     await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
     await p.click('[data-act="stofclear"]');
+    // Je boek staat nu bovenaan de lijst.
     await p.evaluate(() => wiskundefit.go({ name: 'kies' }));
-    await p.click('[data-act="pick"][data-id="level:havo/vwo"]');
-    assert.ok(await p.isDisabled('[data-act="kiesgo"]'));
-    await p.click('[data-act="pick"][data-id="year:2"]');
-    await p.click('[data-act="kiesgo"]');
+    assert.match(
+      await p.textContent('.book-card:first-child h2'),
+      /^Je boek: Getal & Ruimte, 13e editie, havo 3$/,
+    );
+    await p.screenshot({ path: `${shotDir}kies-uit-je-boek-je-boek.png`, fullPage: true });
+    await p.click('[data-act="boekfilters"]');
+    await p.click('[data-act="boekfilter"][data-id="niveau:vwo"]');
+    await p.click('[data-act="boekfilter"][data-id="leerjaar:2"]');
+    await p.click('.book-card a');
     assert.match(await p.textContent('.watch'), /nog niet met dit boek vergeleken/);
     await p.click('[data-act="para"][data-id="6.2"]');
     assert.deepEqual(await stof(), [38]);
@@ -1325,3 +1357,45 @@ test(
     }
   },
 );
+
+// Grenzen voor de grootte, zodat het opvalt als een pagina of de code opeens veel groter wordt. Een
+// oude telefoon met traag internet merkt elke kilobyte. Verstuurd is met brotli, zoals Azure dat
+// doet. In november 2026 was de grootste pagina 3,5 kB, een schil 1,6 kB, de code 62 kB (179 kB
+// zelf) en de CSS 5 kB. Wordt een grens te krap, kijk dan eerst met node scripts/meet.js dist <naam>
+// wat er groeide, en verhoog de grens alleen als dat nodig is.
+const LIMITS = {
+  page: { sent: 6, why: 'een vooraf gebouwde pagina' },
+  shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
+  code: { sent: 80, own: 230, why: 'de code' },
+  css: { sent: 8, why: 'de CSS' },
+  font: { sent: 25, why: 'een lettertype' },
+};
+test('de pagina’s en de code blijven klein', async () => {
+  const dist = new URL('../dist/', import.meta.url);
+  const sizes = async (file) => {
+    const body = await readFile(new URL(file, dist));
+    const sent = brotliCompressSync(body, { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } });
+    return { own: body.length / 1024, sent: sent.length / 1024 };
+  };
+  const files = PAGES.map((p) => [p.file, p.shell || !p.path ? 'shell' : 'page']);
+  for (const name of await readdir(new URL('assets/', dist))) {
+    const kind = { '.js': 'code', '.css': 'css', '.woff2': 'font' }[name.match(/\.\w+$/)?.[0]];
+    if (kind) files.push([`assets/${name}`, kind]);
+  }
+  assert.ok(
+    files.some(([, kind]) => kind === 'code'),
+    'de code is gevonden',
+  );
+  const kB = (n) => `${n.toFixed(1).replace('.', ',')} kB`;
+  for (const [file, kind] of files) {
+    const size = await sizes(file);
+    const limit = LIMITS[kind];
+    for (const key of ['sent', 'own']) {
+      if (!limit[key]) continue;
+      assert.ok(
+        size[key] <= limit[key],
+        `${file} is ${kB(size[key])}${key === 'sent' ? ' verstuurd' : ''}, en de grens voor ${limit.why} is ${kB(limit[key])}`,
+      );
+    }
+  }
+});

@@ -5,7 +5,8 @@ const app = globalThis.document?.getElementById('app') ?? null;
 const state = {
   view: { name: 'home' },
   prac: {},
-  pick: {},
+  // Op een telefoon staan de filters op Kies uit je boek open.
+  filtersOpen: false,
   test: null,
   result: null,
   len: 20,

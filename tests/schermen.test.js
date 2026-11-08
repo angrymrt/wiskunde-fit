@@ -61,6 +61,63 @@ test('elk scherm heeft precies één kop, en een vooraf gebouwde pagina is steed
   }
 });
 
+test('Kies uit je boek toont de boeken die bij de filters passen, met je boek bovenaan', async () => {
+  const { vPick } = await import(new URL('stof.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const { FILTERS } = await import('../src/js/mappings/index.js');
+  const books = (filters) => {
+    state.view = filters ? { name: 'kies', filters } : { name: 'kies' };
+    const html = vPick();
+    return {
+      html,
+      ids: [...html.matchAll(/data-act="kiesgo" data-id="([^"]+)"/g)].map((m) => m[1]),
+      status: html.match(/<p role="status">([^<]*)<\/p>/)[1],
+    };
+  };
+  assert.deepEqual(
+    FILTERS.map((f) => [f.key, f.options]),
+    [
+      ['niveau', ['havo', 'vwo']],
+      ['leerjaar', ['1', '2', '3']],
+      ['methode', ['getal-en-ruimte']],
+      ['editie', ['13']],
+    ],
+  );
+  // Zonder filters de hele lijst, zoals zonder JavaScript.
+  const all = books();
+  assert.deepEqual(all.ids, ['gr13-hv1', 'gr13-hv2', 'gr13-havo3']);
+  assert.equal(all.status, '3 boeken');
+  assert.doesNotMatch(all.html, /Je boek/);
+  assert.match(all.html, /10 van de 46 paragrafen kun je hier oefenen\./);
+  assert.match(all.html, /9 van de 39 paragrafen kun je hier deels oefenen\./);
+  assert.match(all.html, /Deel 1 en deel 2, leerboek of FLEX-boek/);
+  // Een boek voor havo/vwo hoort bij havo en bij vwo.
+  assert.deepEqual(books({ niveau: ['vwo'] }).ids, ['gr13-hv1', 'gr13-hv2']);
+  assert.deepEqual(books({ niveau: ['havo'] }).ids, ['gr13-hv1', 'gr13-hv2', 'gr13-havo3']);
+  // Binnen een filter is één keuze genoeg, tussen de filters moet alles passen.
+  assert.deepEqual(books({ leerjaar: ['1', '3'] }).ids, ['gr13-hv1', 'gr13-havo3']);
+  const one = books({ niveau: ['vwo'], leerjaar: ['2'] });
+  assert.deepEqual(one.ids, ['gr13-hv2']);
+  assert.equal(one.status, '1 boek past bij je filters');
+  // Het getal achter een keuze telt de andere filters mee, maar niet de eigen keuzes.
+  assert.match(one.html, /data-id="niveau:havo">[^]*?\(1\)/);
+  assert.match(one.html, /data-id="leerjaar:3">[^]*?\(0\)/);
+  const none = books({ niveau: ['vwo'], leerjaar: ['3'] });
+  assert.deepEqual(none.ids, []);
+  assert.equal(none.status, 'Geen boek past bij je filters');
+  assert.match(none.html, /data-act="boekfilterclear"/);
+  // Je boek staat bovenaan, maar alleen als het bij de filters past.
+  prog.mapping = 'gr13-havo3';
+  try {
+    const mine = books();
+    assert.deepEqual(mine.ids, ['gr13-havo3', 'gr13-hv1', 'gr13-hv2']);
+    assert.equal(mine.html.match(/Je boek/g).length, 1);
+    assert.doesNotMatch(books({ niveau: ['vwo'] }).html, /Je boek/);
+  } finally {
+    prog.mapping = null;
+  }
+});
+
 test('een rooster heeft geen id, en een oude proeftoets toont nog de getekende lijn', async () => {
   const { drawnResult, graph } = await import('../src/js/figures.js');
   const fig = graph({ xr: [-5, 5], yr: [-5, 5], draw: true });

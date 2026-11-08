@@ -121,6 +121,9 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
     'cijfers',
     // De code, de CSS en de lettertypes, zie scripts/build.js.
     'assets',
+    // Azure toont index.html ook op /index en 404.html op /404.
+    'index',
+    '404',
   ];
   // Domeinen en onderwerpen delen de adressen direct onder /, dus geen twee mogen hetzelfde zijn.
   const slugs = [...TOPICS, ...DOMAINS].map((t) => t.slug);
