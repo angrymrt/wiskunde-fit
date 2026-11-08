@@ -27,20 +27,20 @@ Bij `npm install` meldt npm mogelijk dat het installatiescript van esbuild niet 
 
 ## Commando's
 
-| Commando               | Wat het doet                                                     |
-| ---------------------- | ---------------------------------------------------------------- |
-| `npm run dev`          | Start de site lokaal, zonder bouwstap                            |
-| `npm run build`        | Bouwt `dist/index.html`: de hele site in één bestand om te delen |
-| `npm test`             | Maakt van elke vraagsoort 500 varianten en controleert die       |
-| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 1,5 minuut)    |
-| `npm run images`       | Maakt het linkvoorbeeld en het icoon opnieuw                     |
-| `npm run format`       | Maakt de code netjes op met Prettier                             |
+| Commando               | Wat het doet                                                  |
+| ---------------------- | ------------------------------------------------------------- |
+| `npm run dev`          | Start de site lokaal, zonder bouwstap                         |
+| `npm run build`        | Bouwt de site in `dist/`, klaar om online te zetten           |
+| `npm test`             | Maakt van elke vraagsoort 500 varianten en controleert die    |
+| `npm run test:browser` | Bouwt de site en klikt hem door in Edge (ongeveer 1,5 minuut) |
+| `npm run images`       | Maakt het linkvoorbeeld en het icoon opnieuw                  |
+| `npm run format`       | Maakt de code netjes op met Prettier                          |
 
-Wil je de site delen? Stuur dan `dist/index.html` door; de PNG's ernaast zijn alleen voor de online versie nodig. Dat bestand werkt zonder installatie door erop te dubbelklikken, ook zonder internet. Alleen de video's hebben een verbinding nodig.
+De site werkt alleen via een webserver, want elk scherm heeft een eigen adres. Dubbelklikken op `dist/index.html` werkt dus niet. Gebruik `npm run dev` of [wiskundefit.nl](https://wiskundefit.nl).
 
 ## Online zetten
 
-Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app.
+Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app. In [staticwebapp.config.json](staticwebapp.config.json) staat dat Azure bij elk adres de site toont, en de build zet dat bestand in `dist/`.
 
 ## Zo zit het in elkaar
 
@@ -58,6 +58,7 @@ src/
     ├── figures.js          Tekent grafieken en driehoeken als SVG
     ├── answers.js          Leest en controleert antwoorden
     ├── progress.js         Bewaart de voortgang in de browser
+    ├── routes.js           De adressen: welk scherm bij welk adres hoort
     ├── stof.js             De stofkeuze: welke vraagsoorten een leerling oefent
     ├── mappings/           De methode-indelingen: paragrafen en hun vraagsoorten
     ├── topics/             De stof: elk bestand is één onderwerp

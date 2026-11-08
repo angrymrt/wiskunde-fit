@@ -111,11 +111,8 @@ function drawLine(a, b, p, q, xn = 'x', yn = 'y') {
       { ...F(`Punt 2: ${xn} =`, q[0]), label: `Punt 2, ${xn}-coördinaat`, br: true },
       { ...F(`${yn} =`, q[1]), label: `Punt 2, ${yn}-coördinaat` },
     ],
-    check: (v) => {
-      const first = on(v[0], v[1]),
-        second = on(v[2], v[3]) && !same(v);
-      return [first, first, second, second];
-    },
+    // Gegevens en geen functie, want een lopende proeftoets wordt in de browser bewaard.
+    line: { a, b },
     traps: [
       {
         f: same,

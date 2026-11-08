@@ -2,13 +2,22 @@
 // Gebruikt Edge; een andere browser kies je met de omgevingsvariabele BROWSER, bijvoorbeeld chrome of webkit.
 // Standaard krijgt elke soort vraag 1 ronde; met de omgevingsvariabele ROUNDS kies je er meer.
 // Schermafbeeldingen om zelf na te kijken komen in test-results/.
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium, webkit } from 'playwright-core';
+import { startServer } from '../scripts/server.js';
+import { MAPPINGS } from '../src/js/mappings/index.js';
+import { TOPICS } from '../src/js/topics/index.js';
 
-const siteUrl = new URL('../dist/index.html', import.meta.url).href;
+const server = await startServer(fileURLToPath(new URL('../dist', import.meta.url)), 0);
+after(() => {
+  server.closeAllConnections();
+  server.close();
+});
+const siteUrl = `http://127.0.0.1:${server.address().port}/`;
+const at = (address) => new URL(address, siteUrl).href;
 const shotDir = fileURLToPath(new URL('../test-results/', import.meta.url));
 const rounds = Number(process.env.ROUNDS) || 1;
 // WebKit is de motor van Safari. Installeer die eenmalig met: npx playwright-core install webkit
@@ -80,7 +89,7 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
           while (await b.isVisible()) await b.click();
         }
         await check(`${id} uitleg`);
-        await p.click('[data-act="topicp"]');
+        await p.click('a.btn[href$="/oefenen"]');
         await p.click('[data-act="hint"]');
         await p.click('#pform button[type=submit]');
         await check(`${id} oefenen met hint en melding`);
@@ -101,17 +110,29 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
       await check('proeftoets kiezen');
       await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
       await check('jouw stof met keuze');
-      await p.click('[data-act="stofprac"]');
+      await p.click('a[href="/jouw-stof/oefenen"]');
       await check('jouw stof oefenen');
       await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
       await p.click('[data-act="len"][data-id="10"]');
       await p.click('[data-act="start"]');
       await check('proeftoets');
+      await p.click('[data-act="tstop1"]');
+      await check('proeftoets stoppen');
+      await p.click('[data-act="tstop0"]');
+      await p.evaluate(() => wiskundefit.go({ name: 'home' }));
+      await check('melding dat de proeftoets nog loopt');
+      await p.evaluate(() => wiskundefit.go({ name: 'toetsres' }));
+      await check('nog geen uitslag');
+      await p.evaluate(() => wiskundefit.go({ name: 'missing', path: '/bestaat-niet' }));
+      await check('adres dat niet bestaat');
+      await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
       await p.click('[data-act="tfin"]');
       await check('proeftoets met waarschuwing');
       await p.click('[data-act="tfin"]');
       await check('resultaat proeftoets');
-      await p.click('[data-act="over"]');
+      await p.evaluate(() => wiskundefit.go({ name: 'home' }));
+      await check('overzicht met de link naar de uitslag');
+      await p.click('a[href="/over"]');
       await check('over-pagina');
       await context.close();
     }
@@ -133,17 +154,17 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
       });
 
     // Een nieuw scherm: de focus gaat naar de kop.
-    await p.click('[data-act="topic"][data-id="lineaire-grafieken-tekenen"]:not(.btn)');
+    await p.click('a.par[href="/lineaire-grafieken-tekenen"]');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
 
     // Van de uitleg naar het oefenscherm en terug: de focus gaat naar de kop.
-    await p.click('[data-act="topicp"]');
+    await p.click('a.btn[href$="/oefenen"]');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
     assert.ok(await p.$('#pform'), 'het oefenscherm staat open');
-    await p.click('.head [data-act="topic"]');
+    await p.click('.head a[href="/lineaire-grafieken-tekenen"]');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
     assert.equal(await p.$('#pform'), null, 'de uitleg staat open');
-    await p.click('.sheet [data-act="topicp"]');
+    await p.click('.sheet a[href$="/oefenen"]');
 
     // Een leeg antwoord: de focus gaat naar de melding.
     await p.click('.chip[data-id=""]');
@@ -190,7 +211,7 @@ test(
       await mkdir(shotDir, { recursive: true });
       const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
       await p.goto(siteUrl);
-      await p.click('[data-act="over"]');
+      await p.click('a[href="/over"]');
       assert.match(await p.textContent('h1'), /Over Wiskundefit/);
       assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
       const mail = await p.getAttribute('a[href^="mailto:"]', 'href');
@@ -299,7 +320,7 @@ test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 },
       await p.evaluate(() => wiskundefit.TOPIC['lineaire-ongelijkheden'].title),
       'Lineaire ongelijkheden',
     );
-    assert.equal(await p.evaluate(() => wiskundefit.prog.v), 4);
+    assert.equal(await p.evaluate(() => wiskundefit.prog.v), 5);
     assert.equal(await p.evaluate(() => wiskundefit.prog.stof), null);
 
     // Voortgang op de id's uit paragraaf en volgorde krijgt het vaste nummer.
@@ -339,7 +360,7 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
       );
 
     // Havo: leerjaar, methode en editie hebben maar één mogelijkheid en staan dus al ingevuld.
-    await p.click('.hero [data-act="kies"]');
+    await p.click('.hero a[href="/methode-indeling"]');
     assert.ok(await p.isDisabled('[data-act="kiesgo"]'));
     await p.click('[data-act="pick"][data-id="level:havo"]');
     assert.equal(await p.getAttribute('[data-id="level:havo"]', 'aria-pressed'), 'true');
@@ -378,11 +399,11 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await p.screenshot({ path: `${shotDir}methode-indeling.png`, fullPage: true });
 
     // Jouw stof: oefenen en proeftoets gaan alleen over de gekozen stof.
-    await p.click('.stof-bar [data-act="stof"]');
+    await p.click('.stof-bar a');
     assert.equal(await p.locator('.stof-list .par').count(), 4);
     await fits('jouw stof');
     await p.screenshot({ path: `${shotDir}jouw-stof.png`, fullPage: true });
-    await p.click('[data-act="stofprac"]');
+    await p.click('a[href="/jouw-stof/oefenen"]');
     const chosen = await stof();
     for (let i = 0; i < 12; i++) {
       const id = await p.evaluate(() => wiskundefit.state.prac['jouw-stof'].skill.id);
@@ -392,8 +413,10 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     }
     await p.reload();
     assert.deepEqual(await stof(), chosen, 'de stofkeuze blijft bewaard');
+    assert.equal(new URL(p.url()).pathname, '/jouw-stof/oefenen', 'herladen blijft op dit scherm');
+    await p.goto(siteUrl);
     assert.match(await p.textContent('.hero .btn.main'), /Verder met jouw stof/);
-    await p.click('.hero [data-act="toets"]');
+    await p.click('.hero a[href="/proeftoets"]');
     await p.click('[data-act="len"][data-id="10"]');
     await p.click('[data-act="start"]');
     const asked = await p.evaluate(() => wiskundefit.state.test.items.map((x) => x.skill.id));
@@ -410,7 +433,7 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     assert.match(await p.textContent('.watch'), /nog niet met dit boek vergeleken/);
     await p.click('[data-act="para"][data-id="6.2"]');
     assert.deepEqual(await stof(), [38]);
-    await p.click('.stof-bar [data-act="stof"]');
+    await p.click('.stof-bar a');
     assert.match(await p.textContent('.watch'), /Ook de uitleg is voor havo 3 geschreven/);
     assert.match(await p.textContent('.stof-gaps'), /6\.5/);
     await p.evaluate(() => localStorage.clear());
@@ -451,7 +474,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     for (const id of ids) {
       await p.evaluate(() => wiskundefit.go({ name: 'home' }));
       await checkOverflow('overzicht');
-      await p.click(`[data-act="topic"][data-id="${id}"]:not(.btn)`);
+      await p.click(`a.par[href="/${id}"]`);
       await checkOverflow(`${id} uitleg`);
       for (const b of await p.$$('[data-act="exnext"]')) {
         while (await b.isVisible()) await b.click();
@@ -475,7 +498,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
       assert.equal(await p.locator('.vid-links a').count(), videos, `${id}: video's`);
       assert.ok(await p.$('a[href="#videos"]'), `${id}: link naar de video's`);
       assert.ok(await p.$('h2#videos'), `${id}: kop van de video's`);
-      await p.click('[data-act="topicp"]');
+      await p.click('a.btn[href$="/oefenen"]');
 
       const skills = await p.evaluate((i) => wiskundefit.TOPIC[i].skills.map((k) => k.id), id);
       for (const skill of skills) {
@@ -524,7 +547,10 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
       if (i < 9) await p.click('#tform button[type=submit]');
     }
     await p.click('[data-act="tfin"]');
-    const full = await p.evaluate(() => [wiskundefit.state.test.score, wiskundefit.state.test.max]);
+    const full = await p.evaluate(() => [
+      wiskundefit.state.result.score,
+      wiskundefit.state.result.max,
+    ]);
     assert.equal(full[0], full[1], 'proeftoets met alles goed');
     await checkOverflow('resultaat proeftoets');
 
@@ -539,8 +565,8 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     assert.match(await p.textContent('.fb'), /nog 10 vragen open/);
     await p.click('[data-act="tfin"]');
     const blank = await p.evaluate(() => ({
-      score: wiskundefit.state.test.score,
-      onlyChosen: wiskundefit.state.test.items.every(
+      score: wiskundefit.state.result.score,
+      onlyChosen: wiskundefit.state.result.items.every(
         (x) => x.topic.slug === 'stelling-van-pythagoras',
       ),
     }));
@@ -560,11 +586,11 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
       page.screenshot({ path: `${shotDir}${name}.png`, fullPage });
     const light = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'light' });
     await shot(light, 'overzicht');
-    await light.click('[data-act="topic"][data-id="lineaire-grafieken-tekenen"]:not(.btn)');
+    await light.click('a.par[href="/lineaire-grafieken-tekenen"]');
     await shot(light, 'uitleg', true);
     const dark = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'dark' });
-    await dark.click('[data-act="topic"][data-id="gelijkvormige-driehoeken"]:not(.btn)');
-    await dark.click('[data-act="topicp"]');
+    await dark.click('a.par[href="/gelijkvormige-driehoeken"]');
+    await dark.click('a.btn[href$="/oefenen"]');
     await dark.click('[data-act="show"]');
     await shot(dark, 'oefenen-donker', true);
     await shot(await open({ viewport: { width: 390, height: 800 } }), 'telefoon', true);
@@ -574,3 +600,410 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     await browser.close();
   }
 });
+
+test('elk adres opent rechtstreeks het juiste scherm, ook na herladen', async () => {
+  const browser = await launch();
+  const errors = [];
+  try {
+    await mkdir(shotDir, { recursive: true });
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    p.on('pageerror', (e) => errors.push(e.message));
+    const pages = [
+      ['/', /Op naar die voldoende/, /^Wiskundefit: oefenen/],
+      ['/methode-indeling', /Kies uit je boek/, /^Kies uit je boek \|/],
+      ['/jouw-stof', /Jouw stof/, /^Jouw stof \|/],
+      ['/proeftoets', /Proeftoets/, /^Proeftoets \|/],
+      ['/proeftoets/uitslag', /Je resultaat/, /^Resultaat proeftoets \|/],
+      ['/over', /Over Wiskundefit/, /^Over Wiskundefit \|/],
+      ...MAPPINGS.map((m) => [
+        `/methode-indeling/${m.slug}`,
+        new RegExp(`${m.level} ${m.year}`),
+        new RegExp(`${m.level} ${m.year} \\|`),
+      ]),
+      ...TOPICS.flatMap((t) => [
+        [`/${t.slug}`, new RegExp(t.title), new RegExp(`^${t.title} \\|`)],
+        [`/${t.slug}/oefenen`, new RegExp(`${t.title} oefenen`), new RegExp(`^${t.title} oefenen`)],
+      ]),
+    ];
+    for (const [address, heading, title] of pages) {
+      await p.goto(at(address));
+      for (let i = 0; i < 2; i++) {
+        assert.match(await p.textContent('h1'), heading, address);
+        assert.match(await p.title(), title, address);
+        assert.equal(new URL(p.url()).pathname, address);
+        await p.reload();
+      }
+    }
+
+    // Een streep aan het eind en onbekende parameters verdwijnen uit het adres.
+    await p.goto(at('/over/?x=1'));
+    assert.equal(new URL(p.url()).pathname + new URL(p.url()).search, '/over');
+
+    // Een adres dat niet bestaat zegt dat, en het adres blijft staan zodat je de fout kunt zien.
+    await p.goto(at('/bestaat-niet'));
+    assert.match(await p.textContent('h1'), /bestaat niet/);
+    assert.equal(new URL(p.url()).pathname, '/bestaat-niet');
+    await p.screenshot({ path: `${shotDir}adres-bestaat-niet.png` });
+    await p.click('main a[href="/"]');
+    assert.match(await p.textContent('h1'), /Op naar die voldoende/);
+
+    // Een plek op het overzicht is direct te openen.
+    await p.goto(at('/#meetkunde'));
+    assert.ok(await p.evaluate(() => scrollY > 0), 'scrolt naar het domein');
+
+    // Azure krijgt dezelfde regel als de ontwikkelserver, en een plaatje dat ontbreekt blijft een 404.
+    const config = (path) => readFile(new URL(path, import.meta.url), 'utf8');
+    assert.equal(
+      await config('../dist/staticwebapp.config.json'),
+      await config('../staticwebapp.config.json'),
+    );
+    assert.equal((await fetch(at('/over'))).status, 200);
+    assert.match((await fetch(at('/og.png'))).headers.get('content-type'), /image\/png/);
+    assert.equal((await fetch(at('/bestaat-niet.png'))).status, 404);
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('de terugknop gaat naar het vorige scherm en bewaart een half gemaakte vraag', async () => {
+  const browser = await launch();
+  try {
+    const context = await browser.newContext({ viewport: { width: 390, height: 800 } });
+    const p = await context.newPage();
+    const path = () => new URL(p.url()).pathname + new URL(p.url()).search;
+    await p.goto(siteUrl);
+    const slug = 'lineaire-grafieken-tekenen';
+    const id = TOPICS.find((t) => t.slug === slug).skills.find(
+      (k) => k.name === 'Een lijn tekenen',
+    ).id;
+
+    await p.click(`a.par[href="/${slug}"]`);
+    assert.equal(path(), `/${slug}`);
+    await p.click('a.btn[href$="/oefenen"]');
+    assert.equal(path(), `/${slug}/oefenen`);
+    await p.click(`.chip[data-id="${id}"]`);
+    assert.equal(path(), `/${slug}/oefenen?soort=${id}`);
+    const question = await p.textContent('#pq');
+    await p.fill('#pf0', '7');
+
+    // Terug en weer vooruit: dezelfde vraag, met wat je had ingevuld.
+    await p.goBack();
+    assert.equal(path(), `/${slug}`);
+    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+    assert.equal(await p.$('#pform'), null);
+    await p.goForward();
+    assert.equal(path(), `/${slug}/oefenen?soort=${id}`);
+    assert.equal(await p.textContent('#pq'), question);
+    assert.equal(await p.inputValue('#pf0'), '7');
+    assert.equal(await p.getAttribute(`.chip[data-id="${id}"]`, 'aria-pressed'), 'true');
+
+    // Via een link terug naar de uitleg en weer oefenen: ook dan blijft de vraag staan.
+    await p.click('.head a[href$="' + slug + '"]');
+    await p.click('.sheet a[href$="/oefenen"]');
+    assert.equal(await p.textContent('#pq'), question);
+    assert.equal(await p.inputValue('#pf0'), '7');
+
+    // Terug helemaal naar het overzicht, op dezelfde hoogte als waar je klikte.
+    await p.goto(siteUrl);
+    const last = p.locator(`a.par[href="/${TOPICS.at(-1).slug}"]`);
+    await last.scrollIntoViewIfNeeded();
+    const y = await p.evaluate(() => scrollY);
+    assert.ok(y > 0, 'de lijst is langer dan het scherm');
+    await last.click();
+    assert.equal(await p.evaluate(() => scrollY), 0, 'een nieuw scherm begint bovenaan');
+    await p.goBack();
+    assert.equal(path(), '/');
+    assert.ok(Math.abs((await p.evaluate(() => scrollY)) - y) <= 2, 'terug op dezelfde hoogte');
+
+    // De link naar de video's is hetzelfde scherm: niets wordt opnieuw opgebouwd.
+    await p.goto(at(`/${slug}`));
+    await p.evaluate(() => (window.scherm = document.querySelector('main')));
+    const same = () => p.evaluate(() => window.scherm === document.querySelector('main'));
+    await p.click('a[href="#videos"]');
+    assert.equal(new URL(p.url()).hash, '#videos');
+    assert.ok(await p.evaluate(() => scrollY > 0));
+    assert.ok(await same());
+    await p.goBack();
+    assert.equal(new URL(p.url()).hash, '');
+    assert.equal(await p.evaluate(() => scrollY), 0);
+    assert.ok(await same());
+
+    // Een gewone link: openen in een nieuw tabblad werkt, en dit scherm blijft staan.
+    await p.goto(siteUrl);
+    const [tab] = await Promise.all([
+      context.waitForEvent('page'),
+      p.click(`a.par[href="/${slug}"]`, { modifiers: ['Control'] }),
+    ]);
+    await tab.waitForSelector('h1');
+    assert.match(await tab.textContent('h1'), /Lineaire grafieken tekenen/);
+    assert.equal(path(), '/');
+  } finally {
+    await browser.close();
+  }
+});
+
+test('soort in het adres kiest de vraagsoort', async () => {
+  const browser = await launch();
+  try {
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    const { slug, skills } = TOPICS[0];
+    const [one, two] = skills;
+    const skill = () => p.evaluate((s) => wiskundefit.state.prac[s].skill.id, slug);
+    const search = () => new URL(p.url()).search;
+    await p.goto(at(`/${slug}/oefenen?soort=${two.id}`));
+    assert.equal(await skill(), two.id);
+    assert.equal(await p.getAttribute(`.chip[data-id="${two.id}"]`, 'aria-pressed'), 'true');
+    await p.reload();
+    assert.equal(await skill(), two.id, 'ook na herladen');
+
+    // Een andere keuze past het adres aan, maar is geen extra stap voor de terugknop.
+    const steps = await p.evaluate(() => history.length);
+    await p.click(`.chip[data-id="${one.id}"]`);
+    assert.equal(search(), `?soort=${one.id}`);
+    assert.equal(await skill(), one.id);
+    await p.click('.chip[data-id=""]');
+    assert.equal(search(), '');
+    assert.equal(await p.evaluate(() => history.length), steps);
+
+    // Een vraagsoort van een ander onderwerp of een onzinnummer verdwijnt uit het adres.
+    for (const bad of [TOPICS[1].skills[0].id, 99999, 'abc']) {
+      await p.goto(at(`/${slug}/oefenen?soort=${bad}`));
+      assert.equal(search(), '', `soort=${bad}`);
+      assert.ok(await p.$('#pform'));
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
+test('zonder stofkeuze gaat jouw stof oefenen naar het kiezen van stof', async () => {
+  const browser = await launch();
+  try {
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(at('/jouw-stof/oefenen'));
+    assert.equal(new URL(p.url()).pathname, '/jouw-stof');
+    assert.match(await p.textContent('h1'), /Jouw stof/);
+
+    // Met een stofkeuze werkt het adres wel, en een half gemaakte vraag overleeft de terugknop.
+    await p.click('[data-act="stofall"]');
+    await p.click('a[href="/jouw-stof/oefenen"]');
+    assert.ok(await p.$('#pform'));
+    const question = await p.textContent('#pq');
+    await p.goBack();
+    await p.click('a[href="/jouw-stof/oefenen"]');
+    assert.equal(await p.textContent('#pq'), question);
+
+    // Is de vraag geen gekozen stof meer, dan komt er een nieuwe.
+    await p.goBack();
+    await p.click('[data-act="stofclear"]');
+    await p.click('[data-act="topicpick"][data-id="stelling-van-pythagoras"]');
+    await p.click('a[href="/jouw-stof/oefenen"]');
+    const id = await p.evaluate(() => wiskundefit.state.prac['jouw-stof'].skill.id);
+    const chosen = TOPICS.find((t) => t.slug === 'stelling-van-pythagoras').skills;
+    assert.ok(chosen.some((k) => k.id === id));
+    await p.reload();
+    assert.ok(await p.$('#pform'), 'de stofkeuze blijft bewaard');
+  } finally {
+    await browser.close();
+  }
+});
+
+test('een methode-indeling openen maakt die nog niet tot je boek', async () => {
+  const browser = await launch();
+  try {
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    const mapping = () => p.evaluate(() => wiskundefit.prog.mapping);
+    await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-3'));
+    assert.equal(await mapping(), null);
+    assert.equal(await p.locator('.chapter').count(), 9);
+    await p.click('[data-act="para"][data-id="1.4"]');
+    assert.equal(await mapping(), 'gr13-havo3');
+
+    // Een link naar een ander boek verandert dat niet, totdat je daar iets aanvinkt.
+    await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-vwo-2'));
+    assert.equal(await mapping(), 'gr13-havo3');
+    await p.goto(siteUrl);
+    await p.click('a[href="/jouw-stof"].btn.main');
+    assert.ok(await p.$('a.btn[href="/methode-indeling/getal-en-ruimte-13-havo-3"]'));
+    await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-vwo-2'));
+    await p.click('[data-act="para"][data-id="6.2"]');
+    assert.equal(await mapping(), 'gr13-hv2');
+  } finally {
+    await browser.close();
+  }
+});
+
+test(
+  'een proeftoets overleeft de terugknop, herladen en sluiten',
+  { timeout: 120_000 },
+  async () => {
+    const browser = await launch();
+    try {
+      await mkdir(shotDir, { recursive: true });
+      const context = await browser.newContext({ viewport: { width: 390, height: 800 } });
+      let p = await context.newPage();
+      const path = () => new URL(p.url()).pathname;
+      const stored = (key) => p.evaluate((k) => JSON.parse(localStorage.getItem(k)), key);
+      const drawing = TOPICS.flatMap((t) => t.skills)
+        .filter((k) => /tekenen$/.test(k.name))
+        .map((k) => k.id);
+      const start = async () => {
+        await p.evaluate((ids) => {
+          wiskundefit.prog.stof = ids;
+          wiskundefit.go({ name: 'toets' });
+        }, drawing);
+        await p.click('[data-act="len"][data-id="10"]');
+        await p.click('[data-act="start"]');
+      };
+      const points = (i) =>
+        p.evaluate((n) => wiskundefit.state.test.items[n].q.fields.map((f) => f.a), i);
+      // Elk paar punten op de lijn is goed, dus vul ze andersom in. Dat vraagt om echt nakijken.
+      const answer = async (i) => {
+        const [x1, y1, x2, y2] = await points(i);
+        await fill(p, 't', [x2, y2, x1, y1].map(String));
+      };
+
+      // Zonder proeftoets is er nog geen resultaat.
+      await p.goto(at('/proeftoets/uitslag'));
+      assert.match(await p.textContent('main'), /eerst een proeftoets/);
+      await p.screenshot({ path: `${shotDir}uitslag-nog-leeg.png` });
+      await p.click('main a[href="/proeftoets"]');
+      assert.match(await p.textContent('h1'), /Proeftoets/);
+
+      // Starten verandert het adres niet en is geen extra stap voor de terugknop.
+      await p.goto(siteUrl);
+      await p.click('.hero a[href="/proeftoets"]');
+      const steps = await p.evaluate(() => history.length);
+      await start();
+      assert.equal(path(), '/proeftoets');
+      assert.equal(await p.evaluate(() => history.length), steps);
+      const first = await p.textContent('#tq');
+      await p.fill('#tf0', '3');
+
+      // De terugknop: de proeftoets loopt door en de melding wijst de weg terug.
+      await p.goBack();
+      assert.equal(path(), '/');
+      assert.match(await p.textContent('.notice'), /proeftoets loopt nog/);
+      await p.screenshot({ path: `${shotDir}proeftoets-loopt-nog.png` });
+      await p.goForward();
+      assert.equal(await p.textContent('#tq'), first);
+      assert.equal(await p.inputValue('#tf0'), '3');
+      assert.equal(await p.$('.notice'), null);
+
+      // Via de melding kom je ook terug, en via het menu.
+      await p.click('a[href="/over"]');
+      await p.click('.notice a');
+      assert.equal(await p.inputValue('#tf0'), '3');
+      await p.click('a[href="/jouw-stof"]');
+      await p.click('.topnav a[href="/proeftoets"]');
+      assert.equal(await p.inputValue('#tf0'), '3');
+
+      // Herladen: dezelfde vraag, met wat er stond. De klok telt de tijd ertussen niet mee.
+      await p.reload();
+      assert.equal(await p.textContent('#tq'), first);
+      assert.equal(await p.inputValue('#tf0'), '3');
+      const saved = await stored('wiskundefit-proeftoets');
+      assert.equal(saved.since, null);
+      assert.equal(typeof saved.spent, 'number');
+
+      // Tabblad dicht en later verder: de vragen en antwoorden staan in de browser.
+      await answer(0);
+      await p.click('#tform button[type=submit]');
+      await p.close();
+      p = await context.newPage();
+      await p.goto(at('/proeftoets'));
+      assert.match(await p.textContent('h1'), /Vraag 2 van 10/);
+      await p.click('[data-act="goto"][data-id="0"]');
+      assert.equal(await p.textContent('#tq'), first);
+
+      // Inleveren na herladen: een tekenvraag is ook dan nog goed na te kijken.
+      for (let i = 0; i < 10; i++) {
+        await p.click(`[data-act="goto"][data-id="${i}"]`);
+        await answer(i);
+      }
+      await p.reload();
+      await p.click('[data-act="tfin"]');
+      assert.equal(path(), '/proeftoets/uitslag');
+      const score = () =>
+        p.evaluate(() => [wiskundefit.state.result.score, wiskundefit.state.result.max]);
+      const [got, max] = await score();
+      assert.equal(max, 40);
+      assert.equal(got, max, 'alles goed');
+      assert.equal(await stored('wiskundefit-proeftoets'), null);
+      assert.match(await p.textContent('.score'), /40\/40/);
+      await p.screenshot({ path: `${shotDir}uitslag.png`, fullPage: true });
+
+      // De uitslag heeft een eigen adres en blijft na herladen staan.
+      await p.reload();
+      assert.deepEqual(await score(), [40, 40]);
+      assert.match(await p.textContent('.score'), /40\/40/);
+
+      // Terug gaat niet de ingeleverde proeftoets in.
+      await p.goBack();
+      assert.equal(path(), '/proeftoets');
+      assert.equal(await p.$('#tform'), null);
+      assert.match(await p.textContent('h1'), /Proeftoets/);
+      await p.goForward();
+      assert.match(await p.textContent('.score'), /40\/40/);
+
+      // Een onderwerp uit de uitslag oefenen, en terug: de uitslag staat er nog.
+      await p.click('.res a.par');
+      assert.ok(await p.$('#pform'));
+      await p.goBack();
+      assert.match(await p.textContent('.score'), /40\/40/);
+
+      // Het overzicht verwijst naar de uitslag.
+      await p.goto(siteUrl);
+      await p.click('a[href="/proeftoets/uitslag"]');
+      assert.match(await p.textContent('.score'), /40\/40/);
+
+      // Stoppen zonder inleveren: de vorige uitslag en de voortgang blijven zoals ze waren.
+      const progress = await p.evaluate(() => JSON.stringify(wiskundefit.prog.skills));
+      await start();
+      await p.fill('#tf0', '5');
+      await p.click('[data-act="tstop1"]');
+      assert.equal(await p.inputValue('#tf0'), '5', 'de vraag blijft staan');
+      assert.equal(await p.evaluate(() => document.activeElement.dataset.act), 'tstop2');
+      await p.click('[data-act="tstop0"]');
+      assert.equal(await p.inputValue('#tf0'), '5');
+      await p.click('[data-act="tstop1"]');
+      await p.click('[data-act="tstop2"]');
+      assert.ok(await p.$('[data-act="start"]'));
+      assert.equal(await stored('wiskundefit-proeftoets'), null);
+      assert.equal(await p.evaluate(() => JSON.stringify(wiskundefit.prog.skills)), progress);
+      await p.goto(at('/proeftoets/uitslag'));
+      assert.match(await p.textContent('.score'), /40\/40/);
+
+      // Een lopende proeftoets zonder uitslag verwijst daarnaar terug.
+      await p.evaluate(() => localStorage.removeItem('wiskundefit-uitslag'));
+      await p.goto(at('/proeftoets'));
+      await start();
+      await p.goto(at('/proeftoets/uitslag'));
+      assert.match(await p.textContent('main a.btn.main'), /Ga verder/);
+
+      // Wat niet meer te lezen is, wordt genegeerd in plaats van dat de site stopt.
+      const broken = await stored('wiskundefit-proeftoets');
+      for (const value of ['{kapot', JSON.stringify({ ...broken, items: [{ id: 99999 }] })]) {
+        await p.evaluate((v) => localStorage.setItem('wiskundefit-proeftoets', v), value);
+        await p.goto(at('/proeftoets'));
+        assert.ok(await p.$('[data-act="start"], a.btn.main'), value.slice(0, 10));
+        assert.equal(await p.evaluate(() => wiskundefit.state.test), null);
+      }
+
+      // Voortgang wissen haalt ook de proeftoets en de uitslag weg.
+      await start();
+      await p.click('[data-act="tfin"]');
+      await p.click('[data-act="tfin"]');
+      await start();
+      await p.evaluate(() => wiskundefit.go({ name: 'home' }));
+      await p.click('[data-act="reset1"]');
+      await p.click('[data-act="reset2"]');
+      assert.equal(await stored('wiskundefit-proeftoets'), null);
+      assert.equal(await stored('wiskundefit-uitslag'), null);
+      assert.equal(await p.$('.notice'), null);
+    } finally {
+      await browser.close();
+    }
+  },
+);

@@ -1,8 +1,10 @@
 // Het overzichtsscherm met alle onderwerpen per domein.
 import { DOMAINS } from '../topics/index.js';
 import { prog, topicPct } from '../progress.js';
+import { pathFor, to } from '../routes.js';
 import { T } from '../typeset.js';
 import { state } from './state.js';
+import { bookPath } from './stof.js';
 
 function heroFig() {
   const X = (x) => 30 + x * 26,
@@ -16,18 +18,18 @@ function heroFig() {
   <text class="ti t1" x="${X(0.5)}" y="${Y(3.6)}">y = ½x + 1</text></svg>`;
 }
 function vHome() {
-  const last = prog.tests[prog.tests.length - 1];
+  const last = state.result;
   const started = Object.keys(prog.skills).length > 0;
   const topicRow = (s) => {
     const p = Math.round(topicPct(s) * 100),
       done = p >= 80;
-    return `<button class="par" type="button" data-act="topic" data-id="${s.slug}"><span>${T(s.title)}</span><span class="pct">${done ? '<span class="pill good">Beheerst</span>' : p ? p + '%' : ''}</span><span class="bar ${done ? 'done' : ''}"><i style="width:${p}%"></i></span></button>`;
+    return `<a class="par" href="${pathFor({ name: 'topic', slug: s.slug })}"><span>${T(s.title)}</span><span class="pct">${done ? '<span class="pill good">Beheerst</span>' : p ? p + '%' : ''}</span><span class="bar ${done ? 'done' : ''}"><i style="width:${p}%"></i></span></a>`;
   };
   const domain = (d) =>
     `<section class="domain color-${d.color}" id="${d.slug}"><h2 class="domain-head">${d.name}</h2>${d.topics.map(topicRow).join('')}</section>`;
   return `<section class="hero"><div class="hero-txt"><h1>Op naar die voldoende!</h1><p class="lead">Oefen voor je wiskundetoets met uitleg, hints en steeds nieuwe vragen. Zo ga je goed voorbereid je toets in.</p>
-  <div class="row">${prog.stof ? `<button class="btn main" type="button" data-act="stof">Verder met jouw stof</button>` : `<button class="btn main" type="button" data-act="kies">Oefen voor je toets: kies uit je boek</button>`}<button class="btn" type="button" data-act="toets">Maak een proeftoets</button></div>
-  ${last ? `<p class="small muted">Laatste proeftoets: ${last.score} van ${last.max} punten.</p>` : ''}</div>${heroFig()}</section>
+  <div class="row">${prog.stof ? `<a class="btn main" href="${to('stof')}">Verder met jouw stof</a>` : `<a class="btn main" href="${bookPath()}">Oefen voor je toets: kies uit je boek</a>`}<a class="btn" href="${to('toets')}">Maak een proeftoets</a></div>
+  ${last ? `<p class="small muted">Laatste proeftoets: <a href="${to('toetsres')}">${last.score} van ${last.max} punten</a>.</p>` : ''}</div>${heroFig()}</section>
   <div class="domains">${DOMAINS.map(domain).join('')}</div>
   <div class="row small muted"><span>Je voortgang blijft in deze browser bewaard.</span>${started ? (state.confirmReset ? `<button class="btn quiet" type="button" data-act="reset2">Ja, wis alles</button><button class="btn quiet" type="button" data-act="reset0">Annuleren</button>` : `<button class="btn quiet" type="button" data-act="reset1">Voortgang wissen</button>`) : ''}</div>`;
 }

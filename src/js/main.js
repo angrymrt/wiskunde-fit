@@ -3,38 +3,90 @@ import { checkAnswer, findTrap } from './answers.js';
 import { TOPICS, TOPIC } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, save, rec, resetProgress } from './progress.js';
+import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof } from './stof.js';
 import {
   buildTest,
   vToetsSetup,
   vToetsRun,
   vToetsRes,
+  loadTests,
+  saveTest,
   storeTest,
+  stopTest,
+  forgetTests,
   finishTest,
-  fmtT,
+  pauseClock,
+  clockText,
 } from './ui/exam.js';
 import { vOver } from './ui/about.js';
 import { vHome } from './ui/home.js';
-import { vTopic, newQuestion } from './ui/topic.js';
+import { vTopic, newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
-import { topbar, footer } from './ui/layout.js';
+import { topbar, footer, testNotice, vMissing } from './ui/layout.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { state, app } from './ui/state.js';
 import { pickedMapping, vPick, vMapping, vStof, vStofPractice } from './ui/stof.js';
 import { mountWidgets } from './ui/widgets.js';
 
-const go = (v) => {
-  state.view = v;
-  state.confirmReset = false;
+const here = () => location.pathname + location.search;
+function stopTimer() {
   if (state.timer) {
     clearInterval(state.timer);
     state.timer = null;
   }
-  render('h1');
-  try {
-    window.scrollTo(0, 0);
-  } catch (e) {}
+}
+// render() vervangt de velden, dus bewaar eerst wat de leerling heeft ingevuld.
+function keepTyped() {
+  if (state.test) storeTest();
+  if (document.getElementById('pform')) {
+    const st = state.prac[state.view.slug];
+    st.vals = readVals(st.q, 'p');
+  }
+}
+function leave() {
+  keepTyped();
+  if (state.test) pauseClock(state.test);
+  stopTimer();
+}
+function show(v, focus) {
+  state.view = v;
+  state.confirmReset = false;
+  if (v.oefen) applySoort(TOPIC[v.slug], v.soort);
+  render(focus);
+}
+// De browser zet de scrollpositie niet goed terug, want het scherm bestaat dan nog niet. Daarom
+// staat die bij elke stap in de geschiedenis.
+let scrollSave;
+const saveScroll = () => {
+  clearTimeout(scrollSave);
+  history.replaceState({ scroll: window.scrollY }, '');
 };
+function restoreScroll() {
+  const { scroll } = history.state || {};
+  if (scroll != null) window.scrollTo(0, scroll);
+  else if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  else window.scrollTo(0, 0);
+}
+const go = (v) => {
+  leave();
+  saveScroll();
+  const path = pathFor(v);
+  if (path === here()) history.replaceState(null, '', path);
+  else history.pushState(null, '', path);
+  show(v, 'h1');
+  window.scrollTo(0, 0);
+};
+// Toont het scherm dat bij het adres hoort: bij het openen en bij de terugknop.
+function arrive(focus) {
+  const found = viewFor(location.pathname, location.search);
+  // Zonder stofkeuze valt er niets te oefenen.
+  const v = found.name === 'stofoefen' && !prog.stof ? { name: 'stof' } : found;
+  const path = pathFor(v);
+  if (path !== here()) history.replaceState(history.state, '', path + location.hash);
+  show(v, focus);
+  restoreScroll();
+}
 // Geeft een selector voor het element met de focus, om dat na het vervangen terug te vinden.
 function focusedSelector() {
   const el = document.activeElement;
@@ -59,53 +111,60 @@ function render(focus) {
   let html = '';
   if (state.view.name === 'home') html = vHome();
   else if (state.view.name === 'topic') html = vTopic(TOPIC[state.view.slug]);
-  else if (state.view.name === 'toets') html = vToetsSetup();
-  else if (state.view.name === 'toetsrun') html = vToetsRun();
+  else if (state.view.name === 'toets') html = state.test ? vToetsRun() : vToetsSetup();
   else if (state.view.name === 'toetsres') html = vToetsRes();
+  else if (state.view.name === 'missing') html = vMissing();
   else if (state.view.name === 'over') html = vOver();
   else if (state.view.name === 'kies') html = vPick();
   else if (state.view.name === 'mapping') html = vMapping(MAPPING[state.view.id]);
   else if (state.view.name === 'stof') html = vStof();
   else if (state.view.name === 'stofoefen') html = vStofPractice();
-  app.innerHTML = `${topbar()}<main class="screen">${html}</main>${footer()}`;
+  app.innerHTML = `${topbar()}<main class="screen">${testNotice()}${html}</main>${footer()}`;
+  document.title = titleFor(state.view);
   mountWidgets();
   showDrawn();
   if (target && !focusOn(target)) focusOn('h1');
-  if (state.view.name === 'toetsrun' && !state.timer)
-    state.timer = setInterval(() => {
-      const c = document.getElementById('clock');
-      if (c && state.test) c.textContent = fmtT(Math.floor((Date.now() - state.test.start) / 1000));
-    }, 1000);
+  if (state.view.name === 'toets' && state.test) {
+    if (!state.test.since) state.test.since = Date.now();
+    if (!state.timer)
+      state.timer = setInterval(() => {
+        const c = document.getElementById('clock');
+        if (c && state.test) c.textContent = clockText(state.test);
+      }, 1000);
+  }
 }
 app.addEventListener('input', showDrawn);
 app.addEventListener('click', (e) => {
   const grid = e.target.closest('svg[data-draw]');
   if (grid) return tapGrid(grid, e);
+  // Een link binnen de site wisselt alleen van scherm, tenzij je die in een nieuw tabblad opent.
+  const link = e.target.closest('a[href^="/"]');
+  if (link) {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    if (link.dataset.act === 'kiesgo') {
+      prog.mapping = pickedMapping().id;
+      save();
+    }
+    const { pathname, search } = new URL(link.href);
+    return go(viewFor(pathname, search));
+  }
+  if (e.target.closest('a[href^="#"]')) return saveScroll();
   const b = e.target.closest('[data-act]');
   if (!b) return;
   // Safari geeft een knop geen focus bij een klik, en dan vindt render() hem niet terug.
   b.focus();
   const a = b.dataset.act,
     id = b.dataset.id;
-  if (a === 'home') return go({ name: 'home' });
-  if (a === 'toets') return go({ name: 'toets' });
-  if (a === 'over') return go({ name: 'over' });
-  if (a === 'stof') return go({ name: 'stof' });
-  if (a === 'kies')
-    return go(prog.mapping ? { name: 'mapping', id: prog.mapping } : { name: 'kies' });
-  if (a === 'kiesanders') return go({ name: 'kies' });
   if (a === 'pick') {
     const at = id.indexOf(':');
     state.pick[id.slice(0, at)] = id.slice(at + 1);
     render();
     return;
   }
-  if (a === 'kiesgo') {
-    prog.mapping = pickedMapping().id;
-    save();
-    return go({ name: 'mapping', id: prog.mapping });
-  }
   if (a === 'para' || a === 'chapter') {
+    // Iets aanvinken maakt dit je boek. Alleen de pagina openen niet, want dat kan via een link zijn.
+    prog.mapping = state.view.id;
     const chapters = MAPPING[state.view.id].chapters;
     const paragraphs =
       a === 'chapter'
@@ -130,13 +189,6 @@ app.addEventListener('click', (e) => {
     render('h1');
     return;
   }
-  if (a === 'stofprac') {
-    // De stof kan zijn gewijzigd sinds de vorige ronde, dus begin met een nieuwe vraag.
-    delete state.prac['jouw-stof'];
-    return go({ name: 'stofoefen', slug: 'jouw-stof' });
-  }
-  if (a === 'topic') return go({ name: 'topic', slug: id });
-  if (a === 'topicp') return go({ name: 'topic', slug: id, oefen: true });
   if (a === 'reset1') {
     state.confirmReset = true;
     render('[data-act="reset2"]');
@@ -149,6 +201,8 @@ app.addEventListener('click', (e) => {
   }
   if (a === 'reset2') {
     resetProgress();
+    forgetTests();
+    stopTimer();
     state.prac = {};
     state.confirmReset = false;
     render();
@@ -170,6 +224,9 @@ app.addEventListener('click', (e) => {
       st = state.prac[s.slug];
     st.filter = id ? Number(id) : null;
     newQuestion(s);
+    state.view.soort = st.filter;
+    // Een andere keuze is geen nieuw scherm, dus de terugknop slaat die over.
+    history.replaceState(history.state, '', pathFor(state.view));
     render();
     return;
   }
@@ -200,17 +257,26 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'len') {
-    state.view.n = +id;
+    state.len = +id;
     render();
     return;
   }
   if (a === 'start') {
-    state.test = {
-      items: buildTest(prog.stof, state.view.n || 20),
-      i: 0,
-      start: Date.now(),
-    };
-    return go({ name: 'toetsrun' });
+    state.test = { items: buildTest(prog.stof, state.len), i: 0, spent: 0, since: null };
+    saveTest();
+    return go({ name: 'toets' });
+  }
+  if (a === 'tstop1' || a === 'tstop0') {
+    storeTest();
+    state.test.confirmStop = a === 'tstop1';
+    render(a === 'tstop1' ? '[data-act="tstop2"]' : '[data-act="tstop1"]');
+    return;
+  }
+  if (a === 'tstop2') {
+    stopTest();
+    stopTimer();
+    render('h1');
+    return;
   }
   if (a === 'goto') {
     storeTest();
@@ -234,10 +300,6 @@ app.addEventListener('click', (e) => {
       state.test.warn = true;
       render();
       return;
-    }
-    if (state.timer) {
-      clearInterval(state.timer);
-      state.timer = null;
     }
     finishTest();
     return go({ name: 'toetsres' });
@@ -296,6 +358,32 @@ app.addEventListener('submit', (e) => {
     render(c.ok ? '#nextq' : '#pfb');
   }
 });
+window.addEventListener('popstate', () => {
+  // Een link naar een plek op hetzelfde scherm, zoals de video's, geeft ook dit signaal. Bouw het
+  // scherm dan niet opnieuw op, want dan gaat wat je hebt ingevuld verloren.
+  const { pathname, search } = location;
+  if (pathFor(viewFor(pathname, search)) === pathFor(state.view)) return restoreScroll();
+  leave();
+  arrive('h1');
+});
+window.addEventListener(
+  'scroll',
+  () => {
+    clearTimeout(scrollSave);
+    scrollSave = setTimeout(saveScroll, 200);
+  },
+  { passive: true },
+);
+// Een telefoon kan een pagina op de achtergrond zonder waarschuwing afsluiten.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') keepTyped();
+});
+window.addEventListener('pagehide', () => {
+  keepTyped();
+  saveScroll();
+});
 /* Alleen voor tests/browser.e2e.js: zo kan de browsertest de juiste antwoorden opvragen. */
 window.wiskundefit = { state, TOPICS, TOPIC, MAPPINGS, prog, go };
-render();
+history.scrollRestoration = 'manual';
+loadTests();
+arrive();

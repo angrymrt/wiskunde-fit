@@ -48,18 +48,20 @@ Al het werk wordt getoetst aan de grenzen en doelen in de [principes in AGENTS.m
 | Een vraagsoort mag in meer methode-indelingen staan. Is de stof niet met dat boek vergeleken, dan is de paragraaf deels gedekt en zegt de pagina dat.                                                                           | De stof van havo 3 past soms al bij leerjaar 1 en 2, zoals de stelling van Pythagoras, en de voortgang telt overal mee. Zo zien leerlingen wat er is, en zeggen we eerlijk wat niet is nagekeken.                                                                                                                   |
 | We beginnen met de 13e editie van Getal & Ruimte. De 14e editie van leerjaar 1 en 2 komt later als eigen methode-indeling.                                                                                                      | De 13e editie sluit aan op havo 3, waarvan nog geen 14e editie bestaat.                                                                                                                                                                                                                                             |
 | De proeftoets gaat altijd over Jouw stof. Zonder stofkeuze kies je eerst: uit je boek, op onderwerp of alle stof.                                                                                                               | Alle stof als vaste keuze werkt niet meer zodra er stof van andere leerjaren bijkomt.                                                                                                                                                                                                                               |
+| Een lopende proeftoets en de laatste uitslag blijven in de browser bewaard. Er blijft één uitslag bewaard, met een eigen adres.                                                                                                 | Zo overleeft een proeftoets de terugknop, herladen en een gesloten tabblad, en kun je later nog zien waar je aan moet werken. Meer uitslagen bewaren en vooruitgang laten zien kan pas als er ooit inloggen is.                                                                                                     |
+| De site werkt alleen via een webserver: wiskundefit.nl, of `npm run dev` om te ontwikkelen. Het losse HTML-bestand met dubbelklikken vervalt.                                                                                   | Echte adressen werken niet op `file://`, en het losse bestand is niet belangrijk genoeg om daar apart iets voor te bouwen.                                                                                                                                                                                          |
 
 ## Waar we nu staan
 
 De site staat op [wiskundefit.nl](https://wiskundefit.nl) met 12 onderwerpen en 65 vraagsoorten. Hij is statisch, zonder accounts of tracking. Elke push naar `main` draait `npm test`, bouwt de site, zet hem online en maakt zo nodig een release. De stof is al goed gescheiden van de schermen, maar dit zit een uitbreiding in de weg:
 
-| Wat                   | Waar                       | Probleem                                                                                                                                                   |
-| --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lijst met onderwerpen | `topics/index.js`          | Eén platte lijst met losse imports. Alles wordt altijd geladen.                                                                                            |
-| Teksten               | `ui/home.js`, `index.html` | De titel en de voettekst gaan uit van deze ene methode.                                                                                                    |
-| Adressen en HTML      | Hele site                  | Er zijn geen URL's per scherm en de stof staat pas na JavaScript in de pagina. Je kunt niet naar een onderwerp linken en zoekmachines zien de stof slecht. |
-| Willekeurige vragen   | `topics/`, `math.js`       | Een vraag is niet te herhalen. Een foutmelding of een gedeelde proeftoets kan dus niet naar precies dezelfde vraag wijzen.                                 |
-| Browsertest           | `tests/browser.e2e.js`     | Duurt nu anderhalve minuut, groeit mee met de stof en draait alleen lokaal. Safari is alleen via WebKit te testen.                                         |
+| Wat                   | Waar                       | Probleem                                                                                                                   |
+| --------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Lijst met onderwerpen | `topics/index.js`          | Eén platte lijst met losse imports. Alles wordt altijd geladen.                                                            |
+| Teksten               | `ui/home.js`, `index.html` | De titel en de voettekst gaan uit van deze ene methode.                                                                    |
+| HTML                  | Hele site                  | De stof staat pas na JavaScript in de pagina, dus zoekmachines zien de stof slecht.                                        |
+| Willekeurige vragen   | `topics/`, `math.js`       | Een vraag is niet te herhalen. Een foutmelding of een gedeelde proeftoets kan dus niet naar precies dezelfde vraag wijzen. |
+| Browsertest           | `tests/browser.e2e.js`     | Duurt nu anderhalve minuut, groeit mee met de stof en draait alleen lokaal. Safari is alleen via WebKit te testen.         |
 
 ## Laagmodel: de vraagsoort als kern
 
@@ -102,7 +104,8 @@ Dit is de uitkomst van [#21](https://github.com/angrymrt/wiskunde-fit/issues/21)
 /methode-indeling/getal-en-ruimte-13-havo-3   paragrafen, dekking en vinkjes
 /jouw-stof                                    de stofkeuze bekijken en wijzigen, ook op onderwerp
 /jouw-stof/oefenen                            de stofkeuze door elkaar oefenen
-/proeftoets                                   instellen, maken en uitslag
+/proeftoets                                   instellen en maken
+/proeftoets/uitslag                           de uitslag van de laatste proeftoets
 /over                                         over de site, privacy en contact
 ```
 
@@ -145,7 +148,7 @@ Een id is voor de site en verandert nooit. Een adres is voor mensen en mag wel v
 **Techniek**
 
 - Alles waarmee je ergens heen gaat, wordt een gewone link, ook de knop van de uitleg naar het oefenscherm.
-- De schermen blijven wisselen met `render()`, nu met `pushState` en `popstate`. Zo overleeft een half gemaakte vraag of een lopende proeftoets de terugknop. De vooraf gebouwde HTML is er voor de eerste keer laden en voor zoekmachines.
+- De schermen blijven wisselen met `render()`, nu met `pushState` en `popstate`. Zo overleeft een half gemaakte vraag de terugknop. Een lopende proeftoets staat bovendien in de browser en overleeft ook herladen. De vooraf gebouwde HTML is er voor de eerste keer laden en voor zoekmachines.
 - `?soort=` en later `&seed=` werken zonder eigen pagina. Daar kan de foutmelding uit fase 4 op voortbouwen.
 - Een eigen pagina met cijfers ([#22](https://github.com/angrymrt/wiskunde-fit/issues/22)) krijgt `/cijfers`, met een link in de voettekst.
 
@@ -205,8 +208,9 @@ Geen nieuwe stof, wel alles wat later duur wordt om te veranderen. Eén uitzonde
 - [ ] De uitleg laten passen als een vraagsoort uit een ander leerjaar komt ([#29](https://github.com/angrymrt/wiskunde-fit/issues/29)). Tot die tijd zegt Jouw stof dat de uitleg voor havo 3 is geschreven.
 - [x] De pagina van een onderwerp herzien: een uitlegpagina die met een intro begint, de video's onderaan en een eigen oefenscherm in plaats van tabbladen ([#30](https://github.com/angrymrt/wiskunde-fit/issues/30)). De intro's moeten nog worden nagekeken.
 - [ ] Een designreview van de hele site, zodat leerlingen de weg niet kwijtraken, bijvoorbeeld met een kruimelpad en een betere header en footer ([#31](https://github.com/angrymrt/wiskunde-fit/issues/31)).
-- [ ] Echte adressen en vooraf gebouwde HTML per onderwerp, plus een pagina per methode-indeling die naar de onderwerpen verwijst, met een `staticwebapp.config.json` en een nette 404-pagina. Controleer daarna de terugknop, een telefoon en een schermlezer.
-- [ ] Lettertypes en code uit de HTML halen, zodat de browser ze kan bewaren. Het losse bestand wordt een optionele export.
+- [x] Echte adressen en een werkende terugknop, met een `staticwebapp.config.json`. Een lopende proeftoets en de laatste uitslag blijven in de browser bewaard.
+- [ ] Vooraf gebouwde HTML per onderwerp, plus een pagina per methode-indeling die naar de onderwerpen verwijst, met doorverwijzingen en een nette 404-pagina. Controleer daarna de terugknop, een telefoon en een schermlezer.
+- [ ] Lettertypes en code uit de HTML halen, zodat de browser ze kan bewaren.
 - [ ] Vragen met een seed, zodat elke vraag precies te herhalen is.
 - [ ] Zoekmachines helpen: een sitemap, unieke titels en beschrijvingen.
 - [ ] Anonieme totalen meten, nadat de echte adressen er zijn, met opslag in de EU en zonder unieke bezoekers. Zo kunnen we weergaven per onderwerp op de server tellen, zonder script en zonder iets op het apparaat. Tellers per functie alleen als ze geen toestemming nodig hebben ([#19](https://github.com/angrymrt/wiskunde-fit/issues/19)).
@@ -265,4 +269,4 @@ Bij een vraag staat onze voorlopige voorkeur als die er is.
 
 ## Hier beginnen we
 
-Fase 1 en 2 zijn af, op de test op een echte iPhone na ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)). Het voorstel over onderwerpen is uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)) en de navigatie is ontworpen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)). De vraagsoorten hebben vaste id's en de stof is geordend op onderwerp en domein, op de branch `fase-3`. De structuur voor methode-indelingen staat er ook, voor de 13e editie van leerjaar 1, 2 en 3, en een leerling kan uit het eigen boek kiezen. Voorstel voor de volgorde: eerst de adressen en een werkende terugknop, dan de designreview ([#31](https://github.com/angrymrt/wiskunde-fit/issues/31)) en daarna de vooraf gebouwde HTML. De branch gaat naar `main` zodra de eigenaar dat besluit. Hoe de site verschilt van het FLEX-aanbod en of Neon past, staat nog open ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)). De navigatie hangt daar niet van af, omdat onderwerpen los staan van een methode, maar de keuzes voor later kunnen er wel door veranderen.
+Fase 1 en 2 zijn af, op de test op een echte iPhone na ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)). Het voorstel over onderwerpen is uitgewerkt ([#10](https://github.com/angrymrt/wiskunde-fit/issues/10)) en de navigatie is ontworpen ([#21](https://github.com/angrymrt/wiskunde-fit/issues/21)). De vraagsoorten hebben vaste id's en de stof is geordend op onderwerp en domein, op de branch `fase-3`. De structuur voor methode-indelingen staat er ook, voor de 13e editie van leerjaar 1, 2 en 3, en een leerling kan uit het eigen boek kiezen. Elk scherm heeft nu een eigen adres en de terugknop werkt. Voorstel voor de volgorde: nu de designreview ([#31](https://github.com/angrymrt/wiskunde-fit/issues/31)) en daarna de vooraf gebouwde HTML. De branch gaat naar `main` zodra de eigenaar dat besluit. Hoe de site verschilt van het FLEX-aanbod en of Neon past, staat nog open ([#3](https://github.com/angrymrt/wiskunde-fit/issues/3) en [#4](https://github.com/angrymrt/wiskunde-fit/issues/4)). De navigatie hangt daar niet van af, omdat onderwerpen los staan van een methode, maar de keuzes voor later kunnen er wel door veranderen.

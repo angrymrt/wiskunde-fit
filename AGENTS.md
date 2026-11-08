@@ -44,7 +44,7 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 - **Schrijf Nederlands voor de leerling.** Spreek de leerling aan met "je", in korte, gewone zinnen. Ook de code-opmerkingen en documentatie zijn Nederlands.
 - **Houd de site statisch.** Geen server, geen accounts, geen persoonsgegevens, geen cookies en geen externe scripts. Let op: de cookieregels gelden ook voor een script dat zonder cookie iets naar een server stuurt. De lettertypes staan in `src/fonts/`. Alleen de links naar YouTube en GitHub en het mailadres gebruiken internet.
 - **Wijzig `dist/` niet.** Die map wordt gebouwd en staat niet in git.
-- **Houd stof en schermen gescheiden.** `math.js`, `typeset.js`, `figures.js`, `answers.js`, `stof.js`, `topics/` en `mappings/` mogen geen DOM gebruiken, want de tests draaien ze in Node. DOM-code hoort in `ui/` en `main.js`.
+- **Houd stof en schermen gescheiden.** `math.js`, `typeset.js`, `figures.js`, `answers.js`, `stof.js`, `routes.js`, `topics/` en `mappings/` mogen geen DOM gebruiken, want de tests draaien ze in Node. DOM-code hoort in `ui/` en `main.js`.
 - **Kleuren staan als tokens in `:root`.** Definieer elke nieuwe kleur ook voor de donkere modus. Dat gebeurt op twee plekken: in de `prefers-color-scheme`-regel en bij `[data-theme='dark']`.
 
 ## Een vraag toevoegen
@@ -84,8 +84,10 @@ function s15value() {
 | `v`       | aanbevolen  | Controlefunctie, moet `true` geven                                           |
 | `fig`     | nee         | Figuur als SVG-tekst, uit `graph(...)` of `geo(...)`                         |
 | `traps`   | nee         | Gerichte feedback: `[{ f: (waarden) => boolean, m: 'bericht' }]`             |
-| `check`   | nee         | Eigen nakijken bij meer goede antwoorden: `(getallen) => [true, false, ...]` |
+| `line`    | nee         | De lijn `{ a, b }` bij een tekenvraag: elk paar punten erop is goed          |
 | `compact` | nee         | Smalle velden, voor een formule of punt op één regel                         |
+
+Een lopende proeftoets wordt als JSON in de browser bewaard. Alles wat nodig is om een vraag na te kijken moet dus gegevens zijn en geen functie. `npm test` controleert dat.
 
 Veldhulpen in `topics/shared.js`:
 
@@ -131,7 +133,9 @@ Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.c
 
 ## Zo werken de schermen
 
-Alle schermen zijn functies die een HTML-tekst teruggeven. `render()` in `main.js` zet die in de pagina; `go({ name, ... })` wisselt van scherm. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`.
+Alle schermen zijn functies die een HTML-tekst teruggeven. `render()` in `main.js` zet die in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`.
+
+Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarmee je ergens heen gaat, is een gewone link met `<a href>`, zodat openen in een nieuw tabblad werkt. Een knop is voor iets dat op dit scherm gebeurt. Een nieuw eerste deel van een adres moet ook in de lijst met gereserveerde namen in `tests/generators.test.js`. `staticwebapp.config.json` zorgt dat Azure bij elk adres de site toont, en `scripts/server.js` volgt die regel voor `npm run dev` en de browsertest.
 
 `window.wiskundefit` bestaat alleen zodat `tests/browser.e2e.js` de juiste antwoorden kan opvragen. Gebruik het niet in de site zelf.
 

@@ -72,23 +72,24 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 
 ## Oefenen en voortgang
 
-| Begrip           | Betekenis                                                                               | In de code   |
-| ---------------- | --------------------------------------------------------------------------------------- | ------------ |
-| Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                               |              |
-| Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                | `ui/exam.js` |
-| Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.              | `prog`       |
-| Beheerst         | De voortgang is 80% of meer.                                                            | `topicPct`   |
-| Overzichtsscherm | Het eerste scherm van de site. Het woord beginscherm is voor het icoon op een telefoon. | `ui/home.js` |
+| Begrip           | Betekenis                                                                               | In de code     |
+| ---------------- | --------------------------------------------------------------------------------------- | -------------- |
+| Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                               |                |
+| Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                | `ui/exam.js`   |
+| Uitslag          | Het resultaat van de laatst ingeleverde proeftoets. Er blijft er één bewaard.           | `state.result` |
+| Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.              | `prog`         |
+| Beheerst         | De voortgang is 80% of meer.                                                            | `topicPct`     |
+| Overzichtsscherm | Het eerste scherm van de site. Het woord beginscherm is voor het icoon op een telefoon. | `ui/home.js`   |
 
 ## Controleren
 
 Drie dingen lijken op elkaar, maar zijn iets anders.
 
-| Begrip      | Betekenis                                                                        | In de code            |
-| ----------- | -------------------------------------------------------------------------------- | --------------------- |
-| Nakijken    | De site beoordeelt het antwoord van een leerling.                                | `answers.js`, `check` |
-| Controle    | Een test die rekent of het antwoord van een generator klopt met de vraag.        | `v`                   |
-| Nakijkronde | Een docent leest de stof na op uitleg en aanpak. Zie [NAKIJKEN.md](NAKIJKEN.md). |                       |
+| Begrip      | Betekenis                                                                        | In de code   |
+| ----------- | -------------------------------------------------------------------------------- | ------------ |
+| Nakijken    | De site beoordeelt het antwoord van een leerling.                                | `answers.js` |
+| Controle    | Een test die rekent of het antwoord van een generator klopt met de vraag.        | `v`          |
+| Nakijkronde | Een docent leest de stof na op uitleg en aanpak. Zie [NAKIJKEN.md](NAKIJKEN.md). |              |
 
 ## Voor de leerling
 
@@ -101,4 +102,5 @@ Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat
 | Methode-indeling         | "Je boek", zoals in "Kies uit je boek"                            |
 | Stofkeuze                | "Jouw stof"                                                       |
 | Vraagsoort               | "Soort vraag", of de naam van de vraagsoort                       |
+| Uitslag                  | "Je resultaat"                                                    |
 | Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen." |

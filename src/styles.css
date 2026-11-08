@@ -188,6 +188,17 @@ input {
   display: flex;
   justify-content: center;
 }
+/* Links die eruitzien als knop of rij, zoals een button dat vanzelf doet. */
+a.btn,
+a.par,
+a.brand {
+  color: inherit;
+  text-decoration: none;
+}
+a.btn {
+  display: inline-block;
+  text-align: center;
+}
 .linkbtn {
   background: none;
   border: 0;
@@ -632,6 +643,15 @@ ol.how {
   color: var(--mark-ink);
   padding: 8px 12px;
   border-radius: 3px;
+}
+.notice {
+  background: var(--mark);
+  padding: 8px 12px;
+  border-radius: 3px;
+}
+.notice a {
+  color: var(--mark-ink);
+  font-weight: 700;
 }
 .watch .f > span:first-child {
   border-color: var(--mark-ink);

@@ -28,14 +28,24 @@ function checkField(f, raw) {
   if (/[.,]/.test(raw) && !isNice(f.a, 4)) return Math.abs(v - f.a) < 0.0051;
   return near(v, f.a);
 }
+// Bij een tekenvraag is elk paar verschillende punten op de lijn goed. Zie drawLine in topics/shared.js.
+function checkLine({ a, b }, v) {
+  const on = (x, y) => near(a * x + b, y),
+    same = near(v[0], v[2]) && near(v[1], v[3]),
+    first = on(v[0], v[1]),
+    second = on(v[2], v[3]) && !same;
+  return [first, first, second, second];
+}
 function checkAnswer(q, vals) {
   if (q.mc) {
     const hit = vals[0] !== '' && vals[0] != null && +vals[0] === q.mc.a;
     return { each: [hit], ok: hit };
   }
-  // Is er meer dan één goed antwoord, dan kijkt de vraag zelf na. Zie drawLine in topics/shared.js.
-  const each = q.check
-    ? q.check(q.fields.map((f, i) => parseNum(vals[i] ?? '')))
+  const each = q.line
+    ? checkLine(
+        q.line,
+        q.fields.map((f, i) => parseNum(vals[i] ?? '')),
+      )
     : q.fields.map((f, i) => checkField(f, vals[i] ?? ''));
   return { each, ok: each.every(Boolean) };
 }

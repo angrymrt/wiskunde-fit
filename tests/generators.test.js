@@ -20,6 +20,9 @@ function typed(x) {
   return String(x).replace('.', ',');
 }
 
+// Een lopende proeftoets staat in de browser als JSON, en moet daarna nog na te kijken zijn.
+const stored = (q) => JSON.parse(JSON.stringify(q));
+
 function assertSound(q) {
   const text = q.q + (q.fig ?? '') + stepsHTML(q.steps) + q.hint + (q.mc ? q.mc.opts.join('') : '');
   for (const bad of ['NaN', 'undefined', 'Infinity', 'null', '[object']) {
@@ -35,6 +38,7 @@ function assertSound(q) {
     assert.equal(new Set(q.mc.opts).size, q.mc.opts.length, `dubbele keuzes: ${q.q}`);
     assert.ok(checkAnswer(q, [String(q.mc.a)]).ok, `goed antwoord afgekeurd: ${q.q}`);
     assert.ok(!checkAnswer(q, ['']).ok, `leeg antwoord goedgekeurd: ${q.q}`);
+    assert.ok(checkAnswer(stored(q), [String(q.mc.a)]).ok, `bewaard niet na te kijken: ${q.q}`);
     return;
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
@@ -46,9 +50,11 @@ function assertSound(q) {
   // Bij een tekenvraag verschuift alleen de eerste y, want twee punten even ver opschuiven kan weer
   // een punt op dezelfde lijn geven.
   const wrong = q.fields.map((f, i) =>
-    f.sel ? f.a : typed(q.check ? (i === 1 ? f.a + 7 : f.a) : f.a + 7),
+    f.sel ? f.a : typed(q.line ? (i === 1 ? f.a + 7 : f.a) : f.a + 7),
   );
   assert.ok(!checkAnswer(q, wrong).ok, `fout antwoord goedgekeurd: ${q.q}`);
+  assert.ok(checkAnswer(stored(q), right).ok, `bewaard goed antwoord afgekeurd: ${q.q}`);
+  assert.ok(!checkAnswer(stored(q), wrong).ok, `bewaard fout antwoord goedgekeurd: ${q.q}`);
 }
 
 for (const section of TOPICS) {

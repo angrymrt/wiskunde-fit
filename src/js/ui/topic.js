@@ -1,5 +1,6 @@
 // De schermen van een onderwerp: de uitleg en het oefenen.
 import { prog, skillPct, topicPct } from '../progress.js';
+import { pathFor } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { fieldsHTML } from './question-form.js';
@@ -9,12 +10,12 @@ function exampleHTML(ex, key) {
   const st = ex.steps;
   return `<div class="ex" data-ex="${key}"><div class="lab">Voorbeeld</div><div>${ex.q}</div><ul class="steps">${st.map((s, i) => `<li ${i ? 'hidden' : ''}>${typeof s === 'string' ? T(s) : s.h}</li>`).join('')}</ul>${st.length > 1 ? `<div class="row"><button class="btn quiet" type="button" data-act="exnext">Volgende stap</button></div>` : ''}</div>`;
 }
-const topicLink = (t) =>
-  `<button class="linkbtn" type="button" data-act="topic" data-id="${t.slug}">${T(t.title)}</button>`;
+const topicPath = (t) => pathFor({ name: 'topic', slug: t.slug });
+const practicePath = (t) => pathFor({ name: 'topic', slug: t.slug, oefen: true });
+const topicLink = (t) => `<a class="linkbtn" href="${topicPath(t)}">${T(t.title)}</a>`;
 const nextHTML = (s) =>
   s.next ? `<p class="small">Volgend onderwerp: ${topicLink(s.next)}</p>` : '';
-const practiceButton = (s) =>
-  `<button class="btn main" type="button" data-act="topicp" data-id="${s.slug}">Ga oefenen</button>`;
+const practiceButton = (s) => `<a class="btn main" href="${practicePath(s)}">Ga oefenen</a>`;
 function vLearn(s) {
   return (
     s.learn
@@ -62,8 +63,15 @@ function newQuestion(s) {
   st.msg = '';
   st.sol = false;
 }
+const practiceState = (s) => state.prac[s.slug] || (state.prac[s.slug] = { right: 0, total: 0 });
+// Volgt ?soort= uit het adres. Een half gemaakte vraag blijft staan als die daarbij past.
+function applySoort(s, soort = null) {
+  const st = practiceState(s);
+  st.filter = soort;
+  if (soort && st.skill?.id !== soort) newQuestion(s);
+}
 function vPractice(s) {
-  const st = state.prac[s.slug] || (state.prac[s.slug] = { right: 0, total: 0 });
+  const st = practiceState(s);
   if (!st.q) newQuestion(s);
   const q = st.q,
     done = st.status === 'right' || st.status === 'shown';
@@ -72,7 +80,7 @@ function vPractice(s) {
     : `<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${s.skills.map((k) => `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`).join('')}</div>`;
   return `${chips}<div class="sheet fade"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span>${st.total ? `${st.right} van ${st.total} goed deze ronde` : ''}</span></div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
-  <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !q.check && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
+  <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !q.line && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
   ${st.hint && !done ? `<div class="hintb"><b>Hint:</b> ${/<span/.test(q.hint) ? q.hint : T(q.hint)}</div>` : ''}
   <div class="row">${done ? `<button class="btn main" type="submit" id="nextq" ${st.msg ? 'aria-describedby="pfb"' : ''}>Volgende vraag</button>` : `<button class="btn main" type="submit">Controleer</button>${st.hint ? '' : `<button class="btn" type="button" data-act="hint">Hint</button>`}<button class="btn quiet" type="button" data-act="show">Toon uitwerking</button>`}${st.status === 'right' && !st.sol ? `<button class="btn quiet" type="button" data-act="showsol">Bekijk uitwerking</button>` : ''}</div></form>
@@ -81,7 +89,7 @@ function vPractice(s) {
 function vTopic(s) {
   const domain = `<span class="small muted">${s.domain.name}</span>`;
   if (state.view.oefen) {
-    return `<div class="color-${s.domain.color}" style="display:grid;gap:16px"><div class="head">${domain}<h1>${T(s.title)} oefenen</h1><p class="small"><button class="linkbtn" type="button" data-act="topic" data-id="${s.slug}">Terug naar de uitleg</button></p></div>${vPractice(s)}${nextHTML(s)}</div>`;
+    return `<div class="color-${s.domain.color}" style="display:grid;gap:16px"><div class="head">${domain}<h1>${T(s.title)} oefenen</h1><p class="small"><a class="linkbtn" href="${topicPath(s)}">Terug naar de uitleg</a></p></div>${vPractice(s)}${nextHTML(s)}</div>`;
   }
   const p = Math.round(topicPct(s) * 100);
   const prerequisites = s.prerequisites.length
@@ -93,4 +101,4 @@ function vTopic(s) {
   <div class="sheet">${vLearn(s)}</div></div>`;
 }
 
-export { vTopic, vPractice, newQuestion, topicLink };
+export { vTopic, vPractice, newQuestion, applySoort, topicLink };

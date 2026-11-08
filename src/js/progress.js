@@ -110,7 +110,7 @@ function migrateScope(scope) {
   const chapter = MAPPING['gr13-havo3'].chapters.find((c) => c.number === number);
   return chapter ? chapter.paragraphs.flatMap((p) => p.skills) : null;
 }
-const prog = { v: 4, skills: {}, tests: [], stof: null, mapping: null };
+const prog = { v: 5, skills: {}, stof: null, mapping: null };
 try {
   const raw = localStorage.getItem(STORE);
   if (raw) {
@@ -127,7 +127,9 @@ try {
       saved.mapping = saved.stof ? 'gr13-havo3' : null;
       delete saved.scope;
     }
-    saved.v = 4;
+    // De uitslag van de laatste proeftoets staat nu apart, met de vragen erbij. Zie ui/exam.js.
+    delete saved.tests;
+    saved.v = 5;
     Object.assign(prog, saved);
   }
 } catch (e) {}
@@ -149,7 +151,6 @@ const skillPct = (id) => {
 const topicPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
 const resetProgress = () => {
   prog.skills = {};
-  prog.tests = [];
   prog.stof = null;
   prog.mapping = null;
   save();

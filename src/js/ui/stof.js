@@ -1,6 +1,7 @@
 // De schermen om stof te kiezen: uit je boek, de paragrafen van een boek, en Jouw stof.
 import { MAPPING, MAPPINGS } from '../mappings/index.js';
 import { prog, skillPct } from '../progress.js';
+import { pathFor, to } from '../routes.js';
 import { allChosen, chosenTopics, isChosen, stofGaps, stofTopic } from '../stof.js';
 import { DOMAINS } from '../topics/index.js';
 import { esc, T } from '../typeset.js';
@@ -32,14 +33,17 @@ function pickLists() {
   return { lists, mapping: lists.every((l) => l.value) ? matches[0] : null };
 }
 const pickedMapping = () => pickLists().mapping;
+// "Kies uit je boek" gaat naar het boek dat je het laatst koos, als dat er is.
+const bookPath = () =>
+  MAPPING[prog.mapping] ? pathFor({ name: 'mapping', id: prog.mapping }) : to('kies');
 function vPick() {
   const { lists, mapping } = pickLists();
   const toggles = ({ key, label, options, value }) =>
     `<div class="setup"><b id="pick-${key}">${label}</b><div class="toggles" role="group" aria-labelledby="pick-${key}">${options.map((o) => `<button class="toggle" type="button" data-act="pick" data-id="${esc(`${key}:${o}`)}" aria-pressed="${o === value}">${esc(o)}${key === 'edition' ? 'e editie' : ''}</button>`).join('')}</div></div>`;
   return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Kies uit je boek</h1><p>Kies wat op je boek staat. Daarna zie je de paragrafen en wat je daarvan hier kunt oefenen.</p>
   <div class="pick-lists">${lists.map(toggles).join('')}</div>
-  <div class="row"><button class="btn main" type="button" data-act="kiesgo" ${mapping ? '' : 'disabled'}>Bekijk de paragrafen</button></div>
-  <p class="small">Staat je boek er niet bij? <button class="linkbtn" type="button" data-act="stof">Kies op onderwerp</button></p></div>`;
+  <div class="row">${mapping ? `<a class="btn main" data-act="kiesgo" href="${pathFor({ name: 'mapping', id: mapping.id })}">Bekijk de paragrafen</a>` : `<button class="btn main" type="button" data-act="kiesgo" disabled>Bekijk de paragrafen</button>`}</div>
+  <p class="small">Staat je boek er niet bij? <a class="linkbtn" href="${to('stof')}">Kies op onderwerp</a></p></div>`;
 }
 
 function paragraphHTML(p) {
@@ -63,17 +67,17 @@ function chapterHTML(c) {
 }
 function vMapping(m) {
   const count = (prog.stof || []).length;
-  return `<div class="sheet"><div class="head"><h1 style="font-size:clamp(1.5rem,5vw,2.1rem)">${mappingName(m)}</h1><p><button class="linkbtn" type="button" data-act="kiesanders">Kies een ander boek</button></p></div>
+  return `<div class="sheet"><div class="head"><h1 style="font-size:clamp(1.5rem,5vw,2.1rem)">${mappingName(m)}</h1><p><a class="linkbtn" href="${to('kies')}">Kies een ander boek</a></p></div>
   <p>Vink aan wat je wilt oefenen. Wat je kiest, komt in jouw stof.</p>
   ${m.note ? `<p class="watch"><b>Let op:</b> ${esc(m.note)}</p>` : ''}
   ${m.chapters.map(chapterHTML).join('')}
   <details class="small"><summary>Bij welke boeken hoort dit?</summary><ul>${m.books.map((b) => `<li>${esc(b.name)}, ISBN ${esc(b.isbn)}</li>`).join('')}</ul><p>Dit is een eigen project zonder band met de uitgever of ${esc(m.method)}. We verwijzen alleen naar de paragrafen en schrijven zelf de uitleg en de vragen.</p></details>
-  <div class="stof-bar"><span class="small">${count === 1 ? '1 soort vraag' : `${count} soorten vragen`} gekozen</span><button class="btn main" type="button" data-act="stof">Naar jouw stof</button></div></div>`;
+  <div class="stof-bar"><span class="small">${count === 1 ? '1 soort vraag' : `${count} soorten vragen`} gekozen</span><a class="btn main" href="${to('stof')}">Naar jouw stof</a></div></div>`;
 }
 
 function chosenHTML({ topic, skills }) {
   const p = Math.round((skills.reduce((t, k) => t + skillPct(k.id), 0) / skills.length) * 100);
-  return `<button class="par color-${topic.domain.color}" type="button" data-act="topic" data-id="${topic.slug}"><span>${T(topic.title)}</span><span class="pct">${p}%</span><span class="small muted stof-skills">${skillNames(skills)}</span><span class="bar ${p >= 80 ? 'done' : ''}"><i style="width:${p}%"></i></span></button>`;
+  return `<a class="par color-${topic.domain.color}" href="${pathFor({ name: 'topic', slug: topic.slug })}"><span>${T(topic.title)}</span><span class="pct">${p}%</span><span class="small muted stof-skills">${skillNames(skills)}</span><span class="bar ${p >= 80 ? 'done' : ''}"><i style="width:${p}%"></i></span></a>`;
 }
 function topicPickHTML(topic) {
   const ids = topic.skills.map((k) => k.id),
@@ -92,7 +96,7 @@ function vStof() {
     c.paragraphs.some((p) => p.skills.some(isChosen)),
   );
   const chosen = groups.length
-    ? `<div class="row"><button class="btn main" type="button" data-act="stofprac">Oefen jouw stof</button><button class="btn" type="button" data-act="toets">Maak een proeftoets</button></div>
+    ? `<div class="row"><a class="btn main" href="${to('stofoefen')}">Oefen jouw stof</a><a class="btn" href="${to('toets')}">Maak een proeftoets</a></div>
     ${onMapping && mapping.note ? `<p class="watch"><b>Let op:</b> ${esc(mapping.note)} Ook de uitleg is voor havo 3 geschreven.</p>` : ''}
     <div class="stof-list">${groups.map(chosenHTML).join('')}</div>
     <p class="small muted">Tik op een onderwerp voor de uitleg.</p>`
@@ -100,12 +104,15 @@ function vStof() {
   return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Jouw stof</h1>${chosen}</div>
   ${groups.length ? gapsHTML() : ''}
   <section class="sheet"><h2 class="h3">${groups.length ? 'Stof wijzigen' : 'Stof kiezen'}</h2>
-  <div class="row"><button class="btn ${groups.length ? '' : 'main'}" type="button" data-act="kies">Kies uit je boek</button><button class="btn" type="button" data-act="stofall">Alle stof</button>${groups.length ? `<button class="btn quiet" type="button" data-act="stofclear">Alles weghalen</button>` : ''}</div>
+  <div class="row"><a class="btn ${groups.length ? '' : 'main'}" href="${bookPath()}">Kies uit je boek</a><button class="btn" type="button" data-act="stofall">Alle stof</button>${groups.length ? `<button class="btn quiet" type="button" data-act="stofclear">Alles weghalen</button>` : ''}</div>
   <p class="small muted">Of kies op onderwerp:</p>
   ${DOMAINS.map((d) => `<div class="setup"><b>${d.name}</b>${d.topics.map(topicPickHTML).join('')}</div>`).join('')}</section>`;
 }
 function vStofPractice() {
-  return `<div style="display:grid;gap:16px"><div class="head"><span class="small"><button class="linkbtn" type="button" data-act="stof">Terug naar jouw stof</button></span><h1>Jouw stof oefenen</h1></div>${vPractice(stofTopic())}</div>`;
+  // De stof kan zijn gewijzigd sinds de vorige ronde. Past de vraag nog, dan blijft die staan.
+  const st = state.prac['jouw-stof'];
+  if (st?.skill && !isChosen(st.skill.id)) delete state.prac['jouw-stof'];
+  return `<div style="display:grid;gap:16px"><div class="head"><span class="small"><a class="linkbtn" href="${to('stof')}">Terug naar jouw stof</a></span><h1>Jouw stof oefenen</h1></div>${vPractice(stofTopic())}</div>`;
 }
 
-export { pickedMapping, vPick, vMapping, vStof, vStofPractice };
+export { bookPath, pickedMapping, vPick, vMapping, vStof, vStofPractice };

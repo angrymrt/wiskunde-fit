@@ -1,4 +1,4 @@
-// Bouwt dist/index.html: de hele site in één los te delen HTML-bestand.
+// Bouwt dist/index.html: de hele site in één HTML-bestand, plus wat Azure en linkvoorbeelden nodig hebben.
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
@@ -36,14 +36,19 @@ function inline(html, pattern, replacement) {
 const icon = encodeURIComponent(await read('src/favicon.svg'));
 
 let html = await read('src/index.html');
-html = inline(html, /href="favicon\.svg"/, `href="data:image/svg+xml,${icon}"`);
-html = inline(html, /<link[^>]*href="styles\.css"[^>]*>/, `<style>\n${css}</style>`);
-html = inline(html, /<script[^>]*src="js\/main\.js"[^>]*><\/script>/, `<script>\n${js}</script>`);
+html = inline(html, /href="\/favicon\.svg"/, `href="data:image/svg+xml,${icon}"`);
+html = inline(html, /<link[^>]*href="\/styles\.css"[^>]*>/, `<style>\n${css}</style>`);
+html = inline(html, /<script[^>]*src="\/js\/main\.js"[^>]*><\/script>/, `<script>\n${js}</script>`);
 
 await mkdir(new URL('dist/', root), { recursive: true });
 await writeFile(new URL('dist/index.html', root), html);
-// Linkvoorbeelden en het beginscherm hebben een echt bestand nodig. Zonder deze werkt de site ook.
+// Linkvoorbeelden en het beginscherm hebben een echt bestand nodig.
 for (const file of ['og.png', 'apple-touch-icon.png']) {
   await copyFile(new URL(`src/${file}`, root), new URL(`dist/${file}`, root));
 }
+// Azure leest hieruit dat elk adres de site moet tonen.
+await copyFile(
+  new URL('staticwebapp.config.json', root),
+  new URL('dist/staticwebapp.config.json', root),
+);
 console.log(`dist/index.html gebouwd (${Math.round(Buffer.byteLength(html) / 1024)} kB)`);

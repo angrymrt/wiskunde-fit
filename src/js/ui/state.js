@@ -6,6 +6,8 @@ const state = {
   prac: {},
   pick: {},
   test: null,
+  result: null,
+  len: 20,
   timer: null,
   confirmReset: false,
 };
