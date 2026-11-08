@@ -2,6 +2,13 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.8.0
+
+### Nieuw
+
+- Bij elke vraag staat een knop Deel. Zo stuur je een vraag naar je docent of een klasgenoot, bijvoorbeeld om hulp te vragen. Op een telefoon opent het deelmenu, op een computer komt de link op je klembord. Wie de link opent, krijgt precies dezelfde vraag. Je antwoorden en je voortgang gaan niet mee.
+- In de uitslag van een proeftoets kun je ook elke vraag delen. Dat werkt bij een proeftoets die je vanaf deze versie maakt.
+
 ## 1.7.0
 
 ### Nieuw
