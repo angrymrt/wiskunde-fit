@@ -2,6 +2,31 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.6.0
+
+### Nieuw
+
+- De stof is nu geordend op onderwerp, in drie domeinen: Formules en grafieken, Vergelijkingen en ongelijkheden, en Meetkunde. Elk domein heeft een eigen pagina met de onderwerpen en de paragrafen uit je boek waar ze bij horen.
+- Kies uit je boek: kies je niveau, leerjaar en boek, en vink de paragrafen aan die je wilt oefenen. Naast Getal & Ruimte havo 3 staan ook havo/vwo 1 en 2 erin, met wat je daaruit hier al kunt oefenen. Die vragen zijn gemaakt voor havo 3 en nog niet met die boeken vergeleken.
+- Mijn stof: hier staat wat je hebt gekozen en uit welk boek, wat je hier nog niet kunt oefenen, je laatste proeftoets en de knop om je voortgang te wissen. Je kunt je stof door elkaar oefenen en er een proeftoets over maken.
+- Elke pagina heeft een eigen adres. Je kunt een onderwerp dus delen of in een nieuw tabblad openen, en de terugknop van je browser werkt.
+- Een proeftoets blijft bewaard als je de pagina herlaadt of sluit. Je kunt een proeftoets ook stoppen zonder in te leveren.
+- In de uitslag van een proeftoets zie je per vraag wat je invulde, welk deel goed of fout was en wat het goede antwoord is.
+- Over, Privacy en Contact hebben elk een eigen pagina. Onderaan elke pagina staat welke versie je ziet.
+
+### Verbeterd
+
+- Een onderwerp begint met een korte intro over wat je leert, en de knop om te oefenen blijft in beeld. Oefenen heeft een eigen pagina, en de video's staan onderaan, gegroepeerd op stof.
+- Bovenaan elke pagina zie je waar je bent, en het menu laat zien in welk deel van de site je zit. Onderaan een onderwerp vind je het vorige en het volgende onderwerp.
+- Je laatste proeftoets vind je terug op Home, Mijn stof en de pagina Proeftoets.
+- Met het toetsenbord spring je in één keer naar de inhoud, en een schermlezer zegt in de uitslag bij elk antwoord of het goed of fout is.
+- De uitleg van rekenen met een formule, lineaire grafieken tekenen en een lineaire formule opstellen staat in een nieuwe volgorde. Die is nog niet door een wiskundedocent nagekeken.
+- Je voortgang blijft bewaard. Alleen de score van een proeftoets die je vóór deze versie maakte, staat niet meer op Home.
+
+### Hersteld
+
+- In de uitslag van een proeftoets stond bij een tekenvraag een leeg rooster. Nu zie je je eigen lijn, en bij een fout ook de goede lijn.
+
 ## 1.5.0
 
 ### Nieuw
