@@ -352,7 +352,8 @@ function s12table() {
   const stap = 10,
     a = pick([12, 16, 22, 25, 40]),
     b = pick([400, 650, 800, 1100, 1500]),
-    t = ri(11, 39);
+    // Niet 20 of 30, want die staan al in de tabel.
+    t = pick([...Array(29)].map((_, i) => 11 + i).filter((x) => x % stap));
   const rows = [
     ['t', 0, 10, 20, 30],
     ['L', b, b + a * 10, b + a * 20, b + a * 30],
@@ -380,7 +381,19 @@ function s12table() {
         m: 'Dat is de toename per 10 jaar. Je zoekt de toename per jaar.',
       },
     ],
-    v: () => b + a * 10 === +rows[1][2],
+    // Reken de formule na met het eerste en het laatste punt uit de tabel, en kijk of t niet al
+    // in de tabel staat.
+    v: () => {
+      const ts = rows[0].slice(1).map(Number),
+        ls = rows[1].slice(1).map(Number),
+        slope = (ls.at(-1) - ls[0]) / (ts.at(-1) - ts[0]);
+      return (
+        slope === a &&
+        ls[0] - slope * ts[0] === b &&
+        ls[0] + slope * (t - ts[0]) === a * t + b &&
+        !ts.includes(t)
+      );
+    },
   };
 }
 
