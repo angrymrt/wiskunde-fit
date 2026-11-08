@@ -41,10 +41,12 @@ function vPrivacy() {
 function vContact() {
   return `${pageHead('Contact')}<div class="sheet">
   <div class="block"><h2 class="h3">Een vraag of idee</h2>
-  <p>Ben je docent, of heb je een vraag of idee? Mail naar ${mail}.</p></div>
+  <p>Heb je een vraag, een idee of iets wat beter kan? Mail naar ${mail}. Iedereen mag mailen, of je nu leerling, ouder of docent bent.</p></div>
   <div class="block"><h2 class="h3">Een fout gevonden</h2>
-  <p>${repo('Maak dan een issue aan op GitHub', '/issues/new')}, zodat iedereen kan zien dat we ermee bezig zijn. Zo'n issue is openbaar, met je accountnaam erbij, dus zet er geen namen of andere gegevens van leerlingen in. Heb je geen GitHub-account, mail de fout dan gerust.</p>
-  <p>We hebben de site nog niet op een echte iPhone getest, alleen met de motor van Safari op een computer. Werkt er op jouw iPhone iets niet goed? Laat het ons dan weten.</p></div>
+  <p>Zie je een fout in een vraag, een uitwerking of de uitleg? ${repo('Maak een issue aan op GitHub', '/issues/new')}, zodat iedereen kan zien dat we ermee bezig zijn. Zo'n issue is openbaar, met je accountnaam erbij, dus zet er geen namen of andere gegevens van leerlingen in. Heb je geen GitHub-account, mail de fout dan gerust.</p></div>
+  <div class="block"><h2 class="h3">Help ons de site te testen</h2>
+  <p>Zie je slecht of niet, en gebruik je een schermlezer, vergroting of hoog contrast? Dan zoeken we jou. We willen weten of je met jouw hulpmiddelen goed kunt oefenen, en waar je vastloopt. Je hoeft niets van websites te weten. Mail naar ${mail} als je wilt helpen.</p>
+  <p>We hebben de site ook nog niet op een echte iPhone getest, alleen met de motor van Safari op een computer. Werkt er op jouw iPhone iets niet goed? Laat het ons dan weten.</p></div>
   <div class="block"><h2 class="h3">Wat we met je bericht doen</h2>
   <p>We gebruiken je e-mailadres alleen om je te antwoorden. Lees meer over <a href="${to('privacy')}">privacy</a>.</p></div></div>`;
 }
