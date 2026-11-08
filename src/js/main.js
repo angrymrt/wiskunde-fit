@@ -48,7 +48,8 @@ function show(v, focus) {
   state.view = v;
   state.confirmReset = false;
   state.stopped = false;
-  if (v.oefen) applySoort(TOPIC[v.slug], v.soort);
+  state.shared = null;
+  if (v.oefen) applySoort(TOPIC[v.slug], v.soort, v.seed);
   render(focus);
 }
 // De browser zet de scrollpositie niet goed terug, want het scherm bestaat dan nog niet. Daarom
@@ -197,6 +198,29 @@ app.addEventListener('click', (e) => {
     render(a === 'boekfilterclear' ? '.found-count [role="status"]' : undefined);
     return;
   }
+  if (a === 'share') {
+    const url = new URL(id, location.href).href;
+    // Op een telefoon het deelmenu van het toestel, zodat je de link in een chat zet. Op een
+    // computer is dat menu onhandig, en dan kopiëren we de link.
+    if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+      // Wie het menu sluit zonder te delen, krijgt een fout. Dat is geen probleem.
+      navigator.share({ text: 'Kun je me helpen met deze vraag?', url }).catch(() => {});
+      return;
+    }
+    const copy = navigator.clipboard
+      ? navigator.clipboard.writeText(url).then(
+          () => true,
+          () => false,
+        )
+      : Promise.resolve(false);
+    copy.then((copied) => {
+      keepTyped();
+      state.shared = { path: id, url, copied };
+      render(copied ? undefined : '.share-link input');
+      if (!copied) app.querySelector('.share-link input')?.select();
+    });
+    return;
+  }
   if (a === 'boekfilters' || a === 'boekfiltersdone') {
     state.filtersOpen = a === 'boekfilters' && !state.filtersOpen;
     render(a === 'boekfiltersdone' ? '.found-count [role="status"]' : undefined);
@@ -265,6 +289,7 @@ app.addEventListener('click', (e) => {
     st.filter = id ? Number(id) : null;
     newQuestion(s);
     state.view.soort = st.filter;
+    delete state.view.seed;
     // Een andere keuze is geen nieuw scherm, dus de terugknop slaat die over.
     history.replaceState(history.state, '', pathFor(state.view));
     render();
@@ -361,6 +386,11 @@ app.addEventListener('submit', (e) => {
       st = state.prac[s.slug];
     if (st.status === 'right' || st.status === 'shown') {
       newQuestion(s);
+      // De seed in het adres hoorde bij de vorige vraag.
+      if (state.view.seed !== undefined) {
+        delete state.view.seed;
+        history.replaceState(history.state, '', pathFor(state.view));
+      }
       render('#pq');
       focusOn('#pf0');
       return;

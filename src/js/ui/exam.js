@@ -2,13 +2,13 @@
 import { checkAnswer, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
-import { DOMAINS, TOPICS } from '../topics/index.js';
+import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
 import { rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { bookPath, chosenTopics, topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { pageHead } from './layout.js';
-import { fieldsHTML, readVals } from './question-form.js';
+import { fieldsHTML, readVals, shareHTML } from './question-form.js';
 import { state } from './state.js';
 
 // Een lopende proeftoets en de laatste uitslag blijven in de browser bewaard, los van de voortgang.
@@ -81,7 +81,7 @@ function buildTest(ids, n) {
       if (out.length >= n) break;
       if (!pools.get(topic.slug).length) pools.set(topic.slug, shuffle(skills));
       const sk = pools.get(topic.slug).pop();
-      out.push({ topic, skill: sk, q: sk.gen(), vals: [] });
+      out.push({ topic, skill: sk, q: makeQuestion(sk), vals: [] });
     }
   }
   const order = TOPICS.map((s) => s.slug);
@@ -252,8 +252,10 @@ function vToetsRes() {
   })).filter((g) => g.rows.length);
   const domain = ({ dm, rows }) =>
     `<section class="res-domain color-${dm.color}"><h3 class="res-domain-head">${dm.name}</h3><ul class="res-topics">${rows.map(topic).join('')}</ul></section>`;
-  const question = (x, i) =>
-    `<div class="resq"><div class="row" style="justify-content:space-between"><h3 class="plain-h">Vraag ${i + 1}</h3><span class="tag ${x.c.ok ? 'good' : 'bad'}">${x.c.ok ? 'Goed' : x.got ? `${x.got} van ${x.max} goed` : 'Fout'}</span></div><div>${x.q.q}</div>${resultFig(x)}${answersHTML(x)}<details><summary>Uitwerking</summary>${stepsHTML(x.q.steps)}</details></div>`;
+  const question = (x, i) => {
+    const share = shareHTML(x.skill, x.q);
+    return `<div class="resq"><div class="q-head"><div class="row" style="justify-content:space-between"><h3 class="plain-h">Vraag ${i + 1}</h3><span class="row"><span class="tag ${x.c.ok ? 'good' : 'bad'}">${x.c.ok ? 'Goed' : x.got ? `${x.got} van ${x.max} goed` : 'Fout'}</span>${share.button}</span></div>${share.note}</div><div>${x.q.q}</div>${resultFig(x)}${answersHTML(x)}<details><summary>Uitwerking</summary>${stepsHTML(x.q.steps)}</details></div>`;
+  };
   return `${pageHead('Je resultaat')}<div class="sheet res-head">
   <div class="res-score"><div class="score">${t.score}/${t.max}</div><div><p><b>Ongeveer een ${d(rd(gradeOf(t), 1))}</b></p><p class="small muted">In ${fmtT(t.time)} minuten. Cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</p></div></div>
   <div class="res-per"><h2 class="h3">Per onderwerp</h2><div class="res-domains${groups.length === 1 ? ' one' : ''}">${groups.map(domain).join('')}</div><p class="small muted">Tik op een onderwerp om het te oefenen.</p></div>

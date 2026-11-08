@@ -2,9 +2,10 @@
 import { prog, skillPct, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { topicOf } from '../stof.js';
+import { makeQuestion } from '../topics/index.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
-import { fieldsHTML } from './question-form.js';
+import { fieldsHTML, shareHTML } from './question-form.js';
 import { state } from './state.js';
 import { widgetHTML } from './widgets.js';
 
@@ -50,7 +51,9 @@ function vVideos(s) {
     ? `<div class="block"><h2 class="h3" id="videos">Video's</h2><p class="muted small">Kies de uitleg die jou het best helpt. De video's openen op YouTube.</p><ul class="vids">${[...groups].map(([title, links]) => `<li>${esc(title)}<span class="vid-links">${links.map(([k, id]) => `<a href="https://youtu.be/${id}" target="_blank" rel="noopener" aria-label="${esc(title)}, ${CHANNELS[k]}">${CHANNELS[k]}</a>`).join('')}</span></li>`).join('')}</ul></div>`
     : '';
 }
-function newQuestion(s) {
+// Zonder seed krijgt de vraag een nieuwe. Met ?soort=...&seed=... uit het adres komt precies die
+// vraag terug.
+function newQuestion(s, seed) {
   const st = state.prac[s.slug];
   let sk;
   if (st.filter) {
@@ -61,7 +64,7 @@ function newQuestion(s) {
     );
     sk = pool.find((k) => k.id !== st.lastSkill) || pool[0];
   }
-  st.q = sk.gen();
+  st.q = makeQuestion(sk, seed);
   st.skill = sk;
   st.lastSkill = sk.id;
   st.status = 'open';
@@ -73,11 +76,13 @@ function newQuestion(s) {
   st.sol = false;
 }
 const practiceState = (s) => state.prac[s.slug] || (state.prac[s.slug] = { right: 0, total: 0 });
-// Volgt ?soort= uit het adres. Een half gemaakte vraag blijft staan als die daarbij past.
-function applySoort(s, soort = null) {
+// Volgt ?soort= en ?seed= uit het adres. Een half gemaakte vraag blijft staan als die daarbij past.
+function applySoort(s, soort = null, seed) {
   const st = practiceState(s);
   st.filter = soort;
-  if (soort && st.skill?.id !== soort) newQuestion(s);
+  if (soort && seed !== undefined && (st.q?.seed !== seed || st.skill?.id !== soort))
+    newQuestion(s, seed);
+  else if (soort && st.skill?.id !== soort) newQuestion(s);
 }
 function vPractice(s) {
   const st = practiceState(s);
@@ -87,7 +92,8 @@ function vPractice(s) {
   const chips = s.mixed
     ? `<p class="small">Uitleg bij deze vraag: ${topicLink(topicOf(st.skill.id))}</p>`
     : `<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${s.skills.map((k) => `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`).join('')}</div>`;
-  return `${chips}<div class="sheet fade"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span>${st.total ? `${st.right} van ${st.total} goed deze ronde` : ''}</span></div>
+  const share = shareHTML(st.skill, q);
+  return `${chips}<div class="sheet fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}</span></div>${share.note}</div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !q.line && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}

@@ -1,5 +1,6 @@
 // De adressen van de site: bij elk scherm hoort één adres en andersom. Bevat geen DOM-code.
 import { FILTERS, MAPPING, MAPPINGS } from './mappings/index.js';
+import { parseSeed, seedText } from './math.js';
 import { DOMAIN, TOPIC } from './topics/index.js';
 
 const SCREENS = {
@@ -24,16 +25,22 @@ function pathFor(v) {
   }
   if (v.name !== 'topic') return SCREENS[v.name].path;
   if (!v.oefen) return `/${v.slug}`;
-  return `/${v.slug}/oefenen${v.soort ? `?soort=${v.soort}` : ''}`;
+  if (!v.soort) return `/${v.slug}/oefenen`;
+  const seed = v.seed === undefined ? '' : `&seed=${seedText(v.seed)}`;
+  return `/${v.slug}/oefenen?soort=${v.soort}${seed}`;
 }
 const to = (name) => SCREENS[name].path;
 
 function practiceView(slug, search) {
-  const soort = Number(new URLSearchParams(search).get('soort'));
+  const params = new URLSearchParams(search);
+  const soort = Number(params.get('soort'));
   // Een onbekende of andere vraagsoort negeren we, zodat een oude link toch iets laat zien.
-  return TOPIC[slug].skills.some((k) => k.id === soort)
+  if (!TOPIC[slug].skills.some((k) => k.id === soort)) return { name: 'topic', slug, oefen: true };
+  // Een seed zegt alleen iets binnen één vraagsoort: samen wijzen ze naar precies één vraag.
+  const seed = parseSeed(params.get('seed'));
+  return seed === null
     ? { name: 'topic', slug, oefen: true, soort }
-    : { name: 'topic', slug, oefen: true };
+    : { name: 'topic', slug, oefen: true, soort, seed };
 }
 // De filters op Kies uit je boek, zoals ?niveau=havo,vwo&leerjaar=3. Wat niet bestaat, negeren
 // we, en de volgorde in het adres ligt vast.

@@ -1085,6 +1085,62 @@ test('soort in het adres kiest de vraagsoort', async () => {
     assert.equal(search(), '');
     assert.equal(await p.evaluate(() => history.length), steps);
 
+    // Met een seed opent precies dezelfde vraag, ook in een ander tabblad. Bij de volgende vraag
+    // verdwijnt de seed uit het adres.
+    const question = () => p.textContent('#pq');
+    const link = `/${slug}/oefenen?soort=${two.id}&seed=k3x9q`;
+    await p.goto(at(link));
+    const asked = await question();
+    assert.equal(await p.evaluate((s) => wiskundefit.state.prac[s].q.seed, slug), 33775406);
+    const other = await browser.newPage();
+    await other.goto(at(link));
+    assert.equal(await other.textContent('#pq'), asked, 'een ander tabblad krijgt dezelfde vraag');
+    await other.close();
+    await p.reload();
+    assert.equal(await question(), asked, 'ook na herladen');
+
+    // Deel op een computer: de link staat op het klembord, en wat je typte blijft staan.
+    const webkitBrowser = process.env.BROWSER === 'webkit';
+    if (!webkitBrowser) await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    const typed = await p.$('input#pf0');
+    if (typed) await typed.fill('12');
+    await p.click('[data-act="share"]');
+    await p.waitForSelector('.share-note:not(:empty)', { state: 'attached' });
+    if (!webkitBrowser) {
+      assert.equal(await p.textContent('.share-note.sr'), 'Link gekopieerd.');
+      assert.equal(await p.textContent('[data-act="share"]'), 'Gekopieerd');
+      assert.equal(
+        await p.evaluate(() => document.activeElement.dataset.act),
+        'share',
+        'de focus blijft op de knop',
+      );
+      assert.equal(await p.evaluate(() => navigator.clipboard.readText()), at(link));
+    }
+    if (typed) assert.equal(await p.inputValue('input#pf0'), '12', 'wat je typte blijft staan');
+    assert.match(await p.getAttribute('[data-act="share"]', 'data-id'), /seed=k3x9q$/);
+
+    // Op een telefoon opent het deelmenu van het toestel.
+    const phone = await browser.newContext({ isMobile: true, hasTouch: true });
+    await phone.addInitScript(() => {
+      navigator.share = (data) => {
+        window.__shared = data;
+        return Promise.resolve();
+      };
+    });
+    const tp = await phone.newPage();
+    await tp.goto(at(link));
+    await tp.tap('[data-act="share"]');
+    assert.deepEqual(await tp.evaluate(() => window.__shared), {
+      text: 'Kun je me helpen met deze vraag?',
+      url: at(link),
+    });
+    await phone.close();
+
+    await p.click('[data-act="show"]');
+    await p.click('#nextq');
+    assert.equal(search(), `?soort=${two.id}`);
+    assert.notEqual(await question(), asked);
+
     // Een vraagsoort van een ander onderwerp of een onzinnummer verdwijnt uit het adres.
     for (const bad of [TOPICS[1].skills[0].id, 99999, 'abc']) {
       await p.goto(at(`/${slug}/oefenen?soort=${bad}`));
@@ -1258,6 +1314,13 @@ test(
       assert.equal(await p.locator('.resq .answers').count(), 10);
       assert.equal(await p.locator('.answers .mark.bad').count(), 0, 'alles goed: geen kruisjes');
       assert.equal(await p.locator('.resq details[open]').count(), 0, 'uitwerkingen ingeklapt');
+      // Elke vraag kun je delen, met precies die vraag in de link.
+      const shared = await p.$$eval('.resq [data-act="share"]', (els) =>
+        els.map((b) => b.dataset.id),
+      );
+      const seeds = await p.evaluate(() => wiskundefit.state.result.items.map((x) => x.q.seed));
+      assert.equal(shared.length, 10);
+      shared.forEach((path, i) => assert.ok(path.endsWith(`&seed=${seeds[i].toString(36)}`), path));
       await p.screenshot({ path: `${shotDir}uitslag.png`, fullPage: true });
 
       // De uitslag heeft een eigen adres en blijft na herladen staan.

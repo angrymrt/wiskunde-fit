@@ -1,6 +1,34 @@
 // Rekenhulp: toeval, breuken (als {n, d}) en getallen op zijn Nederlands schrijven.
 
-const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+// Al het toeval van een vraag komt uit random(). Binnen withSeed is dat mulberry32, een kleine,
+// bekende toevalsgenerator: dezelfde seed geeft dan steeds precies dezelfde vraag, zolang de
+// generator zelf niet verandert. Een seed is een geheel getal van 32 bits.
+const mulberry32 = (seed) => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+let random = Math.random;
+function withSeed(seed, make) {
+  const before = random;
+  random = mulberry32(seed);
+  try {
+    return make();
+  } finally {
+    random = before;
+  }
+}
+const newSeed = () => globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
+// In het adres staat een seed in base 36, zodat die kort blijft: hoogstens 7 tekens.
+const seedText = (seed) => seed.toString(36);
+function parseSeed(text) {
+  if (!/^[0-9a-z]{1,7}$/.test(text || '')) return null;
+  const seed = parseInt(text, 36);
+  return seed <= 0xffffffff ? seed : null;
+}
+
+const ri = (a, b) => a + Math.floor(random() * (b - a + 1));
 const nz = (a, b) => {
   let x;
   do {
@@ -9,7 +37,7 @@ const nz = (a, b) => {
   return x;
 };
 const pick = (a) => a[ri(0, a.length - 1)];
-const coin = () => Math.random() < 0.5;
+const coin = () => random() < 0.5;
 const shuffle = (a) => {
   a = [...a];
   for (let i = a.length - 1; i > 0; i--) {
@@ -95,6 +123,10 @@ function dlin(a, b, v = 'x') {
 const sg = (b) => (b < 0 ? ` - ${d(-b)}` : ` + ${d(b)}`);
 
 export {
+  withSeed,
+  newSeed,
+  seedText,
+  parseSeed,
   ri,
   nz,
   pick,

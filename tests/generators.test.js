@@ -2,7 +2,8 @@
 // Meer rondes kan met de omgevingsvariabele QUESTIONS, bijvoorbeeld QUESTIONS=5000.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
+import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
+import { parseSeed, seedText } from '../src/js/math.js';
 import { checkAnswer, checkField, parseNum } from '../src/js/answers.js';
 import { migrateIds, migrateSkills } from '../src/js/progress.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
@@ -57,31 +58,84 @@ function assertSound(q) {
   assert.ok(!checkAnswer(stored(q), wrong).ok, `bewaard fout antwoord goedgekeurd: ${q.q}`);
 }
 
+// Elke ronde heeft een vaste seed. Gaat er iets mis, dan noemt de test de link naar precies die
+// vraag, zodat je die met npm run dev in de browser kunt openen.
+const seeds = Array.from({ length: ROUNDS }, (_, i) => (i * 2654435761) >>> 0);
+const linkTo = (topic, skill, seed) =>
+  `/${topic.slug}/oefenen?soort=${skill.id}&seed=${seedText(seed)}`;
+function eachQuestion(topic, skill, check) {
+  for (const seed of seeds) {
+    try {
+      check(makeQuestion(skill, seed));
+    } catch (e) {
+      // Node toont de stack, en daar staat de melding al in. Zet de link dus op beide plekken.
+      const where = `\n    Open de vraag: ${linkTo(topic, skill, seed)}`;
+      e.stack = e.stack.replace(e.message, e.message + where);
+      e.message += where;
+      throw e;
+    }
+  }
+}
+
 for (const section of TOPICS) {
   test(section.title, async (t) => {
     for (const skill of section.skills) {
-      await t.test(skill.name, () => {
-        for (let i = 0; i < ROUNDS; i++) assertSound(skill.gen());
-      });
+      await t.test(skill.name, () => eachQuestion(section, skill, assertSound));
     }
   });
 }
+
+test('dezelfde seed geeft precies dezelfde vraag, zonder Math.random', () => {
+  const random = Math.random;
+  Math.random = () => {
+    throw new Error('Een generator gebruikt Math.random, en dan werkt een seed niet');
+  };
+  try {
+    for (const topic of TOPICS) {
+      for (const skill of topic.skills) {
+        const seen = new Set();
+        for (const seed of seeds.slice(0, 20)) {
+          const q = stored(makeQuestion(skill, seed));
+          assert.deepEqual(stored(makeQuestion(skill, seed)), q, linkTo(topic, skill, seed));
+          assert.equal(q.seed, seed);
+          seen.add(JSON.stringify(q.fields ?? q.mc));
+        }
+        assert.ok(seen.size > 1, `${skill.name} geeft bij elke seed dezelfde vraag`);
+      }
+    }
+  } finally {
+    Math.random = random;
+  }
+});
+
+test('een seed staat kort in het adres en gaat heen en terug', () => {
+  for (const seed of [0, 1, 35, 36, 2654435761, 0xffffffff]) {
+    assert.equal(parseSeed(seedText(seed)), seed);
+    assert.ok(seedText(seed).length <= 7);
+  }
+  for (const bad of [null, '', 'K3X9Q', 'k3x9q!', '12345678', '1z141z4', '-1']) {
+    assert.equal(parseSeed(bad), null, bad);
+  }
+});
 
 test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
   const drawing = TOPICS.flatMap((s) => s.skills).filter((k) => /tekenen$/.test(k.name));
   assert.equal(drawing.length, 3);
   for (const skill of drawing) {
-    for (let i = 0; i < ROUNDS; i++) {
-      const q = skill.gen();
-      const [x1, y1, x2, y2] = q.fields.map((f) => f.a);
-      const other = [x1 + 2 * (x2 - x1), y1 + 2 * (y2 - y1)];
-      const answer = (...vals) => checkAnswer(q, vals.map(String));
-      assert.ok(answer(x1, y1, ...other).ok, `ander punt op de lijn afgekeurd: ${q.q}`);
-      assert.ok(answer(x2, y2, x1, y1).ok, `omgekeerde volgorde afgekeurd: ${q.q}`);
-      assert.ok(!answer(x1, y1, x1, y1).ok, `twee keer hetzelfde punt goedgekeurd: ${q.q}`);
-      assert.deepEqual(answer(x1, y1, x2, y2 + 1).each, [true, true, false, false]);
-      assert.ok(!answer(x1, y1, '', '').ok, `één punt goedgekeurd: ${q.q}`);
-    }
+    eachQuestion(
+      TOPICS.find((t) => t.skills.includes(skill)),
+      skill,
+      (q) => {
+        const [x1, y1, x2, y2] = q.fields.map((f) => f.a);
+        const other = [x1 + 2 * (x2 - x1), y1 + 2 * (y2 - y1)];
+        const answer = (...vals) => checkAnswer(q, vals.map(String));
+        assert.ok(answer(x1, y1, ...other).ok, `ander punt op de lijn afgekeurd: ${q.q}`);
+        assert.ok(answer(x2, y2, x1, y1).ok, `omgekeerde volgorde afgekeurd: ${q.q}`);
+        assert.ok(!answer(x1, y1, x1, y1).ok, `twee keer hetzelfde punt goedgekeurd: ${q.q}`);
+        assert.deepEqual(answer(x1, y1, x2, y2 + 1).each, [true, true, false, false]);
+        assert.ok(!answer(x1, y1, '', '').ok, `één punt goedgekeurd: ${q.q}`);
+      },
+    );
   }
 });
 

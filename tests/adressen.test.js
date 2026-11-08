@@ -63,6 +63,19 @@ test('soort kiest alleen een vraagsoort van dit onderwerp', () => {
   }
 });
 
+test('soort en seed wijzen samen naar precies één vraag', () => {
+  const path = `/${topic.slug}/oefenen`;
+  const view = open(`${path}?seed=k3x9q&soort=${soort}`);
+  assert.deepEqual(view, { name: 'topic', slug: topic.slug, oefen: true, soort, seed: 33775406 });
+  assert.equal(pathFor(view), `${path}?soort=${soort}&seed=k3x9q`);
+  assert.deepEqual(open(`${path}?soort=${soort}&seed=0`).seed, 0);
+  // Zonder vraagsoort zegt een seed niets, en een seed die niet kan, negeren we.
+  assert.equal(pathFor(open(`${path}?seed=k3x9q`)), path);
+  for (const bad of ['K3X9Q', '12345678', '']) {
+    assert.equal(pathFor(open(`${path}?soort=${soort}&seed=${bad}`)), `${path}?soort=${soort}`);
+  }
+});
+
 test('een adres dat niet bestaat toont geen ander scherm', () => {
   for (const address of [
     '/onzin',

@@ -118,6 +118,48 @@ test('Kies uit je boek toont de boeken die bij de filters passen, met je boek bo
   }
 });
 
+test('de knop Deel wijst naar precies deze vraag, en alleen als die een seed heeft', async () => {
+  const { shareHTML } = await import(new URL('question-form.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const { makeQuestion } = await import('../src/js/topics/index.js');
+  const topic = TOPICS.at(-1);
+  const skill = topic.skills.at(-1);
+  const q = makeQuestion(skill, 33775406);
+  const link = `/${topic.slug}/oefenen?soort=${skill.id}&amp;seed=k3x9q`;
+  const share = shareHTML(skill, q);
+  assert.match(
+    share.button,
+    new RegExp(`data-act="share" data-id="${link.replace(/\?/g, '\\?')}"`),
+  );
+  assert.match(share.note, /^<p class="small share-note" role="status"><\/p>$/);
+  // Een vraag uit een proeftoets van voor de seed kun je niet delen.
+  const { seed, ...old } = q;
+  assert.equal(seed, 33775406);
+  assert.deepEqual(shareHTML(skill, old), { button: '', note: '' });
+  // Na het delen staat de melding bij die ene vraag, en lukte kopiëren niet, dan ook de link.
+  const path = link.replace('&amp;', '&');
+  try {
+    state.shared = { path, url: `https://wiskundefit.nl${path}`, copied: true };
+    assert.match(
+      shareHTML(skill, q).note,
+      /class="small share-note sr" role="status">Link gekopieerd\./,
+    );
+    assert.match(
+      shareHTML(skill, q).button,
+      /class="btn quiet share copied"[^]*>Gekopieerd<\/button>$/,
+    );
+    assert.match(shareHTML(skill, makeQuestion(skill, 1)).button, />Deel</);
+    assert.doesNotMatch(shareHTML(skill, makeQuestion(skill, 1)).note, /gekopieerd/);
+    state.shared.copied = false;
+    assert.match(
+      shareHTML(skill, q).note,
+      /Kopiëren lukte niet[^]*readonly value="https:\/\/wiskundefit\.nl\//,
+    );
+  } finally {
+    state.shared = null;
+  }
+});
+
 test('een rooster heeft geen id, en een oude proeftoets toont nog de getekende lijn', async () => {
   const { drawnResult, graph } = await import('../src/js/figures.js');
   const fig = graph({ xr: [-5, 5], yr: [-5, 5], draw: true });

@@ -7,6 +7,8 @@ const state = {
   prac: {},
   // Op een telefoon staan de filters op Kies uit je boek open.
   filtersOpen: false,
+  // De vraag die je net deelde: { path, url, copied }. Daar staat dan de melding bij.
+  shared: null,
   test: null,
   result: null,
   len: 20,

@@ -11,6 +11,7 @@ import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
 import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
+import { newSeed, withSeed } from '../math.js';
 
 const DOMAINS = [
   {
@@ -71,4 +72,8 @@ for (const domain of DOMAINS) {
   });
 }
 
-export { DOMAINS, DOMAIN, TOPICS, TOPIC };
+// Maakt een vraag van een vraagsoort met een seed, en bewaart die seed in de vraag. Zo is elke
+// vraag precies te herhalen, bijvoorbeeld bij een foutmelding.
+const makeQuestion = (skill, seed = newSeed()) => ({ ...withSeed(seed, skill.gen), seed });
+
+export { DOMAINS, DOMAIN, TOPICS, TOPIC, makeQuestion };

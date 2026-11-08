@@ -1148,6 +1148,45 @@ ol.how {
 .tag {
   font-weight: 700;
 }
+/* De kop van een vraag, met de knop om die te delen en de melding daarover. */
+.q-head .row {
+  gap: 8px 12px;
+}
+.share {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 4px 12px;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.share.copied {
+  border-color: var(--good);
+  color: var(--good);
+}
+/* De melding staat er altijd, ook leeg, zodat een schermlezer hem voorleest zodra er iets in komt. */
+.share-note {
+  margin: 0;
+  color: var(--ink);
+}
+.share-note:not(:empty) {
+  margin-top: 6px;
+}
+.share-link {
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+}
+.share-link input {
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--sheet);
+  color: var(--ink);
+}
 /* Alleen voor een schermlezer. */
 .sr {
   position: absolute;
