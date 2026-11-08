@@ -40,7 +40,9 @@ De site werkt alleen via een webserver, want elk scherm heeft een eigen adres. D
 
 ## Online zetten
 
-Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app. In [staticwebapp.config.json](staticwebapp.config.json) staat dat Azure bij elk adres de site toont, en de build zet dat bestand in `dist/`.
+Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app. In [staticwebapp.config.json](staticwebapp.config.json) staat dat Azure bij elk adres de site toont, en de build zet dat bestand in `dist/`. Na elke deploy controleert de workflow dat een adres als `/over` rechtstreeks werkt.
+
+Een pull request naar `main` komt op een eigen preview-adres, dat Azure als reactie bij de pull request zet. Dat adres is openbaar, en het verdwijnt als de pull request dicht gaat. Het gratis plan heeft ruimte voor drie previews tegelijk. Een pull request uit een fork komt niet online.
 
 ## Zo zit het in elkaar
 
