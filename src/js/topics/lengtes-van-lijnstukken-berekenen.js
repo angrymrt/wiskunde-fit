@@ -623,6 +623,8 @@ export default {
   title: 'Lengtes van lijnstukken berekenen',
   intro:
     'Soms ontbreekt er een stuk dat je nodig hebt om een lengte te berekenen. Hier leer je dat stuk x noemen en uitrekenen met gelijkvormige driehoeken, ook in een rechthoek, parallellogram, balk of kubus.',
+  description:
+    'Bereken een onbekende lengte x met gelijkvormige driehoeken, ook in een rechthoek, balk of kubus. Gratis uitleg en oefenvragen.',
   videos: {
     menno: [
       ['Een lengte x stellen', 'PdS3qjpN9gY'],

@@ -12,14 +12,20 @@
     "dev": "node scripts/serve.js",
     "build": "node scripts/build.js",
     "images": "node scripts/images.js",
-    "test": "node --test tests/generators.test.js tests/adressen.test.js tests/methode-indelingen.test.js tests/release.test.js",
+    "fonts": "node scripts/lettertypes.js",
+    "test": "node --test tests/generators.test.js tests/adressen.test.js tests/methode-indelingen.test.js tests/schermen.test.js tests/paginas.test.js tests/release.test.js",
     "test:browser": "npm run build && node --test tests/browser.e2e.js",
     "format": "prettier --write ."
   },
   "devDependencies": {
     "axe-core": "^4.14.0",
     "esbuild": "^0.28.2",
+    "fontkit": "^2.0.4",
     "playwright-core": "^1.65.0",
-    "prettier": "^3.9.10"
+    "prettier": "^3.9.10",
+    "subset-font": "^2.9.0"
+  },
+  "dependencies": {
+    "idiomorph": "^0.8.0"
   }
 }

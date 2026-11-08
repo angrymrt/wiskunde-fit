@@ -2,7 +2,6 @@
 import { pick } from './math.js';
 import { esc } from './typeset.js';
 
-let uid = 0;
 function graph({
   xr = [-1, 6],
   yr = [-5, 6],
@@ -27,8 +26,12 @@ function graph({
     W = (xr[1] - xr[0]) * u + ml + mr,
     Ht = (yr[1] - yr[0]) * u + mt + mb;
   const X = (x) => ml + (x - xr[0]) * u,
-    Y = (y) => mt + (yr[1] - y) * u,
-    id = 'c' + ++uid;
+    Y = (y) => mt + (yr[1] - y) * u;
+  // Een geneste svg snijdt de lijnen af bij de rand van het rooster. Een clipPath zou een id nodig
+  // hebben, en dan is dezelfde figuur niet steeds dezelfde tekst.
+  const box = [X(xr[0]), Y(yr[1]), (xr[1] - xr[0]) * u, (yr[1] - yr[0]) * u],
+    inside = (cls = '') =>
+      `<svg${cls} x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}" viewBox="${box.join(' ')}">`;
   let o = '';
   if (!sketch) {
     for (let i = xr[0]; i <= xr[1]; i++)
@@ -48,12 +51,12 @@ function graph({
       if (j && j % ly === 0)
         o += `<text class="tk" text-anchor="end" x="${X(ax) - 5}" y="${Y(j) + 4}">${String(j * ys).replace('-', '−')}</text>`;
   }
-  o += `<clipPath id="${id}"><rect x="${X(xr[0])}" y="${Y(yr[1])}" width="${(xr[1] - xr[0]) * u}" height="${(yr[1] - yr[0]) * u}"/></clipPath><g clip-path="url(#${id})">`;
+  o += inside();
   lines.forEach((l, i) => {
     const f = (x) => (l.a * x * xs + l.b) / ys;
     o += `<line class="l${l.c || i + 1}" x1="${X(xr[0])}" y1="${Y(f(xr[0]))}" x2="${X(xr[1])}" y2="${Y(f(xr[1]))}"/>`;
   });
-  o += '</g>';
+  o += '</svg>';
   lines.forEach((l, i) => {
     if (!l.name) return;
     const f = (x) => (l.a * x * xs + l.b) / ys;
@@ -72,7 +75,7 @@ function graph({
     if (p.label)
       o += `<text class="ti" x="${X(p.x / xs) + (p.off ? p.off[0] : 7)}" y="${Y(p.y / ys) + (p.off ? p.off[1] : -7)}">${p.label}</text>`;
   });
-  const drawing = draw ? `<g class="drawn" clip-path="url(#${id})"></g>` : '',
+  const drawing = draw ? `${inside(' class="drawn"')}</svg>` : '',
     drawData = draw ? ` data-draw="${[...xr, ...yr, u, ml, mt].join(',')}"` : '';
   return `<svg class="fig" role="img" aria-label="${label}"${drawData} width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}">${o}${typeof extra === 'function' ? extra(X, Y) : extra}${drawing}</svg>`;
 }
@@ -85,7 +88,7 @@ function drawnHTML(data, pts, { cls = 'l1', dots = true } = {}) {
     given = pts.filter((p) => p.every(Number.isFinite));
   let o = '';
   if (given.length === 2 && (given[0][0] !== given[1][0] || given[0][1] !== given[1][1])) {
-    // Ver buiten het rooster doortrekken: de clipPath snijdt de lijn af.
+    // Ver buiten het rooster doortrekken: de rand van het rooster snijdt de lijn af.
     const [[a, b], [c, e]] = given,
       far = 100,
       dx = c - a,
@@ -97,7 +100,8 @@ function drawnHTML(data, pts, { cls = 'l1', dots = true } = {}) {
   return o;
 }
 // Het rooster van een tekenvraag in de uitslag: de lijn van de leerling, en bij een fout ook de
-// goede lijn y = ax + b. Op dit rooster kun je niet meer tikken.
+// goede lijn y = ax + b. Op dit rooster kun je niet meer tikken. Een proeftoets die nog uit
+// versie 1.6.0 in de browser staat, heeft een <g class="drawn"> in plaats van een svg.
 function drawnResult(fig, pts, line, ok) {
   const data = fig.match(/ data-draw="([^"]+)"/)[1],
     [x0, x1] = data.split(',').map(Number),
@@ -112,7 +116,10 @@ function drawnResult(fig, pts, line, ok) {
   return fig
     .replace(` data-draw="${data}"`, '')
     .replace(/aria-label="[^"]*"/, `aria-label="${label}"`)
-    .replace(/(<g class="drawn"[^>]*>)<\/g>/, (_, g) => `${g}${good}${drawnHTML(data, pts)}</g>`);
+    .replace(
+      /(<(g|svg) class="drawn"[^>]*>)<\/\2>/,
+      (_, open, tag) => `${open}${good}${drawnHTML(data, pts)}</${tag}>`,
+    );
 }
 function triFromSides(ab, bc, ac) {
   const x = (ab * ab + ac * ac - bc * bc) / (2 * ab);
@@ -236,8 +243,9 @@ function geo({
   return `<svg class="fig" role="img" aria-label="Meetkundige figuur met lengtes en hoeken" width="${W.toFixed(0)}" height="${Ht.toFixed(0)}" viewBox="0 0 ${W.toFixed(0)} ${Ht.toFixed(0)}">${o}</svg>`;
 }
 /* Evenwijdige lijnen met een snijlijn; markeer twee hoeken. pos: 0 rechtsboven, 1 linksboven, 2 linksonder, 3 rechtsonder */
-function angleFig(p1, q1, p2, q2, w = 300) {
-  const th = (pick([55, 65, 115, 125]) * Math.PI) / 180,
+// Zonder hoek kiest de figuur er zelf een. Geef een hoek mee als de figuur steeds gelijk moet zijn.
+function angleFig(p1, q1, p2, q2, w = 300, deg = pick([55, 65, 115, 125])) {
+  const th = (deg * Math.PI) / 180,
     H = 170,
     yP = 52,
     yQ = 120,

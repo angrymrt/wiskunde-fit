@@ -32,9 +32,31 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Wiskundefit" />
     <link rel="stylesheet" href="/styles.css" />
+    <!-- Zonder JavaScript: verberg wat dan niets doet, en toon alle stappen van een voorbeeld. -->
+    <noscript>
+      <style>
+        [data-act]:not(a),
+        [data-widget],
+        .practice-bar,
+        .stof-bar,
+        .pick-all,
+        .needs-js {
+          display: none !important;
+        }
+        .steps li[hidden] {
+          display: block !important;
+        }
+        .pick {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .pick-topics {
+          padding-left: 0;
+        }
+      </style>
+    </noscript>
+    <script type="module" src="/js/main.js"></script>
   </head>
   <body>
     <div class="wrap" id="app"></div>
-    <script type="module" src="/js/main.js"></script>
   </body>
 </html>

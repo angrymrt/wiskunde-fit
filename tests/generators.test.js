@@ -119,6 +119,8 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
     'privacy',
     'contact',
     'cijfers',
+    // De code, de CSS en de lettertypes, zie scripts/build.js.
+    'assets',
   ];
   // Domeinen en onderwerpen delen de adressen direct onder /, dus geen twee mogen hetzelfde zijn.
   const slugs = [...TOPICS, ...DOMAINS].map((t) => t.slug);
@@ -127,6 +129,14 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
     slugs.length,
     'Twee onderwerpen of domeinen hebben hetzelfde adres',
   );
+  // Een oud adres blijft altijd een doorverwijzing, dus het mag nooit opnieuw een adres worden.
+  const old = [...TOPICS, ...DOMAINS].flatMap((t) => t.oldSlugs || []);
+  assert.equal(
+    new Set([...slugs, ...old]).size,
+    slugs.length + old.length,
+    'Oud adres hergebruikt',
+  );
+  for (const o of old) assert.ok(!reserved.includes(o), `${o} is gereserveerd`);
   for (const d of DOMAINS) {
     assert.equal(d.slug, d.name.toLowerCase().replaceAll(' ', '-'), d.name);
     assert.ok(!reserved.includes(d.slug), `${d.slug} is gereserveerd`);

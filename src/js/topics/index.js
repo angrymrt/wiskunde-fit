@@ -18,6 +18,8 @@ const DOMAINS = [
     name: 'Formules en grafieken',
     intro:
       'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden.',
+    description:
+      'Rekenen met formules, lineaire grafieken tekenen, een formule opstellen en snijpunten berekenen. Gratis wiskunde oefenen met uitleg.',
     color: 'blue',
     topics: [rekenen, lijnen, opstellen, snijpunten],
   },
@@ -26,6 +28,8 @@ const DOMAINS = [
     name: 'Vergelijkingen en ongelijkheden',
     intro:
       'Bij een vergelijking zoek je wanneer twee kanten even groot zijn. Bij een ongelijkheid zoek je wanneer de ene kant groter of kleiner is dan de andere. Hier leer je ze oplossen, ook als er twee variabelen in staan.',
+    description:
+      'Lineaire vergelijkingen en ongelijkheden oplossen, ook met haakjes, breuken en twee variabelen. Gratis wiskunde oefenen met uitleg.',
     color: 'forest',
     topics: [vergelijkingen, ongelijkheden, tweeVariabelen],
   },
@@ -34,6 +38,8 @@ const DOMAINS = [
     name: 'Meetkunde',
     intro:
       'Meetkunde gaat over figuren, lengtes en hoeken. Hier bereken je zijden met de stelling van Pythagoras en met verhoudingstabellen, en leer je wanneer twee driehoeken gelijkvormig zijn.',
+    description:
+      'Stelling van Pythagoras, verhoudingstabellen en gelijkvormige driehoeken: bereken zijden en lengtes. Gratis wiskunde oefenen met uitleg.',
     color: 'orange',
     topics: [pythagoras, verhoudingen, gelijkvormig, aantonen, lengtes],
   },

@@ -289,6 +289,8 @@ export default {
   title: 'Gelijkvormige driehoeken',
   intro:
     'Is de ene driehoek een vergroting of verkleining van de andere, dan heten ze gelijkvormig. Hier leer je hoe je daarmee de lengte van een zijde berekent die niet gegeven is.',
+  description:
+    'Bereken zijden van gelijkvormige driehoeken met de vergrotingsfactor en een verhoudingstabel. Gratis uitleg en oefenvragen met uitwerkingen.',
   videos: {
     menno: [
       ['Gelijkvormigheid', 'cVu2DqhSueY'],

@@ -334,6 +334,8 @@ export default {
   title: 'Lineaire ongelijkheden',
   intro:
     'Bij een ongelijkheid zoek je niet één getal, maar alle x waarvoor iets groter of kleiner is. Hier leer je dat oplossen, met en zonder grafieken.',
+  description:
+    'Los lineaire ongelijkheden op, met en zonder grafiek, en leer wanneer het teken omklapt. Gratis uitleg en oefenvragen met uitwerkingen.',
   videos: {
     menno: [
       ['Lineaire ongelijkheden oplossen met grafieken', '016gEKebUGM'],

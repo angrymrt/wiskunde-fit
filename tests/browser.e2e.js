@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium, webkit } from 'playwright-core';
+import { check } from '../scripts/controleer-site.js';
 import { startServer } from '../scripts/server.js';
 import { MAPPINGS } from '../src/js/mappings/index.js';
 import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
@@ -766,7 +767,7 @@ test('elk adres opent rechtstreeks het juiste scherm, ook na herladen', async ()
       ['/mijn-stof', /Mijn stof/, /^Mijn stof \|/],
       ['/proeftoets', /Proeftoets/, /^Proeftoets \|/],
       ['/proeftoets/uitslag', /Je resultaat/, /^Resultaat proeftoets \|/],
-      ['/over', /Over Wiskundefit/, /^Over Wiskundefit \|/],
+      ['/over', /Over Wiskundefit/, /^Over Wiskundefit$/],
       ['/privacy', /Privacy/, /^Privacy \|/],
       ['/contact', /Contact/, /^Contact \|/],
       ...DOMAINS.map((d) => [`/${d.slug}`, new RegExp(d.name), new RegExp(`^${d.name} \\|`)]),
@@ -806,16 +807,147 @@ test('elk adres opent rechtstreeks het juiste scherm, ook na herladen', async ()
     await p.goto(at('/#meetkunde'));
     assert.ok(await p.evaluate(() => scrollY > 0), 'scrolt naar het domein');
 
-    // Azure krijgt dezelfde regel als de ontwikkelserver, en een plaatje dat ontbreekt blijft een 404.
-    const config = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-    assert.equal(
-      await config('../dist/staticwebapp.config.json'),
-      await config('../staticwebapp.config.json'),
-    );
-    assert.equal((await fetch(at('/over'))).status, 200);
+    // Azure krijgt de regels uit de repository, met de doorverwijzingen uit de gegevens erachter.
+    const config = async (path) =>
+      JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'));
+    const built = await config('../dist/staticwebapp.config.json');
+    const source = await config('../staticwebapp.config.json');
+    assert.deepEqual(built.routes.slice(0, source.routes.length), source.routes);
+    assert.deepEqual({ ...built, routes: [] }, { ...source, routes: [] });
+
+    // Dezelfde controle als na elke deploy: elke pagina, de 404, de doorverwijzingen en de cache.
+    assert.deepEqual(await check(siteUrl), []);
     assert.match((await fetch(at('/og.png'))).headers.get('content-type'), /image\/png/);
-    assert.equal((await fetch(at('/bestaat-niet.png'))).status, 404);
     assert.deepEqual(errors, []);
+
+    // Een adres met hoofdletters gaat naar hetzelfde adres in kleine letters.
+    await p.goto(at('/Snijpunten-van-Lijnen'));
+    assert.equal(new URL(p.url()).pathname, '/snijpunten-van-lijnen');
+    assert.match(await p.textContent('h1'), /Snijpunten van lijnen/);
+  } finally {
+    await browser.close();
+  }
+});
+
+// De pagina's die de build vooraf maakt, met de tekst er al in. Zie src/js/pages.js.
+const PREBUILT = [
+  '/',
+  '/meetkunde',
+  ...TOPICS.map((t) => `/${t.slug}`),
+  '/methode-indeling',
+  ...MAPPINGS.map((m) => `/methode-indeling/${m.slug}`),
+  '/over',
+  '/privacy',
+  '/contact',
+];
+
+test('JavaScript neemt een vooraf gebouwde pagina over zonder iets te vervangen', async () => {
+  const browser = await launch();
+  try {
+    for (const progress of [false, true]) {
+      const context = await browser.newContext({ viewport: { width: 390, height: 800 } });
+      const p = await context.newPage();
+      if (progress) {
+        // Een leerling die al heeft geoefend: dan verandert de voortgang wel.
+        await p.goto(at('/over'));
+        await p.evaluate(
+          (ids) => {
+            const skills = Object.fromEntries(ids.map((id) => [id, [1, 1, 0]]));
+            localStorage.setItem('lijn-driehoek-v1', JSON.stringify({ v: 5, skills, stof: ids }));
+          },
+          TOPICS[1].skills.map((k) => k.id),
+        );
+      }
+      for (const address of ['/', '/lineaire-grafieken-tekenen', '/meetkunde', '/bestaat-niet']) {
+        // Houd de code tegen tot de leerling al aan het lezen is.
+        let release;
+        const gate = new Promise((resolve) => (release = resolve));
+        await p.route('**/assets/main-*.js', async (route) => {
+          await gate;
+          await route.continue();
+        });
+        // DOMContentLoaded wacht op de code, dus wacht hier alleen tot de voettekst er staat.
+        await p.goto(at(address), { waitUntil: 'commit' });
+        await p.waitForSelector('.foot');
+        const where = `${address}${progress ? ' met voortgang' : ''}`;
+        assert.equal(await p.evaluate(() => window.wiskundefit), undefined, where);
+        await p.keyboard.press('Tab');
+        await p.keyboard.press('Tab');
+        await p.evaluate(() => {
+          scrollTo(0, 200);
+          window.voor = {
+            focus: document.activeElement,
+            y: scrollY,
+            h1: document.querySelector('h1'),
+          };
+          window.vervangen = [];
+          new MutationObserver((list) =>
+            list.forEach((m) => {
+              // De balk met Ga oefenen schakelt main.js zelf aan en uit.
+              if (m.type === 'attributes' && m.target.matches('.practice-bar')) return;
+              window.vervangen.push(m.type);
+            }),
+          ).observe(document.getElementById('app'), {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            characterData: true,
+          });
+        });
+        release();
+        await p.waitForFunction(() => window.wiskundefit);
+        await p.waitForTimeout(100);
+        const after = await p.evaluate(() => ({
+          focus: document.activeElement === voor.focus && voor.focus !== document.body,
+          y: scrollY === voor.y,
+          h1: document.querySelector('h1') === voor.h1,
+          vervangen: vervangen.length,
+        }));
+        assert.ok(after.focus, `${where}: de focus blijft op hetzelfde element`);
+        assert.ok(after.y, `${where}: de pagina scrolt niet`);
+        assert.ok(after.h1, `${where}: de kop blijft hetzelfde element`);
+        if (!progress) assert.equal(after.vervangen, 0, `${where}: niets veranderd`);
+        await p.unroute('**/assets/main-*.js');
+      }
+      await context.close();
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
+test('elke vooraf gebouwde pagina is zonder JavaScript te lezen', async () => {
+  const browser = await launch();
+  try {
+    await mkdir(shotDir, { recursive: true });
+    const p = await browser.newPage({
+      viewport: { width: 390, height: 800 },
+      javaScriptEnabled: false,
+    });
+    for (const address of PREBUILT) {
+      await p.goto(at(address));
+      assert.ok((await p.textContent('h1')).trim(), `${address}: kop`);
+      assert.ok((await p.textContent('main')).length > 200, `${address}: tekst`);
+      // Een knop doet zonder JavaScript niets, dus die is er niet.
+      const buttons = await p.$$eval('main button, main input', (els) =>
+        els.filter((e) => e.checkVisibility()).map((e) => e.outerHTML.slice(0, 80)),
+      );
+      assert.deepEqual(buttons, [], `${address}: zichtbare knoppen`);
+      const hidden = await p.$$eval('.steps li', (els) => els.filter((e) => !e.checkVisibility()));
+      assert.equal(hidden.length, 0, `${address}: alle stappen van een voorbeeld zijn zichtbaar`);
+      assert.equal(
+        await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1),
+        false,
+        `${address}: breder dan de telefoon`,
+      );
+    }
+    await p.goto(at('/lineaire-grafieken-tekenen'));
+    await p.screenshot({ path: `${shotDir}zonder-javascript-uitleg.png`, fullPage: true });
+    await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-3'));
+    await p.screenshot({ path: `${shotDir}zonder-javascript-boek.png`, fullPage: true });
+    // Een schil zegt dat oefenen JavaScript nodig heeft.
+    await p.goto(at(`/${TOPICS[0].slug}/oefenen`));
+    assert.match(await p.textContent('main'), /werken alleen met JavaScript/);
   } finally {
     await browser.close();
   }

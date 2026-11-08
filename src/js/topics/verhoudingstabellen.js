@@ -275,6 +275,8 @@ export default {
   title: 'Verhoudingstabellen',
   intro:
     'In een verhoudingstabel horen de getallen in een vaste verhouding bij elkaar. Hier leer je met kruislings vermenigvuldigen een onbekend getal berekenen, ook als er letters in staan.',
+  description:
+    'Bereken een onbekend getal in een verhoudingstabel met kruislings vermenigvuldigen, ook met letters. Gratis oefenen met uitwerkingen.',
   videos: {
     menno: [
       ['Kruislings vermenigvuldigen', 't8xn6N4Cf3M'],

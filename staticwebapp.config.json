@@ -1,6 +1,12 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/*.{png,svg,css,js,woff2}"]
+  "trailingSlash": "never",
+  "routes": [
+    {
+      "route": "/assets/*",
+      "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+    }
+  ],
+  "responseOverrides": {
+    "404": { "rewrite": "/404.html", "statusCode": 404 }
   }
 }

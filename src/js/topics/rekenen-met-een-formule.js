@@ -171,6 +171,8 @@ export default {
   title: 'Rekenen met een formule',
   intro:
     'Met een formule reken je uit welke y bij een x hoort, of andersom. Hier leer je invullen, een tabel maken en nagaan of een punt op een lijn ligt.',
+  description:
+    'Oefen rekenen met een formule: y berekenen bij een x, een tabel maken en nagaan of een punt op een lijn ligt. Gratis, met uitleg en uitwerkingen.',
   videos: {
     menno: [['Formules met andere letters dan x en y', 'rFEA-kT63qQ']],
     bob: [['Formules met andere letters dan x en y', 'g8s5J0GeRJQ']],

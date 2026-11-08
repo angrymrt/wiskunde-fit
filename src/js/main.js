@@ -1,15 +1,13 @@
 // Startpunt van de app: kiest het juiste scherm en verwerkt klikken en formulieren.
+import { Idiomorph } from 'idiomorph';
 import { checkAnswer, findTrap } from './answers.js';
-import { DOMAIN, TOPICS, TOPIC } from './topics/index.js';
+import { TOPICS, TOPIC } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, save, rec, resetProgress } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof } from './stof.js';
 import {
   buildTest,
-  vToetsSetup,
-  vToetsRun,
-  vToetsRes,
   loadTests,
   saveTest,
   storeTest,
@@ -19,14 +17,12 @@ import {
   pauseClock,
   clockText,
 } from './ui/exam.js';
-import { vContact, vOver, vPrivacy } from './ui/about.js';
-import { vDomain, vHome } from './ui/home.js';
-import { vTopic, newQuestion, applySoort } from './ui/topic.js';
+import { newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
-import { topbar, footer, testNotice, vMissing } from './ui/layout.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
+import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';
-import { pickedMapping, vPick, vMapping, vStof, vStofPractice } from './ui/stof.js';
+import { pickedMapping } from './ui/stof.js';
 import { mountWidgets } from './ui/widgets.js';
 
 const here = () => location.pathname + location.search;
@@ -63,11 +59,12 @@ const saveScroll = () => {
   clearTimeout(scrollSave);
   history.replaceState({ scroll: window.scrollY }, '');
 };
-function restoreScroll() {
+// Bij het openen staat de pagina er al. Wie al aan het lezen was, blijft dan op die plek.
+function restoreScroll(opening) {
   const { scroll } = history.state || {};
   if (scroll != null) window.scrollTo(0, scroll);
   else if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
-  else window.scrollTo(0, 0);
+  else if (!opening) window.scrollTo(0, 0);
 }
 // Met een hash, zoals /#meetkunde, gaat de focus naar de kop van dat deel van het scherm.
 const go = (v, hash = '') => {
@@ -81,13 +78,20 @@ const go = (v, hash = '') => {
 };
 // Toont het scherm dat bij het adres hoort: bij het openen en bij de terugknop.
 function arrive(focus) {
-  const found = viewFor(location.pathname, location.search);
+  const opening = prebuilt;
+  let found = viewFor(location.pathname, location.search);
+  // Een adres met hoofdletters, zoals /Over, bestaat niet. Bestaat het in kleine letters wel, dan
+  // gaan we daarheen.
+  if (found.name === 'missing') {
+    const lower = viewFor(location.pathname.toLowerCase(), location.search);
+    if (lower.name !== 'missing') found = lower;
+  }
   // Zonder stofkeuze valt er niets te oefenen.
   const v = found.name === 'stofoefen' && !prog.stof ? { name: 'stof' } : found;
   const path = pathFor(v);
   if (path !== here()) history.replaceState(history.state, '', path + location.hash);
   show(v, focus);
-  restoreScroll();
+  restoreScroll(opening);
 }
 // Geeft een selector voor het element met de focus, om dat na het vervangen terug te vinden.
 function focusedSelector() {
@@ -105,26 +109,18 @@ function focusOn(selector) {
   el.focus();
   return document.activeElement === el;
 }
+// Bij het openen staat het scherm al in de pagina, vooraf gebouwd. De eerste render() past dan
+// alleen aan wat anders is, zoals de voortgang. Zo blijven de focus, de scrollpositie en de plek
+// van een schermlezer staan, en verspringt er niets.
+let prebuilt = app.firstElementChild !== null;
 // render() vervangt het hele scherm en daarmee het element met de focus. Zonder dit begint wie
 // het toetsenbord of een schermlezer gebruikt na elke klik weer bovenaan de pagina.
 // Geef een selector mee om de focus ergens anders te zetten dan waar die stond.
 function render(focus) {
   const target = focus || focusedSelector();
-  let html = '';
-  if (state.view.name === 'home') html = vHome();
-  else if (state.view.name === 'domain') html = vDomain(DOMAIN[state.view.slug]);
-  else if (state.view.name === 'topic') html = vTopic(TOPIC[state.view.slug]);
-  else if (state.view.name === 'toets') html = state.test ? vToetsRun() : vToetsSetup();
-  else if (state.view.name === 'toetsres') html = vToetsRes();
-  else if (state.view.name === 'missing') html = vMissing();
-  else if (state.view.name === 'over') html = vOver();
-  else if (state.view.name === 'privacy') html = vPrivacy();
-  else if (state.view.name === 'contact') html = vContact();
-  else if (state.view.name === 'kies') html = vPick();
-  else if (state.view.name === 'mapping') html = vMapping(MAPPING[state.view.id]);
-  else if (state.view.name === 'stof') html = vStof();
-  else if (state.view.name === 'stofoefen') html = vStofPractice();
-  app.innerHTML = `${topbar()}<main class="screen" id="inhoud">${testNotice()}${html}</main>${footer()}`;
+  if (prebuilt) Idiomorph.morph(app, screenHTML(), { morphStyle: 'innerHTML' });
+  else app.innerHTML = screenHTML();
+  prebuilt = false;
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
@@ -142,13 +138,14 @@ function render(focus) {
   }
 }
 // Op een telefoon verschijnt de balk met "Ga oefenen" pas als de knop onder de intro uit beeld is.
+// De balk begint verborgen, zodat hij bij het laden niet even in beeld staat.
 let barWatch;
 function watchPracticeBar() {
   barWatch?.disconnect();
   const bar = app.querySelector('.practice-bar'),
     button = app.querySelector('.topic-actions .btn.main');
-  if (!bar || !button || !('IntersectionObserver' in window)) return;
-  bar.classList.add('away');
+  if (!bar || !button) return;
+  if (!('IntersectionObserver' in window)) return bar.classList.remove('away');
   barWatch = new IntersectionObserver(([e]) => bar.classList.toggle('away', e.isIntersecting));
   barWatch.observe(button);
 }

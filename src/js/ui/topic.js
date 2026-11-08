@@ -6,6 +6,7 @@ import { esc, T, stepsHTML } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
 import { fieldsHTML } from './question-form.js';
 import { state } from './state.js';
+import { widgetHTML } from './widgets.js';
 
 function exampleHTML(ex, key) {
   const st = ex.steps;
@@ -33,7 +34,7 @@ const vLearn = (s) =>
   s.learn
     .map(
       (b, i) =>
-        `<div class="block"><h2 class="h3">${T(b.t)}</h2>${(b.p || []).map((x) => `<p>${/<span|<table/.test(x) ? x : T(x)}</p>`).join('')}${b.how ? `<ol class="how">${b.how.map((x) => `<li>${/<span/.test(x) ? x : T(x)}</li>`).join('')}</ol>` : ''}${b.widget ? `<div data-widget="${b.widget}"></div>` : ''}${b.ex ? exampleHTML(b.ex, i) : ''}${b.watch ? `<p class="watch"><b>Let op:</b> ${/<span/.test(b.watch) ? b.watch : T(b.watch)}</p>` : ''}</div>`,
+        `<div class="block"><h2 class="h3">${T(b.t)}</h2>${(b.p || []).map((x) => `<p>${/<span|<table/.test(x) ? x : T(x)}</p>`).join('')}${b.how ? `<ol class="how">${b.how.map((x) => `<li>${/<span/.test(x) ? x : T(x)}</li>`).join('')}</ol>` : ''}${b.widget ? `<div data-widget="${b.widget}">${widgetHTML(b.widget)}</div>` : ''}${b.ex ? exampleHTML(b.ex, i) : ''}${b.watch ? `<p class="watch"><b>Let op:</b> ${/<span/.test(b.watch) ? b.watch : T(b.watch)}</p>` : ''}</div>`,
     )
     .join('');
 const CHANNELS = { menno: 'Math with Menno', bob: 'Wiskunde met Bob Pruiksma' };
@@ -120,7 +121,7 @@ function vTopic(s) {
   <div class="head topic-head"><h1>${T(s.title)}</h1><p class="lead">${T(s.intro)}</p>${prerequisites}</div>
   <div class="topic-side"><div class="topic-actions">${practiceButton(s)}${backToRound(s)}${done}${videos ? `<a class="small" href="#videos">Naar de video's</a>` : ''}</div></div>
   <div class="topic-body">${vLearn(s)}${videos}</div>
-  <div class="practice-bar">${practiceButton(s)}</div>
+  <div class="practice-bar away">${practiceButton(s)}</div>
   ${pagerHTML(s)}</article></div>`;
 }
 

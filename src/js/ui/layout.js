@@ -16,7 +16,7 @@ function menuItem(name, text) {
   return `<a href="${to(name)}"${current}>${text}</a>`;
 }
 const topbar = () =>
-  `<a class="skip" href="#inhoud">Naar de inhoud</a><header class="top"><a class="brand" href="${to('home')}">Wiskunde<span class="brand-fit">fit</span></a><nav class="topnav" aria-label="Hoofdmenu">${menuItem('home', 'Home')}${menuItem('stof', 'Mijn stof')}${menuItem('toets', 'Proeftoets')}</nav></header>`;
+  `<a class="skip" href="#inhoud">Naar de inhoud</a><header class="top"><a class="brand" href="${to('home')}"><span class="brand-logo" aria-hidden="true"></span><span class="sr">Wiskundefit</span></a><nav class="topnav" aria-label="Hoofdmenu">${menuItem('home', 'Home')}${menuItem('stof', 'Mijn stof')}${menuItem('toets', 'Proeftoets')}</nav></header>`;
 // Een huisje voor Home. Het is versiering: de tekst Home staat er altijd bij.
 const HOUSE =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M2 7.5 8 2.5l6 5M3.8 6.3V13.5h3V10h2.4v3.5h3V6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>';

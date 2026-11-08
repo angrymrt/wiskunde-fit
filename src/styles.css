@@ -2,39 +2,40 @@
 @font-face {
   font-family: 'Figtree';
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: url('fonts/figtree-400.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Figtree';
   font-style: italic;
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: url('fonts/figtree-400-italic.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Figtree';
   font-weight: 700;
-  font-display: swap;
+  font-display: optional;
   src: url('fonts/figtree-700.woff2') format('woff2');
 }
+/* Alleen gewicht 800, gemaakt door scripts/lettertypes.js uit het origineel ernaast. */
 @font-face {
   font-family: 'Bricolage Grotesque';
-  font-weight: 200 800;
-  font-display: swap;
-  src: url('fonts/bricolage-grotesque.woff2') format('woff2');
+  font-weight: 800;
+  font-display: optional;
+  src: url('fonts/bricolage-grotesque-800.woff2') format('woff2');
 }
 @font-face {
   font-family: 'STIX Two Text';
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: url('fonts/stix-two-text-400.woff2') format('woff2');
 }
 @font-face {
   font-family: 'STIX Two Text';
   font-style: italic;
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: url('fonts/stix-two-text-400-italic.woff2') format('woff2');
 }
 :root {
@@ -151,8 +152,9 @@ h2 {
 }
 h3,
 .h3 {
+  font-family: var(--body);
   font-size: 1.12rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 p {
   margin: 0;
@@ -302,11 +304,8 @@ a.btn {
   justify-content: space-between;
 }
 .brand {
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  font: 800 1.35rem var(--display);
+  display: inline-flex;
+  font-size: 1.35rem;
 }
 /* Naast het menu is op een breed scherm ruimte voor een groter logo. */
 @media (min-width: 561px) {
@@ -314,8 +313,22 @@ a.btn {
     font-size: 1.7rem;
   }
 }
-.brand-fit {
-  color: var(--pink);
+/* Het logo is een vorm in SVG, zodat het niet hoeft te wachten op een lettertype. De vorm is een
+   masker en de kleuren komen uit de tokens, ook in de donkere modus. De maten komen uit
+   scripts/lettertypes.js. */
+.brand-logo {
+  width: 5.996em;
+  height: 1.2em;
+  background: linear-gradient(90deg, var(--ink) 81.9%, var(--pink) 81.9%);
+  -webkit-mask: url('logo.svg') center / contain no-repeat;
+  mask: url('logo.svg') center / contain no-repeat;
+}
+/* Met hoog contrast kiest het systeem de kleuren, en dan zou een achtergrond verdwijnen. */
+@media (forced-colors: active) {
+  .brand-logo {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
 }
 .topnav {
   display: flex;

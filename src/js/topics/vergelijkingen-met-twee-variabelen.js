@@ -225,6 +225,8 @@ export default {
   title: 'Vergelijkingen met twee variabelen',
   intro:
     'Een vergelijking als 4x + 3y = 12 heeft veel oplossingen: getallenparen (x, y). Hier leer je die vinden, de lijn erbij tekenen en de vergelijking opstellen uit een verhaal.',
+  description:
+    'Vind oplossingen van een vergelijking als 4x + 3y = 12, herleid tot y = ax + b en teken de lijn. Gratis uitleg en oefenvragen.',
   videos: {
     menno: [
       ['Getallenparen', 'fr2kg8fWaBU'],

@@ -1,6 +1,7 @@
 // Gedeelde toestand van de schermen.
 
-const app = document.getElementById('app');
+// Bij het bouwen draaien de schermen in Node, zonder document. Dan is er geen app.
+const app = globalThis.document?.getElementById('app') ?? null;
 const state = {
   view: { name: 'home' },
   prac: {},

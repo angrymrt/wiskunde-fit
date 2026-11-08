@@ -166,6 +166,8 @@ export default {
   title: 'Stelling van Pythagoras',
   intro:
     'In een driehoek met een rechte hoek kun je een ontbrekende zijde uitrekenen als je de andere twee kent. Dat doe je met de stelling van Pythagoras.',
+  description:
+    'Bereken de schuine zijde of een rechthoekszijde met de stelling van Pythagoras. Gratis uitleg en oefenvragen met uitwerkingen.',
   videos: {
     menno: [
       ['De stelling van Pythagoras', 'zAnoHcHsKfM'],

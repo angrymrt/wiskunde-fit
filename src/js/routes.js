@@ -51,9 +51,10 @@ function viewFor(pathname, search = '') {
   return { name: 'missing', path: pathname + search };
 }
 
+// Staat Wiskundefit al in de titel, zoals bij Home en Over, dan niet nog een keer erachter.
 function titleFor(v) {
-  if (v.name === 'home') return SCREENS.home.title;
-  return `${SCREENS[v.name]?.title ?? nameOf(v)}${v.oefen ? ' oefenen' : ''} | Wiskundefit`;
+  const title = `${SCREENS[v.name]?.title ?? nameOf(v)}${v.oefen ? ' oefenen' : ''}`;
+  return title.includes('Wiskundefit') ? title : `${title} | Wiskundefit`;
 }
 // De naam van een scherm, zoals in het kruimelpad.
 function nameOf(v) {

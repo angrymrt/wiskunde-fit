@@ -402,6 +402,8 @@ export default {
   title: 'Lineaire formule opstellen',
   intro:
     'Soms heb je een grafiek, twee punten of een verhaal en zoek je de formule die daarbij hoort. Hier leer je hoe je a en b vindt.',
+  description:
+    'Stel een lineaire formule op uit een grafiek, twee punten, een tabel of een verhaal. Bereken a en b en oefen gratis met steeds nieuwe vragen.',
   videos: {
     menno: [
       ['De formule y = ax + b', 'RpDZhdELvFY'],

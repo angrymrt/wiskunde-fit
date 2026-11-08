@@ -88,7 +88,7 @@ function chapterHTML(c) {
 function vMapping(m) {
   const count = (prog.stof || []).length;
   return `${pageHead(mappingName(m))}<div class="sheet">
-  <p>Vink aan wat je wilt oefenen. Wat je kiest, komt in Mijn stof.</p>
+  <p class="needs-js">Vink aan wat je wilt oefenen. Wat je kiest, komt in Mijn stof.</p>
   ${m.note ? `<p class="watch"><b>Let op:</b> ${esc(m.note)}</p>` : ''}
   ${m.chapters.map(chapterHTML).join('')}
   <details class="small"><summary>Bij welke boeken hoort dit?</summary><ul>${m.books.map((b) => `<li>${esc(b.name)}, ISBN ${esc(b.isbn)}</li>`).join('')}</ul><p>Dit is een eigen project zonder band met de uitgever of ${esc(m.method)}. We verwijzen alleen naar de paragrafen en schrijven zelf de uitleg en de vragen.</p></details>

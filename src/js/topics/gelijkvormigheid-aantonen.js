@@ -356,6 +356,8 @@ export default {
   title: 'Gelijkvormigheid aantonen',
   intro:
     'Voordat je met gelijkvormigheid mag rekenen, moet je laten zien dat de driehoeken gelijkvormig zijn. Hier leer je dat met twee paar gelijke hoeken, en hoe je het opschrijft.',
+  description:
+    'Toon aan dat twee driehoeken gelijkvormig zijn met F-hoeken, Z-hoeken en overstaande hoeken, en schrijf het goed op. Gratis oefenen.',
   videos: {
     menno: [
       ['Gelijkvormige driehoeken aantonen', 'v82_TCJTSks'],
