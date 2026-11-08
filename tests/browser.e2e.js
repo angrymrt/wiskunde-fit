@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium, webkit } from 'playwright-core';
 import { startServer } from '../scripts/server.js';
 import { MAPPINGS } from '../src/js/mappings/index.js';
-import { TOPICS } from '../src/js/topics/index.js';
+import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
 
 const server = await startServer(fileURLToPath(new URL('../dist', import.meta.url)), 0);
 after(() => {
@@ -98,20 +98,28 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
       }
       await p.evaluate(() => wiskundefit.go({ name: 'kies' }));
       await check('kiezen uit je boek');
+      for (const slug of [
+        'formules-en-grafieken',
+        'vergelijkingen-en-ongelijkheden',
+        'meetkunde',
+      ]) {
+        await p.evaluate((s) => wiskundefit.go({ name: 'domain', slug: s }), slug);
+        await check(`domein ${slug}`);
+      }
       for (const id of await p.evaluate(() => wiskundefit.MAPPINGS.map((m) => m.id))) {
         await p.evaluate((i) => wiskundefit.go({ name: 'mapping', id: i }), id);
         await check(`methode-indeling ${id}`);
       }
       await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
-      await check('jouw stof zonder keuze');
+      await check('mijn stof zonder keuze');
       await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
       await check('proeftoets zonder stof');
       await p.click('[data-act="stofall"]');
       await check('proeftoets kiezen');
       await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
-      await check('jouw stof met keuze');
-      await p.click('a[href="/jouw-stof/oefenen"]');
-      await check('jouw stof oefenen');
+      await check('mijn stof met keuze');
+      await p.click('a[href="/mijn-stof/oefenen"]');
+      await check('mijn stof oefenen');
       await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
       await p.click('[data-act="len"][data-id="10"]');
       await p.click('[data-act="start"]');
@@ -132,8 +140,10 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
       await check('resultaat proeftoets');
       await p.evaluate(() => wiskundefit.go({ name: 'home' }));
       await check('overzicht met de link naar de uitslag');
-      await p.click('a[href="/over"]');
-      await check('over-pagina');
+      for (const page of ['over', 'privacy', 'contact']) {
+        await p.click(`.foot a[href="/${page}"]`);
+        await check(`${page}-pagina`);
+      }
       await context.close();
     }
     assert.deepEqual([...found.values()], []);
@@ -203,7 +213,7 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
 });
 
 test(
-  'de over-pagina is te bereiken en heeft een werkend mailadres',
+  'over, privacy en contact staan in de voettekst, met een werkend mailadres',
   { timeout: 60_000 },
   async () => {
     const browser = await launch();
@@ -211,18 +221,160 @@ test(
       await mkdir(shotDir, { recursive: true });
       const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
       await p.goto(siteUrl);
-      await p.click('a[href="/over"]');
-      assert.match(await p.textContent('h1'), /Over Wiskundefit/);
-      assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
-      const mail = await p.getAttribute('a[href^="mailto:"]', 'href');
+      const wide = () =>
+        p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+      for (const [page, heading] of [
+        ['over', /Over Wiskundefit/],
+        ['privacy', /Privacy/],
+        ['contact', /Contact/],
+      ]) {
+        await p.click(`.foot a[href="/${page}"]`);
+        assert.match(await p.textContent('h1'), heading);
+        assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+        assert.equal(await wide(), false, `${page} is breder dan de telefoon`);
+        await p.screenshot({ path: `${shotDir}${page}.png`, fullPage: true });
+      }
+      const mail = await p.getAttribute('main a[href^="mailto:"]', 'href');
       assert.match(mail, /^mailto:[^@\s]+@[^@\s]+\.nl$/);
       assert.ok(await p.$('a[href$="/wiskunde-fit/issues/new"]'), 'link om een fout te melden');
-      assert.ok(await p.$('text=Privacy'));
-      const wide = await p.evaluate(
-        () => document.documentElement.scrollWidth > window.innerWidth + 1,
+      // De voettekst noemt de versie uit package.json, met een link naar wat er nieuw is.
+      const { version } = JSON.parse(await readFile(new URL('../package.json', import.meta.url)));
+      assert.match(
+        await p.textContent('.foot'),
+        new RegExp(`Versie ${version}, bijgewerkt op \\d`),
       );
-      assert.equal(wide, false, 'breder dan de telefoon');
-      await p.screenshot({ path: `${shotDir}over.png`, fullPage: true });
+      assert.ok(await p.$('.foot a[href$="/wiskunde-fit/releases"]'));
+      assert.ok(await p.$('.foot a[href="https://github.com/angrymrt/wiskunde-fit"]'));
+    } finally {
+      await browser.close();
+    }
+  },
+);
+
+test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async () => {
+  const browser = await launch();
+  try {
+    await mkdir(shotDir, { recursive: true });
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    const current = () =>
+      p.$$eval('.topnav a[aria-current]', (a) =>
+        a.map((x) => `${x.textContent} ${x.getAttribute('aria-current')}`),
+      );
+    const focused = () => p.evaluate(() => document.activeElement);
+    await p.goto(siteUrl);
+    assert.deepEqual(await current(), ['Home page']);
+
+    // De link naar de inhoud slaat het menu over, zonder iets aan het adres te veranderen.
+    await p.keyboard.press('Tab');
+    assert.equal(await p.evaluate(() => document.activeElement.className), 'skip');
+    await p.keyboard.press('Enter');
+    assert.equal(await p.evaluate(() => document.activeElement.id), 'inhoud');
+    assert.equal(new URL(p.url()).hash, '');
+
+    // Oefenen: het kruimelpad gaat via het domein naar de uitleg.
+    await p.goto(at('/gelijkvormige-driehoeken/oefenen'));
+    assert.deepEqual(await current(), ['Home true']);
+    assert.deepEqual(await p.$$eval('.crumbs a', (a) => a.map((x) => x.getAttribute('href'))), [
+      '/',
+      '/meetkunde',
+      '/gelijkvormige-driehoeken',
+    ]);
+    assert.equal(await p.textContent('.crumbs [aria-current="page"]'), 'Oefenen');
+    // Het domein heeft een eigen pagina met de onderwerpen en de paragrafen uit de boeken.
+    await p.click('.crumbs a[href="/meetkunde"]');
+    assert.equal(new URL(p.url()).pathname, '/meetkunde');
+    assert.equal(await p.textContent('h1'), 'Meetkunde');
+    assert.equal(await p.locator('main a.par').count(), 5);
+    assert.ok(await p.$('main a[href="/methode-indeling/getal-en-ruimte-13-havo-3"]'));
+    await p.screenshot({ path: `${shotDir}domein.png`, fullPage: true });
+
+    // Een onderwerp wijst naar het vorige en volgende onderwerp in het domein.
+    await p.goto(at('/gelijkvormige-driehoeken'));
+    assert.deepEqual(await p.$$eval('.pager a', (a) => a.map((x) => x.getAttribute('href'))), [
+      '/verhoudingstabellen',
+      '/gelijkvormigheid-aantonen',
+    ]);
+    // Op een telefoon verschijnt de balk met Ga oefenen pas als de knop bovenaan uit beeld is.
+    const away = () => p.$eval('.practice-bar', (b) => b.classList.contains('away'));
+    assert.equal(await away(), true);
+    await p.evaluate(() => scrollTo(0, 1500));
+    await p.waitForFunction(() => !document.querySelector('.practice-bar.away'));
+    await p.screenshot({ path: `${shotDir}uitleg-balk.png` });
+
+    // Na het laatste onderwerp van een domein ga je terug naar de pagina van het domein.
+    await p.goto(at('/lengtes-van-lijnstukken-berekenen'));
+    assert.equal(
+      await p.locator('.pager a[href="/meetkunde"]', { hasText: 'Alle onderwerpen' }).count(),
+      1,
+    );
+
+    // Mijn stof: uit welk boek de stof komt, en een half gekozen onderwerp staat half aangevinkt.
+    await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-3'));
+    assert.deepEqual(await current(), ['Mijn stof true']);
+    assert.equal(await p.locator('.chapter details').count(), 7, 'ingeklapte hoofdstukken');
+    await p.click('[data-act="chapter"][data-id="1"]');
+    await p.click('.stof-bar a');
+    assert.deepEqual(await current(), ['Mijn stof page']);
+    assert.match(
+      await p.textContent('main'),
+      /Uit je boek, Getal & Ruimte, 13e editie, havo 3: hoofdstuk 1\./,
+    );
+    const mixed = await p.$$eval('input[data-act="topicpick"]', (els) =>
+      els.filter((e) => e.indeterminate).map((e) => e.dataset.id),
+    );
+    assert.deepEqual(mixed, ['rekenen-met-een-formule']);
+    await p.screenshot({ path: `${shotDir}mijn-stof-boek.png`, fullPage: true });
+    await p.goto(siteUrl);
+    assert.equal(await p.locator('.domain .pill', { hasText: 'Mijn stof' }).count(), 7);
+
+    // Een lopende proeftoets: de knoppen zeggen waar je verder gaat.
+    await p.goto(at('/proeftoets'));
+    assert.deepEqual(await current(), ['Proeftoets page']);
+    await p.click('[data-act="len"][data-id="10"]');
+    await p.click('[data-act="start"]');
+    assert.equal(await p.getAttribute('.gn.cur', 'aria-current'), 'step');
+    assert.equal(await p.getAttribute('.gn.cur', 'aria-label'), 'Vraag 1');
+    await p.goto(siteUrl);
+    assert.match(await p.textContent('.hero'), /Ga verder met je proeftoets/);
+    await p.click('.notice a');
+
+    // Stoppen zegt dat de proeftoets is gestopt, en de focus staat op die melding.
+    await p.click('[data-act="tstop1"]');
+    await p.click('[data-act="tstop2"]');
+    assert.equal(await p.evaluate(() => document.activeElement.id), 'stopped');
+    assert.match(await p.textContent('#stopped'), /gestopt/);
+    await p.evaluate(() => localStorage.clear());
+  } finally {
+    await browser.close();
+  }
+});
+
+test(
+  'op een oude telefoon van 320 pixels is geen scherm te breed',
+  { timeout: 120_000 },
+  async () => {
+    const browser = await launch();
+    try {
+      const p = await browser.newPage({ viewport: { width: 320, height: 568 } });
+      const addresses = [
+        '/',
+        '/mijn-stof',
+        '/proeftoets',
+        '/methode-indeling',
+        '/over',
+        ...MAPPINGS.map((m) => `/methode-indeling/${m.slug}`),
+        ...DOMAINS.map((d) => `/${d.slug}`),
+        ...TOPICS.flatMap((t) => [`/${t.slug}`, `/${t.slug}/oefenen`]),
+      ];
+      const wide = [];
+      for (const address of addresses) {
+        await p.goto(at(address));
+        await p.waitForSelector('h1');
+        if (await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) {
+          wide.push(address);
+        }
+      }
+      assert.deepEqual(wide, []);
     } finally {
       await browser.close();
     }
@@ -398,24 +550,24 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await fits('methode-indeling');
     await p.screenshot({ path: `${shotDir}methode-indeling.png`, fullPage: true });
 
-    // Jouw stof: oefenen en proeftoets gaan alleen over de gekozen stof.
+    // Mijn stof: oefenen en proeftoets gaan alleen over de gekozen stof.
     await p.click('.stof-bar a');
     assert.equal(await p.locator('.stof-list .par').count(), 4);
-    await fits('jouw stof');
-    await p.screenshot({ path: `${shotDir}jouw-stof.png`, fullPage: true });
-    await p.click('a[href="/jouw-stof/oefenen"]');
+    await fits('mijn stof');
+    await p.screenshot({ path: `${shotDir}mijn-stof.png`, fullPage: true });
+    await p.click('a[href="/mijn-stof/oefenen"]');
     const chosen = await stof();
     for (let i = 0; i < 12; i++) {
-      const id = await p.evaluate(() => wiskundefit.state.prac['jouw-stof'].skill.id);
+      const id = await p.evaluate(() => wiskundefit.state.prac['mijn-stof'].skill.id);
       assert.ok(chosen.includes(id), `vraagsoort ${id} is niet gekozen`);
       await p.click('[data-act="show"]');
       await p.click('#nextq');
     }
     await p.reload();
     assert.deepEqual(await stof(), chosen, 'de stofkeuze blijft bewaard');
-    assert.equal(new URL(p.url()).pathname, '/jouw-stof/oefenen', 'herladen blijft op dit scherm');
+    assert.equal(new URL(p.url()).pathname, '/mijn-stof/oefenen', 'herladen blijft op dit scherm');
     await p.goto(siteUrl);
-    assert.match(await p.textContent('.hero .btn.main'), /Verder met jouw stof/);
+    assert.match(await p.textContent('.hero .btn.main'), /Verder met mijn stof/);
     await p.click('.hero a[href="/proeftoets"]');
     await p.click('[data-act="len"][data-id="10"]');
     await p.click('[data-act="start"]');
@@ -611,10 +763,13 @@ test('elk adres opent rechtstreeks het juiste scherm, ook na herladen', async ()
     const pages = [
       ['/', /Op naar die voldoende/, /^Wiskundefit: oefenen/],
       ['/methode-indeling', /Kies uit je boek/, /^Kies uit je boek \|/],
-      ['/jouw-stof', /Jouw stof/, /^Jouw stof \|/],
+      ['/mijn-stof', /Mijn stof/, /^Mijn stof \|/],
       ['/proeftoets', /Proeftoets/, /^Proeftoets \|/],
       ['/proeftoets/uitslag', /Je resultaat/, /^Resultaat proeftoets \|/],
       ['/over', /Over Wiskundefit/, /^Over Wiskundefit \|/],
+      ['/privacy', /Privacy/, /^Privacy \|/],
+      ['/contact', /Contact/, /^Contact \|/],
+      ...DOMAINS.map((d) => [`/${d.slug}`, new RegExp(d.name), new RegExp(`^${d.name} \\|`)]),
       ...MAPPINGS.map((m) => [
         `/methode-indeling/${m.slug}`,
         new RegExp(`${m.level} ${m.year}`),
@@ -777,29 +932,29 @@ test('soort in het adres kiest de vraagsoort', async () => {
   }
 });
 
-test('zonder stofkeuze gaat jouw stof oefenen naar het kiezen van stof', async () => {
+test('zonder stofkeuze gaat mijn stof oefenen naar het kiezen van stof', async () => {
   const browser = await launch();
   try {
     const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
-    await p.goto(at('/jouw-stof/oefenen'));
-    assert.equal(new URL(p.url()).pathname, '/jouw-stof');
-    assert.match(await p.textContent('h1'), /Jouw stof/);
+    await p.goto(at('/mijn-stof/oefenen'));
+    assert.equal(new URL(p.url()).pathname, '/mijn-stof');
+    assert.match(await p.textContent('h1'), /Mijn stof/);
 
     // Met een stofkeuze werkt het adres wel, en een half gemaakte vraag overleeft de terugknop.
     await p.click('[data-act="stofall"]');
-    await p.click('a[href="/jouw-stof/oefenen"]');
+    await p.click('a[href="/mijn-stof/oefenen"]');
     assert.ok(await p.$('#pform'));
     const question = await p.textContent('#pq');
     await p.goBack();
-    await p.click('a[href="/jouw-stof/oefenen"]');
+    await p.click('a[href="/mijn-stof/oefenen"]');
     assert.equal(await p.textContent('#pq'), question);
 
     // Is de vraag geen gekozen stof meer, dan komt er een nieuwe.
     await p.goBack();
     await p.click('[data-act="stofclear"]');
     await p.click('[data-act="topicpick"][data-id="stelling-van-pythagoras"]');
-    await p.click('a[href="/jouw-stof/oefenen"]');
-    const id = await p.evaluate(() => wiskundefit.state.prac['jouw-stof'].skill.id);
+    await p.click('a[href="/mijn-stof/oefenen"]');
+    const id = await p.evaluate(() => wiskundefit.state.prac['mijn-stof'].skill.id);
     const chosen = TOPICS.find((t) => t.slug === 'stelling-van-pythagoras').skills;
     assert.ok(chosen.some((k) => k.id === id));
     await p.reload();
@@ -824,7 +979,7 @@ test('een methode-indeling openen maakt die nog niet tot je boek', async () => {
     await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-vwo-2'));
     assert.equal(await mapping(), 'gr13-havo3');
     await p.goto(siteUrl);
-    await p.click('a[href="/jouw-stof"].btn.main');
+    await p.click('a[href="/mijn-stof"].btn.main');
     assert.ok(await p.$('a.btn[href="/methode-indeling/getal-en-ruimte-13-havo-3"]'));
     await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-vwo-2'));
     await p.click('[data-act="para"][data-id="6.2"]');
@@ -895,7 +1050,7 @@ test(
       await p.click('a[href="/over"]');
       await p.click('.notice a');
       assert.equal(await p.inputValue('#tf0'), '3');
-      await p.click('a[href="/jouw-stof"]');
+      await p.click('.topnav a[href="/mijn-stof"]');
       await p.click('.topnav a[href="/proeftoets"]');
       assert.equal(await p.inputValue('#tf0'), '3');
 
@@ -932,6 +1087,13 @@ test(
       assert.equal(got, max, 'alles goed');
       assert.equal(await stored('wiskundefit-proeftoets'), null);
       assert.match(await p.textContent('.score'), /40\/40/);
+      // Elke tekenvraag toont de lijn die je tekende, en het rooster reageert niet meer.
+      assert.equal(await p.locator('.resq svg .drawn line.l1').count(), 10);
+      assert.equal(await p.locator('.resq svg .drawn line.l2').count(), 0, 'alles goed');
+      assert.equal(await p.locator('.resq svg[data-draw]').count(), 0);
+      assert.equal(await p.locator('.resq .answers').count(), 10);
+      assert.equal(await p.locator('.answers .mark.bad').count(), 0, 'alles goed: geen kruisjes');
+      assert.equal(await p.locator('.resq details[open]').count(), 0, 'uitwerkingen ingeklapt');
       await p.screenshot({ path: `${shotDir}uitslag.png`, fullPage: true });
 
       // De uitslag heeft een eigen adres en blijft na herladen staan.
@@ -948,14 +1110,17 @@ test(
       assert.match(await p.textContent('.score'), /40\/40/);
 
       // Een onderwerp uit de uitslag oefenen, en terug: de uitslag staat er nog.
-      await p.click('.res a.par');
+      await p.click('.res-topics a');
       assert.ok(await p.$('#pform'));
       await p.goBack();
       assert.match(await p.textContent('.score'), /40\/40/);
 
-      // Het overzicht verwijst naar de uitslag.
+      // Het overzicht en het scherm Proeftoets verwijzen naar de uitslag.
       await p.goto(siteUrl);
       await p.click('a[href="/proeftoets/uitslag"]');
+      assert.match(await p.textContent('.score'), /40\/40/);
+      await p.goto(at('/proeftoets'));
+      await p.click('main a[href="/proeftoets/uitslag"]');
       assert.match(await p.textContent('.score'), /40\/40/);
 
       // Stoppen zonder inleveren: de vorige uitslag en de voortgang blijven zoals ze waren.
@@ -993,10 +1158,31 @@ test(
 
       // Voortgang wissen haalt ook de proeftoets en de uitslag weg.
       await start();
+      await answer(0);
+      await p.fill('#tf3', '6');
       await p.click('[data-act="tfin"]');
       await p.click('[data-act="tfin"]');
+      // Bij een fout staat ook de goede lijn in het rooster, met uitleg die zonder kleur werkt.
+      const wrong = await p.evaluate(
+        () => wiskundefit.state.result.items.filter((x) => !x.c.ok).length,
+      );
+      assert.ok(wrong >= 9);
+      assert.equal(await p.locator('.resq svg .drawn line.l2').count(), wrong);
+      assert.equal(await p.locator('.legend').count(), wrong);
+      assert.equal(await p.locator('.resq', { hasText: 'niet ingevuld' }).count(), 9);
+      // Elk fout punt krijgt een kruisje en een voorbeeld van een goed punt.
+      const crosses = await p.evaluate(
+        () =>
+          wiskundefit.state.result.items
+            .flatMap((x) => x.c.each.filter((_, i) => i % 2 === 0))
+            .filter((ok) => !ok).length,
+      );
+      assert.equal(await p.locator('.answers .mark.bad').count(), crosses);
+      // Bij een tekenvraag is elk punt op de lijn goed, dus de tabel noemt een goed punt als voorbeeld.
+      assert.equal(await p.locator('.answers thead', { hasText: 'Een goed punt' }).count(), wrong);
+      await p.screenshot({ path: `${shotDir}uitslag-fout.png`, fullPage: true });
       await start();
-      await p.evaluate(() => wiskundefit.go({ name: 'home' }));
+      await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
       await p.click('[data-act="reset1"]');
       await p.click('[data-act="reset2"]');
       assert.equal(await stored('wiskundefit-proeftoets'), null);

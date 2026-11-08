@@ -288,7 +288,7 @@ export default {
   slug: 'gelijkvormige-driehoeken',
   title: 'Gelijkvormige driehoeken',
   intro:
-    'Twee driehoeken zijn gelijkvormig als de een een vergroting of verkleining is van de ander. Hier leer je zo de lengte van een zijde berekenen die niet gegeven is.',
+    'Is de ene driehoek een vergroting of verkleining van de andere, dan heten ze gelijkvormig. Hier leer je hoe je daarmee de lengte van een zijde berekent die niet gegeven is.',
   videos: {
     menno: [
       ['Gelijkvormigheid', 'cVu2DqhSueY'],

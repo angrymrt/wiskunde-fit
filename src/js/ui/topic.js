@@ -1,8 +1,9 @@
 // De schermen van een onderwerp: de uitleg en het oefenen.
 import { prog, skillPct, topicPct } from '../progress.js';
-import { pathFor } from '../routes.js';
+import { pathFor, to } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
+import { crumbs, pageHead } from './layout.js';
 import { fieldsHTML } from './question-form.js';
 import { state } from './state.js';
 
@@ -13,21 +14,28 @@ function exampleHTML(ex, key) {
 const topicPath = (t) => pathFor({ name: 'topic', slug: t.slug });
 const practicePath = (t) => pathFor({ name: 'topic', slug: t.slug, oefen: true });
 const topicLink = (t) => `<a class="linkbtn" href="${topicPath(t)}">${T(t.title)}</a>`;
-const nextHTML = (s) =>
-  s.next ? `<p class="small">Volgend onderwerp: ${topicLink(s.next)}</p>` : '';
-const practiceButton = (s) => `<a class="btn main" href="${practicePath(s)}">Ga oefenen</a>`;
-function vLearn(s) {
-  return (
-    s.learn
-      .map(
-        (b, i) =>
-          `<div class="block"><h2 class="h3">${T(b.t)}</h2>${(b.p || []).map((x) => `<p>${/<span|<table/.test(x) ? x : T(x)}</p>`).join('')}${b.how ? `<ol class="how">${b.how.map((x) => `<li>${/<span/.test(x) ? x : T(x)}</li>`).join('')}</ol>` : ''}${b.widget ? `<div data-widget="${b.widget}"></div>` : ''}${b.ex ? exampleHTML(b.ex, i) : ''}${b.watch ? `<p class="watch"><b>Let op:</b> ${/<span/.test(b.watch) ? b.watch : T(b.watch)}</p>` : ''}</div>`,
-      )
-      .join('') +
-    vVideos(s) +
-    `<div class="row">${practiceButton(s)}</div>${nextHTML(s)}`
-  );
+// Vorig en volgend onderwerp binnen het domein. Voor het eerste en na het laatste onderwerp
+// wijst het naar de pagina van het domein.
+function pagerHTML(s) {
+  const side = (cls, label, href, title) =>
+    `<a class="${cls}" href="${href}"><span class="small muted">${label}</span><span>${title}</span></a>`;
+  const domain = pathFor({ name: 'domain', slug: s.domain.slug });
+  const prev = s.prev
+    ? side('pager-prev', 'Vorig onderwerp', topicPath(s.prev), T(s.prev.title))
+    : side('pager-prev', 'Alle onderwerpen', domain, s.domain.name);
+  const next = s.next
+    ? side('pager-next', 'Volgend onderwerp', topicPath(s.next), T(s.next.title))
+    : side('pager-next', `Klaar met ${s.domain.name}`, domain, 'Alle onderwerpen');
+  return `<nav class="pager" aria-label="Onderwerpen in ${s.domain.name}">${prev}${next}</nav>`;
 }
+const practiceButton = (s) => `<a class="btn main" href="${practicePath(s)}">Ga oefenen</a>`;
+const vLearn = (s) =>
+  s.learn
+    .map(
+      (b, i) =>
+        `<div class="block"><h2 class="h3">${T(b.t)}</h2>${(b.p || []).map((x) => `<p>${/<span|<table/.test(x) ? x : T(x)}</p>`).join('')}${b.how ? `<ol class="how">${b.how.map((x) => `<li>${/<span/.test(x) ? x : T(x)}</li>`).join('')}</ol>` : ''}${b.widget ? `<div data-widget="${b.widget}"></div>` : ''}${b.ex ? exampleHTML(b.ex, i) : ''}${b.watch ? `<p class="watch"><b>Let op:</b> ${/<span/.test(b.watch) ? b.watch : T(b.watch)}</p>` : ''}</div>`,
+    )
+    .join('');
 const CHANNELS = { menno: 'Math with Menno', bob: 'Wiskunde met Bob Pruiksma' };
 function vVideos(s) {
   // Per video-onderwerp in plaats van per kanaal, want de kanalen behandelen vaak dezelfde stof.
@@ -86,19 +94,34 @@ function vPractice(s) {
   <div class="row">${done ? `<button class="btn main" type="submit" id="nextq" ${st.msg ? 'aria-describedby="pfb"' : ''}>Volgende vraag</button>` : `<button class="btn main" type="submit">Controleer</button>${st.hint ? '' : `<button class="btn" type="button" data-act="hint">Hint</button>`}<button class="btn quiet" type="button" data-act="show">Toon uitwerking</button>`}${st.status === 'right' && !st.sol ? `<button class="btn quiet" type="button" data-act="showsol">Bekijk uitwerking</button>` : ''}</div></form>
   ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div>`;
 }
-function vTopic(s) {
-  const domain = `<span class="small muted">${s.domain.name}</span>`;
-  if (state.view.oefen) {
-    return `<div class="color-${s.domain.color}" style="display:grid;gap:16px"><div class="head">${domain}<h1>${T(s.title)} oefenen</h1><p class="small"><a class="linkbtn" href="${topicPath(s)}">Terug naar de uitleg</a></p></div>${vPractice(s)}${nextHTML(s)}</div>`;
-  }
-  const p = Math.round(topicPct(s) * 100);
-  const prerequisites = s.prerequisites.length
-    ? `<p class="small">Voorkennis: ${s.prerequisites.map(topicLink).join(' ')}</p>`
+// Kwam je via "Uitleg bij deze vraag" uit Mijn stof oefenen, dan kun je daar weer verder.
+function backToRound(s) {
+  const st = state.prac['mijn-stof'];
+  return st?.q && st.status === 'open' && s.skills.includes(st.skill)
+    ? `<a class="btn" href="${to('stofoefen')}">Verder met mijn stof oefenen</a>`
     : '';
-  return `<div class="color-${s.domain.color}" style="display:grid;gap:16px"><div class="head">${domain}<h1>${T(s.title)}</h1><p class="lead">${T(s.intro)}</p>
-  <div class="row">${practiceButton(s)}${p ? `<span class="small muted">${p}% geoefend</span>` : ''}</div>
-  <p class="small">Liever een video? <a href="#videos">Ga naar de video's</a></p>${prerequisites}</div>
-  <div class="sheet">${vLearn(s)}</div></div>`;
+}
+// De uitleg staat in één vel. De knop om te oefenen staat op een breed scherm rechts en blijft
+// in beeld. Op een telefoon staat hij onder de intro, en een balk onderaan neemt het over zodra
+// die knop uit beeld is (zie main.js).
+function vTopic(s) {
+  if (state.view.oefen) {
+    return `<div class="screen-grid color-${s.domain.color}">${pageHead(`${T(s.title)} oefenen`)}${vPractice(s)}${pagerHTML(s)}</div>`;
+  }
+  const p = Math.round(topicPct(s) * 100),
+    videos = vVideos(s);
+  const prerequisites = s.prerequisites.length
+    ? `<p class="small">Voorkennis: ${s.prerequisites.map(topicLink).join(', ')}</p>`
+    : '';
+  const done = p
+    ? `<div class="topic-pct small"><span class="muted">${p}% geoefend</span><span class="bar ${p >= 80 ? 'done' : ''}"><i style="width:${p}%"></i></span></div>`
+    : '';
+  return `<div class="screen-grid color-${s.domain.color}">${crumbs()}<article class="sheet topic">
+  <div class="head topic-head"><h1>${T(s.title)}</h1><p class="lead">${T(s.intro)}</p>${prerequisites}</div>
+  <div class="topic-side"><div class="topic-actions">${practiceButton(s)}${backToRound(s)}${done}${videos ? `<a class="small" href="#videos">Naar de video's</a>` : ''}</div></div>
+  <div class="topic-body">${vLearn(s)}${videos}</div>
+  <div class="practice-bar">${practiceButton(s)}</div>
+  ${pagerHTML(s)}</article></div>`;
 }
 
 export { vTopic, vPractice, newQuestion, applySoort, topicLink };

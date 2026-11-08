@@ -16,18 +16,24 @@ const DOMAINS = [
   {
     slug: 'formules-en-grafieken',
     name: 'Formules en grafieken',
+    intro:
+      'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden.',
     color: 'blue',
     topics: [rekenen, lijnen, opstellen, snijpunten],
   },
   {
     slug: 'vergelijkingen-en-ongelijkheden',
     name: 'Vergelijkingen en ongelijkheden',
+    intro:
+      'Bij een vergelijking zoek je wanneer twee kanten even groot zijn. Bij een ongelijkheid zoek je wanneer de ene kant groter of kleiner is dan de andere. Hier leer je ze oplossen, ook als er twee variabelen in staan.',
     color: 'forest',
     topics: [vergelijkingen, ongelijkheden, tweeVariabelen],
   },
   {
     slug: 'meetkunde',
     name: 'Meetkunde',
+    intro:
+      'Meetkunde gaat over figuren, lengtes en hoeken. Hier bereken je zijden met de stelling van Pythagoras en met verhoudingstabellen, en leer je wanneer twee driehoeken gelijkvormig zijn.',
     color: 'orange',
     topics: [pythagoras, verhoudingen, gelijkvormig, aantonen, lengtes],
   },
@@ -46,15 +52,17 @@ const PREREQUISITES = new Map([
   [lengtes, [pythagoras, gelijkvormig]],
 ]);
 
+const DOMAIN = Object.fromEntries(DOMAINS.map((d) => [d.slug, d]));
 const TOPICS = DOMAINS.flatMap((d) => d.topics);
 const TOPIC = Object.fromEntries(TOPICS.map((t) => [t.slug, t]));
 for (const domain of DOMAINS) {
   domain.topics.forEach((t, i) => {
     t.domain = domain;
+    t.prev = domain.topics[i - 1] || null;
     t.next = domain.topics[i + 1] || null;
     t.prerequisites = PREREQUISITES.get(t) || [];
     t.skills = t.skills.map(([id, name, gen]) => ({ id, name, gen }));
   });
 }
 
-export { DOMAINS, TOPICS, TOPIC };
+export { DOMAINS, DOMAIN, TOPICS, TOPIC };

@@ -1,6 +1,7 @@
 // Een lijn tekenen in een rooster. Tik je twee punten aan of typ je de coördinaten, dan komen die
 // in dezelfde invoervelden terecht. Zo werkt de vraag ook met het toetsenbord en een schermlezer.
 import { parseNum } from '../answers.js';
+import { drawnHTML } from '../figures.js';
 import { app } from './state.js';
 
 function drawParts() {
@@ -13,25 +14,11 @@ function drawParts() {
 function showDrawn() {
   const g = drawParts();
   if (!g) return;
-  const X = (x) => g.ml + (x - g.x0) * g.u,
-    Y = (y) => g.mt + (g.y1 - y) * g.u,
-    [a, b, c, e] = g.inputs.map((i) => parseNum(i.value)),
-    pts = [
-      [a, b],
-      [c, e],
-    ].filter((p) => p.every(Number.isFinite));
-  let o = '';
-  if (pts.length === 2 && (a !== c || b !== e)) {
-    // Ver buiten het rooster doortrekken: de clipPath snijdt de lijn af.
-    const far = 100,
-      dx = c - a,
-      dy = e - b;
-    o += `<line class="l1" x1="${X(a - dx * far)}" y1="${Y(b - dy * far)}" x2="${X(a + dx * far)}" y2="${Y(b + dy * far)}"/>`;
-  }
-  pts.forEach(([x, y]) => {
-    o += `<circle class="dot" cx="${X(x)}" cy="${Y(y)}" r="5"/>`;
-  });
-  g.svg.querySelector('.drawn').innerHTML = o;
+  const [a, b, c, e] = g.inputs.map((i) => parseNum(i.value));
+  g.svg.querySelector('.drawn').innerHTML = drawnHTML(g.svg.dataset.draw, [
+    [a, b],
+    [c, e],
+  ]);
 }
 // Een tik vult het eerste lege punt. Zijn beide punten bezet, dan vervalt het oudste.
 // Tik je op een gekozen punt, dan haal je het weg.

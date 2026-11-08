@@ -1,10 +1,19 @@
 // Bouwt dist/index.html: de hele site in één HTML-bestand, plus wat Azure en linkvoorbeelden nodig hebben.
+import { execFileSync } from 'node:child_process';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
 const root = new URL('../', import.meta.url);
 const read = (path) => readFile(new URL(path, root), 'utf8');
+
+// De voettekst toont de versie en de datum van de laatste commit. Zonder git wordt dat vandaag.
+const { version } = JSON.parse(await read('package.json'));
+let date;
+try {
+  date = execFileSync('git', ['log', '-1', '--format=%cs'], { encoding: 'utf8' }).trim();
+} catch {}
+if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) date = new Date().toISOString().slice(0, 10);
 
 const bundle = await build({
   entryPoints: [fileURLToPath(new URL('src/js/main.js', root))],
@@ -13,6 +22,7 @@ const bundle = await build({
   target: 'es2020',
   charset: 'utf8',
   write: false,
+  define: { __VERSIE__: JSON.stringify(version), __DATUM__: JSON.stringify(date) },
 });
 const js = bundle.outputFiles[0].text;
 // Zet de lettertypes als data-URL in de CSS, zodat het ene bestand alles bevat.

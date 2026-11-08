@@ -72,14 +72,17 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 
 ## Oefenen en voortgang
 
-| Begrip           | Betekenis                                                                               | In de code     |
-| ---------------- | --------------------------------------------------------------------------------------- | -------------- |
-| Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                               |                |
-| Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                | `ui/exam.js`   |
-| Uitslag          | Het resultaat van de laatst ingeleverde proeftoets. Er blijft er één bewaard.           | `state.result` |
-| Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.              | `prog`         |
-| Beheerst         | De voortgang is 80% of meer.                                                            | `topicPct`     |
-| Overzichtsscherm | Het eerste scherm van de site. Het woord beginscherm is voor het icoon op een telefoon. | `ui/home.js`   |
+| Begrip           | Betekenis                                                                                                                          | In de code     |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                                                                          |                |
+| Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                                                           | `ui/exam.js`   |
+| Uitslag          | Het resultaat van de laatst ingeleverde proeftoets. Er blijft er één bewaard.                                                      | `state.result` |
+| Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.                                                         | `prog`         |
+| Beheerst         | De voortgang is 80% of meer.                                                                                                       | `topicPct`     |
+| Overzichtsscherm | Het eerste scherm van de site, op de site "Home". Het woord beginscherm is voor het icoon op een telefoon.                         | `ui/home.js`   |
+| Mijn stof        | Het scherm met alles wat de site van de leerling onthoudt: stofkeuze, boek, laatste uitslag en voortgang. Geen account of profiel. | `ui/stof.js`   |
+| Hoofdmenu        | Home, Mijn stof en Proeftoets bovenaan elk scherm. Elk scherm hoort bij één deel ervan.                                            | `ui/layout.js` |
+| Kruimelpad       | De regel boven de kop, van Home tot het scherm zelf, zoals Home › Meetkunde › Gelijkvormige driehoeken.                            | `crumbsFor`    |
 
 ## Controleren
 
@@ -100,7 +103,8 @@ Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat
 | Domein                   | Alleen de naam, zoals "Meetkunde"                                 |
 | Methode                  | De naam zelf, of "je boek"                                        |
 | Methode-indeling         | "Je boek", zoals in "Kies uit je boek"                            |
-| Stofkeuze                | "Jouw stof"                                                       |
+| Stofkeuze                | "Mijn stof", of "je stof" in een zin                              |
+| Overzichtsscherm         | "Home"                                                            |
 | Vraagsoort               | "Soort vraag", of de naam van de vraagsoort                       |
 | Uitslag                  | "Je resultaat"                                                    |
 | Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen." |

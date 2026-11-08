@@ -110,9 +110,28 @@ test('oude voortgang verhuist mee met de nieuwe indeling', () => {
 });
 
 test('elk onderwerp heeft een adres dat bij de titel past', () => {
-  const reserved = ['methode-indeling', 'boek', 'jouw-stof', 'proeftoets', 'over', 'cijfers'];
-  const slugs = TOPICS.map((t) => t.slug);
-  assert.equal(new Set(slugs).size, slugs.length, 'Twee onderwerpen hebben hetzelfde adres');
+  const reserved = [
+    'methode-indeling',
+    'boek',
+    'mijn-stof',
+    'proeftoets',
+    'over',
+    'privacy',
+    'contact',
+    'cijfers',
+  ];
+  // Domeinen en onderwerpen delen de adressen direct onder /, dus geen twee mogen hetzelfde zijn.
+  const slugs = [...TOPICS, ...DOMAINS].map((t) => t.slug);
+  assert.equal(
+    new Set(slugs).size,
+    slugs.length,
+    'Twee onderwerpen of domeinen hebben hetzelfde adres',
+  );
+  for (const d of DOMAINS) {
+    assert.equal(d.slug, d.name.toLowerCase().replaceAll(' ', '-'), d.name);
+    assert.ok(!reserved.includes(d.slug), `${d.slug} is gereserveerd`);
+    assert.ok(d.intro && !/[{}<]/.test(d.intro), `${d.name}: de intro is geen gewone tekst`);
+  }
   for (const t of TOPICS) {
     assert.equal(t.slug, t.title.toLowerCase().replaceAll(' ', '-'), t.title);
     assert.ok(!reserved.includes(t.slug), `${t.slug} is gereserveerd`);

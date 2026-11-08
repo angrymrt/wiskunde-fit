@@ -1,20 +1,23 @@
 // De adressen van de site: bij elk scherm hoort één adres en andersom. Bevat geen DOM-code.
 import { MAPPING, MAPPINGS } from './mappings/index.js';
-import { TOPIC } from './topics/index.js';
+import { DOMAIN, TOPIC } from './topics/index.js';
 
 const SCREENS = {
   home: { path: '/', title: 'Wiskundefit: oefenen voor je wiskundetoets' },
   kies: { path: '/methode-indeling', title: 'Kies uit je boek' },
-  stof: { path: '/jouw-stof', title: 'Jouw stof' },
-  stofoefen: { path: '/jouw-stof/oefenen', title: 'Jouw stof oefenen', slug: 'jouw-stof' },
+  stof: { path: '/mijn-stof', title: 'Mijn stof' },
+  stofoefen: { path: '/mijn-stof/oefenen', title: 'Mijn stof oefenen', slug: 'mijn-stof' },
   toets: { path: '/proeftoets', title: 'Proeftoets' },
   toetsres: { path: '/proeftoets/uitslag', title: 'Resultaat proeftoets' },
   over: { path: '/over', title: 'Over Wiskundefit' },
+  privacy: { path: '/privacy', title: 'Privacy' },
+  contact: { path: '/contact', title: 'Contact' },
 };
 
 function pathFor(v) {
   if (v.name === 'missing') return v.path;
   if (v.name === 'mapping') return `/methode-indeling/${MAPPING[v.id].slug}`;
+  if (v.name === 'domain') return `/${v.slug}`;
   if (v.name !== 'topic') return SCREENS[v.name].path;
   if (!v.oefen) return `/${v.slug}`;
   return `/${v.slug}/oefenen${v.soort ? `?soort=${v.soort}` : ''}`;
@@ -39,6 +42,7 @@ function viewFor(pathname, search = '') {
     const mapping = first === 'methode-indeling' && MAPPINGS.find((m) => m.slug === second);
     if (mapping) return { name: 'mapping', id: mapping.id };
     // Object.hasOwn, want /constructor is ook een eigenschap van een gewoon object.
+    if (Object.hasOwn(DOMAIN, first) && !second) return { name: 'domain', slug: first };
     if (Object.hasOwn(TOPIC, first)) {
       if (!second) return { name: 'topic', slug: first };
       if (second === 'oefenen') return practiceView(first, search);
@@ -49,16 +53,52 @@ function viewFor(pathname, search = '') {
 
 function titleFor(v) {
   if (v.name === 'home') return SCREENS.home.title;
-  const name = () => {
-    if (v.name === 'missing') return 'Pagina niet gevonden';
-    if (v.name === 'mapping') {
-      const m = MAPPING[v.id];
-      return `${m.method}, ${m.edition}e editie, ${m.level} ${m.year}`;
-    }
-    if (v.name !== 'topic') return SCREENS[v.name].title;
-    return v.oefen ? `${TOPIC[v.slug].title} oefenen` : TOPIC[v.slug].title;
-  };
-  return `${name()} | Wiskundefit`;
+  return `${SCREENS[v.name]?.title ?? nameOf(v)}${v.oefen ? ' oefenen' : ''} | Wiskundefit`;
+}
+// De naam van een scherm, zoals in het kruimelpad.
+function nameOf(v) {
+  if (v.name === 'missing') return 'Pagina niet gevonden';
+  if (v.name === 'mapping') {
+    const m = MAPPING[v.id];
+    return `${m.method}, ${m.edition}e editie, ${m.level} ${m.year}`;
+  }
+  if (v.name === 'domain') return DOMAIN[v.slug].name;
+  if (v.name === 'topic') return TOPIC[v.slug].title;
+  if (v.name === 'toetsres') return 'Je resultaat';
+  if (v.name === 'stofoefen') return 'Oefenen';
+  return SCREENS[v.name].title;
 }
 
-export { pathFor, to, viewFor, titleFor };
+// Het onderdeel van het hoofdmenu waar een scherm bij hoort. Mijn stof is alles wat de site van
+// de leerling onthoudt: de stofkeuze en het boek.
+const SECTIONS = {
+  home: 'home',
+  domain: 'home',
+  topic: 'home',
+  stof: 'stof',
+  stofoefen: 'stof',
+  kies: 'stof',
+  mapping: 'stof',
+  toets: 'toets',
+  toetsres: 'toets',
+};
+const sectionFor = (v) => SECTIONS[v.name] || null;
+
+// Het kruimelpad boven de kop: Home, de schermen erboven en als laatste het scherm zelf, zonder
+// link. Elk scherm behalve Home heeft er een.
+function crumbsFor(v) {
+  if (v.name === 'home') return [];
+  const link = (view) => ({ text: nameOf(view), path: pathFor(view) });
+  const up = [{ text: 'Home', path: to('home') }];
+  if (v.name === 'topic') {
+    const t = TOPIC[v.slug];
+    up.push(link({ name: 'domain', slug: t.domain.slug }));
+    if (v.oefen) return [...up, link({ name: 'topic', slug: t.slug }), { text: 'Oefenen' }];
+  }
+  if (v.name === 'kies' || v.name === 'stofoefen') up.push(link({ name: 'stof' }));
+  if (v.name === 'mapping') up.push(link({ name: 'stof' }), link({ name: 'kies' }));
+  if (v.name === 'toetsres') up.push(link({ name: 'toets' }));
+  return [...up, { text: nameOf(v) }];
+}
+
+export { pathFor, to, viewFor, titleFor, sectionFor, crumbsFor };

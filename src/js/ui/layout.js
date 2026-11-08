@@ -1,17 +1,53 @@
 // Onderdelen die op elk scherm terugkomen.
-import { to } from '../routes.js';
+import { crumbsFor, sectionFor, to } from '../routes.js';
+import { esc } from '../typeset.js';
 import { state } from './state.js';
 
+const REPO = 'https://github.com/angrymrt/wiskunde-fit';
+// De build vult de versie en de datum in, zie scripts/build.js. Met npm run dev bestaan ze niet.
+const VERSION = typeof __VERSIE__ === 'string' ? __VERSIE__ : null;
+const DATE = typeof __DATUM__ === 'string' ? __DATUM__ : null;
+
+// Het menu-item van het onderdeel waar je bent, krijgt aria-current: "page" op dat scherm zelf,
+// "true" op een scherm eronder.
+function menuItem(name, text) {
+  const here = sectionFor(state.view) === name;
+  const current = here ? ` aria-current="${state.view.name === name ? 'page' : 'true'}"` : '';
+  return `<a href="${to(name)}"${current}>${text}</a>`;
+}
 const topbar = () =>
-  `<header class="top"><a class="brand" href="${to('home')}">Wiskunde<span class="brand-fit">fit</span></a><nav class="topnav" aria-label="Hoofdmenu"><a class="btn quiet" href="${to('home')}">Overzicht</a><a class="btn quiet" href="${to('stof')}">Jouw stof</a><a class="btn quiet" href="${to('toets')}">Proeftoets</a></nav></header>`;
+  `<a class="skip" href="#inhoud">Naar de inhoud</a><header class="top"><a class="brand" href="${to('home')}">Wiskunde<span class="brand-fit">fit</span></a><nav class="topnav" aria-label="Hoofdmenu">${menuItem('home', 'Home')}${menuItem('stof', 'Mijn stof')}${menuItem('toets', 'Proeftoets')}</nav></header>`;
+// Een huisje voor Home. Het is versiering: de tekst Home staat er altijd bij.
+const HOUSE =
+  '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M2 7.5 8 2.5l6 5M3.8 6.3V13.5h3V10h2.4v3.5h3V6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+// Het scherm zelf staat als laatste in het kruimelpad, zonder link.
+function crumbs() {
+  const list = crumbsFor(state.view);
+  const item = (c, i) => {
+    const text = `${i ? '' : HOUSE}${esc(c.text)}`;
+    return `<li>${c.path ? `<a href="${c.path}">${text}</a>` : `<span aria-current="page">${text}</span>`}</li>`;
+  };
+  return list.length
+    ? `<nav class="crumbs" aria-label="Kruimelpad"><ol>${list.map(item).join('')}</ol></nav>`
+    : '';
+}
+// De kop van een scherm, met het kruimelpad erboven. Geef HTML mee voor wat eronder hoort.
+const pageHead = (title, rest = '') =>
+  `<div class="head">${crumbs()}<h1>${title}</h1>${rest}</div>`;
+const DATE_TEXT = (iso) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString('nl-NL', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 const footer = () =>
-  `<footer class="foot"><a class="linkbtn" href="${to('over')}">Over Wiskundefit, privacy en contact</a></footer>`;
+  `<footer class="foot"><nav aria-label="Over de site"><a href="${to('over')}">Over</a><a href="${to('privacy')}">Privacy</a><a href="${to('contact')}">Contact</a><a href="${REPO}" target="_blank" rel="noopener">GitHub</a></nav><p class="small muted">${VERSION ? `Versie ${VERSION}, bijgewerkt op ${DATE_TEXT(DATE)}.` : 'Ontwikkelversie.'} <a href="${REPO}/releases" target="_blank" rel="noopener">Wat is er nieuw?</a></p></footer>`;
 // Een proeftoets loopt door als je ergens anders heen gaat, dus zeg waar je hem terugvindt.
 const testNotice = () =>
   state.test && state.view.name !== 'toets'
     ? `<p class="notice small"><a href="${to('toets')}">Je proeftoets loopt nog. Ga verder met vraag ${state.test.i + 1}.</a></p>`
     : '';
 const vMissing = () =>
-  `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Deze pagina bestaat niet</h1><p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
+  `${pageHead('Deze pagina bestaat niet')}<div class="sheet"><p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
 
-export { topbar, footer, testNotice, vMissing };
+export { REPO, topbar, footer, crumbs, pageHead, testNotice, vMissing };

@@ -1,6 +1,6 @@
 // Startpunt van de app: kiest het juiste scherm en verwerkt klikken en formulieren.
 import { checkAnswer, findTrap } from './answers.js';
-import { TOPICS, TOPIC } from './topics/index.js';
+import { DOMAIN, TOPICS, TOPIC } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, save, rec, resetProgress } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
@@ -19,8 +19,8 @@ import {
   pauseClock,
   clockText,
 } from './ui/exam.js';
-import { vOver } from './ui/about.js';
-import { vHome } from './ui/home.js';
+import { vContact, vOver, vPrivacy } from './ui/about.js';
+import { vDomain, vHome } from './ui/home.js';
 import { vTopic, newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
 import { topbar, footer, testNotice, vMissing } from './ui/layout.js';
@@ -52,6 +52,7 @@ function leave() {
 function show(v, focus) {
   state.view = v;
   state.confirmReset = false;
+  state.stopped = false;
   if (v.oefen) applySoort(TOPIC[v.slug], v.soort);
   render(focus);
 }
@@ -68,14 +69,15 @@ function restoreScroll() {
   else if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
   else window.scrollTo(0, 0);
 }
-const go = (v) => {
+// Met een hash, zoals /#meetkunde, gaat de focus naar de kop van dat deel van het scherm.
+const go = (v, hash = '') => {
   leave();
   saveScroll();
   const path = pathFor(v);
-  if (path === here()) history.replaceState(null, '', path);
-  else history.pushState(null, '', path);
-  show(v, 'h1');
+  if (path === here() && !hash) history.replaceState(null, '', path);
+  else history.pushState(null, '', path + hash);
   window.scrollTo(0, 0);
+  show(v, hash ? `${hash} h2, h2${hash}` : 'h1');
 };
 // Toont het scherm dat bij het adres hoort: bij het openen en bij de terugknop.
 function arrive(focus) {
@@ -110,19 +112,25 @@ function render(focus) {
   const target = focus || focusedSelector();
   let html = '';
   if (state.view.name === 'home') html = vHome();
+  else if (state.view.name === 'domain') html = vDomain(DOMAIN[state.view.slug]);
   else if (state.view.name === 'topic') html = vTopic(TOPIC[state.view.slug]);
   else if (state.view.name === 'toets') html = state.test ? vToetsRun() : vToetsSetup();
   else if (state.view.name === 'toetsres') html = vToetsRes();
   else if (state.view.name === 'missing') html = vMissing();
   else if (state.view.name === 'over') html = vOver();
+  else if (state.view.name === 'privacy') html = vPrivacy();
+  else if (state.view.name === 'contact') html = vContact();
   else if (state.view.name === 'kies') html = vPick();
   else if (state.view.name === 'mapping') html = vMapping(MAPPING[state.view.id]);
   else if (state.view.name === 'stof') html = vStof();
   else if (state.view.name === 'stofoefen') html = vStofPractice();
-  app.innerHTML = `${topbar()}<main class="screen">${testNotice()}${html}</main>${footer()}`;
+  app.innerHTML = `${topbar()}<main class="screen" id="inhoud">${testNotice()}${html}</main>${footer()}`;
   document.title = titleFor(state.view);
+  // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
+  app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
   mountWidgets();
   showDrawn();
+  watchPracticeBar();
   if (target && !focusOn(target)) focusOn('h1');
   if (state.view.name === 'toets' && state.test) {
     if (!state.test.since) state.test.since = Date.now();
@@ -133,10 +141,27 @@ function render(focus) {
       }, 1000);
   }
 }
+// Op een telefoon verschijnt de balk met "Ga oefenen" pas als de knop onder de intro uit beeld is.
+let barWatch;
+function watchPracticeBar() {
+  barWatch?.disconnect();
+  const bar = app.querySelector('.practice-bar'),
+    button = app.querySelector('.topic-actions .btn.main');
+  if (!bar || !button || !('IntersectionObserver' in window)) return;
+  bar.classList.add('away');
+  barWatch = new IntersectionObserver(([e]) => bar.classList.toggle('away', e.isIntersecting));
+  barWatch.observe(button);
+}
 app.addEventListener('input', showDrawn);
 app.addEventListener('click', (e) => {
   const grid = e.target.closest('svg[data-draw]');
   if (grid) return tapGrid(grid, e);
+  // De link naar de inhoud zet de focus daar, zonder #inhoud in het adres.
+  if (e.target.closest('a.skip')) {
+    e.preventDefault();
+    focusOn('main');
+    return;
+  }
   // Een link binnen de site wisselt alleen van scherm, tenzij je die in een nieuw tabblad opent.
   const link = e.target.closest('a[href^="/"]');
   if (link) {
@@ -146,8 +171,8 @@ app.addEventListener('click', (e) => {
       prog.mapping = pickedMapping().id;
       save();
     }
-    const { pathname, search } = new URL(link.href);
-    return go(viewFor(pathname, search));
+    const { pathname, search, hash } = new URL(link.href);
+    return go(viewFor(pathname, search), hash);
   }
   if (e.target.closest('a[href^="#"]')) return saveScroll();
   const b = e.target.closest('[data-act]');
@@ -275,7 +300,8 @@ app.addEventListener('click', (e) => {
   if (a === 'tstop2') {
     stopTest();
     stopTimer();
-    render('h1');
+    state.stopped = true;
+    render('#stopped');
     return;
   }
   if (a === 'goto') {

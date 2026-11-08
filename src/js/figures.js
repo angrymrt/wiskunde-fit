@@ -76,6 +76,44 @@ function graph({
     drawData = draw ? ` data-draw="${[...xr, ...yr, u, ml, mt].join(',')}"` : '';
   return `<svg class="fig" role="img" aria-label="${label}"${drawData} width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}">${o}${typeof extra === 'function' ? extra(X, Y) : extra}${drawing}</svg>`;
 }
+// Tekent punten en de lijn erdoor in een rooster om zelf in te tekenen. data is de inhoud van
+// data-draw, zodat alles op dezelfde plek komt als in het rooster zelf.
+function drawnHTML(data, pts, { cls = 'l1', dots = true } = {}) {
+  const [x0, , , y1, u, ml, mt] = data.split(',').map(Number),
+    X = (x) => ml + (x - x0) * u,
+    Y = (y) => mt + (y1 - y) * u,
+    given = pts.filter((p) => p.every(Number.isFinite));
+  let o = '';
+  if (given.length === 2 && (given[0][0] !== given[1][0] || given[0][1] !== given[1][1])) {
+    // Ver buiten het rooster doortrekken: de clipPath snijdt de lijn af.
+    const [[a, b], [c, e]] = given,
+      far = 100,
+      dx = c - a,
+      dy = e - b;
+    o += `<line class="${cls}" x1="${X(a - dx * far)}" y1="${Y(b - dy * far)}" x2="${X(a + dx * far)}" y2="${Y(b + dy * far)}"/>`;
+  }
+  if (dots)
+    given.forEach(([x, y]) => (o += `<circle class="dot" cx="${X(x)}" cy="${Y(y)}" r="5"/>`));
+  return o;
+}
+// Het rooster van een tekenvraag in de uitslag: de lijn van de leerling, en bij een fout ook de
+// goede lijn y = ax + b. Op dit rooster kun je niet meer tikken.
+function drawnResult(fig, pts, line, ok) {
+  const data = fig.match(/ data-draw="([^"]+)"/)[1],
+    [x0, x1] = data.split(',').map(Number),
+    good = ok
+      ? ''
+      : drawnHTML(
+          data,
+          [x0, x1].map((x) => [x, line.a * x + line.b]),
+          { cls: 'l2 d', dots: false },
+        ),
+    label = ok ? 'Rooster met jouw lijn' : 'Rooster met jouw lijn en de goede lijn';
+  return fig
+    .replace(` data-draw="${data}"`, '')
+    .replace(/aria-label="[^"]*"/, `aria-label="${label}"`)
+    .replace(/(<g class="drawn"[^>]*>)<\/g>/, (_, g) => `${g}${good}${drawnHTML(data, pts)}</g>`);
+}
 function triFromSides(ab, bc, ac) {
   const x = (ab * ab + ac * ac - bc * bc) / (2 * ab);
   return { A: [0, 0], B: [ab, 0], C: [x, Math.sqrt(Math.max(ac * ac - x * x, 0))] };
@@ -241,4 +279,4 @@ const rightTriFig = (a, b, labels = {}, L = 'ABC') => {
   });
 };
 
-export { graph, triFromSides, xf, geo, angleFig, rightTriFig };
+export { graph, drawnHTML, drawnResult, triFromSides, xf, geo, angleFig, rightTriFig };

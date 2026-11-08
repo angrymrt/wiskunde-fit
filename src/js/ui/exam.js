@@ -1,14 +1,15 @@
 // De proeftoets: samenstellen, afnemen, bewaren en nakijken.
-import { checkAnswer } from '../answers.js';
+import { checkAnswer, parseNum } from '../answers.js';
+import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
-import { TOPICS } from '../topics/index.js';
+import { DOMAINS, TOPICS } from '../topics/index.js';
 import { rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
-import { chosenTopics, topicOf } from '../stof.js';
+import { bookPath, chosenTopics, topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
+import { pageHead } from './layout.js';
 import { fieldsHTML, readVals } from './question-form.js';
 import { state } from './state.js';
-import { bookPath } from './stof.js';
 
 // Een lopende proeftoets en de laatste uitslag blijven in de browser bewaard, los van de voortgang.
 const TEST_KEY = 'wiskundefit-proeftoets';
@@ -87,16 +88,30 @@ function buildTest(ids, n) {
   out.sort((a, b) => order.indexOf(a.topic.slug) - order.indexOf(b.topic.slug));
   return out;
 }
+const gradeOf = (t) => 1 + (9 * t.score) / t.max;
+// Het resultaat in één zin, voor het overzicht, Mijn stof en het scherm Proeftoets.
+const resultText = (t) => `${t.score} van ${t.max} punten, ongeveer een ${d(rd(gradeOf(t), 1))}`;
 function vToetsSetup() {
   const n = state.len,
     groups = chosenTopics();
-  const intro = `<h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Proeftoets</h1><p>Je krijgt vragen uit jouw stof, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>`;
+  const head = pageHead(
+    'Proeftoets',
+    `<p class="lead">Je krijgt vragen uit je stof, zonder hints. Pas aan het eind zie je wat goed en fout is, met de uitwerkingen erbij. Zet een rekenmachine en kladpapier klaar.</p>`,
+  );
+  const stopped = state.stopped
+    ? `<p class="fb neutral" id="stopped">Je proeftoets is gestopt. Je antwoorden zijn niet bewaard en de proeftoets telt niet mee.</p>`
+    : '';
+  const last = state.result
+    ? `<section class="sheet"><h2 class="h3">Je laatste resultaat</h2><p>${resultText(state.result)}.</p><div class="row"><a class="btn" href="${to('toetsres')}">Bekijk je resultaat</a></div></section>`
+    : '';
+  // Op een breed scherm staat de laatste uitslag naast het instellen.
+  const side = last ? 'side-by-side' : 'stack';
   if (!groups.length)
-    return `<div class="sheet">${intro}<div class="setup"><b>Welke stof?</b><p class="small muted">Een proeftoets gaat over jouw stof. Kies die eerst.</p><div class="row"><a class="btn main" href="${bookPath()}">Kies uit je boek</a><a class="btn" href="${to('stof')}">Kies op onderwerp</a><button class="btn" type="button" data-act="stofall">Alle stof</button></div></div></div>`;
-  return `<div class="sheet">${intro}
-  <div class="setup"><b>Welke stof?</b><p class="small">Jouw stof: ${groups.map((g) => T(g.topic.title)).join(', ')}.</p><div><a class="linkbtn" href="${to('stof')}">Wijzig jouw stof</a></div></div>
-  <div class="setup"><b>Hoeveel vragen?</b><div class="chips">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
-  <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div></div>`;
+    return `${head}${stopped}<div class="${side}"><div class="sheet"><div class="setup"><h2 class="h3">Welke stof?</h2><p class="small muted">Een proeftoets gaat over je stof. Kies die eerst.</p><div class="row"><a class="btn main" href="${bookPath()}">Kies uit je boek</a><a class="btn" href="${to('stof')}#onderwerp">Kies op onderwerp</a><button class="btn" type="button" data-act="stofall">Alle stof</button></div></div></div>${last}</div>`;
+  return `${head}${stopped}<div class="${side}"><div class="sheet">
+  <div class="setup"><h2 class="h3">Welke stof?</h2><p class="small">Mijn stof: ${groups.map((g) => T(g.topic.title)).join(', ')}.</p><div><a class="linkbtn" href="${to('stof')}">Wijzig mijn stof</a></div></div>
+  <div class="setup"><h2 class="h3" id="len-label">Hoeveel vragen?</h2><div class="chips" role="group" aria-labelledby="len-label">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
+  <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div></div>${last}</div>`;
 }
 const fmtT = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 const clockText = (t) => fmtT(Math.floor(elapsed(t) / 1000));
@@ -108,7 +123,7 @@ function vToetsRun() {
     x.vals.length && (x.q.mc ? x.vals[0] !== '' : x.vals.some((v) => String(v).trim()));
   const open = t.items.filter((x) => !filled(x)).length;
   return `<div class="sheet"><div class="row" style="justify-content:space-between"><h1 class="plain-h">Vraag ${i + 1} van ${t.items.length}</h1><span class="muted small">Tijd <span id="clock" style="font-variant-numeric:tabular-nums">${clockText(t)}</span></span></div>
-  <div class="grid-nav">${t.items.map((x, k) => `<button class="gn ${filled(x) ? 'fill' : ''} ${k === i ? 'cur' : ''}" type="button" data-act="goto" data-id="${k}" aria-label="Ga naar vraag ${k + 1}">${k + 1}</button>`).join('')}</div>
+  <nav class="grid-nav" aria-label="Vragen van de proeftoets">${t.items.map((x, k) => `<button class="gn ${filled(x) ? 'fill' : ''} ${k === i ? 'cur' : ''}" type="button" data-act="goto" data-id="${k}" aria-label="Vraag ${k + 1}${filled(x) ? ', ingevuld' : ''}"${k === i ? ' aria-current="step"' : ''}>${k + 1}</button>`).join('')}</nav>
   <div class="small muted">${T(it.topic.title)}</div><div class="q" id="tq">${it.q.q}</div>${it.q.fig ? `<div class="figbox">${it.q.fig}</div>` : ''}
   <form id="tform" class="block" novalidate>${fieldsHTML(it.q, 't', it.vals)}<div class="row"><button class="btn" type="button" data-act="tprev" ${i ? '' : 'disabled'}>Vorige</button>${i < t.items.length - 1 ? `<button class="btn main" type="submit">Volgende</button>` : ''}<button class="btn ${i === t.items.length - 1 ? 'main' : 'quiet'}" type="button" data-act="tfin" ${t.warn ? 'aria-describedby="tfb"' : ''}>Inleveren</button></div>
   ${t.warn ? `<div class="fb bad" id="tfb">Je hebt nog ${open} ${open === 1 ? 'vraag' : 'vragen'} open. Klik nog een keer op Inleveren als je toch wilt stoppen.</div>` : ''}</form>
@@ -153,34 +168,97 @@ function perTopic(items) {
   }
   return [...per.values()].map((p) => ({ ...p, r: p.got / p.max })).sort((a, b) => a.r - b.r);
 }
+// Het antwoord per deel: wat de leerling invulde, goed of fout, en bij een fout wat goed was.
+// Wat de leerling typte komt van de leerling, dus alleen esc en geen T.
+const mark = (ok) =>
+  `<span class="mark ${ok ? 'good' : 'bad'}"><span aria-hidden="true">${ok ? '✓' : '✗'}</span><span class="sr">${ok ? 'goed' : 'fout'}</span></span>`;
+const filled = (v) => String(v ?? '').trim();
+// Een minteken zetten we als echt minteken, net als in de rest van de site.
+const typed = (v) =>
+  filled(v) ? esc(filled(v)).replace(/-/g, '−') : '<span class="muted">niet ingevuld</span>';
+const rightField = (f) =>
+  `${f.sel ? esc(f.a) : (f.round ? '≈ ' : '') + T(f.round ? d(rd(f.a, f.round)) : fmtAns(f.a))}${f.post ? ' ' + T(f.post) : ''}`;
+function answerRows({ q, vals, c }) {
+  if (q.mc)
+    return [[null, filled(vals[0]) ? q.mc.opts[vals[0]] : typed(''), c.each[0], q.mc.opts[q.mc.a]]];
+  if (q.line)
+    return [0, 1].map((k) => {
+      const [x, y] = [vals[2 * k], vals[2 * k + 1]];
+      return [
+        `Punt ${k + 1}`,
+        filled(x) && filled(y)
+          ? `<span class="nowrap">(${typed(x)}, ${typed(y)})</span>`
+          : typed(''),
+        c.each[2 * k],
+        `<span class="nowrap">${T(`(${fmtAns(q.fields[2 * k].a)}, ${fmtAns(q.fields[2 * k + 1].a)})`)}</span>`,
+      ];
+    });
+  // Een veld zonder eigen tekst is meestal het vervolg van een formule, zoals b in ax + b.
+  const named = q.fields.some((f) => f.pre || f.post);
+  const label = (f, i) =>
+    f.pre ? T(f.pre) : named ? '' : q.fields.length > 1 ? `Antwoord ${i + 1}` : null;
+  return q.fields.map((f, i) => [
+    label(f, i),
+    `${typed(vals[i])}${f.post && filled(vals[i]) ? ' ' + T(f.post) : ''}`,
+    c.each[i],
+    rightField(f),
+  ]);
+}
+function answersHTML(x) {
+  const rows = answerRows(x),
+    labels = rows.some(([l]) => l),
+    wrong = !x.c.ok;
+  // Bij een tekenvraag is elk punt op de lijn goed, dus het goede antwoord is een voorbeeld.
+  const right = x.q.line ? 'Een goed punt' : 'Goed antwoord';
+  const head = `<tr>${labels ? '<th><span class="sr">Deel</span></th>' : ''}<th>Jouw antwoord</th>${wrong ? `<th>${right}</th>` : ''}</tr>`;
+  const row = ([l, given, ok, right]) =>
+    `<tr class="${ok ? 'ok' : 'no'}">${labels ? (l ? `<th scope="row">${l}</th>` : '<td></td>') : ''}<td>${mark(ok)}${given}</td>${wrong ? `<td>${ok ? '' : right}</td>` : ''}</tr>`;
+  return `<div class="scroll"><table class="answers"><thead>${head}</thead><tbody>${rows.map(row).join('')}</tbody></table></div>`;
+}
+// Een tekenvraag toont de lijn die de leerling tekende, en bij een fout ook de goede lijn.
+function resultFig(x) {
+  if (!x.q.fig) return '';
+  if (!x.q.line) return `<div class="figbox">${x.q.fig}</div>`;
+  const [a, b, c, e] = x.q.fields.map((f, i) => parseNum(String(x.vals[i] ?? '')));
+  const fig = drawnResult(
+    x.q.fig,
+    [
+      [a, b],
+      [c, e],
+    ],
+    x.q.line,
+    x.c.ok,
+  );
+  // Zonder twee verschillende punten staat er geen lijn van de leerling, dus ook niet in de legenda.
+  const drawn = [a, b, c, e].every(Number.isFinite) && (a !== c || b !== e);
+  const legend = x.c.ok
+    ? ''
+    : `<p class="small legend">${drawn ? '<span><span class="key mine"></span> Jouw lijn, doorgetrokken</span>' : ''}<span><span class="key good"></span> De goede lijn, gestippeld</span></p>`;
+  return `<div class="figbox">${fig}</div>${legend}`;
+}
 function vToetsRes() {
   const t = state.result;
   if (!t)
-    return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Je resultaat</h1><p>Je ziet hier je resultaat zodra je een proeftoets hebt ingeleverd. Maak dus eerst een proeftoets.</p><div class="row"><a class="btn main" href="${to('toets')}">${state.test ? 'Ga verder met je proeftoets' : 'Maak een proeftoets'}</a></div></div>`;
-  const grade = 1 + (9 * t.score) / t.max,
-    weak = perTopic(t.items);
-  return `<div class="sheet"><h1 style="font-size:clamp(1.7rem,5vw,2.4rem)">Je resultaat</h1><div class="row" style="gap:24px"><div class="score">${t.score}/${t.max}</div><div><div>punten in ${fmtT(t.time)} minuten</div><div class="muted small">Dat is ongeveer een ${d(rd(grade, 1))} met de formule cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</div></div></div>
-  <h2 class="h3">Per onderwerp</h2><div class="res">${weak
-    .map((w) => {
-      const pc = Math.round(w.r * 100);
-      return `<a class="par color-${w.s.domain.color}" href="${pathFor({ name: 'topic', slug: w.s.slug, oefen: true })}" style="border-top:0;padding:4px 0"><span>${T(w.s.title)}</span><span class="pct">${w.got} van ${w.max}</span><span class="bar ${pc >= 80 ? 'done' : ''}"><i style="width:${pc}%"></i></span></a>`;
-    })
-    .join('')}</div>
-  <p class="small muted">Klik op een onderwerp om dat verder te oefenen.</p><div class="row"><a class="btn main" href="${to('toets')}">Nieuwe proeftoets</a></div></div>
-  <div class="sheet"><h2>Alle vragen nakijken</h2><div class="res">${t.items
-    .map((x, i) => {
-      const ok = x.c.ok;
-      const ans = x.q.mc
-        ? x.q.mc.opts[x.q.mc.a]
-        : x.q.fields
-            .map(
-              (f) =>
-                `${f.pre ? T(f.pre) + ' ' : ''}${f.sel ? esc(f.a) : (f.round ? '≈ ' : '') + T(f.round ? d(rd(f.a, f.round)) : fmtAns(f.a))}${f.post ? ' ' + T(f.post) : ''}`,
-            )
-            .join('; ');
-      return `<div class="resq"><div class="row" style="justify-content:space-between"><b>Vraag ${i + 1}</b><span class="tag ${ok ? 'good' : 'bad'}">${ok ? 'Goed' : x.got ? `${x.got} van ${x.max} goed` : 'Fout'}</span></div><div>${x.q.q}</div>${x.q.fig ? `<div class="figbox">${x.q.fig}</div>` : ''}${ok ? '' : `<div><b>Goed antwoord:</b> ${ans}</div>`}<details ${ok ? '' : 'open'}><summary>Uitwerking</summary>${stepsHTML(x.q.steps)}</details></div>`;
-    })
-    .join('')}</div></div>`;
+    return `${pageHead('Je resultaat')}<div class="sheet"><p>Je ziet hier je resultaat zodra je een proeftoets hebt ingeleverd. Maak dus eerst een proeftoets.</p><div class="row"><a class="btn main" href="${to('toets')}">${state.test ? 'Ga verder met je proeftoets' : 'Maak een proeftoets'}</a></div></div>`;
+  const topic = (w) => {
+    const pc = Math.round(w.r * 100);
+    return `<li><a href="${pathFor({ name: 'topic', slug: w.s.slug, oefen: true })}"><span>${T(w.s.title)}</span><span class="pct">${w.got} van ${w.max}</span><span class="bar ${pc >= 80 ? 'done' : ''}"><i style="width:${pc}%"></i></span></a></li>`;
+  };
+  // Per domein, in de volgorde van de site. Is er maar één domein, dan mag dat over twee kolommen.
+  const scores = perTopic(t.items);
+  const groups = DOMAINS.map((dm) => ({
+    dm,
+    rows: dm.topics.map((s) => scores.find((w) => w.s === s)).filter(Boolean),
+  })).filter((g) => g.rows.length);
+  const domain = ({ dm, rows }) =>
+    `<section class="res-domain color-${dm.color}"><h3 class="res-domain-head">${dm.name}</h3><ul class="res-topics">${rows.map(topic).join('')}</ul></section>`;
+  const question = (x, i) =>
+    `<div class="resq"><div class="row" style="justify-content:space-between"><h3 class="plain-h">Vraag ${i + 1}</h3><span class="tag ${x.c.ok ? 'good' : 'bad'}">${x.c.ok ? 'Goed' : x.got ? `${x.got} van ${x.max} goed` : 'Fout'}</span></div><div>${x.q.q}</div>${resultFig(x)}${answersHTML(x)}<details><summary>Uitwerking</summary>${stepsHTML(x.q.steps)}</details></div>`;
+  return `${pageHead('Je resultaat')}<div class="sheet res-head">
+  <div class="res-score"><div class="score">${t.score}/${t.max}</div><div><p><b>Ongeveer een ${d(rd(gradeOf(t), 1))}</b></p><p class="small muted">In ${fmtT(t.time)} minuten. Cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</p></div></div>
+  <div class="res-per"><h2 class="h3">Per onderwerp</h2><div class="res-domains${groups.length === 1 ? ' one' : ''}">${groups.map(domain).join('')}</div><p class="small muted">Tik op een onderwerp om het te oefenen.</p></div>
+  <div class="row"><a class="btn main" href="${to('toets')}">Nieuwe proeftoets</a><a class="btn" href="${to('stof')}">Naar mijn stof</a></div></div>
+  <div class="sheet"><h2>Alle vragen nakijken</h2><div class="res">${t.items.map(question).join('')}</div></div>`;
 }
 function fmtAns(a) {
   if (Number.isInteger(a) || isNice(a, 4)) return d(a);
@@ -204,4 +282,5 @@ export {
   finishTest,
   pauseClock,
   clockText,
+  resultText,
 };

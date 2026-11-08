@@ -184,9 +184,84 @@ input {
   min-width: 0;
   gap: 22px;
 }
+/* Een scherm met een kop en het oefenen eronder, iets dichter op elkaar. */
+.screen-grid {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+}
+/* Onzichtbaar tot je er met Tab op komt. */
+.skip {
+  position: absolute;
+  left: 16px;
+  top: -200px;
+  z-index: 10;
+  padding: 8px 14px;
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  font-weight: 700;
+}
+.skip:focus {
+  top: 8px;
+}
 .foot {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.foot nav {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 0 6px;
+}
+/* Ruim genoeg om met een vinger te raken. */
+.foot nav a {
+  padding: 10px 6px;
+}
+.crumbs ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  font-size: 0.9rem;
+}
+.crumbs a,
+.crumbs span {
+  display: inline-block;
+  padding: 4px 0;
+}
+.crumbs [aria-current] {
+  color: var(--muted);
+}
+/* Het huisje en het woord Home op één lijn, met het huisje midden op de tekst. */
+.crumbs li:first-child a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.crumbs .icon {
+  flex: none;
+}
+/* Op een telefoon past een lang laatste deel niet altijd: dat wordt afgekapt, want de kop eronder
+   zegt hetzelfde. */
+.crumbs li:last-child {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* De tweede content-regel laat een schermlezer het teken overslaan; oudere browsers nemen de eerste. */
+.crumbs li + li::before {
+  content: '›';
+  content: '›' / '';
+  margin-right: 6px;
+  color: var(--muted);
 }
 /* Links die eruitzien als knop of rij, zoals een button dat vanzelf doet. */
 a.btn,
@@ -202,7 +277,7 @@ a.btn {
 .linkbtn {
   background: none;
   border: 0;
-  padding: 4px;
+  padding: 4px 0;
   color: var(--blue);
   text-decoration: underline;
   cursor: pointer;
@@ -223,7 +298,7 @@ a.btn {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
+  gap: 2px 16px;
   justify-content: space-between;
 }
 .brand {
@@ -231,15 +306,50 @@ a.btn {
   border: 0;
   padding: 0;
   cursor: pointer;
-  font: 800 1.2rem var(--display);
+  font: 800 1.35rem var(--display);
+}
+/* Naast het menu is op een breed scherm ruimte voor een groter logo. */
+@media (min-width: 561px) {
+  .brand {
+    font-size: 1.7rem;
+  }
 }
 .brand-fit {
   color: var(--pink);
 }
 .topnav {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 4px;
+}
+.topnav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+.topnav a:hover {
+  border-bottom-color: var(--rule);
+}
+/* Waar je bent: vet en onderstreept, dus niet alleen met kleur. */
+.topnav a[aria-current] {
+  font-weight: 700;
+  border-bottom-color: var(--ink);
+}
+/* Op een telefoon een eigen regel met drie even brede delen, ook op 320 pixels. */
+@media (max-width: 560px) {
+  .topnav {
+    flex-basis: 100%;
+    border-bottom: 1px solid var(--rule);
+  }
+  .topnav a {
+    flex: 1;
+    padding: 0 4px;
+    margin-bottom: -1px;
+  }
 }
 .sheet {
   background: var(--sheet);
@@ -248,6 +358,7 @@ a.btn {
   padding: 20px;
   min-width: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
 }
 .btn {
@@ -539,6 +650,16 @@ sub {
   justify-content: space-between;
   align-items: baseline;
 }
+.domain-head a {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  color: inherit;
+  text-decoration: none;
+}
+.domain-head a:hover {
+  text-decoration: underline;
+}
 .color-blue {
   --accent: var(--blue);
   --accent-soft: var(--blue-soft);
@@ -596,6 +717,9 @@ sub {
   color: var(--muted);
   white-space: nowrap;
 }
+.par .pill {
+  margin-left: 6px;
+}
 .pill.good {
   background: var(--good-soft);
   color: var(--good);
@@ -612,6 +736,113 @@ sub {
 .head h1 {
   font-size: clamp(1.6rem, 5vw, 2.3rem);
   color: var(--accent);
+}
+/* De kleur van het domein: een band bovenaan de pagina van een domein, zoals de kop van het domein
+   op het overzicht, en een lijn bovenaan een onderwerp. */
+.domain-band {
+  margin: -20px -20px 0;
+  padding: 20px;
+  background: var(--accent-soft);
+  border-bottom: 1px solid var(--rule);
+  border-radius: 5px 5px 0 0;
+}
+.topic {
+  border-top: 4px solid var(--accent);
+}
+/* Een onderwerp: alles in één vel. Op een breed scherm staan de acties rechts en blijven in beeld. */
+.topic-body {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  border-top: 1px solid var(--rule);
+  padding-top: 18px;
+}
+.topic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+}
+.topic-pct {
+  display: grid;
+  gap: 4px;
+  min-width: 8em;
+}
+.practice-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+  background: var(--sheet);
+  border-top: 1px solid var(--rule);
+}
+.practice-bar .btn {
+  flex: 1;
+  max-width: 24em;
+}
+/* Zolang de knop onder de intro in beeld is, is de balk niet nodig. */
+.practice-bar.away {
+  visibility: hidden;
+}
+.pager {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+}
+/* Onder het oefenen staat het los van het vel, dus zonder lijn erboven. */
+.screen-grid > .pager {
+  border-top: 0;
+  padding-top: 0;
+}
+.pager a {
+  display: grid;
+  gap: 2px;
+  padding: 6px 0;
+}
+.pager-next {
+  text-align: right;
+}
+/* Op een smal scherm passen twee lange namen niet naast elkaar. */
+@media (max-width: 400px) {
+  .pager {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.pager-prev span:first-child::before {
+  content: '← ';
+  content: '← ' / '';
+}
+.pager-next span:first-child::after {
+  content: ' →';
+  content: ' →' / '';
+}
+@media (min-width: 760px) {
+  .topic {
+    grid-template-columns: minmax(0, 1fr) 190px;
+    column-gap: 28px;
+  }
+  .topic > * {
+    grid-column: 1;
+  }
+  .topic > .pager {
+    grid-column: 1 / -1;
+  }
+  .topic-side {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+  .topic-actions {
+    position: sticky;
+    top: 16px;
+    display: grid;
+    align-items: start;
+  }
+  .practice-bar {
+    display: none;
+  }
 }
 .block {
   display: grid;
@@ -829,6 +1060,30 @@ ol.how {
   background: var(--bad-soft);
   color: var(--bad);
 }
+.fb.neutral {
+  background: var(--blue-soft);
+  color: var(--ink);
+}
+/* Uitleg bij een rooster in de uitslag: het lijntype zegt het ook zonder kleur. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.legend > span {
+  white-space: nowrap;
+}
+.key {
+  display: inline-block;
+  width: 28px;
+  border-top: 3px solid var(--pink);
+}
+.key {
+  vertical-align: middle;
+}
+.key.good {
+  border-top: 3px dashed var(--blue);
+}
 .hintb {
   background: var(--blue-soft);
   padding: 10px 14px;
@@ -863,24 +1118,164 @@ ol.how {
 .score {
   font: 800 clamp(2.6rem, 9vw, 4rem)/1 var(--display);
 }
+/* minmax(0, 1fr): zo kan een brede tabel binnen haar eigen scrollvak blijven, in plaats van de
+   hele kolom breder te maken dan het scherm. */
 .res {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 }
 .resq {
   border-top: 1px solid var(--rule);
   padding-top: 12px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
 }
 .tag {
   font-weight: 700;
+}
+/* Alleen voor een schermlezer. */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* De uitslag: het cijfer met de uitleg ernaast, daaronder de onderwerpen per domein. */
+.res-score {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.res-score > div:last-child {
+  display: grid;
+  gap: 2px;
+}
+.res-per {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+/* Op een breed scherm twee kolommen. Een domein blijft heel, tenzij er maar één is. */
+@media (min-width: 640px) {
+  .res-domains {
+    columns: 2;
+    column-gap: 32px;
+  }
+  .res-domain {
+    break-inside: avoid;
+  }
+  .res-domains.one .res-domain {
+    break-inside: auto;
+  }
+}
+.res-domain {
+  padding-bottom: 10px;
+}
+.res-domain-head {
+  font: 800 0.95rem var(--display);
+  color: var(--accent);
+  padding: 4px 0;
+  break-after: avoid;
+}
+.res-topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.res-topics li {
+  break-inside: avoid;
+}
+.res-topics a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--rule);
+  color: inherit;
+  text-decoration: none;
+}
+.res-topics a:hover span:first-child {
+  text-decoration: underline;
+}
+.res-topics .pct {
+  font-size: 0.86rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Per deel van het antwoord een vinkje of kruisje; een fout deel valt op door de achtergrond. */
+.answers {
+  width: 100%;
+  max-width: 32em;
+  font-variant-numeric: tabular-nums;
+}
+.answers th,
+.answers td {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--rule);
+}
+.answers thead th {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+/* Op een smal scherm mogen de koppen afbreken, zodat de tabel past. */
+@media (min-width: 400px) {
+  .answers thead th {
+    white-space: nowrap;
+  }
+}
+.nowrap {
+  white-space: nowrap;
+}
+.answers tbody th {
+  font-weight: 400;
+}
+.answers tr.no td:nth-last-child(2),
+.answers tr.no td:only-child {
+  background: var(--bad-soft);
+}
+.mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4em;
+  height: 1.4em;
+  margin-right: 6px;
+  border-radius: 50%;
+  font-weight: 700;
+  line-height: 1;
+}
+.mark.good {
+  background: var(--good-soft);
+  color: var(--good);
+}
+.mark.bad {
+  background: var(--bad-soft);
+  color: var(--bad);
 }
 .tag.good {
   color: var(--good);
 }
 .tag.bad {
   color: var(--bad);
+}
+/* Twee vellen naast elkaar op een breed scherm, zoals de proeftoets en de laatste uitslag. */
+.stack,
+.side-by-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+@media (min-width: 760px) {
+  .side-by-side {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  }
 }
 .setup {
   display: grid;
@@ -935,6 +1330,11 @@ ol.how {
 }
 .chapter h2 {
   margin: 0;
+}
+.chapter summary {
+  cursor: pointer;
+  padding: 6px 0;
+  color: var(--muted);
 }
 .picks {
   list-style: none;
@@ -992,12 +1392,23 @@ html:has(.stof-bar) {
   display: grid;
   border-bottom: 1px solid var(--rule);
 }
+/* Op de pagina van een domein volgt een lijn van het volgende blok, dus geen tweede lijn. */
+.block .stof-list {
+  border-bottom: 0;
+}
 .stof-list .par {
   padding-left: 0;
   padding-right: 0;
 }
-.stof-skills {
+.stof-skills,
+.par-note {
   grid-column: 1/3;
+}
+.book-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
 }
 .stof-gaps {
   margin: 0;

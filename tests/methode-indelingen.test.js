@@ -3,7 +3,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MAPPING, MAPPINGS } from '../src/js/mappings/index.js';
 import { migrateScope, prog } from '../src/js/progress.js';
-import { ALL_IDS, chosenTopics, setStof, stofGaps, toggleStof } from '../src/js/stof.js';
+import {
+  ALL_IDS,
+  chosenTopics,
+  setStof,
+  stofFromBook,
+  stofGaps,
+  toggleStof,
+} from '../src/js/stof.js';
 import { TOPICS } from '../src/js/topics/index.js';
 import { T } from '../src/js/typeset.js';
 
@@ -119,7 +126,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
   setStof([]);
 });
 
-test('jouw stof noemt alleen wat ontbreekt in de gekozen hoofdstukken', () => {
+test('Mijn stof noemt alleen wat ontbreekt in de gekozen hoofdstukken', () => {
   prog.mapping = 'gr13-hv2';
   setStof([38]);
   assert.deepEqual(
@@ -137,6 +144,22 @@ test('jouw stof noemt alleen wat ontbreekt in de gekozen hoofdstukken', () => {
   assert.deepEqual(stofGaps(), [], 'hoofdstuk 1 van havo 3 is helemaal gedekt');
   prog.mapping = null;
   assert.deepEqual(stofGaps(), [], 'op onderwerp gekozen: geen boek om mee te vergelijken');
+  setStof([]);
+});
+
+test('Mijn stof zegt welke hoofdstukken en paragrafen uit je boek komen', () => {
+  const havo3 = MAPPING['gr13-havo3'].chapters;
+  const ids = (number) =>
+    havo3.find((c) => c.number === number).paragraphs.flatMap((p) => p.skills);
+  const para = (number) =>
+    havo3.flatMap((c) => c.paragraphs).find((p) => p.number === number).skills;
+  prog.mapping = 'gr13-havo3';
+  setStof([...ids('1'), ...para('2.1')]);
+  assert.deepEqual(stofFromBook(), ['hoofdstuk 1', 'paragraaf 2.1']);
+  setStof(ids('2'));
+  assert.deepEqual(stofFromBook(), ['hoofdstuk 2']);
+  prog.mapping = null;
+  assert.deepEqual(stofFromBook(), [], 'zonder boek');
   setStof([]);
 });
 

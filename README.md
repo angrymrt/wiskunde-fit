@@ -73,8 +73,8 @@ src/
         ├── exam.js         Proeftoets
         ├── question-form.js Invoervelden van een vraag
         ├── widgets.js      Schuifjes en hoekendemo
-        ├── about.js        Over de site, privacy en contact
-        ├── layout.js       De balk bovenaan en de voettekst
+        ├── about.js        De pagina's Over, Privacy en Contact
+        ├── layout.js       Het menu, het kruimelpad en de voettekst
         └── state.js        Gedeelde toestand van de schermen
 scripts/                    Build, ontwikkelserver, afbeeldingen en releasenotities
 tests/                      Generatortests, releasecontrole en browsertest

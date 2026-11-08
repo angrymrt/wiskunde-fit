@@ -10,6 +10,8 @@ const state = {
   len: 20,
   timer: null,
   confirmReset: false,
+  // Zojuist een proeftoets gestopt: het scherm Proeftoets zegt dat dan.
+  stopped: false,
 };
 
 export { state, app };
