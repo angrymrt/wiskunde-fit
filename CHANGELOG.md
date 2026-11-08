@@ -2,6 +2,23 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.7.0
+
+### Nieuw
+
+- Kies uit je boek is nu een lijst met boeken. Met filters op niveau, leerjaar, methode en editie vind je snel je boek, en bij elk boek zie je hoeveel paragrafen je hier kunt oefenen. Een boek voor havo/vwo vind je bij havo en bij vwo, en je eigen boek staat bovenaan.
+
+### Verbeterd
+
+- De site laadt veel sneller, vooral op een telefoon met traag internet. De tekst staat er al voordat de rest klaar is, er verspringt niets meer tijdens het laden, en een volgende pagina staat er bijna meteen.
+- Bij een eerste bezoek op een heel trage verbinding kunnen de koppen in een gewoner lettertype staan. Zo hoef je niet te wachten.
+- De uitleg bij een onderwerp kun je ook lezen als JavaScript uit staat.
+- Elke pagina heeft een eigen titel en beschrijving, zodat je de uitleg ook via een zoekmachine vindt.
+
+### Hersteld
+
+- Paragraaf 1.2 van havo 3, Lineaire formule opstellen, Formule uit een tabel: de vraag vroeg soms naar een waarde die al in de tabel stond. Dan hoefde je niets uit te rekenen.
+
 ## 1.6.0
 
 ### Nieuw
