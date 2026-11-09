@@ -9,13 +9,23 @@ import { state } from './state.js';
 // Wat de site zou sturen, ook waar niets wordt gestuurd. Alleen voor tests/browser.e2e.js.
 const sent = [];
 
+// Met fetch en keepalive, zodat de tel ook aankomt als je de pagina meteen sluit. Niet met
+// sendBeacon: uBlock Origin blokkeert dat standaard met "Hyperlink-auditing uitschakelen", ook als
+// er niets over de leerling in staat. Zonder cookies, en het antwoord lezen we niet.
 function stuur(tellen) {
   sent.push(...tellen);
   sent.splice(0, sent.length - 100);
   // Een geautomatiseerde browser, zoals een bot of de browsertest, stuurt niets.
-  if (navigator.webdriver || !navigator.sendBeacon) return;
+  if (navigator.webdriver || !window.fetch) return;
   try {
-    navigator.sendBeacon(telAdres(location.hostname), JSON.stringify(tellen));
+    fetch(telAdres(location.hostname), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify(tellen),
+      mode: 'no-cors',
+      credentials: 'omit',
+      keepalive: true,
+    }).catch(() => {});
   } catch (e) {}
 }
 

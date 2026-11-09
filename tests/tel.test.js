@@ -96,7 +96,6 @@ test('de functie kiest de tabel bij de site, en bewaart alleen de tel en de dag'
     corsHeaders('https://wiskundefit.nl')['Access-Control-Allow-Origin'],
     'https://wiskundefit.nl',
   );
-  assert.equal(corsHeaders('https://wiskundefit.nl')['Access-Control-Allow-Credentials'], 'true');
   assert.deepEqual(corsHeaders('https://example.com'), {});
   assert.equal(rows.length, 0);
 

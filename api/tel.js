@@ -21,13 +21,12 @@ const MAX_BODY = 8 * 1024;
 const dag = (now) => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
 
 const allowed = (origin) => origin === PROD || DEV.test(origin ?? '');
-// De functie staat op een ander adres dan de site. sendBeacon stuurt cookies mee, dus de site moet
-// bij naam worden genoemd, met Allow-Credentials. Anders meldt de browser een CORS-fout.
+// De functie staat op een ander adres dan de site. De site leest het antwoord niet (no-cors), maar
+// met deze headers meldt een browser ook geen CORS-fout.
 function corsHeaders(origin) {
   if (!allowed(origin)) return {};
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Methods': 'POST',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
