@@ -70,21 +70,36 @@ async function storageToken(env) {
   return value;
 }
 
-// Zet één rij in de tabel, met de REST API van Azure Table Storage.
-async function insertRow(table, row, env = process.env) {
-  const res = await fetch(table, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${await storageToken(env)}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json;odata=nometadata',
-      Prefer: 'return-no-content',
-      'x-ms-version': '2020-12-06',
-      DataServiceVersion: '3.0',
-    },
-    body: JSON.stringify(row),
-  });
-  if (!res.ok) throw new Error(`De tabel gaf ${res.status}`);
+// Zet één rij in de tabel, met de REST API van Azure Table Storage. Een tijdelijke fout, van het
+// token of van de tabel, krijgt nog twee kansen. De browser probeert het namelijk niet opnieuw.
+async function insertRow(table, row, env = process.env, wait = 200) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const res = await fetch(table, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${await storageToken(env)}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json;odata=nometadata',
+          Prefer: 'return-no-content',
+          'x-ms-version': '2020-12-06',
+          DataServiceVersion: '3.0',
+        },
+        body: JSON.stringify(row),
+      });
+      if (res.ok) return;
+      // Een geweigerd token: haal de volgende keer een nieuw.
+      if (res.status === 401 || res.status === 403) token = null;
+      // Een fout in de rij zelf wordt bij een nieuwe poging niet beter.
+      if (res.status < 500 && res.status !== 401 && res.status !== 403 && res.status !== 429) {
+        throw Object.assign(new Error(`De tabel gaf ${res.status}`), { final: true });
+      }
+      throw new Error(`De tabel gaf ${res.status}`);
+    } catch (e) {
+      if (e.final || attempt >= 3) throw e;
+      await new Promise((resolve) => setTimeout(resolve, wait * attempt));
+    }
+  }
 }
 
 export { corsHeaders, handleTel, insertRow };

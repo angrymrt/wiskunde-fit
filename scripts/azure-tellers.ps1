@@ -106,11 +106,23 @@ if (-not (Bestaat identity show --name $Github --resource-group $Groep --query n
 }
 $githubId = az identity show --name $Github --resource-group $Groep --query principalId -o tsv
 $githubClient = az identity show --name $Github --resource-group $Groep --query clientId -o tsv
-if (-not (Bestaat identity federated-credential show --name github-main --identity-name $Github --resource-group $Groep --query name)) {
-  az identity federated-credential create --name github-main --identity-name $Github `
-    --resource-group $Groep --issuer 'https://token.actions.githubusercontent.com' `
-    --subject "repo:${Repo}:ref:refs/heads/main" --audiences 'api://AzureADTokenExchange' -o none
-  Check 'federated credential'
+# GitHub zet in het token de namen, of de namen met hun vaste ids erachter, zoals
+# repo:angrymrt@4168455/wiskunde-fit@1448167301. Leg allebei vast.
+$eigenaarId = gh api "repos/$Repo" --jq '.owner.id'
+$repoId = gh api "repos/$Repo" --jq '.id'
+Check 'ids van de repository'
+$eigenaar, $naam = $Repo.Split('/')
+$onderwerpen = @{
+  'github-main'     = "repo:${Repo}:ref:refs/heads/main"
+  'github-main-ids' = "repo:${eigenaar}@${eigenaarId}/${naam}@${repoId}:ref:refs/heads/main"
+}
+foreach ($credential in $onderwerpen.Keys) {
+  if (-not (Bestaat identity federated-credential show --name $credential --identity-name $Github --resource-group $Groep --query name)) {
+    az identity federated-credential create --name $credential --identity-name $Github `
+      --resource-group $Groep --issuer 'https://token.actions.githubusercontent.com' `
+      --subject $onderwerpen[$credential] --audiences 'api://AzureADTokenExchange' -o none
+    Check "federated credential $credential"
+  }
 }
 Rol $githubId 'Website Contributor' "$rg/providers/Microsoft.Web/sites/$Functie"
 foreach ($tabel in $tabellen) { Rol $githubId 'Storage Table Data Contributor' $tabel }

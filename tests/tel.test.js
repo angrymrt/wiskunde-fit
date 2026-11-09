@@ -1,7 +1,7 @@
 // De anonieme tellen: welke de functie /api/tel aanneemt, waar ze heen gaan en wat er wordt bewaard.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { corsHeaders, handleTel } from '../api/tel.js';
+import { corsHeaders, handleTel, insertRow } from '../api/tel.js';
 import { checkTellen } from '../src/js/tel.js';
 
 const soorten = new Set([12, 38]);
@@ -106,4 +106,42 @@ test('de functie kiest de tabel bij de site, en bewaart alleen de tel en de dag'
   );
   assert.equal(none, 204);
   assert.equal(rows.length, 0);
+});
+
+test('een tijdelijke fout van de tabel krijgt nog twee kansen, een fout in de rij niet', async () => {
+  const env = { IDENTITY_ENDPOINT: 'https://identity', IDENTITY_HEADER: 'geheim' };
+  const real = globalThis.fetch;
+  const calls = [];
+  let answers = [];
+  globalThis.fetch = async (url) => {
+    calls.push(url);
+    if (url.startsWith('https://identity')) {
+      const expires = String(Math.floor(Date.now() / 1000) + 3600);
+      return new Response(JSON.stringify({ access_token: 't', expires_on: expires }));
+    }
+    return new Response(null, { status: answers.shift() });
+  };
+  try {
+    answers = [503, 204];
+    await insertRow('https://tabel', { a: 1 }, env, 1);
+    assert.equal(calls.filter((u) => u === 'https://tabel').length, 2);
+
+    calls.length = 0;
+    answers = [503, 503, 503];
+    await assert.rejects(insertRow('https://tabel', { a: 1 }, env, 1));
+    assert.equal(calls.filter((u) => u === 'https://tabel').length, 3);
+
+    calls.length = 0;
+    answers = [400];
+    await assert.rejects(insertRow('https://tabel', { a: 1 }, env, 1));
+    assert.equal(calls.filter((u) => u === 'https://tabel').length, 1);
+
+    // Een geweigerd token: de volgende poging haalt een nieuw.
+    calls.length = 0;
+    answers = [403, 204];
+    await insertRow('https://tabel', { a: 1 }, env, 1);
+    assert.equal(calls.filter((u) => u.startsWith('https://identity')).length, 1);
+  } finally {
+    globalThis.fetch = real;
+  }
 });
