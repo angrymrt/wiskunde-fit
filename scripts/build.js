@@ -1,6 +1,7 @@
 // Bouwt de site in dist/: per pagina een HTML-bestand waar de tekst al in staat, de code, de CSS en
 // de lettertypes als losse bestanden met een hash in de naam, en wat Azure en zoekmachines nodig
-// hebben. Met --dev wordt de code niet kleiner gemaakt, zodat je die in de browser kunt lezen.
+// hebben. Met --dev wordt de code niet kleiner gemaakt, zodat je die in de browser kunt lezen, en
+// komt alles in dist-dev/.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
@@ -8,9 +9,12 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
 const root = new URL('../', import.meta.url);
-const dist = new URL('dist/', root);
-const read = (path) => readFile(new URL(path, root), 'utf8');
 const dev = process.argv.includes('--dev');
+// npm run dev bouwt in een eigen map. Zo verandert dist/ niet terwijl de browsertest of
+// scripts/controleer-site.js die gebruikt.
+const out = dev ? 'dist-dev' : 'dist';
+const dist = new URL(`${out}/`, root);
+const read = (path) => readFile(new URL(path, root), 'utf8');
 
 // De voettekst toont de versie en de datum van de laatste commit. Zonder git wordt dat vandaag.
 const { version } = JSON.parse(await read('package.json'));
@@ -42,7 +46,7 @@ const { metafile } = await build({
   target: 'es2020',
   charset: 'utf8',
   minify: !dev,
-  outdir: 'dist/assets',
+  outdir: `${out}/assets`,
   entryNames: '[name]-[hash]',
   assetNames: '[name]-[hash]',
   loader: { '.woff2': 'file', '.svg': 'file' },
@@ -64,7 +68,7 @@ for (const [path, output] of Object.entries(metafile.outputs)) {
   delete metafile.outputs[path];
   metafile.outputs[renamed] = output;
 }
-const assets = Object.keys(metafile.outputs).map((path) => path.replace(/^dist/, ''));
+const assets = Object.keys(metafile.outputs).map((path) => path.slice(out.length));
 const asset = (pattern) => {
   const found = assets.find((path) => pattern.test(path));
   if (!found) throw new Error(`Geen bestand gebouwd voor ${pattern}`);
@@ -171,7 +175,7 @@ if (Buffer.byteLength(json) > 20 * 1024)
   throw new Error('staticwebapp.config.json is groter dan 20 kB.');
 await writeFile(new URL('staticwebapp.config.json', dist), `${json}\n`);
 
-const kB = (path) => Math.round(metafile.outputs[`dist${path}`].bytes / 1024);
+const kB = (path) => Math.round(metafile.outputs[`${out}${path}`].bytes / 1024);
 console.log(
-  `dist/ gebouwd: ${PAGES.length} pagina's, code ${kB(asset(/\/main-\w+\.js$/))} kB, CSS ${kB(asset(/\/styles-\w+\.css$/))} kB${dev ? ', niet kleiner gemaakt' : ''}`,
+  `${out}/ gebouwd: ${PAGES.length} pagina's, code ${kB(asset(/\/main-\w+\.js$/))} kB, CSS ${kB(asset(/\/styles-\w+\.css$/))} kB${dev ? ', niet kleiner gemaakt' : ''}`,
 );

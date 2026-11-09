@@ -23,7 +23,7 @@ Al het werk wordt hieraan getoetst. Over de grenzen gaan we nooit heen. Binnen d
 ## Commando's
 
 ```sh
-npm run dev           # bouwt de site en toont die op poort 5173 zoals Azure; bouwt opnieuw na een wijziging
+npm run dev           # bouwt de site in dist-dev/ en toont die op poort 5173 zoals Azure; bouwt opnieuw na een wijziging
 npm test              # generatortests, adressen, schermen, server en releasecontrole, ongeveer 3 seconden
 npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer 2,5 minuut
 npm run build         # maakt de site in dist/, met een HTML-bestand per pagina
