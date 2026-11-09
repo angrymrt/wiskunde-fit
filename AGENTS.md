@@ -75,18 +75,18 @@ function s15value() {
 
 ### Velden van een vraag
 
-| Veld      | Verplicht   | Betekenis                                                                    |
-| --------- | ----------- | ---------------------------------------------------------------------------- |
-| `q`       | ja          | De vraag als HTML, meestal gemaakt met `T(...)`                              |
-| `fields`  | of `mc`     | Invoervelden, zie hieronder                                                  |
-| `mc`      | of `fields` | Meerkeuze, gemaakt met `MC([goed, fout, fout], 0)`; de keuzes worden geschud |
-| `hint`    | ja          | Tekst, wordt automatisch omgezet met `T`                                     |
-| `steps`   | ja          | De uitwerking: tekst voor `T`, of `H(html)` voor kant-en-klare HTML          |
-| `v`       | aanbevolen  | Controlefunctie, moet `true` geven                                           |
-| `fig`     | nee         | Figuur als SVG-tekst, uit `graph(...)` of `geo(...)`                         |
-| `traps`   | nee         | Gerichte feedback: `[{ f: (waarden) => boolean, m: 'bericht' }]`             |
-| `line`    | nee         | De lijn `{ a, b }` bij een tekenvraag: elk paar punten erop is goed          |
-| `compact` | nee         | Smalle velden, voor een formule of punt op één regel                         |
+| Veld      | Verplicht   | Betekenis                                                                      |
+| --------- | ----------- | ------------------------------------------------------------------------------ |
+| `q`       | ja          | De vraag als HTML, meestal gemaakt met `T(...)`                                |
+| `fields`  | of `mc`     | Invoervelden, zie hieronder                                                    |
+| `mc`      | of `fields` | Meerkeuze, gemaakt met `MC([goed, fout, fout], 0)`; de keuzes worden geschud   |
+| `hint`    | ja          | Tekst, wordt automatisch omgezet met `T`                                       |
+| `steps`   | ja          | De uitwerking: tekst voor `T`, of `H(html)` voor kant-en-klare HTML            |
+| `v`       | aanbevolen  | Controlefunctie, moet `true` geven                                             |
+| `fig`     | nee         | Figuur als SVG-tekst, uit `graph(...)` of `geo(...)`                           |
+| `traps`   | nee         | Valkuilen met gerichte feedback: `[{ f: (waarden) => boolean, m: 'bericht' }]` |
+| `line`    | nee         | De lijn `{ a, b }` bij een tekenvraag: elk paar punten erop is goed            |
+| `compact` | nee         | Smalle velden, voor een formule of punt op één regel                           |
 
 Een lopende proeftoets wordt als JSON in de browser bewaard. Alles wat nodig is om een vraag na te kijken moet dus gegevens zijn en geen functie. `npm test` controleert dat.
 
