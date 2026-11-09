@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.10.0
+
+### Nieuw
+
+- We tellen anoniem welke vragen moeilijk zijn en welke fouten vaak voorkomen, zodat we de vragen, hints en uitleg beter kunnen maken. Na je eerste poging bij een vraag stuurt de site welke soort vraag het was, of je antwoord goed of fout was en hoe lang je erover deed. Er gaat geen naam of iets anders over jou mee. Op de pagina Privacy lees je precies wat we tellen en wat we ermee doen.
+
 ## 1.9.0
 
 ### Nieuw
