@@ -20,11 +20,27 @@ const MAX_BODY = 8 * 1024;
 // De dag in Nederlandse tijd, zoals 2026-11-12. Dat is de PartitionKey.
 const dag = (now) => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
 
+const allowed = (origin) => origin === PROD || DEV.test(origin ?? '');
+// De functie staat op een ander adres dan de site. sendBeacon stuurt cookies mee, dus de site moet
+// bij naam worden genoemd, met Allow-Credentials. Anders meldt de browser een CORS-fout.
+function corsHeaders(origin) {
+  if (!allowed(origin)) return {};
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400',
+    Vary: 'Origin',
+  };
+}
+
 // req: { method, origin, userAgent, body }. Geeft de HTTP-status terug.
 async function handleTel(req, { env, soorten, store, now = new Date() }) {
+  if (req.method === 'OPTIONS') return allowed(req.origin) ? 204 : 403;
   if (req.method !== 'POST') return 405;
   const prod = req.origin === PROD;
-  if (!prod && !DEV.test(req.origin ?? '')) return 403;
+  if (!allowed(req.origin)) return 403;
   if (BOT.test(req.userAgent ?? '')) return 204;
   if (!req.body || req.body.length > MAX_BODY) return 400;
   let tellen;
@@ -72,4 +88,4 @@ async function insertRow(table, row, env = process.env) {
   if (!res.ok) throw new Error(`De tabel gaf ${res.status}`);
 }
 
-export { handleTel, insertRow };
+export { corsHeaders, handleTel, insertRow };

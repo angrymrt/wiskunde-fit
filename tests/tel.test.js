@@ -1,7 +1,7 @@
 // De anonieme tellen: welke de functie /api/tel aanneemt, waar ze heen gaan en wat er wordt bewaard.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { handleTel } from '../api/tel.js';
+import { corsHeaders, handleTel } from '../api/tel.js';
 import { checkTellen } from '../src/js/tel.js';
 
 const soorten = new Set([12, 38]);
@@ -87,6 +87,17 @@ test('de functie kiest de tabel bij de site, en bewaart alleen de tel en de dag'
   // Een bot krijgt gewoon antwoord, maar telt niet mee.
   const bot = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
   assert.equal(await send({ origin: 'https://wiskundefit.nl', userAgent: bot }), 204);
+  assert.equal(rows.length, 0);
+
+  // Een site die mag sturen, krijgt CORS-headers met haar eigen naam. Een andere site niet.
+  assert.equal(await send({ origin: 'https://wiskundefit.nl', method: 'OPTIONS' }), 204);
+  assert.equal(await send({ origin: 'https://example.com', method: 'OPTIONS' }), 403);
+  assert.equal(
+    corsHeaders('https://wiskundefit.nl')['Access-Control-Allow-Origin'],
+    'https://wiskundefit.nl',
+  );
+  assert.equal(corsHeaders('https://wiskundefit.nl')['Access-Control-Allow-Credentials'], 'true');
+  assert.deepEqual(corsHeaders('https://example.com'), {});
   assert.equal(rows.length, 0);
 
   // Zonder setting controleert de functie de tellen wel, maar bewaart hij niets.

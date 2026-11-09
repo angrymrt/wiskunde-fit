@@ -14,7 +14,7 @@ import { createServer } from 'node:http';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { extname, join, normalize, sep } from 'node:path';
 import { brotliCompressSync, constants } from 'node:zlib';
-import { handleTel } from '../api/tel.js';
+import { corsHeaders, handleTel } from '../api/tel.js';
 import { TOPICS } from '../src/js/topics/index.js';
 
 const soorten = new Set(TOPICS.flatMap((t) => t.skills.map((k) => k.id)));
@@ -25,7 +25,7 @@ async function api(req, res, tellen) {
     { method: req.method, origin: req.headers.origin, userAgent: req.headers['user-agent'], body },
     { env: { TELLERS_DEV_TABEL: 'geheugen' }, soorten, store: (_, row) => tellen.push(row) },
   );
-  res.writeHead(status).end();
+  res.writeHead(status, corsHeaders(req.headers.origin)).end();
 }
 
 const types = {

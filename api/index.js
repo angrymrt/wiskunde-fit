@@ -2,12 +2,12 @@
 // met de ids van de vraagsoorten in __SOORTEN__. De workflow installeert daar @azure/functions en
 // zet het geheel in de Function App.
 import { app } from '@azure/functions';
-import { handleTel, insertRow } from './tel.js';
+import { corsHeaders, handleTel, insertRow } from './tel.js';
 
 const soorten = new Set(__SOORTEN__);
 
 app.http('tel', {
-  methods: ['POST'],
+  methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   handler: async (request) => {
     const req = {
@@ -19,6 +19,6 @@ app.http('tel', {
     const status = await handleTel(req, { env: process.env, soorten, store: insertRow }).catch(
       () => 502,
     );
-    return { status };
+    return { status, headers: corsHeaders(req.origin) };
   },
 });
