@@ -137,6 +137,33 @@ function render(focus) {
       }, 1000);
   }
 }
+// Licht of donker. Zonder keuze volgt de site het apparaat. Kies je met de knop hetzelfde als het
+// apparaat, dan vergeet de site de keuze, zodat die het apparaat weer volgt, ook als dat later
+// vanzelf wisselt. Het script in de <head> van index.html zet een keuze bij het laden.
+const THEME_KEY = 'wiskundefit-thema';
+const deviceDark = matchMedia('(prefers-color-scheme: dark)');
+const deviceTheme = () => (deviceDark.matches ? 'dark' : 'light');
+const theme = () => document.documentElement.dataset.theme || deviceTheme();
+state.dark = theme() === 'dark';
+function setTheme(next) {
+  const root = document.documentElement;
+  const stored = next === deviceTheme() ? null : next;
+  if (stored) root.dataset.theme = stored;
+  else delete root.dataset.theme;
+  try {
+    if (stored) localStorage.setItem(THEME_KEY, stored);
+    else localStorage.removeItem(THEME_KEY);
+  } catch (e) {}
+  state.dark = next === 'dark';
+}
+// Oudere Safari kent alleen addListener.
+const onDeviceTheme = () => {
+  state.dark = theme() === 'dark';
+  keepTyped();
+  render();
+};
+if (deviceDark.addEventListener) deviceDark.addEventListener('change', onDeviceTheme);
+else deviceDark.addListener(onDeviceTheme);
 // Op een telefoon verschijnt de balk met "Ga oefenen" pas als de knop onder de intro uit beeld is.
 // De balk begint verborgen, zodat hij bij het laden niet even in beeld staat.
 let barWatch;
@@ -178,6 +205,12 @@ app.addEventListener('click', (e) => {
   b.focus();
   const a = b.dataset.act,
     id = b.dataset.id;
+  if (a === 'thema') {
+    setTheme(state.dark ? 'light' : 'dark');
+    keepTyped();
+    render();
+    return;
+  }
   if (a === 'boekfilter' || a === 'boekfilterclear') {
     const filters = { ...state.view.filters };
     if (a === 'boekfilter') {

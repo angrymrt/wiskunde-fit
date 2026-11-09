@@ -15,8 +15,19 @@ function menuItem(name, text) {
   const current = here ? ` aria-current="${state.view.name === name ? 'page' : 'true'}"` : '';
   return `<a href="${to(name)}"${current}>${text}</a>`;
 }
+// De knop wisselt tussen licht en donker, zie main.js. Hij toont wat je krijgt: een maan op een
+// licht scherm, een zon op een donker scherm. Welke van de twee je ziet, regelt de CSS, zodat het
+// ook klopt voordat JavaScript de pagina overneemt.
+const icon = (path) =>
+  `<svg class="icon" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" focusable="false"><path d="${path}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+const MOON = icon('M13.5 10.2A5.8 5.8 0 0 1 5.8 2.5a5.8 5.8 0 1 0 7.7 7.7z');
+const SUN = icon(
+  'M8 5.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 1 0 0-5.6zM8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3 3l1 1M12 12l1 1M3 13l1-1M12 4l1-1',
+);
+const themeButton = () =>
+  `<button class="theme" type="button" data-act="thema" aria-pressed="${state.dark}" title="Donkere modus"><span class="sr">Donkere modus</span><span class="moon">${MOON}</span><span class="sun">${SUN}</span></button>`;
 const topbar = () =>
-  `<a class="skip" href="#inhoud">Naar de inhoud</a><header class="top"><a class="brand" href="${to('home')}"><span class="brand-logo" aria-hidden="true"></span><span class="sr">Wiskundefit</span></a><nav class="topnav" aria-label="Hoofdmenu">${menuItem('home', 'Home')}${menuItem('stof', 'Mijn stof')}${menuItem('toets', 'Proeftoets')}</nav></header>`;
+  `<a class="skip" href="#inhoud">Naar de inhoud</a><header class="top"><a class="brand" href="${to('home')}"><span class="brand-logo" aria-hidden="true"></span><span class="sr">Wiskundefit</span></a><nav class="topnav" aria-label="Hoofdmenu">${menuItem('home', 'Home')}${menuItem('stof', 'Mijn stof')}${menuItem('toets', 'Proeftoets')}</nav>${themeButton()}</header>`;
 // Een huisje voor Home. Het is versiering: de tekst Home staat er altijd bij.
 const HOUSE =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M2 7.5 8 2.5l6 5M3.8 6.3V13.5h3V10h2.4v3.5h3V6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>';

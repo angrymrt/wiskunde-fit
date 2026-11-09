@@ -1209,6 +1209,83 @@ test('een methode-indeling openen maakt die nog niet tot je boek', async () => {
   }
 });
 
+test('de knop wisselt tussen licht en donker en volgt anders het apparaat', async () => {
+  const browser = await launch();
+  try {
+    const DARK = 'rgb(13, 22, 38)';
+    const look = (p) =>
+      p.evaluate(() => ({
+        theme: document.documentElement.dataset.theme ?? null,
+        stored: localStorage.getItem('wiskundefit-thema'),
+        pressed: document.querySelector('[data-act="thema"]').getAttribute('aria-pressed'),
+        background: getComputedStyle(document.body).backgroundColor,
+        icon: document.querySelector('.theme .moon').offsetParent ? 'maan' : 'zon',
+      }));
+
+    // Een licht apparaat: de knop maakt het donker, en dat blijft na herladen.
+    const light = await browser.newContext({ viewport: { width: 390, height: 800 } });
+    const p = await light.newPage();
+    await p.goto(at('/stelling-van-pythagoras/oefenen?soort=38'));
+    let now = await look(p);
+    assert.deepEqual([now.theme, now.stored, now.pressed, now.icon], [null, null, 'false', 'maan']);
+    // Op een telefoon staat de knop naast het logo, boven het menu.
+    const logo = await p.locator('.brand').boundingBox();
+    const toggle = await p.locator('.theme').boundingBox();
+    const menu = await p.locator('.topnav').boundingBox();
+    assert.ok(toggle.y < menu.y && toggle.x > logo.x + logo.width, 'rechts van het logo');
+    await p.fill('#pf0', '12');
+    await p.click('[data-act="thema"]');
+    now = await look(p);
+    assert.deepEqual(
+      [now.theme, now.stored, now.pressed, now.icon],
+      ['dark', 'dark', 'true', 'zon'],
+    );
+    assert.equal(now.background, DARK);
+    assert.equal(await p.inputValue('#pf0'), '12', 'wat je had ingevuld, blijft staan');
+    await p.reload();
+    now = await look(p);
+    assert.deepEqual([now.theme, now.pressed, now.background], ['dark', 'true', DARK]);
+
+    // Terug naar hetzelfde als het apparaat: de site vergeet de keuze.
+    await p.click('[data-act="thema"]');
+    now = await look(p);
+    assert.deepEqual([now.theme, now.stored, now.pressed], [null, null, 'false']);
+
+    // Zonder keuze volgt de knop het apparaat als dat wisselt.
+    await p.emulateMedia({ colorScheme: 'dark' });
+    await p.waitForFunction(
+      () => document.querySelector('[data-act="thema"]').getAttribute('aria-pressed') === 'true',
+    );
+    now = await look(p);
+    assert.deepEqual([now.theme, now.stored, now.background], [null, null, DARK]);
+    await light.close();
+
+    // Een donker apparaat: licht wordt bewaard, en terug naar donker wist de keuze weer.
+    const dark = await browser.newContext({
+      viewport: { width: 1100, height: 800 },
+      colorScheme: 'dark',
+    });
+    const d = await dark.newPage();
+    await d.goto(siteUrl);
+    assert.equal((await look(d)).pressed, 'true');
+    await d.click('[data-act="thema"]');
+    now = await look(d);
+    assert.deepEqual([now.theme, now.stored, now.pressed], ['light', 'light', 'false']);
+    assert.notEqual(now.background, DARK);
+    await d.click('[data-act="thema"]');
+    now = await look(d);
+    assert.deepEqual([now.theme, now.stored, now.pressed], [null, null, 'true']);
+
+    // Op een breed scherm staat de knop rechts naast het menu.
+    const nav = await d.locator('.topnav').boundingBox();
+    const button = await d.locator('.theme').boundingBox();
+    assert.ok(button.x > nav.x + nav.width, 'rechts van het menu');
+    await dark.close();
+  } finally {
+    await browser.close();
+  }
+});
+
 test(
   'een proeftoets overleeft de terugknop, herladen en sluiten',
   { timeout: 120_000 },

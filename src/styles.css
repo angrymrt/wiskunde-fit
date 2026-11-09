@@ -59,6 +59,9 @@
   --good-soft: #daf2e8;
   --bad: #b02e2b;
   --bad-soft: #fbe4e2;
+  /* Welk icoon de knop voor licht en donker toont, zie .theme. */
+  --moon: block;
+  --sun: none;
   --display: 'Bricolage Grotesque', 'Trebuchet MS', Verdana, sans-serif;
   --body: 'Figtree', Verdana, 'Segoe UI', sans-serif;
   --math: 'STIX Two Text', 'Cambria Math', Cambria, Georgia, serif;
@@ -85,6 +88,8 @@
     --good-soft: #0f3a2d;
     --bad: #ff9a92;
     --bad-soft: #452120;
+    --moon: none;
+    --sun: block;
     color-scheme: dark;
   }
 }
@@ -109,6 +114,8 @@
   --good-soft: #0f3a2d;
   --bad: #ff9a92;
   --bad-soft: #452120;
+  --moon: none;
+  --sun: block;
   color-scheme: dark;
 }
 * {
@@ -333,6 +340,32 @@ a.btn {
 .topnav {
   display: flex;
   gap: 4px;
+  margin-left: auto;
+}
+/* Licht of donker. Even groot als een menu-item, en groot genoeg om met een vinger te raken. */
+.theme {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.theme:hover {
+  border-color: var(--ink);
+}
+.theme .moon {
+  display: var(--moon);
+}
+.theme .sun {
+  display: var(--sun);
+}
+.theme .icon {
+  display: block;
 }
 .topnav a {
   display: flex;
@@ -352,10 +385,12 @@ a.btn {
   font-weight: 700;
   border-bottom-color: var(--ink);
 }
-/* Op een telefoon een eigen regel met drie even brede delen, ook op 320 pixels. */
+/* Op een telefoon een eigen regel met drie even brede delen, ook op 320 pixels. De knop voor licht
+   en donker staat dan rechts van het logo. */
 @media (max-width: 560px) {
   .topnav {
     flex-basis: 100%;
+    order: 1;
     border-bottom: 1px solid var(--rule);
   }
   .topnav a {

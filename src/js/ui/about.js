@@ -26,7 +26,8 @@ function vPrivacy() {
   <p>Je hebt geen account nodig en je hoeft niets over jezelf te vertellen. We gebruiken geen cookies, reclame of volgscripts en we meten geen bezoekers. We weten dus niet wie de site gebruikt.</p></div>
   <div class="block"><h2 class="h3">Je voortgang</h2>
   <p>Je voortgang staat alleen in de opslag van deze browser (localStorage): welke soorten vragen je goed of fout had, welke stof en welk boek je koos, en je laatste proeftoets met je antwoorden, ook als je die nog niet hebt ingeleverd. Die gegevens komen niet bij ons terecht.</p>
-  <p>Je wist je voortgang met de knop <b>Voortgang wissen</b> op <a href="${to('stof')}">Mijn stof</a>, of door de sitegegevens in je browser te wissen.</p></div>
+  <p>Je wist je voortgang met de knop <b>Voortgang wissen</b> op <a href="${to('stof')}">Mijn stof</a>, of door de sitegegevens in je browser te wissen.</p>
+  <p>Kies je met de knop bovenaan een licht of donker scherm dat anders is dan op je apparaat, dan onthoudt deze browser dat ook. Kies je weer hetzelfde als je apparaat, dan wordt die keuze gewist.</p></div>
   <div class="block"><h2 class="h3">Waar de site staat</h2>
   <p>De site staat bij Microsoft Azure. Zoals bij elke website krijgt die server je IP-adres, anders kan hij de pagina niet naar je sturen. Microsoft kan zulke technische gegevens gebruiken om de dienst te laten werken en te beveiligen. Wij hebben geen logboeken of statistieken aangezet en krijgen deze gegevens dus niet te zien.</p></div>
   <div class="block"><h2 class="h3">Video's</h2>
@@ -35,7 +36,7 @@ function vPrivacy() {
   <p>Dan zien we je e-mailadres en je bericht. We gebruiken die alleen om je te antwoorden. Wil je dat we je bericht verwijderen, mail dan naar ${mail}.</p></div>
   <div class="block"><h2 class="h3">Als dit verandert</h2>
   <p>Misschien gaan we later anonieme totalen meten, zoals hoe vaak een onderwerp wordt bekeken. Dat zijn nooit gegevens per leerling. We passen deze tekst eerst aan voordat er iets verandert.</p>
-  <p class="small muted">Bijgewerkt op 8 november 2026.</p></div></div>`;
+  <p class="small muted">Bijgewerkt op 9 november 2026.</p></div></div>`;
 }
 
 function vContact() {

@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.9.0
+
+### Nieuw
+
+- Bovenaan staat een knop om te wisselen tussen een licht en een donker scherm. Zolang je niets kiest, volgt de site je apparaat. Kies je weer hetzelfde als je apparaat, dan volgt de site je apparaat weer, ook als dat 's avonds vanzelf donker wordt.
+
 ## 1.8.0
 
 ### Nieuw
