@@ -215,6 +215,7 @@ function s23x() {
     ],
     traps: [
       {
+        id: 'volgorde-in-tabel',
         f: (v) => near(v[0], (ab * bc) / dc, 0.06),
         m: 'Controleer de volgorde in de tabel. PQ hoort bij SR en QT hoort bij RT.',
       },

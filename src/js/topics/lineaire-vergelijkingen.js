@@ -24,6 +24,7 @@ function s13basic() {
     steps: [`${lin(a, b)} = ${lin(c, dd)}`, ...solved(a - c, dd - b, x)],
     traps: [
       {
+        id: 'minteken',
         f: (v) => near(v[0], -x),
         m: 'Je bent er bijna. Controleer het minteken in de laatste stap.',
       },
@@ -54,6 +55,7 @@ function s13brackets() {
         ],
         traps: [
           {
+            id: 'haakjes-half-uitgewerkt',
             f: (v) => near(v[0], (ss - q) / (p - r)) && !near(v[0], x),
             m: 'Vermenigvuldig ook het tweede getal tussen de haakjes met het getal ervoor.',
           },
@@ -108,6 +110,7 @@ function s13brackets() {
         ],
         traps: [
           {
+            id: 'min-voor-haakjes',
             f: (v) => near(v[0], wrong) && !near(wrong, x),
             m: `Let op: door de min voor de haakjes verandert ook het teken van het tweede getal.`,
           },
@@ -142,6 +145,7 @@ function s13expand() {
     ],
     traps: [
       {
+        id: 'teken-bij-vermenigvuldigen',
         f: (v) => near(v[1], -B),
         m: 'Kijk naar het teken: min maal min is plus, en min maal plus is min.',
       },
@@ -192,6 +196,7 @@ function s13frac() {
       ],
       traps: [
         {
+          id: 'niet-alle-termen',
           f: (v) => near(v[0], (e - qv(b)) / (A - C)),
           m: 'Vermenigvuldig álle termen, ook de getallen zonder breuk.',
         },
@@ -227,6 +232,7 @@ function s13kgv() {
     ],
     traps: [
       {
+        id: 'niet-kleinste-veelvoud',
         f: (v) => near(v[0], d1 * d2) && d1 * d2 !== L,
         m: 'Daarmee lukt het ook, maar het is niet het kleinste getal. Zo krijg je grotere getallen dan nodig.',
       },

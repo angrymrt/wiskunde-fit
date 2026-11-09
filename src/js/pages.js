@@ -24,7 +24,7 @@ const DESCRIPTIONS = {
   kies: 'Kies je wiskundeboek, zoals Getal & Ruimte, en zie per paragraaf wat je gratis kunt oefenen, met uitleg, hints en steeds nieuwe vragen.',
   over: 'Wiskundefit is een gratis oefensite voor wiskunde, zonder band met een uitgever. Lees wie de site maakt en hoe we de uitleg en vragen maken.',
   privacy:
-    'Wiskundefit werkt zonder account, cookies of reclame. Je voortgang blijft alleen in je eigen browser. Lees hier wat de site bewaart.',
+    'Wiskundefit werkt zonder account, cookies of reclame. Je voortgang blijft in je eigen browser. Lees wat de site bewaart en wat we anoniem tellen.',
   contact:
     'Een vraag, een idee of een fout in de stof gevonden? Mail Wiskundefit of meld het op GitHub. Testers met een schermlezer zijn ook welkom.',
   stof: 'Je gekozen stof, je voortgang en je laatste resultaat.',

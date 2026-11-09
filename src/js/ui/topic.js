@@ -74,6 +74,11 @@ function newQuestion(s, seed) {
   st.first = true;
   st.msg = '';
   st.sol = false;
+  // Voor de anonieme tellen, zie ui/tellen.js: de klok tot de eerste poging, en de valkuilen die al
+  // zijn geteld.
+  st.spent = 0;
+  st.since = null;
+  st.valkuilen = [];
 }
 const practiceState = (s) => state.prac[s.slug] || (state.prac[s.slug] = { right: 0, total: 0 });
 // Volgt ?soort= en ?seed= uit het adres. Een half gemaakte vraag blijft staan als die daarbij past.

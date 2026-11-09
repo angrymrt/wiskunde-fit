@@ -48,6 +48,7 @@ function s24x() {
       ],
       traps: [
         {
+          id: 'deel-in-plaats-van-hele',
           f: (v) => near(v[0], (db * de) / bc, 0.06),
           m: 'Je hebt voor AB alleen het stuk DB gebruikt. AB is x + DB.',
         },
@@ -110,6 +111,7 @@ function s24sum() {
       ],
       traps: [
         {
+          id: 'ander-stuk-berekend',
           f: (v) => near(v[0], t - x, 0.06),
           m: 'Dit is de lengte van MS. Kijk nog eens welk stuk je x hebt genoemd.',
         },
@@ -204,6 +206,7 @@ function s24balk() {
     ],
     traps: [
       {
+        id: 'deel-in-plaats-van-hele',
         f: (v) => near(v[0], (h * as) / ab, 0.06),
         m: 'Je hebt AB gebruikt, maar de zijde van de grote driehoek is SB. SB is SA + AB.',
       },
@@ -347,10 +350,12 @@ function s24cube() {
       ],
       traps: [
         {
+          id: 'deel-in-plaats-van-hele',
           f: (v) => near(v[0], at) || near(v[0], (at * r) / (r + at), 0.06),
           m: 'Stel AS = x. De onderkant van de grote driehoek is dan x plus de ribbe, dus niet alleen de ribbe.',
         },
         {
+          id: 'tweede-stap-deel-in-plaats-van-hele',
           f: (v) => near(v[0], x, 0.06) && near(v[1], Math.sqrt(x * x + bv * bv), 0.06),
           m: 'AS klopt. Voor SV heb je de hele zijde SB nodig. Dat is AS plus de ribbe.',
         },
@@ -415,10 +420,12 @@ function s24rect() {
       ],
       traps: [
         {
+          id: 'deel-in-plaats-van-hele',
           f: (v) => near(v[0], (w * c) / h, 0.06),
           m: 'Je hebt QR gebruikt, maar de zijde van de grote driehoek is QU. QU is QR + RU.',
         },
         {
+          id: 'tweede-stap-verschil-vergeten',
           f: (v) => near(v[0], rt, 0.06) && near(v[1], Math.sqrt(h * h + rt * rt), 0.06),
           m: 'RT klopt. In △PST heb je ST nodig, en dat is PQ min RT.',
         },
@@ -483,10 +490,12 @@ function s24par() {
       ],
       traps: [
         {
+          id: 'hele-in-plaats-van-deel',
           f: (v) => near(v[0], (b * a) / s, 0.06),
           m: 'Je hebt de hele zijde RS gebruikt. In de kleine driehoek zit alleen RT. Dat is RS min ST.',
         },
         {
+          id: 'verhouding-omgedraaid',
           f: (v) => near(v[0], (b * s) / rt, 0.06),
           m: 'Je hebt de verhouding omgedraaid. Bij S hoort PS en bij R hoort RU, dus PS en ST staan samen in een rij.',
         },
@@ -549,6 +558,7 @@ function tableStory() {
       ],
       traps: [
         {
+          id: 'ander-stuk-berekend',
           f: (v) => near(v[0], L - x, 0.06),
           m: 'Dit is de lengte van RS. Kijk nog eens welk stuk je x hebt genoemd.',
         },
@@ -607,6 +617,7 @@ function cableStory() {
       ],
       traps: [
         {
+          id: 'deel-in-plaats-van-hele',
           f: (v) => near(v[0], (h1 * dist) / h2, 0.06),
           m: 'Je hebt voor KN alleen de afstand tussen paal en mast gebruikt. KN is x plus die afstand.',
         },

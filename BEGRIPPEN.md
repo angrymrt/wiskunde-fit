@@ -82,17 +82,19 @@ Paragraaf  2.2  ── methode-indeling ──>  een of meer vraagsoorten
 
 ## Oefenen en voortgang
 
-| Begrip           | Betekenis                                                                                                                          | In de code     |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                                                                          |                |
-| Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                                                           | `ui/exam.js`   |
-| Uitslag          | Het resultaat van de laatst ingeleverde proeftoets. Er blijft er één bewaard.                                                      | `state.result` |
-| Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.                                                         | `prog`         |
-| Beheerst         | De voortgang is 80% of meer.                                                                                                       | `topicPct`     |
-| Overzichtsscherm | Het eerste scherm van de site, op de site "Home". Het woord beginscherm is voor het icoon op een telefoon.                         | `ui/home.js`   |
-| Mijn stof        | Het scherm met alles wat de site van de leerling onthoudt: stofkeuze, boek, laatste uitslag en voortgang. Geen account of profiel. | `ui/stof.js`   |
-| Hoofdmenu        | Home, Mijn stof en Proeftoets bovenaan elk scherm. Elk scherm hoort bij één deel ervan.                                            | `ui/layout.js` |
-| Kruimelpad       | De regel boven de kop, van Home tot het scherm zelf, zoals Home › Meetkunde › Gelijkvormige driehoeken.                            | `crumbsFor`    |
+| Begrip           | Betekenis                                                                                                                                                                                                                             | In de code      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| Oefenen          | Vragen maken bij een vraagsoort, met hints en uitwerking.                                                                                                                                                                             |                 |
+| Poging           | Eén keer nakijken van een antwoord op Controleer. De eerste poging bij een vraag telt mee voor de voortgang en de anonieme tellen. Toon uitwerking voor de eerste poging is ook een eerste poging, die in de voortgang als fout telt. | `st.first`      |
+| Tel              | Eén losse, anonieme gebeurtenis die de site naar `/api/tel` stuurt: een eerste poging, een valkuil of een vraag uit een ingeleverde proeftoets. Zonder id. Niet: weergave, event of hit.                                              | `src/js/tel.js` |
+| Proeftoets       | Een toets op de site met vragen uit de stofkeuze en een score in punten.                                                                                                                                                              | `ui/exam.js`    |
+| Uitslag          | Het resultaat van de laatst ingeleverde proeftoets. Er blijft er één bewaard.                                                                                                                                                         | `state.result`  |
+| Voortgang        | Wat de site per vraagsoort onthoudt. Blijft in de browser op het apparaat.                                                                                                                                                            | `prog`          |
+| Beheerst         | De voortgang is 80% of meer.                                                                                                                                                                                                          | `topicPct`      |
+| Overzichtsscherm | Het eerste scherm van de site, op de site "Home". Het woord beginscherm is voor het icoon op een telefoon.                                                                                                                            | `ui/home.js`    |
+| Mijn stof        | Het scherm met alles wat de site van de leerling onthoudt: stofkeuze, boek, laatste uitslag en voortgang. Geen account of profiel.                                                                                                    | `ui/stof.js`    |
+| Hoofdmenu        | Home, Mijn stof en Proeftoets bovenaan elk scherm. Elk scherm hoort bij één deel ervan.                                                                                                                                               | `ui/layout.js`  |
+| Kruimelpad       | De regel boven de kop, van Home tot het scherm zelf, zoals Home › Meetkunde › Gelijkvormige driehoeken.                                                                                                                               | `crumbsFor`     |
 
 ## Controleren
 

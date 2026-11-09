@@ -99,6 +99,22 @@ async function check(site, { wait = 0 } = {}) {
     await moved(route.route, route.redirect, route.statusCode || 302);
   }
 
+  // De functie /api/tel staat online en weigert wat niet klopt. Deze verzoeken bewaren niets.
+  const { telAdres } = await import('../src/js/tel.js');
+  const tel = async (origin) => {
+    const res = await fetch(new URL(telAdres(new URL(site).hostname), site), {
+      method: 'POST',
+      headers: { Origin: origin, 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: '[]',
+    });
+    await res.arrayBuffer();
+    return res.status;
+  };
+  const other = await tel('https://example.com');
+  expect(other === 403, `/api/tel gaf ${other} voor een andere site in plaats van 403`);
+  const empty = await tel(new URL(site).origin);
+  expect(empty === 400, `/api/tel gaf ${empty} voor een leeg bericht in plaats van 400`);
+
   // De code, de CSS, de lettertypes en het logo mag de browser een jaar bewaren.
   for (const name of await readdir(new URL('assets/', dist))) {
     const res = await get(`/assets/${name}`);

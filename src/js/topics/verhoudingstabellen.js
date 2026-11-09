@@ -40,6 +40,7 @@ function s21cross() {
     ],
     traps: [
       {
+        id: 'verkeerd-kruislings',
         f: (v) => near(v[0], (op[2] * op[0]) / op[1]) && op[0] !== op[1],
         m: 'Vermenigvuldig de twee getallen die schuin tegenover elkaar staan en deel door het overgebleven getal.',
       },
@@ -75,6 +76,7 @@ function s21rest() {
       ],
       traps: [
         {
+          id: 'haakjes-vergeten',
           f: (v) => near(v[0], (p * c) / q),
           m: `Denk aan de haakjes: ${p} keer ${c} - x betekent dat je ook x met ${p} vermenigvuldigt.`,
         },

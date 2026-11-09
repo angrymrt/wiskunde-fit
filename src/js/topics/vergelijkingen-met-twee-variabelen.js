@@ -81,6 +81,7 @@ function s16iso() {
     ],
     traps: [
       {
+        id: 'teken-bij-verplaatsen',
         f: (v) => near(v[0], A / B),
         m: 'Let op het teken: als je een term naar de andere kant brengt, verandert het teken.',
       },
@@ -208,10 +209,12 @@ function s16story() {
     ],
     traps: [
       {
+        id: 'getallen-omgewisseld',
         f: (v) => near(v[0], q) && near(v[1], p),
         m: 'Je hebt de getallen omgewisseld. Het getal voor x hoort bij wat x telt.',
       },
       {
+        id: 'afname-niet-negatief',
         f: (v) => q < 0 && near(v[1], -q),
         m: 'Voor een fout antwoord verlies je punten, dus het getal voor y is negatief.',
       },

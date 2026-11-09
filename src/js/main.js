@@ -22,6 +22,7 @@ import { showDrawn, tapGrid } from './ui/draw.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';
+import { runClock, sent, telPoging, telToets, telValkuil } from './ui/tellen.js';
 import { mountWidgets } from './ui/widgets.js';
 
 const here = () => location.pathname + location.search;
@@ -127,6 +128,7 @@ function render(focus) {
   mountWidgets();
   showDrawn();
   watchPracticeBar();
+  runClock();
   if (target && !focusOn(target)) focusOn('h1');
   if (state.view.name === 'toets' && state.test) {
     if (!state.test.since) state.test.since = Date.now();
@@ -340,6 +342,7 @@ app.addEventListener('click', (e) => {
     st.vals = readVals(st.q, 'p');
     if (st.first) {
       rec(st.skill.id, false);
+      telPoging(st, 'uitwerking');
       st.total++;
       st.first = false;
     }
@@ -401,6 +404,7 @@ app.addEventListener('click', (e) => {
       return;
     }
     finishTest();
+    telToets(state.result.items);
     return go({ name: 'toetsres' });
   }
 });
@@ -447,6 +451,7 @@ app.addEventListener('submit', (e) => {
     const c = checkAnswer(st.q, vals);
     if (st.first) {
       rec(st.skill.id, c.ok);
+      telPoging(st, c.ok ? 'goed' : 'fout');
       st.total++;
       if (c.ok) st.right++;
       st.first = false;
@@ -457,7 +462,9 @@ app.addEventListener('submit', (e) => {
       st.msg = 'Goed gedaan!';
     } else {
       st.status = 'wrong';
-      st.msg = findTrap(st.q, vals) || 'Nog niet goed. Probeer het nog eens, of bekijk de hint.';
+      const trap = findTrap(st.q, vals);
+      telValkuil(st, trap);
+      st.msg = trap?.m || 'Nog niet goed. Probeer het nog eens, of bekijk de hint.';
     }
     render(c.ok ? '#nextq' : '#pfb');
   }
@@ -481,13 +488,15 @@ window.addEventListener(
 // Een telefoon kan een pagina op de achtergrond zonder waarschuwing afsluiten.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') keepTyped();
+  runClock();
 });
 window.addEventListener('pagehide', () => {
   keepTyped();
   saveScroll();
 });
-/* Alleen voor tests/browser.e2e.js: zo kan de browsertest de juiste antwoorden opvragen. */
-window.wiskundefit = { state, TOPICS, TOPIC, MAPPINGS, prog, go };
+/* Alleen voor tests/browser.e2e.js: zo kan de browsertest de juiste antwoorden en de tellen
+   opvragen. */
+window.wiskundefit = { state, TOPICS, TOPIC, MAPPINGS, prog, go, sent };
 history.scrollRestoration = 'manual';
 loadTests();
 arrive();

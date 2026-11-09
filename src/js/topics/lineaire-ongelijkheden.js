@@ -13,6 +13,7 @@ function ineqOut(sign, k) {
 }
 const ineqTrap = (sign, k) => [
   {
+    id: 'teken-niet-omgeklapt',
     f: (v) => near(v[1], k) && v[0] !== sign,
     m: 'Het getal klopt. Kijk nog eens naar het teken: deel je door een negatief getal, dan klap je het ongelijkheidsteken om.',
   },
@@ -121,6 +122,7 @@ function s15gr() {
     ],
     traps: [
       {
+        id: 'verkeerde-kant',
         f: (v) => near(v[1], xs) && v[0] !== fin,
         m: 'Het getal klopt. Kijk aan welke kant van het snijpunt de juiste lijn hoger of lager ligt.',
       },
@@ -225,10 +227,12 @@ function s15sketch() {
     ],
     traps: [
       {
+        id: 'snijpunt-fout',
         f: (v) => !near(v[0], xs),
         m: 'De x-coördinaat van S klopt nog niet. Stel de twee formules aan elkaar gelijk en los de vergelijking op.',
       },
       {
+        id: 'verkeerde-kant',
         f: (v) => near(v[2], xs) && v[1] !== fin,
         m: 'De getallen kloppen. Kijk nog eens aan welke kant van S de juiste lijn hoger of lager ligt.',
       },
@@ -311,14 +315,17 @@ function s15story() {
     ],
     traps: [
       {
+        id: 'getallen-omgewisseld',
         f: (v) => (near(v[0], b1) && near(v[1], a1)) || (near(v[2], b2) && near(v[3], a2)),
         m: 'Je hebt de twee getallen van een formule omgewisseld. Wat er per week, bezoek of minuut bijkomt, staat voor x.',
       },
       {
+        id: 'afname-niet-negatief',
         f: (v) => near(v[0], -a1) && a1 < 0,
         m: 'Er loopt water uit, dus de hoeveelheid wordt kleiner. Dan is het getal voor x negatief.',
       },
       {
+        id: 'teken-niet-omgeklapt',
         f: (v) => near(v[5], k) && v[4] !== fin,
         m: 'Het getal klopt. Kijk nog eens naar het teken: deel je door een negatief getal, dan klap je het ongelijkheidsteken om.',
       },

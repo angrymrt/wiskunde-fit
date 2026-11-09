@@ -55,6 +55,7 @@ function s22factor() {
     ],
     traps: [
       {
+        id: 'breuk-omgedraaid',
         f: (v) => near(v[0], 1 / k),
         m: 'Je hebt de breuk omgedraaid. Deel de nieuwe lengte door de oude lengte.',
       },
@@ -233,6 +234,7 @@ function s22comm() {
     ],
     traps: [
       {
+        id: 'hele-zijde-in-plaats-van-deel',
         f: (v) => near(v[1], ab),
         m: 'Dat is de lengte van AB. BD is het stuk dat overblijft als je AD eraf haalt.',
       },

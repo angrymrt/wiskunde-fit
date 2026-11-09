@@ -23,7 +23,11 @@ function sPyHyp() {
       `BC = √${d(rd(c2, 4))} ≈ ${d(rd(c, 2))} cm`,
     ],
     traps: [
-      { f: (v) => near(v[0], c2, 0.02), m: 'Je bent BC² aan het geven. Neem nog de wortel.' },
+      {
+        id: 'wortel-vergeten',
+        f: (v) => near(v[0], c2, 0.02),
+        m: 'Je bent BC² aan het geven. Neem nog de wortel.',
+      },
     ],
     v: () => near(a * a + b * b, c * c, 1e-6),
   };
@@ -58,6 +62,7 @@ function sPyLeg() {
     ],
     traps: [
       {
+        id: 'opgeteld-in-plaats-van-afgetrokken',
         f: (v) => near(v[0], Math.sqrt(c * c + a * a), 0.02),
         m: 'Je hebt opgeteld. PR is de schuine zijde en dus de langste, daarom moet je hier aftrekken.',
       },
@@ -110,6 +115,7 @@ function sPyHeight() {
       ],
       traps: [
         {
+          id: 'deel-in-plaats-van-hele',
           f: (v) => near(v[0], kn, 0.02),
           m: 'Dit is de lengte van KN. KL is twee keer zo lang.',
         },
@@ -153,6 +159,7 @@ function sPyHeight() {
     ],
     traps: [
       {
+        id: 'zijde-vergeten',
         f: (v) => near(v[0], kn + s + lm, 0.06),
         m: 'Je mist een zijde. De omtrek is KN + LN + LM + KM.',
       },

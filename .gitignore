@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-dev/
+dist-api/
 test-results/
 
 # Lokaal naslagmateriaal: niet delen.

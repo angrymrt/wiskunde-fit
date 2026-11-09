@@ -48,6 +48,7 @@ function svTable() {
     ],
     traps: [
       {
+        id: 'richting-toename',
         f: (v) => near(v[0], y0) && near(v[1], y1) && near(v[2], size) && v[3] !== dir,
         m: 'De getallen kloppen. Kijk nog eens of y groter of kleiner wordt.',
       },
@@ -96,6 +97,7 @@ function s11coord() {
     steps: [`x = d en y = ${y} geeft ${lin(a, b, 'd')} = ${y}`, `${a}d = ${y - b}`, `d = ${x}`],
     traps: [
       {
+        id: 'minteken',
         f: (v) => near(v[0], -x) && x !== 0,
         m: 'Het getal klopt bijna. Kijk nog eens naar het minteken.',
       },

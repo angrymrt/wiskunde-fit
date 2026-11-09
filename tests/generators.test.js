@@ -6,6 +6,7 @@ import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
 import { parseSeed, seedText } from '../src/js/math.js';
 import { checkAnswer, checkField, parseNum } from '../src/js/answers.js';
 import { migrateIds, migrateSkills } from '../src/js/progress.js';
+import { VALKUIL_ID } from '../src/js/tel.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
 import KNOWN_IDS from './vraagsoort-ids.js';
 
@@ -33,6 +34,12 @@ function assertSound(q) {
   assert.ok(q.hint, `geen hint: ${q.q}`);
   assert.ok(q.steps.length > 0, `geen uitwerking: ${q.q}`);
   if (q.v) assert.ok(q.v(), `zelfcontrole mislukt: ${q.q}`);
+  // Elke valkuil heeft een vaste naam, zodat we kunnen tellen hoe vaak die voorkomt.
+  const traps = (q.traps ?? []).map((t) => t.id);
+  for (const id of traps) {
+    assert.match(id ?? '', VALKUIL_ID, `valkuil zonder geldige id: ${q.q}`);
+  }
+  assert.equal(new Set(traps).size, traps.length, `twee valkuilen met dezelfde id: ${q.q}`);
 
   if (q.mc) {
     assert.ok(q.mc.a >= 0 && q.mc.a < q.mc.opts.length, `juiste keuze bestaat niet: ${q.q}`);
@@ -175,6 +182,8 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
     'cijfers',
     // De code, de CSS en de lettertypes, zie scripts/build.js.
     'assets',
+    // De functie voor de anonieme tellen, zie api/tel.js. Azure houdt /api altijd voor functies.
+    'api',
     // Azure toont index.html ook op /index en 404.html op /404.
     'index',
     '404',

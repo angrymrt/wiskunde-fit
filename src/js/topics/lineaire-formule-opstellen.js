@@ -33,10 +33,12 @@ function s11read() {
     ],
     traps: [
       {
+        id: 'teken-van-a',
         f: (v) => near(v[0], -qv(a)),
         m: 'Kijk naar de richting: gaat de lijn naar rechts omlaag, dan is a negatief. Gaat hij omhoog, dan is a positief.',
       },
       {
+        id: 'breuk-omgedraaid',
         f: (v) => near(v[0], run / rise),
         m: 'Je hebt de breuk omgedraaid. Reken a uit als verticaal gedeeld door horizontaal.',
       },
@@ -72,10 +74,12 @@ function s11two() {
     ],
     traps: [
       {
+        id: 'volgorde-aftrekken',
         f: (v) => near(v[0], -qv(a)),
         m: 'Let op de volgorde. Trek bij y en bij x de coördinaten in dezelfde volgorde af.',
       },
       {
+        id: 'breuk-omgedraaid',
         f: (v) => near(v[0], run / rise),
         m: 'Je hebt de breuk omgedraaid. Het is verschil in y gedeeld door verschil in x.',
       },
@@ -121,6 +125,7 @@ function s11par() {
     ],
     traps: [
       {
+        id: 'andere-a-dan-evenwijdige-lijn',
         f: (v) => !near(v[0], qv(a)),
         m: 'Evenwijdige lijnen stijgen even hard. Neem dezelfde a als lijn k.',
       },
@@ -151,6 +156,7 @@ function s11rc() {
     ],
     traps: [
       {
+        id: 'teken-van-b',
         f: (v) => near(v[1], y + a * x),
         m: 'Let op het teken: het getal bij b gaat naar de andere kant van het is-gelijkteken.',
       },
@@ -173,6 +179,7 @@ function s11special() {
       steps: [`Constant verband, dus a = 0.`, `Door (${x}, ${y}), dus ${l}: y = ${y}.`],
       traps: [
         {
+          id: 'x-als-b',
           f: (v) => near(v[1], x) && x !== y,
           m: 'Bij een horizontale lijn is b de y-coördinaat van het punt, niet de x-coördinaat.',
         },
@@ -197,6 +204,7 @@ function s11special() {
     ],
     traps: [
       {
+        id: 'breuk-omgedraaid',
         f: (v) => near(v[0], x / y) && !near(x / y, y / x),
         m: 'Je hebt de breuk omgedraaid. Deel de y-coördinaat door de x-coördinaat.',
       },
@@ -243,6 +251,7 @@ function s12scale() {
     ],
     traps: [
       {
+        id: 'hokjes-geteld',
         f: (v) => near(v[0], c0 / r0) && !near(c0 / r0, qv(a)),
         m: 'Je hebt hokjes geteld. Reken met de getallen die bij de assen staan.',
       },
@@ -341,6 +350,7 @@ function s12story() {
     steps: [...s.why, `Dus ${s.y} = ${lin(s.a, s.b, s.x)}.`],
     traps: [
       {
+        id: 'teken-van-a',
         f: (v) => near(v[0], -s.a),
         m: 'Kijk of de hoeveelheid toeneemt of afneemt. Bij afnemen is a negatief.',
       },
@@ -377,6 +387,7 @@ function s12table() {
     ],
     traps: [
       {
+        id: 'toename-per-stap',
         f: (v) => near(v[0], a * stap),
         m: 'Dat is de toename per 10 jaar. Je zoekt de toename per jaar.',
       },

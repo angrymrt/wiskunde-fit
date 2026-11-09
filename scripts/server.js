@@ -8,10 +8,25 @@
 // - zonder eigen header mag de browser een bestand 30 seconden bewaren, en tekst gaat met brotli.
 // Hoofdletters tellen, net als bij Azure. Controleer na een wijziging ook de preview, met
 // scripts/controleer-site.js.
+// /api/tel is de echte functie uit api/tel.js, maar de tellen komen in server.tellen in plaats van
+// in een tabel. Zo kan de browsertest zien wat er over het netwerk gaat.
 import { createServer } from 'node:http';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { extname, join, normalize, sep } from 'node:path';
 import { brotliCompressSync, constants } from 'node:zlib';
+import { handleTel } from '../api/tel.js';
+import { TOPICS } from '../src/js/topics/index.js';
+
+const soorten = new Set(TOPICS.flatMap((t) => t.skills.map((k) => k.id)));
+async function api(req, res, tellen) {
+  let body = '';
+  for await (const chunk of req) body += chunk;
+  const status = await handleTel(
+    { method: req.method, origin: req.headers.origin, userAgent: req.headers['user-agent'], body },
+    { env: { TELLERS_DEV_TABEL: 'geheugen' }, soorten, store: (_, row) => tellen.push(row) },
+  );
+  res.writeHead(status).end();
+}
 
 const types = {
   '.html': 'text/html; charset=utf-8',
@@ -61,10 +76,12 @@ function addressOf(dir, file) {
 }
 
 function startServer(dir, port) {
+  const tellen = [];
   const server = createServer(async (req, res) => {
+    const url = new URL(req.url, 'http://localhost');
+    if (url.pathname === '/api/tel') return api(req, res, tellen);
     // Lees de regels bij elk verzoek, want npm run dev bouwt steeds opnieuw.
     const config = JSON.parse(await readFile(join(dir, 'staticwebapp.config.json'), 'utf8'));
-    const url = new URL(req.url, 'http://localhost');
     const path = decodeURIComponent(url.pathname);
     const redirect = (to, code = 301) => res.writeHead(code, { Location: to + url.search }).end();
     const bare = path.replace(/\/+$/, '') || '/';
@@ -98,6 +115,7 @@ function startServer(dir, port) {
     if (missing) return send(join(dir, missing.rewrite), missing.statusCode || 404);
     res.writeHead(404).end('Niet gevonden');
   });
+  server.tellen = tellen;
   return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
 }
 

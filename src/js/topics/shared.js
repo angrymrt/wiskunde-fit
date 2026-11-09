@@ -115,14 +115,17 @@ function drawLine(a, b, p, q, xn = 'x', yn = 'y') {
     line: { a, b },
     traps: [
       {
+        id: 'zelfde-punt',
         f: same,
         m: 'Je hebt twee keer hetzelfde punt gekozen. Voor een lijn heb je twee verschillende punten nodig.',
       },
       {
+        id: 'lijn-verschoven',
         f: (v) => near((v[3] - v[1]) / (v[2] - v[0]), a),
         m: 'De lijn loopt de goede kant op, maar hij ligt te hoog of te laag.',
       },
       {
+        id: 'een-punt-fout',
         f: (v) => on(v[0], v[1]) !== on(v[2], v[3]),
         m: `Eén van je punten ligt op de lijn, de andere niet. Vul de ${xn}-coördinaat in en reken de ${yn}-coördinaat na.`,
       },

@@ -49,12 +49,13 @@ function checkAnswer(q, vals) {
     : q.fields.map((f, i) => checkField(f, vals[i] ?? ''));
   return { each, ok: each.every(Boolean) };
 }
+// Geeft de eerste valkuil waar het antwoord in valt, met de gerichte feedback in m.
 function findTrap(q, vals) {
   if (!q.traps || q.mc) return null;
   const v = q.fields.map((f, i) => (f.sel ? vals[i] : parseNum(vals[i])));
   for (const t of q.traps) {
     try {
-      if (t.f(v)) return t.m;
+      if (t.f(v)) return t;
     } catch (e) {}
   }
   return null;

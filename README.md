@@ -45,6 +45,8 @@ De site werkt alleen via een webserver, want elk scherm heeft een eigen adres. D
 
 Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.github/workflows/deploy.yml](.github/workflows/deploy.yml). De site staat op een Azure Static Web App met het gratis Free-plan. De workflow gebruikt het GitHub-secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, het deploy-token van die app. In [staticwebapp.config.json](staticwebapp.config.json) staan de regels voor Azure: een adres dat niet bestaat geeft de 404-pagina, en de bestanden in `assets/` mag de browser een jaar bewaren. De build zet dat bestand in `dist/`, met de doorverwijzingen van oude adressen erachter. Na elke deploy controleert `scripts/controleer-site.js` dat de site precies `dist/` is, met de juiste status, doorverwijzingen en cache. Dat kan ook met de hand: `node scripts/controleer-site.js <adres>`.
 
+De anonieme tellen gaan naar de functie `/api/tel` uit `api/`, in een eigen Function App op Flex Consumption: `func-we-wiskundefit-prd`. Die is er één voor de site en alle previews. De build bundelt de functie in `dist-api/`, en alleen een push naar `main` zet die online, vóór de site. De functie kiest de tabel aan de hand van de site die de tel stuurt: `TELLERS_TABEL` voor wiskundefit.nl en `TELLERS_DEV_TABEL` voor een preview. Zonder setting controleert de functie de tellen wel, maar bewaart hij niets. Er zijn geen sleutels: de functie schrijft met een managed identity die alleen rijen mag toevoegen, en de workflow logt in met OIDC via de GitHub-variabelen `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` en `AZURE_SUBSCRIPTION_ID`. Alles in Azure zet je klaar met `scripts/azure-tellers.ps1`, na `az login` en `gh auth login`. Bij `npm run dev` en in de browsertest gaan de tellen naar `scripts/server.js`, die ze in het geheugen bewaart.
+
 ### Wat er in `dist/` staat
 
 ```text
@@ -89,6 +91,7 @@ src/
     ├── routes.js           De adressen: welk scherm bij welk adres hoort
     ├── pages.js            De pagina's die de build maakt, de sitemap en de doorverwijzingen
     ├── stof.js             De stofkeuze: welke vraagsoorten een leerling oefent
+    ├── tel.js              Welke anonieme tellen er bestaan
     ├── mappings/           De methode-indelingen: paragrafen en hun vraagsoorten
     ├── topics/             De stof: elk bestand is één onderwerp
     │   ├── index.js        De domeinen, hun onderwerpen en de voorkennis
@@ -104,7 +107,9 @@ src/
         ├── widgets.js      Schuifjes en hoekendemo
         ├── about.js        De pagina's Over, Privacy en Contact
         ├── layout.js       Het menu, het kruimelpad en de voettekst
+        ├── tellen.js       De klok per vraag en het versturen van de anonieme tellen
         └── state.js        Gedeelde toestand van de schermen
+api/                        De functie /api/tel, die de anonieme tellen in een tabel zet
 scripts/                    Build, ontwikkelserver, controle na de deploy, meting, afbeeldingen,
                             lettertypes en releasenotities
 tests/                      Generatortests, adressen, schermen, pagina's, server, releasecontrole

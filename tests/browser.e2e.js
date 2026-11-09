@@ -5,6 +5,7 @@
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir, readdir, readFile } from 'node:fs/promises';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { brotliCompressSync, constants } from 'node:zlib';
 import { chromium, webkit } from 'playwright-core';
@@ -1281,6 +1282,108 @@ test('de knop wisselt tussen licht en donker en volgt anders het apparaat', asyn
     const button = await d.locator('.theme').boundingBox();
     assert.ok(button.x > nav.x + nav.width, 'rechts van het menu');
     await dark.close();
+  } finally {
+    await browser.close();
+  }
+});
+
+test('de site telt pogingen, valkuilen en proeftoetsen zonder iets over de leerling', async () => {
+  const browser = await launch();
+  try {
+    const context = await browser.newContext({ viewport: { width: 390, height: 800 } });
+    const p = await context.newPage();
+    let requests = 0;
+    await context.route('**/api/tel', (route) => {
+      requests++;
+      return route.fulfill({ status: 204 });
+    });
+    const sent = () => p.evaluate(() => wiskundefit.sent.map((x) => ({ ...x })));
+    const slug = 'stelling-van-pythagoras';
+    await p.goto(at(`/${slug}/oefenen?soort=38&seed=k3x9q`));
+
+    // Hint, even nadenken, en dan BC² in plaats van BC: een fout met een valkuil.
+    await p.click('[data-act="hint"]');
+    await p.waitForTimeout(1200);
+    const square = await p.evaluate((s) => {
+      const c = wiskundefit.state.prac[s].q.fields[0].a;
+      return (Math.round(c * c * 100) / 100).toString().replace('.', ',');
+    }, slug);
+    await p.fill('#pf0', square);
+    await p.click('#pform [type="submit"]');
+    let tellen = await sent();
+    assert.equal(tellen.length, 2);
+    const [poging, valkuil] = tellen;
+    assert.deepEqual(
+      { ...poging, duur: undefined },
+      { tel: 'poging', soort: 38, uitkomst: 'fout', duur: undefined, hint: true },
+    );
+    assert.ok(poging.duur >= 1 && poging.duur <= 5, `duur ${poging.duur}`);
+    assert.deepEqual(valkuil, { tel: 'valkuil', soort: 38, valkuil: 'wortel-vergeten' });
+
+    // Dezelfde fout nog eens, en daarna goed: geen nieuwe tellen.
+    await p.click('#pform [type="submit"]');
+    const right = await p.evaluate((s) => wiskundefit.state.prac[s].q.fields[0].a, slug);
+    await p.fill('#pf0', (Math.round(right * 100) / 100).toString().replace('.', ','));
+    await p.click('#pform [type="submit"]');
+    assert.equal((await sent()).length, 2);
+
+    // De klok staat stil zolang de pagina uit beeld is.
+    await p.click('#nextq');
+    const visible = (hidden) =>
+      p.evaluate((h) => {
+        Object.defineProperty(document, 'hidden', { value: h, configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      }, hidden);
+    await visible(true);
+    await p.waitForTimeout(2200);
+    await visible(false);
+    await p.click('[data-act="show"]');
+    tellen = await sent();
+    assert.equal(tellen.length, 3);
+    assert.equal(tellen[2].uitkomst, 'uitwerking');
+    assert.equal(tellen[2].hint, false);
+    assert.ok(tellen[2].duur <= 1, `de klok liep door: ${tellen[2].duur}`);
+
+    // Een ingeleverde proeftoets telt elke vraag, ook de lege.
+    await p.goto(at('/proeftoets'));
+    await p.click('[data-act="stofall"]');
+    await p.click('[data-act="len"][data-id="10"]');
+    await p.click('[data-act="start"]');
+    await p.click('[data-act="tfin"]');
+    await p.click('[data-act="tfin"]');
+    await p.waitForURL(/\/proeftoets\/uitslag$/);
+    tellen = (await sent()).filter((x) => x.tel === 'toetsvraag');
+    assert.equal(tellen.length, 10);
+    assert.ok(tellen.every((x) => x.uitkomst === 'leeg' && Number.isInteger(x.soort)));
+
+    // Dit is een geautomatiseerde browser, net als een bot: er ging niets weg.
+    assert.equal(requests, 0);
+    await context.close();
+
+    // Zonder navigator.webdriver gaat elke tel meteen naar /api/tel, ook als je het tabblad direct
+    // daarna sluit. De functie in scripts/server.js bewaart dan precies de tel en de dag.
+    // Ook HeadlessChrome in de user-agent telt als bot, dus doe je voor als een gewone browser.
+    const human = await browser.newContext({
+      viewport: { width: 390, height: 800 },
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+    });
+    await human.addInitScript(() =>
+      Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }),
+    );
+    const before = server.tellen.length;
+    const h = await human.newPage();
+    await h.goto(at(`/${slug}/oefenen?soort=38&seed=k3x9q`));
+    await h.click('[data-act="show"]');
+    await h.close();
+    for (let i = 0; i < 50 && server.tellen.length === before; i++) await sleep(100);
+    assert.equal(server.tellen.length, before + 1);
+    const { PartitionKey, RowKey, ...row } = server.tellen.at(-1);
+    assert.match(PartitionKey, /^\d{4}-\d{2}-\d{2}$/);
+    assert.deepEqual(Object.keys(row), ['tel', 'soort', 'uitkomst', 'duur', 'hint']);
+    assert.equal(row.uitkomst, 'uitwerking');
+    assert.deepEqual(await human.cookies(), [], 'geen cookies');
+    await human.close();
   } finally {
     await browser.close();
   }

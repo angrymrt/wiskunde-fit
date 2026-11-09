@@ -178,6 +178,30 @@ if (Buffer.byteLength(json) > 20 * 1024)
   throw new Error('staticwebapp.config.json is groter dan 20 kB.');
 await writeFile(new URL('staticwebapp.config.json', dist), `${json}\n`);
 
+// De functie /api/tel, in dist-api/. Azure installeert daar @azure/functions uit package.json. De
+// ids van de vraagsoorten komen erin, zodat de functie weet welke tellen kunnen bestaan.
+if (!dev) {
+  const api = new URL('dist-api/', root);
+  await rm(api, { recursive: true, force: true });
+  const { TOPICS } = await import('../src/js/topics/index.js');
+  await build({
+    absWorkingDir: fileURLToPath(root),
+    entryPoints: ['api/index.js'],
+    bundle: true,
+    platform: 'node',
+    format: 'cjs',
+    target: 'node22',
+    external: ['@azure/functions'],
+    outfile: 'dist-api/index.js',
+    define: { __SOORTEN__: JSON.stringify(TOPICS.flatMap((t) => t.skills.map((k) => k.id))) },
+  });
+  await copyFile(new URL('api/host.json', root), new URL('host.json', api));
+  await writeFile(
+    new URL('package.json', api),
+    `${JSON.stringify({ name: 'wiskundefit-api', private: true, main: 'index.js', dependencies: { '@azure/functions': '^4.0.0' } }, null, 2)}\n`,
+  );
+}
+
 const kB = (path) => Math.round(metafile.outputs[`${out}${path}`].bytes / 1024);
 console.log(
   `${out}/ gebouwd: ${PAGES.length} pagina's, code ${kB(asset(/\/main-\w+\.js$/))} kB, CSS ${kB(asset(/\/styles-\w+\.css$/))} kB${dev ? ', niet kleiner gemaakt' : ''}`,
