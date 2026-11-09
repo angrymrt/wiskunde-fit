@@ -227,8 +227,9 @@ Geen nieuwe stof, wel alles wat later duur wordt om te veranderen. Eén uitzonde
 - [x] Lettertypes en code uit de HTML halen, zodat de browser ze kan bewaren.
 - [x] Vragen met een seed, zodat elke vraag precies te herhalen is. Met de knop Deel stuur je een vraag naar iemand anders. Elke vraag in een proeftoets heeft ook een eigen seed. Een hele proeftoets uit één seed komt bij de link voor docenten ([#23](https://github.com/angrymrt/wiskunde-fit/issues/23)).
 - [x] Zoekmachines helpen: een sitemap, unieke titels en beschrijvingen. De beschrijvingen herschrijven we nog ([#40](https://github.com/angrymrt/wiskunde-fit/issues/40)).
-- [ ] Anonieme totalen meten, nadat de echte adressen er zijn, met opslag in de EU en zonder unieke bezoekers. Zo kunnen we weergaven per onderwerp op de server tellen, zonder script en zonder iets op het apparaat. Tellers per functie alleen als ze geen toestemming nodig hebben ([#19](https://github.com/angrymrt/wiskunde-fit/issues/19)).
+- [ ] Anonieme totalen meten: per vraagsoort hoe vaak de eerste poging goed of fout is, hoe lang dat duurt en welke valkuilen het vaakst voorkomen. Een kleine functie telt dat, met opslag in de EU, zonder id en zonder weergaven van pagina's. Effectiviteit meten en bescherming tegen vervalsen bespreken we later. Het plan staat op [#19](https://github.com/angrymrt/wiskunde-fit/issues/19).
 - [ ] De browsertest per methode-indeling kunnen draaien en bij een push laten meelopen.
+- [ ] CSS en code sturen met `charset=utf-8`, zodat tekens zoals `›` in het kruimelpad niet onleesbaar worden. Dat gebeurt nu na een analyse met Lighthouse, dus het is niet dringend ([#46](https://github.com/angrymrt/wiskunde-fit/issues/46)).
 
 Klaar als: een leerling kan oefenen op onderwerp en op paragraaf uit het eigen boek, opgeslagen voortgang behouden blijft en een nieuw hoofdstuk geen schermcode meer nodig heeft.
 
