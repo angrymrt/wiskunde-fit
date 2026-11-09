@@ -1,0 +1,63 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Start npm run dev en opent de site in Edge. Breakpoints in src/js/ werken dankzij de
+      // sourcemap van de dev-build. Stop eerst een npm run dev die je zelf in een terminal draait,
+      // anders is poort 5173 bezet.
+      "name": "Site in Edge",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "npm run dev"
+    },
+    {
+      // Als npm run dev al draait, bijvoorbeeld in een terminal.
+      "name": "Site in Edge, zonder npm run dev te starten",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "npm test",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["test"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // Draait alleen het testbestand dat je open hebt, zoals tests/generators.test.js.
+      "name": "Dit testbestand",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["--test", "${file}"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // Bouwt eerst dist/, net als npm run test:browser. ROUNDS en BROWSER kun je hieronder zetten.
+      "name": "Browsertest",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["--test", "tests/browser.e2e.js"],
+      "env": { "ROUNDS": "1" },
+      "preLaunchTask": "npm run build",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // De build zelf, bijvoorbeeld src/js/pages.js of het maken van een vooraf gebouwde pagina.
+      "name": "Build (dist-dev/)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/build.js",
+      "args": ["--dev"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

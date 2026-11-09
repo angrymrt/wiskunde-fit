@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // Bouwt de site in dist-dev/ en toont die op poort 5173. Blijft draaien en bouwt opnieuw na
+      // een wijziging. VS Code wacht tot de regel "Open http://localhost:5173" verschijnt.
+      "label": "npm run dev",
+      "type": "npm",
+      "script": "dev",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "wiskundefit",
+        "pattern": { "regexp": "^__nooit__$" },
+        "background": {
+          "activesBegin": "^> .* dev$",
+          "endsPattern": "^Open http://localhost:\\d+"
+        }
+      }
+    },
+    {
+      "label": "npm run build",
+      "type": "npm",
+      "script": "build",
+      "problemMatcher": []
+    }
+  ]
+}

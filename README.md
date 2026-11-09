@@ -23,6 +23,8 @@ npm run dev
 
 Open daarna <http://localhost:5173>. `npm run dev` bouwt de site in `dist-dev/`, zonder de code kleiner te maken, en toont die zoals Azure dat doet. Wijzig je een bestand in `src/`, dan bouwt hij opnieuw en hoef je de pagina alleen te herladen. `dist/` is voor `npm run build`, de browsertest en de controle van een preview, dus die kun je naast `npm run dev` draaien.
 
+In Visual Studio Code kun je debuggen met de configuraties in `.vscode/launch.json`. **Site in Edge** start `npm run dev` en opent de site. Een breakpoint in `src/js/` werkt, omdat de dev-build een sourcemap heeft. Er zijn ook configuraties voor `npm test`, het testbestand dat je open hebt, de browsertest en de build zelf.
+
 Bij `npm install` meldt npm mogelijk dat het installatiescript van esbuild niet is uitgevoerd. Dat is geen probleem, de build werkt ook zonder.
 
 ## Commando's

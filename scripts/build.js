@@ -46,6 +46,9 @@ const { metafile } = await build({
   target: 'es2020',
   charset: 'utf8',
   minify: !dev,
+  // Met npm run dev wijst een sourcemap naar src/, zodat je in de browser en in VS Code (zie
+  // .vscode/launch.json) een breakpoint in je eigen bestanden kunt zetten.
+  sourcemap: dev ? 'inline' : false,
   outdir: `${out}/assets`,
   entryNames: '[name]-[hash]',
   assetNames: '[name]-[hash]',
