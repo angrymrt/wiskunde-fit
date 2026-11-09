@@ -14,6 +14,12 @@ on:
 permissions:
   contents: read
 
+# Eén run tegelijk per pull request, en op main. Anders kan een preview die nog wordt neergezet,
+# opnieuw verschijnen nadat de pull request dicht is en de preview is opgeruimd.
+concurrency:
+  group: deploy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   deploy:
     # Een pull request uit een fork krijgt het deploy-token niet, dus die zetten we niet online.
