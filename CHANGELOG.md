@@ -2,6 +2,19 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.11.0
+
+### Nieuw
+
+- Op de pagina Cijfers zie je hoe er op Wiskundefit wordt geoefend: welke stof het meest, welke soorten vragen het moeilijkst zijn, welke fouten vaak voorkomen en wat in een proeftoets het vaakst leeg blijft. Elke soort vraag linkt naar oefenen. De cijfers komen uit de anonieme tellen en worden elke week bijgewerkt. Je vindt de pagina onderaan elke pagina.
+- Lever je een proeftoets in, dan tellen we nu ook dat er een proeftoets is gemaakt. Dat staat op de pagina Privacy.
+
+### Verbeterd
+
+- Op elke pagina behalve Home staan de kop en de uitleg nu in het blok, zodat alles bij elkaar staat.
+- De proeftoets is één blok, met je laatste resultaat rechtsboven.
+- Bij Kies uit je boek staat bij het boek dat je koos een lintje "Mijn boek".
+
 ## 1.10.0
 
 ### Nieuw
