@@ -42,7 +42,7 @@ const answerOf = `(q) => {
   };
   return {
     mc: q.mc ? q.mc.a : null,
-    vals: q.mc ? null : q.fields.map((f) => (f.sel ? f.a : typed(f.round ? Number(f.a.toFixed(f.round)) : f.a))),
+    vals: q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a)))),
   };
 }`;
 

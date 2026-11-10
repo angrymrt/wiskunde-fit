@@ -1,6 +1,7 @@
 // Startpunt van de app: kiest het juiste scherm en verwerkt klikken en formulieren.
 import { Idiomorph } from 'idiomorph';
 import { checkAnswer, findTrap } from './answers.js';
+import { rd } from './math.js';
 import { TOPICS, TOPIC } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, save, rec, resetProgress } from './progress.js';
@@ -496,7 +497,7 @@ window.addEventListener('pagehide', () => {
 });
 /* Alleen voor tests/browser.e2e.js: zo kan de browsertest de juiste antwoorden en de tellen
    opvragen. */
-window.wiskundefit = { state, TOPICS, TOPIC, MAPPINGS, prog, go, sent };
+window.wiskundefit = { state, TOPICS, TOPIC, MAPPINGS, prog, go, sent, rd };
 history.scrollRestoration = 'manual';
 loadTests();
 arrive();

@@ -1,5 +1,5 @@
 // Antwoorden lezen en nakijken. Bevat geen DOM-code, dus goed los te testen.
-import { near, isNice } from './math.js';
+import { near, isNice, rd } from './math.js';
 
 function parseNum(s) {
   s = String(s).trim().replace(/[−–]/g, '-').replace(/\s+/g, ' ');
@@ -24,9 +24,47 @@ function checkField(f, raw) {
   if (f.sel) return raw === f.a;
   const v = parseNum(raw);
   if (Number.isNaN(v)) return false;
-  if (f.round) return Math.abs(v - f.a) <= 0.5 * 10 ** -f.round + 1e-6;
+  // Bij afronden is alleen het goed afgeronde getal goed: bij 3,75 en 1 decimaal is 3,8 goed en
+  // 3,7 fout. Meer decimalen is fout, ook als ze kloppen. Minder mag als het precies hetzelfde
+  // getal is: 8 bij 7,96 en 1 decimaal, want dat is 8,0.
+  if (f.round) return near(v, rd(f.a, f.round), 1e-9);
   if (/[.,]/.test(raw) && !isNice(f.a, 4)) return Math.abs(v - f.a) < 0.0051;
   return near(v, f.a);
+}
+// Het aantal decimalen van een getal, of Infinity bij een breuk als 2/3.
+const places = (x) => {
+  for (let k = 0; k <= 6; k++) if (isNice(x, k)) return k;
+  return Infinity;
+};
+// De valkuilen die elke vraag met afronden vanzelf krijgt. Zie makeQuestion in topics/index.js.
+function roundTraps(fields = []) {
+  const rounded = fields.filter((f) => f.round);
+  if (!rounded.length) return [];
+  const n = rounded[0].round,
+    op = n === 1 ? '1 decimaal' : `${n} decimalen`;
+  const some = (test) => (v) =>
+    fields.some((f, i) => f.round && Number.isFinite(v[i]) && test(f, v[i]));
+  return [
+    {
+      // Het antwoord klopt, maar is niet of niet ver genoeg afgerond, zoals 8,18 bij 8,1818.
+      id: 'te-veel-decimalen',
+      f: some(
+        (f, x) => places(x) > f.round && (near(x, f.a, 1e-9) || near(x, rd(f.a, places(x)), 1e-9)),
+      ),
+      m: `Bijna: rond je antwoord nog af op ${op}.`,
+    },
+    {
+      // Naar de verkeerde kant afgerond of afgekapt, zoals 3,7 bij 3,75.
+      id: 'verkeerd-afgerond',
+      f: some(
+        (f, x) =>
+          places(x) <= f.round &&
+          !near(x, rd(f.a, f.round), 1e-9) &&
+          Math.abs(x - f.a) < 10 ** -f.round,
+      ),
+      m: 'Bijna, maar je hebt verkeerd afgerond. Is het eerste cijfer dat wegvalt 5 of meer, rond dan naar boven af.',
+    },
+  ];
 }
 // Bij een tekenvraag is elk paar verschillende punten op de lijn goed. Zie drawLine in topics/shared.js.
 function checkLine({ a, b }, v) {
@@ -61,4 +99,4 @@ function findTrap(q, vals) {
   return null;
 }
 
-export { parseNum, checkField, checkAnswer, findTrap };
+export { parseNum, checkField, checkAnswer, findTrap, roundTraps };

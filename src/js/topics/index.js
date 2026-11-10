@@ -12,6 +12,7 @@ import gelijkvormig from './gelijkvormige-driehoeken.js';
 import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
 import { newSeed, withSeed } from '../math.js';
+import { roundTraps } from '../answers.js';
 
 const DOMAINS = [
   {
@@ -74,6 +75,11 @@ for (const domain of DOMAINS) {
 
 // Maakt een vraag van een vraagsoort met een seed, en bewaart die seed in de vraag. Zo is elke
 // vraag precies te herhalen, bijvoorbeeld bij een foutmelding.
-const makeQuestion = (skill, seed = newSeed()) => ({ ...withSeed(seed, skill.gen), seed });
+// Een vraag met afronden krijgt na zijn eigen valkuilen ook die voor afronden.
+function makeQuestion(skill, seed = newSeed()) {
+  const q = withSeed(seed, skill.gen);
+  const traps = [...(q.traps ?? []), ...roundTraps(q.fields)];
+  return { ...q, ...(traps.length ? { traps } : {}), seed };
+}
 
 export { DOMAINS, DOMAIN, TOPICS, TOPIC, makeQuestion };

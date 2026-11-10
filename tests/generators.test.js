@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
-import { parseSeed, seedText } from '../src/js/math.js';
-import { checkAnswer, checkField, parseNum } from '../src/js/answers.js';
+import { parseSeed, rd, seedText } from '../src/js/math.js';
+import { checkAnswer, checkField, findTrap, parseNum, roundTraps } from '../src/js/answers.js';
 import { migrateIds, migrateSkills } from '../src/js/progress.js';
 import { VALKUIL_ID } from '../src/js/tel.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
@@ -52,7 +52,7 @@ function assertSound(q) {
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
   for (const f of q.fields) if (!f.sel) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
   const right = q.fields.map((f) =>
-    f.sel ? f.a : typed(f.round ? Number(f.a.toFixed(f.round)) : f.a),
+    f.sel ? f.a : f.round ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
   );
   assert.ok(checkAnswer(q, right).ok, `goed antwoord afgekeurd (${right.join(' | ')}): ${q.q}`);
   // Bij een tekenvraag verschuift alleen de eerste y, want twee punten even ver opschuiven kan weer
@@ -291,12 +291,113 @@ test('checkField keurt breuken en afrondingen goed', () => {
     [{ a: 1 / 3 }, '0,33', true],
     [{ a: 1 / 3 }, '0,5', false],
     [{ a: 8.1818, round: 1 }, '8,2', true],
-    [{ a: 8.1818, round: 1 }, '8,18', true],
+    [{ a: 8.1818, round: 1 }, '8,18', false],
     [{ a: 8.1818, round: 1 }, '8,3', false],
     [{ a: 2.5 }, '2 1/2', true],
     [{ a: 2.5 }, '2,4', false],
   ];
   for (const [field, input, want] of cases) assert.equal(checkField(field, input), want, input);
+});
+
+test('rd rondt een halve stap weg van nul af, ook als de computer er net onder zit', () => {
+  const cases = [
+    [3.75, 1, 3.8],
+    [-3.75, 1, -3.8],
+    [3.74, 1, 3.7],
+    [2.675, 2, 2.68],
+    [1.005, 2, 1.01],
+    [-2.675, 2, -2.68],
+    [0.125, 2, 0.13],
+    [8.1818, 1, 8.2],
+    [2.5, 0, 3],
+    [-0.04, 1, 0],
+  ];
+  for (const [x, n, want] of cases) assert.equal(rd(x, n), want, `${x} op ${n}`);
+  assert.ok(Object.is(rd(-0.04, 1), 0), 'geen −0');
+});
+
+test('checkField keurt alleen het goed afgeronde getal goed', () => {
+  // Uit #50: bij 3,75 en "Rond af op één decimaal" was ook 3,7 goed.
+  const skill = TOPICS.flatMap((t) => t.skills).find((s) => s.id === 41);
+  const q = makeQuestion(skill, 0);
+  const f = q.fields.find((x) => x.round);
+  assert.deepEqual([f.a, f.round], [3.75, 1]);
+  assert.ok(checkAnswer(q, ['3,8']).ok);
+  assert.ok(!checkAnswer(q, ['3,7']).ok);
+
+  const cases = [
+    // Een halve stap, positief en negatief.
+    [{ a: 3.75, round: 1 }, '3,8', true],
+    [{ a: 3.75, round: 1 }, '3,7', false],
+    [{ a: -3.75, round: 1 }, '-3,8', true],
+    [{ a: -3.75, round: 1 }, '−3,7', false],
+    [{ a: 2.675, round: 2 }, '2,68', true],
+    [{ a: 2.675, round: 2 }, '2,67', false],
+    [{ a: -2.675, round: 2 }, '-2,68', true],
+    [{ a: -2.675, round: 2 }, '-2,67', false],
+    // Vlak naast de halve stap.
+    [{ a: 3.7499, round: 1 }, '3,7', true],
+    [{ a: 3.7499, round: 1 }, '3,8', false],
+    [{ a: 3.7501, round: 1 }, '3,8', true],
+    [{ a: 3.7501, round: 1 }, '3,7', false],
+    [{ a: 2.6749, round: 2 }, '2,67', true],
+    [{ a: 2.6749, round: 2 }, '2,68', false],
+    // Meer decimalen dan gevraagd is fout, ook als ze kloppen.
+    [{ a: 3.75, round: 1 }, '3,75', false],
+    [{ a: 8.1818, round: 1 }, '8,18', false],
+    [{ a: 2 / 3, round: 2 }, '0,667', false],
+    // Een nul achteraan verandert het getal niet.
+    [{ a: 8.1818, round: 1 }, '8,20', true],
+    // Minder decimalen mag als de nul wegvalt: 7,96 wordt 8,0.
+    [{ a: 7.96, round: 1 }, '8', true],
+    [{ a: 7.96, round: 1 }, '8,0', true],
+    [{ a: 8.1818, round: 1 }, '8', false],
+    // Een breuk als antwoord: 2/3 op twee decimalen is 0,67.
+    [{ a: 2 / 3, round: 2 }, '0,67', true],
+    [{ a: 2 / 3, round: 2 }, '0,66', false],
+    // Een breuk is geen afgerond getal, tenzij die precies het afgeronde getal is.
+    [{ a: 2 / 3, round: 2 }, '2/3', false],
+    [{ a: 3.75, round: 1 }, '19/5', true],
+  ];
+  for (const [field, input, want] of cases)
+    assert.equal(checkField(field, input), want, `${input} bij ${field.a}`);
+});
+
+test('een vraag met afronden heeft valkuilen voor te veel decimalen en verkeerd afronden', () => {
+  const skill = TOPICS.flatMap((t) => t.skills).find((s) => s.id === 41);
+  const q = makeQuestion(skill, 0);
+  const trap = (vals) => findTrap(q, vals)?.id ?? null;
+  assert.equal(trap(['3,75']), 'te-veel-decimalen');
+  assert.equal(trap(['3,7']), 'verkeerd-afgerond');
+  assert.equal(trap(['3,9']), null);
+  assert.equal(
+    findTrap(q, ['3,7']).m,
+    'Bijna, maar je hebt verkeerd afgerond. Is het eerste cijfer dat wegvalt 5 of meer, rond dan naar boven af.',
+  );
+  assert.equal(findTrap(q, ['3,75']).m, 'Bijna: rond je antwoord nog af op 1 decimaal.');
+
+  const [teVeel, verkeerd] = roundTraps([{ a: 8.1818, round: 1 }]);
+  const cases = [
+    // Juist, maar niet ver genoeg afgerond.
+    ['8,18', 'te-veel'],
+    ['8,182', 'te-veel'],
+    ['8,1818', 'te-veel'],
+    // Te veel decimalen, maar ook fout: geen van beide.
+    ['8,24', null],
+    // Afgekapt of de verkeerde kant op.
+    ['8,1', 'verkeerd'],
+    ['8,3', null],
+    ['8,2', null],
+  ];
+  for (const [input, want] of cases) {
+    const v = [parseNum(input)];
+    const got = teVeel.f(v) ? 'te-veel' : verkeerd.f(v) ? 'verkeerd' : null;
+    assert.equal(got, want, input);
+  }
+  // Een breuk die precies het antwoord is, is niet afgerond.
+  assert.ok(roundTraps([{ a: 2 / 3, round: 2 }])[0].f([2 / 3]));
+  // Een vraag zonder afronden krijgt deze valkuilen niet.
+  assert.deepEqual(roundTraps([{ a: 3 }]), []);
 });
 
 test('T zet wiskunde goed om', () => {

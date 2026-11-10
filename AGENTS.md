@@ -97,7 +97,7 @@ Elke valkuil heeft een `id` die de fout beschrijft, in kleine letters met streep
 Veldhulpen in `topics/shared.js`:
 
 - `F(label, antwoord, achterLabel)` maakt een exact veld. Breuken uit `Q(...)` mogen als antwoord.
-- `RF(label, antwoord, decimalen, achterLabel)` maakt een veld dat afronden alleen toestaat als het antwoord niet precies uitkomt. Zet `needRound(velden)` achter de vraag voor de zin "Rond af op ...".
+- `RF(label, antwoord, decimalen, achterLabel)` maakt een veld dat afronden alleen toestaat als het antwoord niet precies uitkomt. Zet `needRound(velden)` achter de vraag voor de zin "Rond af op ...". Alleen het goed afgeronde getal is goed, dus niet meer decimalen dan gevraagd. Zo'n vraag krijgt vanzelf de valkuilen `te-veel-decimalen` en `verkeerd-afgerond` (`roundTraps` in `answers.js`).
 - `{ sel: ['<', '>'], a: '<', pre: 'x' }` maakt een keuzelijst.
 - `drawLine(a, b, punt1, punt2)` geeft alles voor een vraag waarin de leerling een lijn tekent: het rooster, de velden, het nakijken en de feedback. Elk paar punten op de lijn is goed. Tikken op het rooster vult dezelfde velden als typen, zodat de vraag ook zonder muis of scherm werkt. Gebruik in de uitwerking `lineTable(...)`: de methode tekent een lijn altijd via een tabel.
 

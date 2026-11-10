@@ -2,6 +2,16 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.11.1
+
+### Hersteld
+
+- Bij een vraag met afronden werd een verkeerd afgerond antwoord soms goedgekeurd. Bij 3,75 en "Rond af op 1 decimaal" was 3,7 ook goed, maar alleen 3,8 klopt. Bij 2.1 Verhoudingstabellen stond in de uitwerking soms ook het verkeerd afgeronde getal, zoals 3,1 in plaats van 3,2 bij 3,15. Een getal dat precies op de helft ligt, rond je af naar boven. Een antwoord met meer decimalen dan gevraagd is nu ook fout, ook als het klopt.
+
+### Verbeterd
+
+- Rond je niet af of de verkeerde kant op, dan zegt de site dat nu, bij elke vraag met afronden.
+
 ## 1.11.0
 
 ### Nieuw

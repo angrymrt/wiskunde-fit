@@ -88,7 +88,14 @@ const qDiv = (a, b) => {
   return Q(a.n * b.d, a.d * b.n);
 };
 const near = (x, y, t = 1e-7) => Math.abs(x - y) < t;
-const rd = (x, n = 1) => Number(x.toFixed(n));
+// Rondt af op n decimalen, bij een halve stap weg van nul, zoals op school: 3,75 wordt 3,8 en
+// −3,75 wordt −3,8. Een kommagetal als 2,675 staat in de computer net onder de helft, en toFixed
+// maakt daar 2,67 van. Het kleine extraatje zet zo'n getal weer op de helft.
+const rd = (x, n = 1) => {
+  const p = 10 ** n,
+    r = Math.round(Math.abs(x) * p * (1 + 1e-12)) / p;
+  return x < 0 && r ? -r : r;
+};
 const isNice = (x, n = 1) => near(x, rd(x, n), 1e-7);
 const d = (x) => String(Number((+x).toFixed(6))).replace('.', ',');
 const ap = (x, n = 1) => `${isNice(x, n) ? '=' : '≈'} ${d(rd(x, n))}`;
