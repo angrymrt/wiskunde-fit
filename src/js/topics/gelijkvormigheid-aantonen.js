@@ -1,7 +1,7 @@
 // Onderwerp: Gelijkvormigheid aantonen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { geo, angleFig } from '../figures.js';
 import { ri, pick, coin, near, rd, isNice, d, ap } from '../math.js';
-import { H, F, RF, needRound, MC, TRP, nestedPts, nestedFig } from './shared.js';
+import { H, F, RF, needRound, MC, TRP, nestedPts, nestedFig, flipTrap } from './shared.js';
 import { T, vt } from '../typeset.js';
 
 // Meetkunde op de coördinaten van een figuur, om de redenen in een vraag na te rekenen.
@@ -65,6 +65,18 @@ function s23kind() {
     q: 'De twee horizontale lijnen zijn evenwijdig. Waarom zijn de twee gekleurde hoeken gelijk?',
     fig: f,
     mc,
+    traps: [
+      {
+        id: 'f-en-z-verwisseld',
+        f: (v) => v[0] !== KINDS[ans] && v[0] !== KINDS[2] && ans !== 2,
+        m: 'F-hoeken liggen aan dezelfde kant van de snijlijn, Z-hoeken aan weerskanten, tussen de evenwijdige lijnen.',
+      },
+      {
+        id: 'overstaand-verwisseld',
+        f: (v) => v[0] !== KINDS[ans] && (v[0] === KINDS[2] || ans === 2),
+        m: 'Overstaande hoeken zitten bij hetzelfde snijpunt, recht tegenover elkaar. Kijk of de twee hoeken bij hetzelfde snijpunt zitten.',
+      },
+    ],
     hint: 'Overstaand: bij hetzelfde snijpunt, tegenover elkaar. F: bij twee verschillende snijpunten, aan dezelfde kant van de snijlijn en op dezelfde plek. Z: tussen de evenwijdige lijnen, aan weerskanten van de snijlijn.',
     steps: [
       [
@@ -288,6 +300,7 @@ function s23shadow() {
         `AB = {${d(hv)}*${bs}/${d(vs)}} ${ap(tb)}`,
         `De toren is ${isNice(tb, 1) ? '' : 'ongeveer '}${d(rd(tb, 1))} meter hoog.`,
       ],
+      traps: [flipTrap(f, { 0: (vs * bs) / hv })],
       v: () => near(tb / bs, hv / vs, 1e-6),
     };
   }
@@ -329,6 +342,7 @@ function s23shadow() {
       `ST = {${bd}*${d(ac)}/${d(ab)}} ${ap(de)}`,
       `De vuurtoren is ${isNice(de, 1) ? '' : 'ongeveer '}${d(rd(de, 1))} meter hoog.`,
     ],
+    traps: [flipTrap(f, { 0: (ab * bd) / ac })],
     v: () => near(de / bd, ac / ab, 1e-6),
   };
 }

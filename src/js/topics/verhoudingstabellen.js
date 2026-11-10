@@ -1,7 +1,7 @@
 // Onderwerp: Verhoudingstabellen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { geo } from '../figures.js';
 import { ri, nz, pick, coin, near, rd, isNice, d, ap, lin, sg } from '../math.js';
-import { H, F, RF, needRound } from './shared.js';
+import { H, F, RF, needRound, flipTrap } from './shared.js';
 import { T, vt } from '../typeset.js';
 
 function s21cross() {
@@ -133,6 +133,7 @@ function s21tab3() {
       H(vt([String(a), 'x'], [String(c), String(m)]) + T(` geeft x = {${a}*${m}/${c}} ${ap(x)}`)),
       H(vt([String(a), String(e)], [String(c), 'y']) + T(` geeft y = {${c}*${e}/${a}} ${ap(y)}`)),
     ],
+    traps: [flipTrap(f, { 0: (c * m) / a, 1: (a * e) / c })],
     v: () => near(a * m, c * x, 1e-6) && near(a * y, c * e, 1e-6),
   };
 }
@@ -165,6 +166,7 @@ function s21split() {
         ...(a - c === 1 ? [] : [`${lin(a - c, 0, 'y')} = ${c * s}`]),
         `y = ${y}`,
       ],
+      traps: [flipTrap(f, { 0: (c * m) / a })],
       v: () => near(a * m, c * x, 1e-6) && near(a * y, c * (y + s)),
     };
   }
@@ -188,23 +190,38 @@ function s21story() {
         `x = {${d(h)}*${S}/${d(s)}} ${ap(H2)}`,
         `De boom is ${isNice(H2, 1) ? '' : 'ongeveer '}${d(rd(H2, 1))} meter hoog.`,
       ],
+      traps: [
+        flipTrap(
+          f,
+          { 0: (s * S) / h },
+          'Je hebt de verhouding omgedraaid. Zet de hoogtes in de ene rij en de schaduwen in de andere.',
+        ),
+      ],
       v: () => near(h * S, s * H2, 1e-6),
     };
   }
   const n = pick([3, 4, 5, 6]),
     per = pick([1, 1.5, 2, 2.5]),
     L = n * per,
-    m = pick([7, 8, 10, 12, 14, 16, 20]);
+    m = pick([7, 8, 10, 12, 14, 16, 20]),
+    books = [F('hoogte =', per * m, 'cm')];
   return {
     q: T(
       `Een stapel van ${n} dezelfde boeken is ${d(L)} cm hoog. Hoe hoog is een stapel van ${m} van die boeken?`,
     ),
-    fields: [F('hoogte =', per * m, 'cm')],
+    fields: books,
     hint: 'Reken eerst uit hoe dik één boek is, of gebruik een verhoudingstabel.',
     steps: [
       H(vt([String(n), String(m)], [d(L), 'x'])),
       `x = {${d(L)}*${m}/${n}} = ${d(per * m)}`,
       `De stapel is ${d(per * m)} cm hoog.`,
+    ],
+    traps: [
+      flipTrap(
+        books,
+        { 0: (n * m) / L },
+        'Je hebt de verhouding omgedraaid. Zet het aantal boeken in de ene rij en de hoogtes in de andere.',
+      ),
     ],
     v: () => near(L * m, n * per * m),
   };
@@ -262,6 +279,7 @@ function s21par() {
       maxH: 260,
     }),
     fields: [F('x =', x), F('y =', y)],
+    traps: [flipTrap([{ a: x }, { a: y }], { 0: (p * q) / a, 1: (a * e) / p })],
     hint: 'Evenwijdige lijnen snijden stukken af die in een verhoudingstabel passen.',
     steps: [
       H(T('Bij de figuur hoort de verhoudingstabel ') + vt([d(a), 'x', d(e)], [d(p), d(q), 'y'])),

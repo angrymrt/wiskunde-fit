@@ -94,6 +94,8 @@ Een lopende proeftoets wordt als JSON in de browser bewaard. Alles wat nodig is 
 
 Elke valkuil heeft een `id` die de fout beschrijft, in kleine letters met streepjes, zoals `breuk-omgedraaid`. Die is uniek binnen de vraag. Dezelfde fout in een andere variant van de vraagsoort krijgt dezelfde `id`. Wijzig een `id` liever niet, want de site telt hoe vaak elke valkuil voorkomt, en een nieuwe naam begint weer bij nul.
 
+De functie `f` krijgt de ingevulde getallen, en bij meerkeuze de tekst van de gekozen keuze. Het goede antwoord mag nooit in een valkuil vallen, ook niet in één veld, want dan krijgt een leerling een melding over een veld dat goed is. `npm test` controleert dat. Voor een omgedraaide verhouding is er `flipTrap(velden, { 0: fout getal })` in `topics/shared.js`.
+
 Veldhulpen in `topics/shared.js`:
 
 - `F(label, antwoord, achterLabel)` maakt een exact veld. Breuken uit `Q(...)` mogen als antwoord.

@@ -1,7 +1,7 @@
 // Onderwerp: Gelijkvormige driehoeken. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { triFromSides, xf, geo } from '../figures.js';
 import { ri, pick, coin, shuffle, near, rd, d, ap } from '../math.js';
-import { H, F, RF, needRound, MC, TRP, nestedFig } from './shared.js';
+import { H, F, RF, needRound, MC, TRP, nestedFig, flipTrap } from './shared.js';
 import { T, vt } from '../typeset.js';
 
 const NICE_TRI = [
@@ -121,6 +121,13 @@ function s22note() {
       : T(`Gegeven: ${text}. Welke schrijfwijze is goed?`),
     fig: showFig ? fig : undefined,
     mc,
+    traps: [
+      {
+        id: 'hoeken-verkeerd-gekoppeld',
+        f: (v) => v[0] !== opts[0],
+        m: 'Gelijke hoeken staan op dezelfde plek in de naam. Zoek bij A, B en C steeds de hoek die even groot is.',
+      },
+    ],
     hint: 'Bij gelijkvormigheid staan gelijke hoeken op dezelfde plek in de naam. De eerste letter hoort bij de eerste letter, enzovoort.',
     steps: [`∠A = ∠${L[0]}, ∠B = ∠${L[1]} en ∠C = ∠${L[2]}.`, `Dus △ABC ∼ △${L.join('')}.`],
     // Narekenen met de hoeken in de figuur: alleen bij de keuze die goed is, zijn alle hoeken gelijk.
@@ -148,6 +155,13 @@ function s22tab() {
   return {
     q: T(`Gegeven is △ABC ∼ △${M}. Welke verhoudingstabel is goed?`),
     mc,
+    traps: [
+      {
+        id: 'zijden-verkeerd-gekoppeld',
+        f: (v) => v[0] !== good,
+        m: 'AB bestaat uit de eerste en tweede letter. Pak in de andere driehoek ook de eerste en tweede letter.',
+      },
+    ],
     hint: T(
       `AB bestaat uit de eerste twee letters van △ABC. Pak dan ook de eerste twee letters van △${M}.`,
     ),
@@ -211,6 +225,7 @@ function s22sides() {
           T(` geeft ${s3} = {${d(kn)}*${ac}/${ab}} ${ap(x3)}`),
       ),
     ],
+    traps: [flipTrap(f, { 0: (ab * bc) / kn, 1: (ab * ac) / kn })],
     v: () => near(ab * x2, bc * kn, 1e-6) && near(ab * x3, ac * kn, 1e-6),
   };
 }
@@ -310,6 +325,7 @@ function s22py() {
           T(` geeft PQ = {${dg}*${a}/${b}} ${ap(gh)}`),
       ),
     ],
+    traps: [flipTrap(f, { 1: (b * a) / dg })],
     v: () => a * a + b * b === c * c && near(gh / a, dg / b) && near(dh / c, dg / b),
   };
 }

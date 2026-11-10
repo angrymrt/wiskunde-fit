@@ -13,6 +13,8 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 
 - Rond je niet af of de verkeerde kant op, dan zegt de site dat nu, bij elke vraag met afronden.
 - Bij Inleveren waarschuwt de proeftoets nu ook als je een vraag maar half hebt ingevuld, zoals alleen a en nog niet b. In de lijst met vragen is zo'n vraag half gekleurd.
+- Bij verhoudingstabellen en gelijkvormige driehoeken zegt de site het nu als je een verhouding hebt omgedraaid.
+- Kies je bij een meerkeuzevraag over gelijkvormige driehoeken of over F-, Z- en overstaande hoeken het verkeerde antwoord, dan krijg je nu uitleg over wat er mis ging.
 
 ## 1.11.0
 

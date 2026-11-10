@@ -3,6 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
+import { flipTrap } from '../src/js/topics/shared.js';
 import { parseSeed, rd, seedText } from '../src/js/math.js';
 import {
   checkAnswer,
@@ -32,7 +33,30 @@ function typed(x) {
 // Een lopende proeftoets staat in de browser als JSON, en moet daarna nog na te kijken zijn.
 const stored = (q) => JSON.parse(JSON.stringify(q));
 
-function assertSound(q) {
+// Valkuilen die nu nog ook bij het goede antwoord gelden, als soort vraag:valkuil. Zie #66. Haal
+// een regel weg zodra die valkuil is hersteld.
+const TRAP_ON_RIGHT = new Set([
+  '5:breuk-omgedraaid',
+  '6:breuk-omgedraaid',
+  '8:lijn-verschoven',
+  '16:lijn-verschoven',
+  '21:niet-alle-termen',
+  '23:assen-omgewisseld',
+  '31:getallen-omgewisseld',
+  '36:lijn-verschoven',
+  '41:verkeerd-kruislings',
+  '63:tweede-stap-verschil-vergeten',
+  '64:verhouding-omgedraaid',
+]);
+// Het goede antwoord valt in geen enkele valkuil. Anders krijgt een leerling bij een vraag met
+// meer velden een melding over een veld dat goed is.
+function assertNoTrap(q, vals, skill) {
+  const trap = findTrap(q, vals);
+  if (trap && !TRAP_ON_RIGHT.has(`${skill?.id}:${trap.id}`))
+    assert.fail(`goed antwoord in de valkuil ${trap.id}: ${q.q}`);
+}
+
+function assertSound(q, skill) {
   const text = q.q + (q.fig ?? '') + stepsHTML(q.steps) + q.hint + (q.mc ? q.mc.opts.join('') : '');
   for (const bad of ['NaN', 'undefined', 'Infinity', 'null', '[object']) {
     assert.ok(!text.includes(bad), `tekst bevat "${bad}": ${q.q}`);
@@ -54,6 +78,7 @@ function assertSound(q) {
     assert.ok(q.mc.a >= 0 && q.mc.a < q.mc.opts.length, `juiste keuze bestaat niet: ${q.q}`);
     assert.equal(new Set(q.mc.opts).size, q.mc.opts.length, `dubbele keuzes: ${q.q}`);
     assert.ok(checkAnswer(q, [String(q.mc.a)]).ok, `goed antwoord afgekeurd: ${q.q}`);
+    assertNoTrap(q, [String(q.mc.a)], skill);
     assert.ok(!checkAnswer(q, ['']).ok, `leeg antwoord goedgekeurd: ${q.q}`);
     assert.ok(checkAnswer(stored(q), [String(q.mc.a)]).ok, `bewaard niet na te kijken: ${q.q}`);
     return;
@@ -64,6 +89,7 @@ function assertSound(q) {
     f.sel ? f.a : f.round ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
   );
   assert.ok(checkAnswer(q, right).ok, `goed antwoord afgekeurd (${right.join(' | ')}): ${q.q}`);
+  assertNoTrap(q, right, skill);
   // Bij een tekenvraag verschuift alleen de eerste y, want twee punten even ver opschuiven kan weer
   // een punt op dezelfde lijn geven.
   const wrong = q.fields.map((f, i) =>
@@ -96,7 +122,7 @@ function eachQuestion(topic, skill, check) {
 for (const section of TOPICS) {
   test(section.title, async (t) => {
     for (const skill of section.skills) {
-      await t.test(skill.name, () => eachQuestion(section, skill, assertSound));
+      await t.test(skill.name, () => eachQuestion(section, skill, (q) => assertSound(q, skill)));
     }
   });
 }
@@ -370,6 +396,55 @@ test('checkField keurt alleen het goed afgeronde getal goed', () => {
   ];
   for (const [field, input, want] of cases)
     assert.equal(checkField(field, input), want, `${input} bij ${field.a}`);
+});
+
+test('flipTrap herkent een omgedraaide verhouding, ook afgerond', () => {
+  // x = 7·3/4 = 5,25; omgedraaid 4·3/7 ≈ 1,714.
+  const fields = [{ a: 5.25, round: 1 }, { a: 6 }];
+  const trap = flipTrap(fields, { 0: (4 * 3) / 7, 1: 6 });
+  assert.equal(trap.id, 'verhouding-omgedraaid');
+  assert.ok(trap.f([1.7, 0]), 'afgerond');
+  assert.ok(trap.f([12 / 7, 0]), 'als breuk');
+  assert.ok(!trap.f([1.9, 0]));
+  assert.ok(!trap.f([5.3, 0]), 'het goede antwoord');
+  // Is het omgedraaide getal gelijk aan het goede, dan geldt de valkuil niet.
+  assert.ok(!trap.f([0, 6]));
+});
+
+test('elke soort vraag met een verhoudingstabel kent de omgedraaide verhouding', () => {
+  const skills = TOPICS.flatMap((t) => t.skills);
+  for (const id of [43, 44, 45, 46, 50, 52, 56]) {
+    const skill = skills.find((k) => k.id === id);
+    for (let seed = 0; seed < 20; seed++) {
+      const ids = (makeQuestion(skill, seed).traps ?? []).map((t) => t.id);
+      assert.ok(ids.includes('verhouding-omgedraaid'), `${id} met seed ${seed}`);
+    }
+  }
+});
+
+test('meerkeuze geeft bij een foute keuze gerichte feedback', () => {
+  const skills = TOPICS.flatMap((t) => t.skills);
+  const wrongPicks = (id, seed) => {
+    const q = makeQuestion(
+      skills.find((k) => k.id === id),
+      seed,
+    );
+    return q.mc.opts.map((o, i) => [o, findTrap(q, [String(i)])?.id ?? null, i === q.mc.a]);
+  };
+  for (let seed = 0; seed < 30; seed++) {
+    for (const [, trap, right] of wrongPicks(48, seed))
+      assert.equal(trap, right ? null : 'hoeken-verkeerd-gekoppeld');
+    for (const [, trap, right] of wrongPicks(49, seed))
+      assert.equal(trap, right ? null : 'zijden-verkeerd-gekoppeld');
+    const picks = wrongPicks(53, seed);
+    const good = picks.find(([, , right]) => right)[0];
+    for (const [o, trap, right] of picks) {
+      if (right) assert.equal(trap, null);
+      else if (o === 'Overstaande hoeken' || good === 'Overstaande hoeken')
+        assert.equal(trap, 'overstaand-verwisseld');
+      else assert.equal(trap, 'f-en-z-verwisseld');
+    }
+  }
 });
 
 test('een vraag met afronden heeft valkuilen voor te veel decimalen en verkeerd afronden', () => {

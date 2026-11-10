@@ -96,9 +96,12 @@ function fillState(q, vals = []) {
   return n === 0 ? 'leeg' : n === q.fields.length ? 'ingevuld' : 'half';
 }
 // Geeft de eerste valkuil waar het antwoord in valt, met de gerichte feedback in m.
+// Bij meerkeuze krijgt een valkuil de tekst van de gekozen keuze, zoals [q.mc.opts[2]].
 function findTrap(q, vals) {
-  if (!q.traps || q.mc) return null;
-  const v = q.fields.map((f, i) => (f.sel ? vals[i] : parseNum(vals[i])));
+  if (!q.traps) return null;
+  const v = q.mc
+    ? [q.mc.opts[+vals[0]]]
+    : q.fields.map((f, i) => (f.sel ? vals[i] : parseNum(vals[i])));
   for (const t of q.traps) {
     try {
       if (t.f(v)) return t;

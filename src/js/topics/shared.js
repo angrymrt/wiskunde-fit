@@ -16,6 +16,23 @@ const H = (html) => ({ h: html });
 const F = (pre, a, post = '') => ({ pre, a: qv(a), post });
 const RF = (pre, x, n = 1, post = '') =>
   isNice(x, n) ? { pre, a: x, post } : { pre, a: x, post, round: n };
+// De valkuil voor een omgedraaide verhouding. wrong geeft per veld het getal dat je dan krijgt,
+// zoals { 0: c * m / a }. Een afgerond fout getal telt ook mee. Valt het foute getal samen met het
+// goede, dan geldt de valkuil niet.
+const FLIP =
+  'Je hebt de verhouding omgedraaid. Zet lengtes die bij elkaar horen in dezelfde kolom van de tabel.';
+const flipTrap = (fields, wrong, m = FLIP) => ({
+  id: 'verhouding-omgedraaid',
+  f: (v) =>
+    Object.entries(wrong).some(([i, w]) => {
+      const f = fields[i];
+      if (near(w, f.a, 1e-6) || !Number.isFinite(v[i])) return false;
+      // Komt het foute getal niet mooi uit, dan rondt een leerling het zelf af, zoals 4,7 bij 4,666…
+      const tol = f.round ? 0.5 * 10 ** -f.round : isNice(w, 4) ? 0 : 0.051;
+      return Math.abs(v[i] - w) <= tol + 1e-9;
+    }),
+  m,
+});
 const needRound = (fs) =>
   fs.some((f) => f.round)
     ? ` Rond af op ${fs.find((f) => f.round).round === 1 ? '1 decimaal' : fs.find((f) => f.round).round + ' decimalen'}.`
@@ -139,6 +156,7 @@ export {
   F,
   RF,
   needRound,
+  flipTrap,
   MC,
   plug,
   euro,
