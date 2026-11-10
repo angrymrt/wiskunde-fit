@@ -3,6 +3,7 @@
 // apparaat blijft. Elke tel gaat meteen weg, zodat er niets verloren gaat als je de pagina sluit.
 // Zie #19 en de pagina Privacy. De DOM staat alleen in functies, want de build importeert ui/.
 // Welke tabel de tellen krijgt, kiest de functie /api/tel: alleen die van wiskundefit.nl telt mee.
+import { fillState } from '../answers.js';
 import { MAX_DUUR, telAdres } from '../tel.js';
 import { state } from './state.js';
 
@@ -66,14 +67,12 @@ function telValkuil(st, trap) {
 }
 // Een ingeleverde proeftoets en elke vraag daarvan, in één bericht.
 function telToets(items) {
-  const filled = (x) =>
-    x.vals.length && (x.q.mc ? x.vals[0] !== '' : x.vals.some((v) => String(v).trim()));
   stuur([
     { tel: 'proeftoets' },
     ...items.map((x) => ({
       tel: 'toetsvraag',
       soort: x.skill.id,
-      uitkomst: x.c.ok ? 'goed' : filled(x) ? 'fout' : 'leeg',
+      uitkomst: x.c.ok ? 'goed' : fillState(x.q, x.vals) === 'leeg' ? 'leeg' : 'fout',
     })),
   ]);
 }

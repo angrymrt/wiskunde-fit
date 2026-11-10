@@ -87,6 +87,14 @@ function checkAnswer(q, vals) {
     : q.fields.map((f, i) => checkField(f, vals[i] ?? ''));
   return { each, ok: each.every(Boolean) };
 }
+// Of een vraag leeg, half of helemaal is ingevuld. Alleen spaties telt als leeg, en bij een
+// tekenvraag is één punt half. Voor de lijst met vragen en Inleveren bij een proeftoets.
+function fillState(q, vals = []) {
+  const has = (v) => String(v ?? '').trim() !== '';
+  if (q.mc) return has(vals[0]) ? 'ingevuld' : 'leeg';
+  const n = q.fields.filter((f, i) => has(vals[i])).length;
+  return n === 0 ? 'leeg' : n === q.fields.length ? 'ingevuld' : 'half';
+}
 // Geeft de eerste valkuil waar het antwoord in valt, met de gerichte feedback in m.
 function findTrap(q, vals) {
   if (!q.traps || q.mc) return null;
@@ -99,4 +107,4 @@ function findTrap(q, vals) {
   return null;
 }
 
-export { parseNum, checkField, checkAnswer, findTrap, roundTraps };
+export { parseNum, checkField, checkAnswer, fillState, findTrap, roundTraps };

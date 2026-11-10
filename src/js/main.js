@@ -1,6 +1,6 @@
 // Startpunt van de app: kiest het juiste scherm en verwerkt klikken en formulieren.
 import { Idiomorph } from 'idiomorph';
-import { checkAnswer, findTrap } from './answers.js';
+import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
 import { TOPICS, TOPIC } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
@@ -396,9 +396,8 @@ app.addEventListener('click', (e) => {
   }
   if (a === 'tfin') {
     storeTest();
-    const f = (x) =>
-      x.vals.length && (x.q.mc ? x.vals[0] !== '' : x.vals.some((v) => String(v).trim()));
-    if (state.test.items.some((x) => !f(x)) && !state.test.warn) {
+    const done = (x) => fillState(x.q, x.vals) === 'ingevuld';
+    if (!state.test.items.every(done) && !state.test.warn) {
       state.test.warn = true;
       render();
       return;

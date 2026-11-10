@@ -4,7 +4,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
 import { parseSeed, rd, seedText } from '../src/js/math.js';
-import { checkAnswer, checkField, findTrap, parseNum, roundTraps } from '../src/js/answers.js';
+import {
+  checkAnswer,
+  checkField,
+  fillState,
+  findTrap,
+  parseNum,
+  roundTraps,
+} from '../src/js/answers.js';
 import { migrateIds, migrateSkills } from '../src/js/progress.js';
 import { VALKUIL_ID } from '../src/js/tel.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
@@ -398,6 +405,38 @@ test('een vraag met afronden heeft valkuilen voor te veel decimalen en verkeerd 
   assert.ok(roundTraps([{ a: 2 / 3, round: 2 }])[0].f([2 / 3]));
   // Een vraag zonder afronden krijgt deze valkuilen niet.
   assert.deepEqual(roundTraps([{ a: 3 }]), []);
+});
+
+test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
+  const skills = TOPICS.flatMap((t) => t.skills);
+  const make = (test) =>
+    makeQuestion(
+      skills.find((k) => test(makeQuestion(k, 1))),
+      1,
+    );
+  const twee = make((q) => q.fields?.length === 2 && !q.fields.some((f) => f.sel) && !q.line);
+  const teken = make((q) => q.fields?.some((f) => f.sel));
+  const lijn = make((q) => q.line);
+  const mc = make((q) => q.mc);
+  const vol = (q) => q.fields.map((f) => (f.sel ? f.sel[0] : '1'));
+  const cases = [
+    // Een getal met een leeg veld.
+    [twee, ['3', ''], 'half'],
+    [twee, ['', '3'], 'half'],
+    [twee, vol(twee), 'ingevuld'],
+    // Alleen spaties is leeg.
+    [twee, ['  ', ' '], 'leeg'],
+    [twee, [], 'leeg'],
+    // Alleen een gekozen teken bij een ongelijkheid.
+    [teken, teken.fields.map((f) => (f.sel ? f.sel[0] : '')), 'half'],
+    [teken, vol(teken), 'ingevuld'],
+    // Eén getekend punt.
+    [lijn, ['1', '2', '', ''], 'half'],
+    [lijn, ['1', '2', '3', '4'], 'ingevuld'],
+    [mc, [''], 'leeg'],
+    [mc, ['0'], 'ingevuld'],
+  ];
+  for (const [q, vals, want] of cases) assert.equal(fillState(q, vals), want, JSON.stringify(vals));
 });
 
 test('T zet wiskunde goed om', () => {

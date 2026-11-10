@@ -1,5 +1,5 @@
 // De proeftoets: samenstellen, afnemen, bewaren en nakijken.
-import { checkAnswer, parseNum } from '../answers.js';
+import { checkAnswer, fillState, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
@@ -124,14 +124,22 @@ function vToetsRun() {
   const t = state.test,
     i = t.i,
     it = t.items[i];
-  const filled = (x) =>
-    x.vals.length && (x.q.mc ? x.vals[0] !== '' : x.vals.some((v) => String(v).trim()));
-  const open = t.items.filter((x) => !filled(x)).length;
+  const states = t.items.map((x) => fillState(x.q, x.vals));
+  const count = (s) => states.filter((x) => x === s).length;
+  const vragen = (n) => `${n} ${n === 1 ? 'vraag' : 'vragen'}`;
+  const open = [
+    count('leeg') && `${vragen(count('leeg'))} open`,
+    count('half') && `${vragen(count('half'))} half ingevuld`,
+  ]
+    .filter(Boolean)
+    .join(' en ');
+  const label = { leeg: '', half: ', half ingevuld', ingevuld: ', ingevuld' };
+  const cls = { leeg: '', half: 'half', ingevuld: 'fill' };
   return `<div class="sheet"><div class="row" style="justify-content:space-between"><h1 class="plain-h">Vraag ${i + 1} van ${t.items.length}</h1><span class="muted small">Tijd <span id="clock" style="font-variant-numeric:tabular-nums">${clockText(t)}</span></span></div>
-  <nav class="grid-nav" aria-label="Vragen van de proeftoets">${t.items.map((x, k) => `<button class="gn ${filled(x) ? 'fill' : ''} ${k === i ? 'cur' : ''}" type="button" data-act="goto" data-id="${k}" aria-label="Vraag ${k + 1}${filled(x) ? ', ingevuld' : ''}"${k === i ? ' aria-current="step"' : ''}>${k + 1}</button>`).join('')}</nav>
+  <nav class="grid-nav" aria-label="Vragen van de proeftoets">${t.items.map((x, k) => `<button class="gn ${cls[states[k]]} ${k === i ? 'cur' : ''}" type="button" data-act="goto" data-id="${k}" aria-label="Vraag ${k + 1}${label[states[k]]}"${k === i ? ' aria-current="step"' : ''}>${k + 1}</button>`).join('')}</nav>
   <div class="small muted">${T(it.topic.title)}</div><div class="q" id="tq">${it.q.q}</div>${it.q.fig ? `<div class="figbox">${it.q.fig}</div>` : ''}
   <form id="tform" class="block" novalidate>${fieldsHTML(it.q, 't', it.vals)}<div class="row"><button class="btn" type="button" data-act="tprev" ${i ? '' : 'disabled'}>Vorige</button>${i < t.items.length - 1 ? `<button class="btn main" type="submit">Volgende</button>` : ''}<button class="btn ${i === t.items.length - 1 ? 'main' : 'quiet'}" type="button" data-act="tfin" ${t.warn ? 'aria-describedby="tfb"' : ''}>Inleveren</button></div>
-  ${t.warn ? `<div class="fb bad" id="tfb">Je hebt nog ${open} ${open === 1 ? 'vraag' : 'vragen'} open. Klik nog een keer op Inleveren als je toch wilt stoppen.</div>` : ''}</form>
+  ${t.warn ? `<div class="fb bad" id="tfb">Je hebt nog ${open}. Klik nog een keer op Inleveren als je toch wilt stoppen.</div>` : ''}</form>
   ${t.confirmStop ? `<p class="small">Wil je stoppen? Je antwoorden gaan dan verloren en deze proeftoets telt niet mee.</p><div class="row"><button class="btn quiet" type="button" data-act="tstop2">Ja, stop de proeftoets</button><button class="btn quiet" type="button" data-act="tstop0">Annuleren</button></div>` : `<div class="row"><button class="btn quiet" type="button" data-act="tstop1">Stoppen zonder inleveren</button></div>`}</div>`;
 }
 // Bewaart wat er op het scherm is ingevuld. Doet niets als de vraag niet op het scherm staat.

@@ -1352,6 +1352,12 @@ ol.how {
 }
 .gn.fill {
   background: var(--blue-soft);
+  border-color: var(--blue);
+}
+/* Half ingevuld: een vakje dat tot de helft is gevuld. Een schermlezer hoort "half ingevuld". */
+.gn.half {
+  background: linear-gradient(to top, var(--blue-soft) 50%, var(--sheet) 50%);
+  border: 1px dashed var(--blue);
 }
 .gn.cur {
   border: 2px solid var(--ink);

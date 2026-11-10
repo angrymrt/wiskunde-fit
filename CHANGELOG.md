@@ -12,6 +12,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 ### Verbeterd
 
 - Rond je niet af of de verkeerde kant op, dan zegt de site dat nu, bij elke vraag met afronden.
+- Bij Inleveren waarschuwt de proeftoets nu ook als je een vraag maar half hebt ingevuld, zoals alleen a en nog niet b. In de lijst met vragen is zo'n vraag half gekleurd.
 
 ## 1.11.0
 

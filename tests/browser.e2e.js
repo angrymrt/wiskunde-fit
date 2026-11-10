@@ -1121,6 +1121,37 @@ test('Enter op de laatste vraag van een proeftoets laat de site niet vastlopen',
       assert.ok(await p.$('[data-act="start"]'), `opnieuw beginnen bij ${JSON.stringify(broken)}`);
       await p.click('[data-act="start"]');
     }
+
+    // Uit #52: een half ingevulde vraag telt niet als ingevuld. Inleveren waarschuwt dan ook.
+    await p.click('[data-act="tstop1"]');
+    await p.click('[data-act="tstop2"]');
+    await p.click('[data-act="len"][data-id="30"]');
+    await p.click('[data-act="start"]');
+    const k = await p.evaluate(() =>
+      wiskundefit.state.test.items.findIndex(
+        (x) => !x.q.mc && x.q.fields.length >= 2 && !x.q.fields[0].sel,
+      ),
+    );
+    assert.ok(k >= 0, 'een vraag met twee velden');
+    for (let j = 0; j < 30; j++) {
+      if (j === k) continue;
+      await p.click(`[data-act="goto"][data-id="${j}"]`);
+      if (await p.$('#tm0')) await p.check('#tm0');
+      else
+        for (const el of await p.$$('#tform select, #tform input[type="text"]'))
+          (await el.evaluate((e) => e.tagName)) === 'SELECT'
+            ? await el.selectOption({ index: 1 })
+            : await el.fill('1');
+    }
+    await p.click(`[data-act="goto"][data-id="${k}"]`);
+    await p.fill('#tf0', '3');
+    await p.click('[data-act="tfin"]');
+    assert.match(await p.textContent('#tfb'), /Je hebt nog 1 vraag half ingevuld\./);
+    assert.equal(
+      await p.getAttribute(`[data-act="goto"][data-id="${k}"]`, 'aria-label'),
+      `Vraag ${k + 1}, half ingevuld`,
+    );
+    assert.equal(new URL(p.url()).pathname, '/proeftoets', 'nog niet ingeleverd');
     assert.deepEqual(errors, [], 'fouten in de browserconsole');
   } finally {
     await browser.close();
