@@ -237,7 +237,11 @@ function s13kgv() {
         m: 'Daarmee lukt het ook, maar het is niet het kleinste getal. Zo krijg je grotere getallen dan nodig.',
       },
     ],
-    v: () => L % d1 === 0 && L % d2 === 0,
+    // Een veelvoud van allebei, en geen kleiner getal is dat ook.
+    v: () => {
+      const both = (n) => n % d1 === 0 && n % d2 === 0;
+      return both(L) && Array.from({ length: L - 1 }, (_, i) => i + 1).every((n) => !both(n));
+    },
   };
 }
 function s13param() {

@@ -40,6 +40,23 @@ function simPts(ab, bc, ac, L, k) {
   });
   return res;
 }
+// De hoek bij punt n in een driehoek, uit de coördinaten.
+function angleAt(pts, n, p, q) {
+  const u = [pts[p][0] - pts[n][0], pts[p][1] - pts[n][1]],
+    w = [pts[q][0] - pts[n][0], pts[q][1] - pts[n][1]];
+  return Math.acos((u[0] * w[0] + u[1] * w[1]) / (Math.hypot(...u) * Math.hypot(...w)));
+}
+// Of △ABC ∼ △name klopt: elke hoek van ABC is even groot als de hoek op dezelfde plek in name.
+function sameAngles(pts, name) {
+  const at = (t, i) => angleAt(pts, t[i], t[(i + 1) % 3], t[(i + 2) % 3]);
+  return [0, 1, 2].every((i) => near(at('ABC', i), at(name, i), 1e-6));
+}
+// Of in een verhoudingstabel met AB, BC en AC bovenaan elke kolom dezelfde verhouding heeft.
+function sameRatio(pts, bottom) {
+  const len = (s) => Math.hypot(pts[s[0]][0] - pts[s[1]][0], pts[s[0]][1] - pts[s[1]][1]);
+  const r = ['AB', 'BC', 'AC'].map((s, i) => len(bottom[i]) / len(s));
+  return near(r[0], r[1], 1e-9) && near(r[1], r[2], 1e-9);
+}
 function s22factor() {
   const [s1, s2] = shuffle(pick(NICE_TRI)),
     k = pick([1.5, 2, 2.5, 3, 0.5, 1.2]);
@@ -76,7 +93,8 @@ function s22note() {
     [2, 0, 1],
     [2, 1, 0],
   ].map((p) => p.map((i) => L[i]).join(''));
-  const opts = [L.join(''), ...shuffle(others).slice(0, 3)].map((s) => T(`△ABC ∼ △${s}`));
+  const names = [L.join(''), ...shuffle(others).slice(0, 3)];
+  const opts = names.map((s) => T(`△ABC ∼ △${s}`));
   const showFig = coin();
   const seg = (x, y) => x + y,
     fig = geo({
@@ -94,6 +112,7 @@ function s22note() {
       w: 420,
       maxH: 230,
     });
+  const mc = MC(opts, 0);
   return {
     q: showFig
       ? T(
@@ -101,10 +120,11 @@ function s22note() {
         )
       : T(`Gegeven: ${text}. Welke schrijfwijze is goed?`),
     fig: showFig ? fig : undefined,
-    mc: MC(opts, 0),
+    mc,
     hint: 'Bij gelijkvormigheid staan gelijke hoeken op dezelfde plek in de naam. De eerste letter hoort bij de eerste letter, enzovoort.',
     steps: [`∠A = ∠${L[0]}, ∠B = ∠${L[1]} en ∠C = ∠${L[2]}.`, `Dus △ABC ∼ △${L.join('')}.`],
-    v: () => new Set(opts).size === 4,
+    // Narekenen met de hoeken in de figuur: alleen bij de keuze die goed is, zijn alle hoeken gelijk.
+    v: () => mc.opts.every((o, i) => sameAngles(pts, names[opts.indexOf(o)]) === (i === mc.a)),
   };
 }
 function s22tab() {
@@ -112,15 +132,22 @@ function s22tab() {
     p = pick(PERM3.slice(1)),
     M = p.map((i) => L[i]).join(''),
     [X, Y, Z] = [M[0], M[1], M[2]];
-  const good = vt(['AB', 'BC', 'AC'], [X + Y, Y + Z, X + Z]),
-    bad = [
-      vt(['AB', 'BC', 'AC'], [Y + Z, X + Y, X + Z]),
-      vt(['AB', 'BC', 'AC'], [X + Z, Y + Z, X + Y]),
-      vt(['AB', 'BC', 'AC'], [Y + Z, X + Z, X + Y]),
-    ];
+  const tables = [
+      [X + Y, Y + Z, X + Z],
+      [Y + Z, X + Y, X + Z],
+      [X + Z, Y + Z, X + Y],
+      [Y + Z, X + Z, X + Y],
+    ],
+    [good, ...bad] = tables.map((t) => vt(['AB', 'BC', 'AC'], t));
+  // Een echte driehoek ABC en een twee keer zo grote driehoek met de letters in de volgorde van
+  // de vraag, zoals △ABC ∼ △PQR zegt. Alleen in de goede tabel heeft elke kolom dezelfde verhouding.
+  const abc = triFromSides(5, 6, 7),
+    pts = { ...abc };
+  ['A', 'B', 'C'].forEach((n, i) => (pts[M[i]] = abc[n].map((x) => 2 * x)));
+  const mc = MC([good, ...bad], 0);
   return {
     q: T(`Gegeven is △ABC ∼ △${M}. Welke verhoudingstabel is goed?`),
-    mc: MC([good, ...bad], 0),
+    mc,
     hint: T(
       `AB bestaat uit de eerste twee letters van △ABC. Pak dan ook de eerste twee letters van △${M}.`,
     ),
@@ -130,7 +157,8 @@ function s22tab() {
       `AC hoort bij ${X + Z}: de eerste en derde letter.`,
       H(vt(['AB', 'BC', 'AC'], [X + Y, Y + Z, X + Z])),
     ],
-    v: () => new Set([good, ...bad]).size === 4,
+    v: () =>
+      mc.opts.every((o, i) => sameRatio(pts, tables[[good, ...bad].indexOf(o)]) === (i === mc.a)),
   };
 }
 function s22sides() {

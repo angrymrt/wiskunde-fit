@@ -18,6 +18,32 @@ const perpendicular = (a, b, c, e) => near(dot(vec(a, b), vec(c, e)), 0);
 const between = (p, x, q) => near(cross(vec(p, x), vec(p, q)), 0) && dot(vec(x, p), vec(x, q)) < 0;
 const sameSide = (p, q, a, b) => cross(vec(a, b), vec(a, p)) * cross(vec(a, b), vec(a, q)) > 0;
 
+// Leest uit de figuur van angleFig wat voor hoeken de twee gekleurde hoeken zijn: 0 voor F-hoeken,
+// 1 voor Z-hoeken, 2 voor overstaande hoeken en null als het geen van drieën is. Elk boogje begint
+// in het snijpunt, en het midden van het boogje wijst de kant op van de hoek.
+function angleKind(svg) {
+  const arcs = [
+    ...svg.matchAll(
+      /<path class="w[12]" d="M([\d.-]+) ([\d.-]+)L([\d.-]+) ([\d.-]+)A[\d.]+ [\d.]+ 0 [01] 0 ([\d.-]+) ([\d.-]+)Z"/g,
+    ),
+  ].map((m) => {
+    const [x, y, sx, sy, ex, ey] = m.slice(1).map(Number),
+      dx = (sx + ex) / 2 - x,
+      dy = (sy + ey) / 2 - y,
+      l = Math.hypot(dx, dy);
+    return { x, y, dx: dx / l, dy: dy / l };
+  });
+  if (arcs.length !== 2) return null;
+  const [a, b] = arcs,
+    dot = a.dx * b.dx + a.dy * b.dy;
+  if (near(a.x, b.x, 0.5) && near(a.y, b.y, 0.5)) return dot < -0.99 ? 2 : null;
+  if (dot > 0.99) return 0;
+  // Z-hoeken wijzen elk de andere kant op en liggen allebei tussen de lijnen: de bovenste hoek
+  // wijst omlaag en de onderste omhoog. Een SVG telt y van boven naar beneden.
+  const [top, bottom] = a.y < b.y ? [a, b] : [b, a];
+  return dot < -0.99 && top.dy > 0 && bottom.dy < 0 ? 1 : null;
+}
+const KINDS = ['F-hoeken', 'Z-hoeken', 'Overstaande hoeken'];
 function s23kind() {
   const k = ri(0, 2);
   let f, ans;
@@ -34,10 +60,11 @@ function s23kind() {
     f = angleFig(p, at, (p + 2) % 4, at);
     ans = 2;
   }
+  const mc = { opts: [...KINDS], a: ans };
   return {
     q: 'De twee horizontale lijnen zijn evenwijdig. Waarom zijn de twee gekleurde hoeken gelijk?',
     fig: f,
-    mc: { opts: ['F-hoeken', 'Z-hoeken', 'Overstaande hoeken'], a: ans },
+    mc,
     hint: 'Overstaand: bij hetzelfde snijpunt, tegenover elkaar. F: bij twee verschillende snijpunten, aan dezelfde kant van de snijlijn en op dezelfde plek. Z: tussen de evenwijdige lijnen, aan weerskanten van de snijlijn.',
     steps: [
       [
@@ -46,7 +73,8 @@ function s23kind() {
         'Ze zitten bij hetzelfde snijpunt, recht tegenover elkaar. Dat zijn overstaande hoeken.',
       ][ans],
     ],
-    v: () => ans >= 0 && ans < 3,
+    // Narekenen met de boogjes in de figuur.
+    v: () => mc.opts[mc.a] === KINDS[angleKind(f)],
   };
 }
 function s23why() {
