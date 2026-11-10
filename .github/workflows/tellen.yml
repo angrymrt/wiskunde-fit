@@ -1,0 +1,79 @@
+# Vat elke week de losse tellen samen per dag, en verwijdert ze daarna uit Azure. De samenvatting
+# van wiskundefit.nl komt via een pull request in data/tellen/, en die kijkt de eigenaar na. Van de
+# previews komt de samenvatting alleen in het overzicht van de run. Zie #19 en
+# scripts/tellen-samenvatten.js.
+name: Tellen samenvatten
+
+on:
+  schedule:
+    # Elke maandag om 4:00 UTC. Een losse tel bestaat zo hoogstens ongeveer acht dagen.
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tellen
+  cancel-in-progress: false
+
+jobs:
+  samenvatten:
+    # Alleen main mag bij de tabellen. Zie de federated credentials in scripts/azure-tellers.ps1.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Vat de tellen van wiskundefit.nl samen
+        run: |
+          node scripts/tellen-samenvatten.js tellers --map data/tellen --rijen "$RUNNER_TEMP/tellers.json" > "$RUNNER_TEMP/samenvatting.md"
+          cat "$RUNNER_TEMP/samenvatting.md" >> "$GITHUB_STEP_SUMMARY"
+
+      # De losse rijen gaan pas weg als de samenvatting veilig in een pull request staat.
+      - name: Open een pull request met de samenvatting
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          days=$(git status --porcelain --untracked-files=all data/tellen | sed 's#.*/##; s#\.json$##' | sort)
+          if [ -z "$days" ]; then
+            echo "Geen nieuwe tellen."
+            exit 0
+          fi
+          first=$(echo "$days" | head -n 1)
+          last=$(echo "$days" | tail -n 1)
+          title="Tellen van $first tot en met $last"
+          branch="tellen/$last"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git add data/tellen
+          git commit -m "$title"
+          git push origin "$branch"
+          {
+            echo "De losse tellen van deze dagen zijn samengevat en daarna uit Azure verwijderd."
+            echo "Klopt een dag niet, verwijder dan dat bestand uit deze pull request voor je merget."
+            echo
+            cat "$RUNNER_TEMP/samenvatting.md"
+          } > "$RUNNER_TEMP/body.md"
+          gh pr create --base main --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+
+      - name: Verwijder de losse tellen van wiskundefit.nl
+        run: node scripts/tellen-samenvatten.js tellers --verwijder "$RUNNER_TEMP/tellers.json"
+
+      - name: Vat de tellen van de previews samen en verwijder ze
+        run: |
+          node scripts/tellen-samenvatten.js tellersdev --rijen "$RUNNER_TEMP/dev.json" >> "$GITHUB_STEP_SUMMARY"
+          node scripts/tellen-samenvatten.js tellersdev --verwijder "$RUNNER_TEMP/dev.json"

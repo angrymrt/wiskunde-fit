@@ -47,6 +47,8 @@ Elke push naar `main` draait de tests, bouwt de site en zet hem online via [.git
 
 De anonieme tellen gaan naar de functie `/api/tel` uit `api/`, in een eigen Function App op Flex Consumption: `func-we-wiskundefit-prd`. Die is er één voor de site en alle previews. De build bundelt de functie in `dist-api/`, en alleen een push naar `main` zet die online, vóór de site. De functie kiest de tabel aan de hand van de site die de tel stuurt: `TELLERS_TABEL` voor wiskundefit.nl en `TELLERS_DEV_TABEL` voor een preview. Zonder setting controleert de functie de tellen wel, maar bewaart hij niets. Er zijn geen sleutels: de functie schrijft met een managed identity die alleen rijen mag toevoegen, en de workflow logt in met OIDC via de GitHub-variabelen `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` en `AZURE_SUBSCRIPTION_ID`. Alles in Azure zet je klaar met `scripts/azure-tellers.ps1`, na `az login` en `gh auth login`. Bij `npm run dev` en in de browsertest gaan de tellen naar `scripts/server.js`, die ze in het geheugen bewaart.
 
+Elke maandag vat de workflow [Tellen samenvatten](.github/workflows/tellen.yml) de losse tellen van de dagen die voorbij zijn samen, met `scripts/tellen-samenvatten.js`. Per dag telt hij hoe vaak elke combinatie voorkomt, zonder tijdstip of volgorde. Die van wiskundefit.nl komen in `data/tellen/<dag>.json`, via een pull request die de eigenaar nakijkt. Die van de previews komen alleen in het overzicht van de run. Daarna verwijdert de workflow de losse rijen, zodat ze hoogstens ongeveer acht dagen bestaan. De workflow logt in met dezelfde OIDC-identiteit als het online zetten. Lokaal zie je de samenvatting met `node scripts/tellen-samenvatten.js tellersdev`, na `az login` met een account dat de tabel mag lezen. Dat verandert niets.
+
 ### Wat er in `dist/` staat
 
 ```text
@@ -110,8 +112,9 @@ src/
         ├── tellen.js       De klok per vraag en het versturen van de anonieme tellen
         └── state.js        Gedeelde toestand van de schermen
 api/                        De functie /api/tel, die de anonieme tellen in een tabel zet
+data/tellen/                De anonieme tellen van wiskundefit.nl, samengevat per dag
 scripts/                    Build, ontwikkelserver, controle na de deploy, meting, afbeeldingen,
-                            lettertypes en releasenotities
+                            lettertypes, releasenotities en het samenvatten van de tellen
 tests/                      Generatortests, adressen, schermen, pagina's, server, releasecontrole
                             en browsertest
 ```

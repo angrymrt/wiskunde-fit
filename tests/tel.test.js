@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { corsHeaders, handleTel, insertRow } from '../api/tel.js';
 import { checkTellen } from '../src/js/tel.js';
+import { overzicht, telOp, toJSON } from '../scripts/tellen-samenvatten.js';
 
 const soorten = new Set([12, 38]);
 const poging = { tel: 'poging', soort: 38, uitkomst: 'fout', duur: 47, hint: true };
@@ -106,6 +107,45 @@ test('de functie kiest de tabel bij de site, en bewaart alleen de tel en de dag'
   );
   assert.equal(none, 204);
   assert.equal(rows.length, 0);
+});
+
+test('het samenvatten telt combinaties per dag, zonder tijdstip of volgorde', () => {
+  const row = (t, n) => ({
+    PartitionKey: '2026-11-12',
+    RowKey: `rij-${n}`,
+    Timestamp: `2026-11-12T10:0${n}:00Z`,
+    ...t,
+  });
+  const rows = [
+    row(poging, 1),
+    row(toetsvraag, 2),
+    row(poging, 3),
+    row({ ...poging, soort: 12 }, 4),
+    row(valkuil, 5),
+  ];
+  const { samenvatting, onbekend } = telOp(rows);
+  assert.deepEqual(onbekend, []);
+  assert.deepEqual(samenvatting, {
+    poging: [
+      { soort: 12, uitkomst: 'fout', duur: 47, hint: true, aantal: 1 },
+      { soort: 38, uitkomst: 'fout', duur: 47, hint: true, aantal: 2 },
+    ],
+    valkuil: [{ soort: 38, valkuil: 'wortel-vergeten', aantal: 1 }],
+    toetsvraag: [{ soort: 12, uitkomst: 'leeg', aantal: 1 }],
+  });
+  // Dezelfde rijen in een andere volgorde geven precies hetzelfde bestand.
+  assert.equal(toJSON(telOp([...rows].reverse()).samenvatting), toJSON(samenvatting));
+  assert.doesNotMatch(toJSON(samenvatting), /rij-|Timestamp|PartitionKey/);
+
+  assert.deepEqual(JSON.parse(toJSON(samenvatting)), samenvatting);
+
+  // Een soort tel die het script niet kent, telt niet stil mee.
+  assert.equal(telOp([row({ tel: 'weergave', soort: 12 }, 6)]).onbekend.length, 1);
+
+  assert.match(
+    overzicht('tellers', [['2026-11-12', samenvatting]]),
+    /\| 2026-11-12 \| 3 \| 1 \| 1 \|/,
+  );
 });
 
 test('een tijdelijke fout van de tabel krijgt nog twee kansen, een fout in de rij niet', async () => {

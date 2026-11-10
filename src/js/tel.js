@@ -46,4 +46,4 @@ function checkTellen(tellen, soorten) {
   return out;
 }
 
-export { MAX_DUUR, VALKUIL_ID, checkTellen, telAdres };
+export { MAX_DUUR, VALKUIL_ID, VORM, checkTellen, telAdres };
