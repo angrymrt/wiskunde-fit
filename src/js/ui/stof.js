@@ -14,7 +14,7 @@ import {
 import { DOMAINS } from '../topics/index.js';
 import { esc, T } from '../typeset.js';
 import { resultText } from './exam.js';
-import { pageHead } from './layout.js';
+import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
 import { topicLink, vPractice } from './topic.js';
 
@@ -30,8 +30,9 @@ const skillNames = (skills) => skills.map((k) => T(k.name)).join(', ');
 const list = (items) =>
   items.length > 1 ? `${items.slice(0, -1).join(', ')} en ${items.at(-1)}` : items[0];
 
-// Kies uit je boek: een lijst met boeken en filters, zoals in een webshop. De filters staan in het
-// adres, zoals ?niveau=havo. Zonder JavaScript zie je de hele lijst. Het gekozen boek staat bovenaan.
+// Kies uit je boek: een lijst met boeken en filters, zoals in een webshop, alles in één blok. De
+// filters staan in het adres, zoals ?niveau=havo. Zonder JavaScript zie je de hele lijst. Het
+// gekozen boek staat bovenaan.
 const plural = (n, one, more) => `${n} ${n === 1 ? one : more}`;
 const bookKind = (b) => (/FLEX/.test(b.name) ? 'FLEX-boek' : 'leerboek');
 function booksText(m) {
@@ -50,8 +51,8 @@ function coverageText(m) {
 function bookHTML(m) {
   const mine = m.id === prog.mapping;
   const isbns = m.books.map((b) => `<li>${esc(b.part)}, ${bookKind(b)}: ${esc(b.isbn)}</li>`);
-  return `<li class="sheet book-card${mine ? ' mine' : ''}">
-  <h2 class="h3">${mine ? '<span class="mine-tag">Je boek<span class="sr">: </span></span>' : ''}<a href="${pathFor({ name: 'mapping', id: m.id })}" data-act="kiesgo" data-id="${m.id}">${mappingName(m)}</a></h2>
+  return `<li class="book${mine ? ' mine' : ''}">
+  <h2 class="h3">${mine ? '<span class="mine-tag">Mijn boek<span class="sr">: </span></span>' : ''}<a href="${pathFor({ name: 'mapping', id: m.id })}" data-act="kiesgo" data-id="${m.id}">${mappingName(m)}</a></h2>
   <p>${esc(booksText(m))}</p><p class="small">${coverageText(m)}</p>
   <details class="small"><summary>ISBN's</summary><ul>${isbns.join('')}</ul></details></li>`;
 }
@@ -77,7 +78,7 @@ function vPick() {
       ? `${plural(n, 'boek past', 'boeken passen')} bij je filters`
       : 'Geen boek past bij je filters';
   const open = state.filtersOpen;
-  return `${pageHead('Kies uit je boek', '<p class="lead">Zoek je boek en bekijk wat je daaruit hier kunt oefenen.</p>')}
+  return `${crumbs()}<div class="sheet">${pageHead('Kies uit je boek', '<p class="lead">Zoek je boek en bekijk wat je daaruit hier kunt oefenen.</p>')}
   <div class="shop">
   <div class="filters needs-js">
   <button class="btn filter-toggle" type="button" data-act="boekfilters" aria-expanded="${open}" aria-controls="filters">Filters${active ? ` (${active})` : ''}</button>
@@ -85,8 +86,8 @@ function vPick() {
   <button class="btn main filter-done" type="button" data-act="boekfiltersdone">Toon ${plural(n, 'boek', 'boeken')}</button></div></div>
   <div class="found">
   <div class="row found-count"><p role="status">${status}</p>${active ? '<button class="linkbtn" type="button" data-act="boekfilterclear">Wis filters</button>' : ''}</div>
-  ${n ? `<ul class="book-cards">${found.map(bookHTML).join('')}</ul>` : ''}
-  <p class="small">Staat je boek er niet bij? <a class="linkbtn" href="${to('stof')}#onderwerp">Kies op onderwerp</a></p></div></div>`;
+  ${n ? `<ul class="books">${found.map(bookHTML).join('')}</ul>` : ''}
+  <p class="small books-end">Staat je boek er niet bij? <a class="linkbtn" href="${to('stof')}#onderwerp">Kies op onderwerp</a></p></div></div></div>`;
 }
 
 function paragraphHTML(p) {
@@ -116,8 +117,7 @@ function chapterHTML(c) {
 }
 function vMapping(m) {
   const count = (prog.stof || []).length;
-  return `${pageHead(mappingName(m))}<div class="sheet">
-  <p class="needs-js">Vink aan wat je wilt oefenen. Wat je kiest, komt in Mijn stof.</p>
+  return `${crumbs()}<div class="sheet">${pageHead(mappingName(m), '<p class="lead needs-js">Vink aan wat je wilt oefenen. Wat je kiest, komt in Mijn stof.</p>')}
   ${m.note ? `<p class="watch"><b>Let op:</b> ${esc(m.note)}</p>` : ''}
   ${m.chapters.map(chapterHTML).join('')}
   <details class="small"><summary>Bij welke boeken hoort dit?</summary><ul>${m.books.map((b) => `<li>${esc(b.name)}, ISBN ${esc(b.isbn)}</li>`).join('')}</ul><p>Dit is een eigen project zonder band met de uitgever of ${esc(m.method)}. We verwijzen alleen naar de paragrafen en schrijven zelf de uitleg en de vragen.</p></details>
@@ -174,7 +174,7 @@ function vStof() {
     <div class="stof-list">${groups.map(chosenHTML).join('')}</div>
     <p class="small muted">Tik op een onderwerp voor de uitleg.</p>`
     : `<p>Je hebt nog geen stof gekozen. Kies wat je wilt oefenen, dan oefen je daarna precies die stof en maak je er een proeftoets over.</p>`;
-  return `${pageHead('Mijn stof')}<div class="sheet">${chosen}</div>
+  return `${crumbs()}<div class="sheet">${pageHead('Mijn stof')}${chosen}</div>
   ${groups.length ? gapsHTML() : ''}
   ${testHTML()}
   <section class="sheet"><h2 class="h3" id="onderwerp">${groups.length ? 'Stof wijzigen' : 'Stof kiezen'}</h2>
@@ -187,7 +187,7 @@ function vStofPractice() {
   // De stof kan zijn gewijzigd sinds de vorige ronde. Past de vraag nog, dan blijft die staan.
   const st = state.prac['mijn-stof'];
   if (st?.skill && !isChosen(st.skill.id)) delete state.prac['mijn-stof'];
-  return `<div class="screen-grid">${pageHead('Mijn stof oefenen')}${vPractice(stofTopic())}</div>`;
+  return `<div class="screen-grid">${crumbs()}${vPractice(stofTopic(), 'Mijn stof oefenen')}</div>`;
 }
 
 export { list, mappingName, vPick, vMapping, vStof, vStofPractice };

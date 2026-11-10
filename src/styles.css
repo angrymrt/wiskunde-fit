@@ -789,6 +789,24 @@ sub {
   font-size: clamp(1.6rem, 5vw, 2.3rem);
   color: var(--accent);
 }
+/* De kop bovenaan in een blok, met een lijn tussen de kop en de rest. Alleen Home heeft een losse
+   kop. Een onderwerp en een domein hebben hun eigen kop in het blok. */
+.sheet-head {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+/* Oefenen bij een onderwerp heeft bovenaan de kleur van het domein, net als de uitleg. Mijn stof
+   oefenen hoort niet bij één domein en heeft die lijn niet. */
+[class*='color-'] > .practice {
+  border-top: 4px solid var(--accent);
+}
+/* Oefenen: de vraag onder de kop. Alleen dit deel komt met een animatie in beeld. */
+.practice-q {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+}
 /* De kleur van het domein: een band bovenaan de pagina van een domein, zoals de kop van het domein
    op het overzicht, en een lijn bovenaan een onderwerp. */
 .domain-band {
@@ -872,17 +890,20 @@ sub {
   content: ' →' / '';
 }
 @media (min-width: 760px) {
-  .topic {
+  .topic,
+  .toets {
     grid-template-columns: minmax(0, 1fr) 190px;
     column-gap: 28px;
   }
-  .topic > * {
+  .topic > *,
+  .toets > * {
     grid-column: 1;
   }
   .topic > .pager {
     grid-column: 1 / -1;
   }
-  .topic-side {
+  .topic-side,
+  .toets > .toets-side {
     grid-column: 2;
     grid-row: 1 / 3;
   }
@@ -950,6 +971,13 @@ sub {
 }
 .cbar-n {
   font-variant-numeric: tabular-nums;
+}
+.cbar a {
+  color: var(--accent);
+  font-weight: 700;
+}
+.cbar .bar i {
+  background: var(--blue);
 }
 .ranking {
   padding-left: 1.4em;
@@ -1517,17 +1545,26 @@ ol.how {
 .tag.bad {
   color: var(--bad);
 }
-/* Twee vellen naast elkaar op een breed scherm, zoals de proeftoets en de laatste uitslag. */
-.stack,
-.side-by-side {
+/* De proeftoets in één blok, zoals de uitleg bij een onderwerp. Je laatste resultaat staat op een
+   telefoon onder de intro en op een breed scherm rechts (zie .topic). */
+.toets-body,
+.toets-side {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 22px;
-  align-items: start;
+  gap: 14px;
+  min-width: 0;
 }
-@media (min-width: 760px) {
-  .side-by-side {
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+.toets-side {
+  gap: 8px;
+  align-content: start;
+}
+.toets-side p {
+  margin: 0;
+}
+@media (max-width: 759px) {
+  .toets-side {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
   }
 }
 .setup {
@@ -1570,30 +1607,65 @@ ol.how {
   margin: 0;
   font-weight: 700;
 }
-.book-cards {
+/* De boeken zijn rijen in het blok, met een lijn ertussen. Je eigen boek staat bovenaan, op een
+   lichte achtergrond. */
+.books {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+.book {
   display: grid;
-  gap: 12px;
-}
-.book-card {
   gap: 6px;
+  padding: 14px 0;
 }
-.book-card h2,
-.book-card p {
+.book + .book {
+  border-top: 1px solid var(--rule);
+}
+.book.mine {
+  padding: 14px;
+  background: var(--blue-soft);
+  border-radius: 6px;
+}
+.book.mine + .book {
+  border-top: 0;
+}
+.book h2,
+.book p {
   margin: 0;
 }
-.book-card.mine {
-  border: 2px solid var(--blue);
+.books-end {
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+}
+/* Een lintje rechtsboven in de rij van het gekozen boek. Voor een schermlezer staat het voor de
+   titel: "Mijn boek: Getal & Ruimte ...". */
+.book.mine {
+  position: relative;
 }
 .mine-tag {
-  display: block;
-  font-size: 0.8rem;
+  position: absolute;
+  top: 0;
+  right: 14px;
+  padding: 3px 10px;
+  font-family: var(--body);
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--blue);
+  color: var(--sheet);
+  background: var(--blue);
+  border-radius: 0 0 6px 6px;
+}
+@media (max-width: 759px) {
+  .book.mine {
+    padding-top: 32px;
+  }
+}
+@media (min-width: 760px) {
+  .book.mine h2 {
+    padding-right: 8em;
+  }
 }
 @media (max-width: 759px) {
   .filters {
@@ -1604,10 +1676,8 @@ ol.how {
     display: none;
   }
   .filter-panel {
-    padding: 14px 16px;
-    background: var(--sheet);
-    border: 1px solid var(--rule);
-    border-radius: 6px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
   }
   .filter-done {
     justify-self: start;
@@ -1616,7 +1686,12 @@ ol.how {
 @media (min-width: 760px) {
   .shop {
     grid-template-columns: 200px minmax(0, 1fr);
-    gap: 28px;
+    gap: 24px;
+  }
+  .filters {
+    padding-right: 20px;
+    border-right: 1px solid var(--rule);
+    align-self: stretch;
   }
   .filter-toggle,
   .filter-done {

@@ -7,7 +7,7 @@ import { rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { bookPath, chosenTopics, topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
-import { pageHead } from './layout.js';
+import { crumbs, pageHead } from './layout.js';
 import { fieldsHTML, readVals, shareHTML } from './question-form.js';
 import { state } from './state.js';
 
@@ -101,17 +101,20 @@ function vToetsSetup() {
   const stopped = state.stopped
     ? `<p class="fb neutral" id="stopped">Je proeftoets is gestopt. Je antwoorden zijn niet bewaard en de proeftoets telt niet mee.</p>`
     : '';
+  // Alles in één blok, zoals de uitleg bij een onderwerp: je laatste resultaat staat op een breed
+  // scherm rechts, en op een telefoon onder de intro.
   const last = state.result
-    ? `<section class="sheet"><h2 class="h3">Je laatste resultaat</h2><p>${resultText(state.result)}.</p><div class="row"><a class="btn" href="${to('toetsres')}">Bekijk je resultaat</a></div></section>`
+    ? `<div class="toets-side"><h2 class="h3">Je laatste resultaat</h2><p>${resultText(state.result)}.</p><div class="row"><a class="btn" href="${to('toetsres')}">Bekijk je resultaat</a></div></div>`
     : '';
-  // Op een breed scherm staat de laatste uitslag naast het instellen.
-  const side = last ? 'side-by-side' : 'stack';
+  const sheet = (body) =>
+    `${crumbs()}<div class="sheet${last ? ' toets' : ''}">${head}${last}<div class="toets-body">${stopped}${body}</div></div>`;
   if (!groups.length)
-    return `${head}${stopped}<div class="${side}"><div class="sheet"><div class="setup"><h2 class="h3">Welke stof?</h2><p class="small muted">Een proeftoets gaat over je stof. Kies die eerst.</p><div class="row"><a class="btn main" href="${bookPath()}">Kies uit je boek</a><a class="btn" href="${to('stof')}#onderwerp">Kies op onderwerp</a><button class="btn" type="button" data-act="stofall">Alle stof</button></div></div></div>${last}</div>`;
-  return `${head}${stopped}<div class="${side}"><div class="sheet">
-  <div class="setup"><h2 class="h3">Welke stof?</h2><p class="small">Mijn stof: ${groups.map((g) => T(g.topic.title)).join(', ')}.</p><div><a class="linkbtn" href="${to('stof')}">Wijzig mijn stof</a></div></div>
+    return sheet(
+      `<div class="setup"><h2 class="h3">Welke stof?</h2><p class="small muted">Een proeftoets gaat over je stof. Kies die eerst.</p><div class="row"><a class="btn main" href="${bookPath()}">Kies uit je boek</a><a class="btn" href="${to('stof')}#onderwerp">Kies op onderwerp</a><button class="btn" type="button" data-act="stofall">Alle stof</button></div></div>`,
+    );
+  return sheet(`<div class="setup"><h2 class="h3">Welke stof?</h2><p class="small">Mijn stof: ${groups.map((g) => T(g.topic.title)).join(', ')}.</p><div><a class="linkbtn" href="${to('stof')}">Wijzig mijn stof</a></div></div>
   <div class="setup"><h2 class="h3" id="len-label">Hoeveel vragen?</h2><div class="chips" role="group" aria-labelledby="len-label">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
-  <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div></div>${last}</div>`;
+  <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div>`);
 }
 const fmtT = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 const clockText = (t) => fmtT(Math.floor(elapsed(t) / 1000));
@@ -239,7 +242,7 @@ function resultFig(x) {
 function vToetsRes() {
   const t = state.result;
   if (!t)
-    return `${pageHead('Je resultaat')}<div class="sheet"><p>Je ziet hier je resultaat zodra je een proeftoets hebt ingeleverd. Maak dus eerst een proeftoets.</p><div class="row"><a class="btn main" href="${to('toets')}">${state.test ? 'Ga verder met je proeftoets' : 'Maak een proeftoets'}</a></div></div>`;
+    return `${crumbs()}<div class="sheet">${pageHead('Je resultaat')}<p>Je ziet hier je resultaat zodra je een proeftoets hebt ingeleverd. Maak dus eerst een proeftoets.</p><div class="row"><a class="btn main" href="${to('toets')}">${state.test ? 'Ga verder met je proeftoets' : 'Maak een proeftoets'}</a></div></div>`;
   const topic = (w) => {
     const pc = Math.round(w.r * 100);
     return `<li><a href="${pathFor({ name: 'topic', slug: w.s.slug, oefen: true })}"><span>${T(w.s.title)}</span><span class="pct">${w.got} van ${w.max}</span><span class="bar ${pc >= 80 ? 'done' : ''}"><i style="width:${pc}%"></i></span></a></li>`;
@@ -256,7 +259,7 @@ function vToetsRes() {
     const share = shareHTML(x.skill, x.q);
     return `<div class="resq"><div class="q-head"><div class="row" style="justify-content:space-between"><h3 class="plain-h">Vraag ${i + 1}</h3><span class="row"><span class="tag ${x.c.ok ? 'good' : 'bad'}">${x.c.ok ? 'Goed' : x.got ? `${x.got} van ${x.max} goed` : 'Fout'}</span>${share.button}</span></div>${share.note}</div><div>${x.q.q}</div>${resultFig(x)}${answersHTML(x)}<details><summary>Uitwerking</summary>${stepsHTML(x.q.steps)}</details></div>`;
   };
-  return `${pageHead('Je resultaat')}<div class="sheet res-head">
+  return `${crumbs()}<div class="sheet res-head">${pageHead('Je resultaat')}
   <div class="res-score"><div class="score">${t.score}/${t.max}</div><div><p><b>Ongeveer een ${d(rd(gradeOf(t), 1))}</b></p><p class="small muted">In ${fmtT(t.time)} minuten. Cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</p></div></div>
   <div class="res-per"><h2 class="h3">Per onderwerp</h2><div class="res-domains${groups.length === 1 ? ' one' : ''}">${groups.map(domain).join('')}</div><p class="small muted">Tik op een onderwerp om het te oefenen.</p></div>
   <div class="row"><a class="btn main" href="${to('toets')}">Nieuwe proeftoets</a><a class="btn" href="${to('stof')}">Naar mijn stof</a></div></div>

@@ -7,7 +7,7 @@ import { MINIMUM, MINIMUM_VALKUIL } from '../cijfers.js';
 import { pathFor, to } from '../routes.js';
 import { DOMAINS, TOPICS } from '../topics/index.js';
 import { T, esc } from '../typeset.js';
-import { pageHead, REPO } from './layout.js';
+import { crumbs, pageHead, REPO } from './layout.js';
 
 // Zo vaak staat iets in een top: de moeilijkste vraagsoorten en de meest gemaakte fouten.
 const TOP = 5;
@@ -35,7 +35,8 @@ function tile(value, label, note = '') {
   return `<div class="tile"><span class="tile-value">${value}</span><span class="tile-label">${label}</span>${note ? `<span class="tile-note small muted">${note}</span>` : ''}</div>`;
 }
 
-// Een rij met een staaf: de naam, het getal, en de staaf naar verhouding van de grootste.
+// Een rij met een staaf: de naam, het getal, en de staaf naar verhouding van de grootste. De naam
+// heeft de kleur van het domein; de staaf heeft dezelfde kleur als de andere staven op de pagina.
 function barRow(name, value, max, color) {
   const width = max ? Math.max(1, Math.round((100 * value) / max)) : 0;
   return `<li class="cbar color-${color}"><span>${name}</span><span class="cbar-n">${getal(value)}</span><span class="bar" aria-hidden="true"><i style="width:${width}%"></i></span></li>`;
@@ -50,7 +51,7 @@ function populair(c) {
   const max = Math.max(...domains.map((x) => x.n));
   return `<div class="block"><h2 class="h3">Het meest geoefend</h2>
   <p>Hoeveel vragen er per domein zijn gemaakt. Een vraag telt één keer, ook als je hem vaker probeert.</p>
-  <ul class="cbars">${domains.map(({ d, n }) => barRow(esc(d.name), n, max, d.color)).join('')}</ul></div>`;
+  <ul class="cbars">${domains.map(({ d, n }) => barRow(`<a href="${pathFor({ name: 'domain', slug: d.slug })}">${esc(d.name)}</a>`, n, max, d.color)).join('')}</ul></div>`;
 }
 
 // Een staaf van 0 tot 1, met een streepje voor het gemiddelde. De getallen staan er altijd ook als
@@ -178,14 +179,14 @@ function vCijfers() {
   </ul>
   <p>Wat we precies tellen, staat op de pagina <a href="${to('privacy')}">Privacy</a>. De tellen per dag staan ${`<a href="${REPO}/tree/main/data/tellen" target="_blank" rel="noopener">op GitHub</a>`}, zodat je alles kunt nagaan.</p></div>`;
   if (!c?.totaal?.pogingen) {
-    return `${pageHead('Cijfers')}<div class="sheet">${nep}<div class="block"><p>Hier komt te staan hoe er op Wiskundefit wordt geoefend: welke stof het meest, welke vragen moeilijk zijn en welke fouten vaak voorkomen. Elke week tellen we de anonieme tellen op. Zodra er genoeg zijn, staan de cijfers hier.</p></div>${about}</div>`;
+    return `${crumbs()}<div class="sheet">${pageHead('Cijfers')}${nep}<div class="block"><p>Hier komt te staan hoe er op Wiskundefit wordt geoefend: welke stof het meest, welke vragen moeilijk zijn en welke fouten vaak voorkomen. Elke week tellen we de anonieme tellen op. Zodra er genoeg zijn, staan de cijfers hier.</p></div>${about}</div>`;
   }
   const t = c.totaal;
   const sinds =
     c.proeftoetsenVan && c.proeftoetsenVan > c.van ? `sinds ${datum(c.proeftoetsenVan)}` : '';
   const lead = `<p class="lead">Hoe er op Wiskundefit wordt geoefend, anoniem geteld van ${datum(c.van)} tot en met ${datum(c.tot)}. Zo zien we welke vragen lastig zijn en wat we beter kunnen uitleggen.</p>
   <p class="small muted">We tellen gemaakte vragen, geen leerlingen. Lees de cijfers dus als een richting, niet als precieze waarheid. <a href="#niet-zeggen">Wat de cijfers niet zeggen</a></p>`;
-  return `${pageHead('Cijfers', lead)}<div class="sheet">${nep}
+  return `${crumbs()}<div class="sheet">${pageHead('Cijfers', lead)}${nep}
   <div class="tiles">${tile(getal(t.pogingen), 'vragen gemaakt')}${tile(procent(t.goed, t.pogingen), 'in één keer goed')}${t.duur === null ? '' : tile(tijd(t.duur), 'per goed antwoord', 'de helft was sneller')}${tile(getal(t.proeftoetsen), 'proeftoetsen gemaakt', sinds)}</div>
   ${populair(c)}${moeilijkst(c)}${fouten(c)}${leeg(c)}${perOnderwerp(c)}${about}</div>`;
 }

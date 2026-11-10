@@ -87,7 +87,7 @@ test('Kies uit je boek toont de boeken die bij de filters passen, met je boek bo
   const all = books();
   assert.deepEqual(all.ids, ['gr13-hv1', 'gr13-hv2', 'gr13-havo3']);
   assert.equal(all.status, '3 boeken');
-  assert.doesNotMatch(all.html, /Je boek/);
+  assert.doesNotMatch(all.html, /Mijn boek/);
   assert.match(all.html, /10 van de 46 paragrafen kun je hier oefenen\./);
   assert.match(all.html, /9 van de 39 paragrafen kun je hier deels oefenen\./);
   assert.match(all.html, /Deel 1 en deel 2, leerboek of FLEX-boek/);
@@ -106,13 +106,13 @@ test('Kies uit je boek toont de boeken die bij de filters passen, met je boek bo
   assert.deepEqual(none.ids, []);
   assert.equal(none.status, 'Geen boek past bij je filters');
   assert.match(none.html, /data-act="boekfilterclear"/);
-  // Je boek staat bovenaan, maar alleen als het bij de filters past.
+  // Mijn boek staat bovenaan, maar alleen als het bij de filters past.
   prog.mapping = 'gr13-havo3';
   try {
     const mine = books();
     assert.deepEqual(mine.ids, ['gr13-havo3', 'gr13-hv1', 'gr13-hv2']);
-    assert.equal(mine.html.match(/Je boek/g).length, 1);
-    assert.doesNotMatch(books({ niveau: ['vwo'] }).html, /Je boek/);
+    assert.equal(mine.html.match(/Mijn boek/g).length, 1);
+    assert.doesNotMatch(books({ niveau: ['vwo'] }).html, /Mijn boek/);
   } finally {
     prog.mapping = null;
   }

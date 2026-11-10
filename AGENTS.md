@@ -140,6 +140,8 @@ Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.c
 
 Alle schermen zijn functies die een HTML-tekst teruggeven. `screenHTML()` in `ui/screens.js` maakt daarmee het hele scherm, en `render()` in `main.js` zet dat in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`.
 
+Alleen Home heeft een losse kop. Op elk ander scherm staat het kruimelpad (`crumbs()`) boven het blok, en begint het eerste blok met de kop en de intro (`pageHead()`). Zet dus geen kop of tekst los tussen het kruimelpad en het blok.
+
 Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarmee je ergens heen gaat, is een gewone link met `<a href>`, zodat openen in een nieuw tabblad werkt. Een knop is voor iets dat op dit scherm gebeurt. Een nieuw eerste deel van een adres moet ook in de lijst met gereserveerde namen in `tests/generators.test.js`. De build maakt bij elk adres een vooraf gebouwde pagina of een schil (`src/js/pages.js`). Een adres zonder bestand geeft een echte 404. `staticwebapp.config.json` bevat de regels voor Azure, en `scripts/server.js` volgt die voor `npm run dev` en de browsertest. Wijzig je die regels, controleer dan ook de preview met `node scripts/controleer-site.js <adres>`.
 
 `window.wiskundefit` bestaat alleen zodat `tests/browser.e2e.js` de juiste antwoorden kan opvragen. Gebruik het niet in de site zelf.

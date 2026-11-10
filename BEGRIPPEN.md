@@ -111,14 +111,14 @@ Drie dingen lijken op elkaar, maar zijn iets anders.
 
 Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat dus ook, zolang de betekenis hierboven klopt.
 
-| Intern                   | Op de site                                                        |
-| ------------------------ | ----------------------------------------------------------------- |
-| Domein                   | Alleen de naam, zoals "Meetkunde"                                 |
-| Methode                  | De naam zelf, of "je boek"                                        |
-| Methode-indeling         | "Je boek", zoals in "Kies uit je boek"                            |
-| Stofkeuze                | "Mijn stof", of "je stof" in een zin                              |
-| Overzichtsscherm         | "Home"                                                            |
-| Vraagsoort               | "Soort vraag", of de naam van de vraagsoort                       |
-| Uitslag                  | "Je resultaat"                                                    |
-| Valkuil                  | "Veelgemaakte fout"                                               |
-| Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen." |
+| Intern                   | Op de site                                                            |
+| ------------------------ | --------------------------------------------------------------------- |
+| Domein                   | Alleen de naam, zoals "Meetkunde"                                     |
+| Methode                  | De naam zelf, of "je boek"                                            |
+| Methode-indeling         | "Je boek", zoals in "Kies uit je boek". Het gekozen boek: "Mijn boek" |
+| Stofkeuze                | "Mijn stof", of "je stof" in een zin                                  |
+| Overzichtsscherm         | "Home"                                                                |
+| Vraagsoort               | "Soort vraag", of de naam van de vraagsoort                           |
+| Uitslag                  | "Je resultaat"                                                        |
+| Valkuil                  | "Veelgemaakte fout"                                                   |
+| Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen."     |

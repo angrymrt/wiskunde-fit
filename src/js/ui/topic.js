@@ -89,7 +89,9 @@ function applySoort(s, soort = null, seed) {
     newQuestion(s, seed);
   else if (soort && st.skill?.id !== soort) newQuestion(s);
 }
-function vPractice(s) {
+// Oefenen in één blok: bovenaan de kop met de soorten vragen, daaronder de vraag. Alleen de vraag
+// komt met een korte animatie in beeld, de kop blijft staan.
+function vPractice(s, title) {
   const st = practiceState(s);
   if (!st.q) newQuestion(s);
   const q = st.q,
@@ -98,13 +100,13 @@ function vPractice(s) {
     ? `<p class="small">Uitleg bij deze vraag: ${topicLink(topicOf(st.skill.id))}</p>`
     : `<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${s.skills.map((k) => `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`).join('')}</div>`;
   const share = shareHTML(st.skill, q);
-  return `${chips}<div class="sheet fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}</span></div>${share.note}</div>
+  return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}</span></div>${share.note}</div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !q.line && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
   ${st.hint && !done ? `<div class="hintb"><b>Hint:</b> ${/<span/.test(q.hint) ? q.hint : T(q.hint)}</div>` : ''}
   <div class="row">${done ? `<button class="btn main" type="submit" id="nextq" ${st.msg ? 'aria-describedby="pfb"' : ''}>Volgende vraag</button>` : `<button class="btn main" type="submit">Controleer</button>${st.hint ? '' : `<button class="btn" type="button" data-act="hint">Hint</button>`}<button class="btn quiet" type="button" data-act="show">Toon uitwerking</button>`}${st.status === 'right' && !st.sol ? `<button class="btn quiet" type="button" data-act="showsol">Bekijk uitwerking</button>` : ''}</div></form>
-  ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div>`;
+  ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div></div>`;
 }
 // Kwam je via "Uitleg bij deze vraag" uit Mijn stof oefenen, dan kun je daar weer verder.
 function backToRound(s) {
@@ -118,7 +120,7 @@ function backToRound(s) {
 // die knop uit beeld is (zie main.js).
 function vTopic(s) {
   if (state.view.oefen) {
-    return `<div class="screen-grid color-${s.domain.color}">${pageHead(`${T(s.title)} oefenen`)}${vPractice(s)}${pagerHTML(s)}</div>`;
+    return `<div class="screen-grid color-${s.domain.color}">${crumbs()}${vPractice(s, `${T(s.title)} oefenen`)}${pagerHTML(s)}</div>`;
   }
   const p = Math.round(topicPct(s) * 100),
     videos = vVideos(s);

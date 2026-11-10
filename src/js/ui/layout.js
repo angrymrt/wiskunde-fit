@@ -42,9 +42,11 @@ function crumbs() {
     ? `<nav class="crumbs" aria-label="Kruimelpad"><ol>${list.map(item).join('')}</ol></nav>`
     : '';
 }
-// De kop van een scherm, met het kruimelpad erboven. Geef HTML mee voor wat eronder hoort.
+// De kop van een scherm, bovenaan in het eerste blok. Alleen Home heeft een losse kop. Het
+// kruimelpad staat boven het blok: zet crumbs() ervoor. Geef HTML mee voor wat onder de kop hoort,
+// zoals de intro.
 const pageHead = (title, rest = '') =>
-  `<div class="head">${crumbs()}<h1>${title}</h1>${rest}</div>`;
+  `<div class="head sheet-head"><h1>${title}</h1>${rest}</div>`;
 const DATE_TEXT = (iso) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString('nl-NL', {
     day: 'numeric',
@@ -59,6 +61,6 @@ const testNotice = () =>
     ? `<p class="notice small"><a href="${to('toets')}">Je proeftoets loopt nog. Ga verder met vraag ${state.test.i + 1}.</a></p>`
     : '';
 const vMissing = () =>
-  `${pageHead('Deze pagina bestaat niet')}<div class="sheet"><p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
+  `${crumbs()}<div class="sheet">${pageHead('Deze pagina bestaat niet')}<p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
 
 export { REPO, topbar, footer, crumbs, pageHead, testNotice, vMissing };

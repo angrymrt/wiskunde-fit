@@ -175,7 +175,7 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
     await p.click('a.btn[href$="/oefenen"]');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
     assert.ok(await p.$('#pform'), 'het oefenscherm staat open');
-    await p.click('.head a[href="/lineaire-grafieken-tekenen"]');
+    await p.click('.crumbs a[href="/lineaire-grafieken-tekenen"]');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
     assert.equal(await p.$('#pform'), null, 'de uitleg staat open');
     await p.click('.sheet a[href$="/oefenen"]');
@@ -519,7 +519,7 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await p.click('.hero a[href="/methode-indeling"]');
     const status = () => p.textContent('.found-count [role="status"]');
     const search = () => new URL(p.url()).search;
-    assert.equal(await p.locator('.book-card').count(), 3);
+    assert.equal(await p.locator('.book').count(), 3);
     assert.ok(await p.isHidden('#filters'), 'de filters staan eerst dicht');
     await p.screenshot({ path: `${shotDir}kies-uit-je-boek.png`, fullPage: true });
     await p.click('[data-act="boekfilters"]');
@@ -544,7 +544,7 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     assert.equal(await p.evaluate(() => document.activeElement.getAttribute('role')), 'status');
     // De filters blijven bij herladen, en op een breed scherm staan ze altijd open.
     await p.reload();
-    assert.equal(await p.locator('.book-card').count(), 1);
+    assert.equal(await p.locator('.book').count(), 1);
     await p.setViewportSize({ width: 1200, height: 800 });
     assert.ok(await p.isVisible('#filters'));
     assert.ok(await p.isHidden('[data-act="boekfilters"]'));
@@ -552,7 +552,7 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await p.screenshot({ path: `${shotDir}kies-uit-je-boek-breed.png`, fullPage: true });
     await p.click('[data-act="boekfilter"][data-id="leerjaar:3"]');
     await p.setViewportSize({ width: 390, height: 800 });
-    await p.click('.book-card a');
+    await p.click('.book a');
 
     // Een paragraaf aan- en uitvinken, en een heel hoofdstuk kiezen.
     assert.equal(await p.locator('.chapter').count(), 9);
@@ -605,17 +605,17 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     // Havo/vwo 2: alleen deels gedekt, met de melding dat het niet is vergeleken.
     await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
     await p.click('[data-act="stofclear"]');
-    // Je boek staat nu bovenaan de lijst.
+    // Mijn boek staat nu bovenaan de lijst.
     await p.evaluate(() => wiskundefit.go({ name: 'kies' }));
     assert.match(
-      await p.textContent('.book-card:first-child h2'),
-      /^Je boek: Getal & Ruimte, 13e editie, havo 3$/,
+      await p.textContent('.book:first-child h2'),
+      /^Mijn boek: Getal & Ruimte, 13e editie, havo 3$/,
     );
     await p.screenshot({ path: `${shotDir}kies-uit-je-boek-je-boek.png`, fullPage: true });
     await p.click('[data-act="boekfilters"]');
     await p.click('[data-act="boekfilter"][data-id="niveau:vwo"]');
     await p.click('[data-act="boekfilter"][data-id="leerjaar:2"]');
-    await p.click('.book-card a');
+    await p.click('.book a');
     assert.match(await p.textContent('.watch'), /nog niet met dit boek vergeleken/);
     await p.click('[data-act="para"][data-id="6.2"]');
     assert.deepEqual(await stof(), [38]);
@@ -1019,7 +1019,7 @@ test('de terugknop gaat naar het vorige scherm en bewaart een half gemaakte vraa
     assert.equal(await p.getAttribute(`.chip[data-id="${id}"]`, 'aria-pressed'), 'true');
 
     // Via een link terug naar de uitleg en weer oefenen: ook dan blijft de vraag staan.
-    await p.click('.head a[href$="' + slug + '"]');
+    await p.click('.crumbs a[href$="' + slug + '"]');
     await p.click('.sheet a[href$="/oefenen"]');
     assert.equal(await p.textContent('#pq'), question);
     assert.equal(await p.inputValue('#pf0'), '7');

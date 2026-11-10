@@ -1,6 +1,6 @@
 // De pagina's uit de voettekst: over de site, privacy en contact.
 import { to } from '../routes.js';
-import { pageHead, REPO } from './layout.js';
+import { crumbs, pageHead, REPO } from './layout.js';
 
 const MAIL = 'wiskundefit@rubenvanderhoop.nl';
 
@@ -9,7 +9,7 @@ const repo = (text, path = '') =>
   `<a href="${REPO}${path}" target="_blank" rel="noopener">${text}</a>`;
 
 function vOver() {
-  return `${pageHead('Over Wiskundefit')}<div class="sheet">
+  return `${crumbs()}<div class="sheet">${pageHead('Over Wiskundefit')}
   <div class="block"><p>Wiskundefit is een eigen project van David van der Hoop. Je oefent hier gratis, zonder account en zonder reclame. Er is geen band met Noordhoff, Getal &amp; Ruimte of een andere uitgever.</p></div>
   <div class="block"><h2 class="h3">Hoe de stof is gemaakt</h2>
   <p>De uitleg, de vragen en de code zijn gemaakt met hulp van AI (Claude van Anthropic). We schrijven eigen teksten en voorbeelden en nemen niets over uit boeken.</p>
@@ -21,7 +21,7 @@ function vOver() {
 }
 
 function vPrivacy() {
-  return `${pageHead('Privacy')}<div class="sheet">
+  return `${crumbs()}<div class="sheet">${pageHead('Privacy')}
   <div class="block"><h2 class="h3">Wat we niet doen</h2>
   <p>Je hebt geen account nodig en je hoeft niets over jezelf te vertellen. We gebruiken geen cookies, reclame of volgscripts van anderen. We tellen geen bezoekers en niet welke pagina's je bekijkt. We weten dus niet wie de site gebruikt.</p></div>
   <div class="block"><h2 class="h3">Wat we anoniem tellen</h2>
@@ -46,7 +46,7 @@ function vPrivacy() {
 }
 
 function vContact() {
-  return `${pageHead('Contact')}<div class="sheet">
+  return `${crumbs()}<div class="sheet">${pageHead('Contact')}
   <div class="block"><h2 class="h3">Een vraag of idee</h2>
   <p>Heb je een vraag, een idee of iets wat beter kan? Mail naar ${mail}. Iedereen mag mailen, of je nu leerling, ouder of docent bent.</p></div>
   <div class="block"><h2 class="h3">Een fout gevonden</h2>
