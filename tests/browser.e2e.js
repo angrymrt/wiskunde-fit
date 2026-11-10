@@ -1063,6 +1063,70 @@ test('de terugknop gaat naar het vorige scherm en bewaart een half gemaakte vraa
   }
 });
 
+test('Enter op de laatste vraag van een proeftoets laat de site niet vastlopen', async () => {
+  // Uit #51: Enter op de laatste vraag zette de index voorbij de laatste vraag, ook in de opslag.
+  const browser = await launch();
+  try {
+    const p = await browser.newPage();
+    const errors = [];
+    p.on('pageerror', (e) => errors.push(e.message));
+    const index = () =>
+      p.evaluate(() => JSON.parse(localStorage.getItem('wiskundefit-proeftoets')).i);
+    await p.goto(at('/proeftoets'));
+    await p.click('[data-act="stofall"]');
+    await p.click('[data-act="len"][data-id="10"]');
+    await p.click('[data-act="start"]');
+    await p.click('[data-act="goto"][data-id="9"]');
+    // Een veld, een keuzelijst of meerkeuze. Enter verstuurt het formulier, net als requestSubmit.
+    const sel = (await p.$('#tf0')) ? '#tf0' : '#tm0';
+    const kind = await p.$eval(sel, (el) => (el.type === 'radio' ? 'radio' : el.tagName));
+    let kept;
+    if (kind === 'radio') {
+      await p.check(sel);
+      kept = () => p.isChecked(sel);
+    } else if (kind === 'SELECT') {
+      const value = await p.$eval(sel, (el) => el.options[el.options.length - 1].value);
+      await p.selectOption(sel, value);
+      kept = async () => (await p.inputValue(sel)) === value;
+    } else {
+      await p.fill(sel, '12');
+      kept = async () => (await p.inputValue(sel)) === '12';
+    }
+    await p.$eval('#tform', (f) => f.requestSubmit());
+    assert.equal(await index(), 9);
+    assert.equal(
+      await p.evaluate(() => document.activeElement.dataset.act),
+      'tfin',
+      'de focus staat op Inleveren',
+    );
+    assert.match(await p.textContent('[aria-current="step"]'), /^10$/);
+    assert.equal(new URL(p.url()).pathname, '/proeftoets', 'nog niet ingeleverd');
+
+    // Weg en terug, en herladen: dezelfde vraag, met het antwoord nog ingevuld.
+    await p.goto(siteUrl);
+    await p.goto(at('/proeftoets'));
+    await p.reload();
+    assert.equal(await index(), 9);
+    assert.ok(await kept(), 'het antwoord is bewaard');
+
+    // Een bewaarde proeftoets met een index buiten de lijst, of zonder vragen, begint opnieuw.
+    // Dat gebeurt op robots.txt, want bij het weggaan bewaart de site de proeftoets zelf nog.
+    for (const broken of [{ i: 99 }, { i: -1 }, { i: 1.5 }, { items: [] }]) {
+      await p.goto(at('/robots.txt'));
+      await p.evaluate((broken) => {
+        const t = JSON.parse(localStorage.getItem('wiskundefit-proeftoets'));
+        localStorage.setItem('wiskundefit-proeftoets', JSON.stringify({ ...t, ...broken }));
+      }, broken);
+      await p.goto(at('/proeftoets'));
+      assert.ok(await p.$('[data-act="start"]'), `opnieuw beginnen bij ${JSON.stringify(broken)}`);
+      await p.click('[data-act="start"]');
+    }
+    assert.deepEqual(errors, [], 'fouten in de browserconsole');
+  } finally {
+    await browser.close();
+  }
+});
+
 test('soort in het adres kiest de vraagsoort', async () => {
   const browser = await launch();
   try {

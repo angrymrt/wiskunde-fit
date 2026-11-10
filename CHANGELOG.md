@@ -7,6 +7,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 ### Hersteld
 
 - Bij een vraag met afronden werd een verkeerd afgerond antwoord soms goedgekeurd. Bij 3,75 en "Rond af op 1 decimaal" was 3,7 ook goed, maar alleen 3,8 klopt. Bij 2.1 Verhoudingstabellen stond in de uitwerking soms ook het verkeerd afgeronde getal, zoals 3,1 in plaats van 3,2 bij 3,15. Een getal dat precies op de helft ligt, rond je af naar boven. Een antwoord met meer decimalen dan gevraagd is nu ook fout, ook als het klopt.
+- Drukte je in een proeftoets op Enter bij de laatste vraag, dan liep de proeftoets vast, ook na herladen. Nu blijft je antwoord bewaard en kun je inleveren.
 
 ### Verbeterd
 

@@ -37,11 +37,13 @@ function write(key, t) {
     );
   } catch (e) {}
 }
-// Geeft null als er niets is of als een vraagsoort niet meer bestaat.
+// Geeft null als er niets is, als een vraagsoort niet meer bestaat, of als de vragen of de
+// huidige vraag niet kloppen. Dan begint de leerling liever opnieuw dan dat de site vastloopt.
 function read(key) {
   try {
     const t = JSON.parse(localStorage.getItem(key));
-    if (t?.v !== STORED) return null;
+    if (t?.v !== STORED || !Array.isArray(t.items) || !t.items.length) return null;
+    if ('i' in t && !(Number.isInteger(t.i) && t.i >= 0 && t.i < t.items.length)) return null;
     t.items = t.items.map(({ id, ...x }) => {
       const topic = topicOf(id);
       return { ...x, topic, skill: topic.skills.find((k) => k.id === id) };
@@ -133,6 +135,11 @@ function vToetsRun() {
   ${t.confirmStop ? `<p class="small">Wil je stoppen? Je antwoorden gaan dan verloren en deze proeftoets telt niet mee.</p><div class="row"><button class="btn quiet" type="button" data-act="tstop2">Ja, stop de proeftoets</button><button class="btn quiet" type="button" data-act="tstop0">Annuleren</button></div>` : `<div class="row"><button class="btn quiet" type="button" data-act="tstop1">Stoppen zonder inleveren</button></div>`}</div>`;
 }
 // Bewaart wat er op het scherm is ingevuld. Doet niets als de vraag niet op het scherm staat.
+// Gaat naar een andere vraag, maar nooit buiten de proeftoets.
+function toQuestion(i) {
+  state.test.i = Math.max(0, Math.min(state.test.items.length - 1, i));
+  state.test.warn = false;
+}
 function storeTest() {
   if (!document.getElementById('tform')) return;
   state.test.items[state.test.i].vals = readVals(state.test.items[state.test.i].q, 't');
@@ -282,6 +289,7 @@ export {
   loadTests,
   saveTest,
   storeTest,
+  toQuestion,
   stopTest,
   forgetTests,
   finishTest,

@@ -12,6 +12,7 @@ import {
   loadTests,
   saveTest,
   storeTest,
+  toQuestion,
   stopTest,
   forgetTests,
   finishTest,
@@ -383,15 +384,13 @@ app.addEventListener('click', (e) => {
   }
   if (a === 'goto') {
     storeTest();
-    state.test.i = +id;
-    state.test.warn = false;
+    toQuestion(+id);
     render('#tq');
     return;
   }
   if (a === 'tprev') {
     storeTest();
-    state.test.i--;
-    state.test.warn = false;
+    toQuestion(state.test.i - 1);
     render('#tq');
     return;
   }
@@ -413,8 +412,13 @@ app.addEventListener('submit', (e) => {
   e.preventDefault();
   if (e.target.id === 'tform') {
     storeTest();
-    state.test.i++;
-    state.test.warn = false;
+    // Op de laatste vraag is er geen knop Volgende, maar Enter verstuurt het formulier toch. Dan
+    // blijft het antwoord bewaard en gaat de focus naar Inleveren, zonder al in te leveren.
+    if (state.test.i === state.test.items.length - 1) {
+      render('[data-act="tfin"]');
+      return;
+    }
+    toQuestion(state.test.i + 1);
     render('#tq');
     focusOn('#tf0');
     return;
