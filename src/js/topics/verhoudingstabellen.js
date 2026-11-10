@@ -267,6 +267,8 @@ function s21par() {
       pts,
       segs: ['AD', 'EJ', 'AE', 'BG', 'CH', 'DJ'],
       hide: 'ABCDEGHJ',
+      // De punten hebben geen zichtbare naam, dus de figuur beschrijft de stukken zelf.
+      desc: `Vier evenwijdige lijnen snijden twee andere lijnen. Op de ene lijn liggen achter elkaar de stukken ${d(a)}, x en ${d(e)}. Op de andere lijn liggen tussen dezelfde evenwijdige lijnen de stukken ${d(p)}, ${d(q)} en y.`,
       sides: [
         { a: 'A', b: 'B', t: d(a) },
         { a: 'B', b: 'C', t: 'x' },

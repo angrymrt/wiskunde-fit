@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.11.3
+
+### Verbeterd
+
+- Met een schermlezer hoor je nu wat er in een figuur staat: de punten waar een lijn door gaat, de lengtes van zijden, de rechte hoeken en welke hoeken gelijk zijn gemarkeerd. Zo kun je ook de vragen met een grafiek of een meetkundige figuur maken als je de figuur niet ziet.
+
 ## 1.11.2
 
 ### Hersteld

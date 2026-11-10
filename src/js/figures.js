@@ -1,6 +1,137 @@
 // Tekent figuren als SVG-tekst: grafieken, driehoeken en evenwijdige lijnen.
-import { pick } from './math.js';
+import { pick, near, d } from './math.js';
 import { esc } from './typeset.js';
+
+// Elke figuur zegt in woorden wat erin staat, voor wie hem niet kan zien: de gemarkeerde punten,
+// de lengtes, de rechte hoeken en de hoeken met boogjes. Zo is een vraag ook met een schermlezer
+// te maken. De beschrijving zegt nooit meer dan wat je in de figuur ziet. Zie #55.
+const num = (x) => d(x).replace('-', '−');
+const whole = (x) => near(x, Math.round(x), 1e-9);
+const spot = (x, y) =>
+  whole(x) && whole(y) ? `(${num(x)}, ${num(y)})` : `x = ${num(x)} en y = ${num(y)}`;
+const and = (items) =>
+  items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} en ${items.at(-1)}`;
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
+const attr = (s) => esc(s).replace(/"/g, '&quot;');
+const trend = (a) => (a > 0 ? 'stijgt' : a < 0 ? 'daalt' : 'loopt horizontaal');
+
+function graphDesc({ xr, yr, lines, pts, xs, ys, xn, yn, sketch, label }) {
+  const out = [label.replace(/\.$/, '') + '.'];
+  if (!sketch) {
+    out.push(
+      `De ${xn}-as loopt van ${num(xr[0] * xs)} tot ${num(xr[1] * xs)} en de ${yn}-as van ${num(yr[0] * ys)} tot ${num(yr[1] * ys)}.`,
+    );
+    if (xs !== 1 || ys !== 1)
+      out.push(`Eén hokje is ${num(xs)} op de ${xn}-as en ${num(ys)} op de ${yn}-as.`);
+  }
+  const on = (l, p) => near(l.a * p.x + l.b, p.y, 1e-6);
+  const nameOf = (l, i) =>
+    l.name ? `lijn ${l.name}` : lines.length > 1 ? `lijn ${i + 1}` : 'de lijn';
+  const crossing = (p) => lines.filter((l) => on(l, p)).length > 1;
+  lines.forEach((l, i) => {
+    const n = nameOf(l, i);
+    if (sketch) return out.push(cap(`${n} ${trend(l.a)}.`));
+    // Eerst de gemarkeerde punten op deze lijn, daarna roosterpunten, het liefst dicht bij de y-as.
+    const marked = pts.filter((p) => !p.label && on(l, p) && !crossing(p));
+    const grid = [];
+    for (let k = xr[0]; k <= xr[1]; k++) {
+      const x = k * xs,
+        j = (l.a * x + l.b) / ys;
+      if (whole(j) && j >= yr[0] && j <= yr[1] && !marked.some((p) => near(p.x, x)))
+        grid.push({ x, y: Math.round(j) * ys });
+    }
+    grid.sort((p, q) => Math.abs(p.x) - Math.abs(q.x) || q.x - p.x);
+    const m = marked.slice(0, 2).map((p) => spot(p.x, p.y)),
+      g = grid.slice(0, 2 - m.length).map((p) => spot(p.x, p.y));
+    if (m.length + g.length < 2)
+      return out.push(cap(`${n} snijdt de ${yn}-as bij ${num(l.b)} en ${trend(l.a)}.`));
+    const through =
+      m.length === 2
+        ? `de gemarkeerde punten ${and(m)}`
+        : m.length === 1
+          ? `het gemarkeerde punt ${m[0]} en het roosterpunt ${g[0]}`
+          : `de roosterpunten ${and(g)}`;
+    out.push(cap(`${n} gaat door ${through}.`));
+  });
+  pts.forEach((p) => {
+    const ls = lines.map((l, i) => [l, i]).filter(([l]) => on(l, p)),
+      names = and(ls.map(([l, i]) => nameOf(l, i))),
+      where = sketch ? '' : ` ${spot(p.x, p.y)}`;
+    if (p.label) {
+      const at = sketch ? '' : ` op ${spot(p.x, p.y)}`,
+        cross = ls.length > 1 ? `, waar ${names} elkaar snijden` : '';
+      out.push(`Punt ${p.label} is gemarkeerd${at}${cross}.`);
+    } else if (ls.length > 1)
+      out.push(cap(`${names} snijden elkaar in het gemarkeerde punt${where}.`));
+    else if (!ls.length) out.push(`Gemarkeerd punt${where}.`);
+  });
+  return out.join(' ');
+}
+function geoDesc({ pts, segs, sides, arcs, rights, tris, hide, dash, nums, P }) {
+  const vis = Object.keys(pts).filter((k) => !hide.includes(k)),
+    seen = (g) => [...g].every((k) => vis.includes(k)),
+    angle = ({ at, p, q }) => `hoek ${p}${at}${q}`,
+    out = [];
+  if (tris.length) out.push(cap(`${and(tris.map((t) => `driehoek ${t}`))}.`));
+  else if (vis.length) out.push(`Figuur met de punten ${and(vis)}.`);
+  const triSide = new Set(
+    tris.flatMap((t) => [0, 1, 2].map((i) => [t[i], t[(i + 1) % 3]].sort().join(''))),
+  );
+  const more = segs.filter((g) => seen(g) && !triSide.has([...g].sort().join('')));
+  if (more.length)
+    out.push(`${tris.length ? 'Verder de lijnstukken' : 'Lijnstukken'} ${and(more)}.`);
+  if (dash.some(seen)) out.push(`Gestippeld: ${and(dash.filter(seen))}.`);
+  // Een punt op een getekend lijnstuk, zoals D op AB.
+  const lies = [];
+  for (const g of [...segs, ...dash].filter(seen))
+    for (const k of vis) {
+      if (g.includes(k)) continue;
+      const [a, b] = [pts[g[0]], pts[g[1]]],
+        p = pts[k],
+        dx = b[0] - a[0],
+        dy = b[1] - a[1],
+        l2 = dx * dx + dy * dy,
+        t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2,
+        cross = (dx * (p[1] - a[1]) - dy * (p[0] - a[0])) / l2;
+      if (Math.abs(cross) < 1e-6 && t > 1e-6 && t < 1 - 1e-6) lies.push(`${k} ligt op ${g}`);
+    }
+  if (lies.length) out.push(cap(`${and(lies)}.`));
+  const lengths = sides
+    .filter(({ a, b }) => seen(a + b))
+    .map(({ a, b, t }) => `${a}${b} = ${String(t).replace('-', '−')}`);
+  if (lengths.length) out.push(`Lengtes: ${and(lengths)}.`);
+  if (rights.length)
+    out.push(cap(`${and(rights.map(angle))} ${rights.length > 1 ? 'zijn' : 'is'} recht.`));
+  // Hoeken met evenveel boogjes zijn gelijk.
+  const groups = new Map();
+  for (const a of arcs) {
+    const key = `${a.n ?? 1}-${a.c ?? 1}`;
+    groups.set(key, [...(groups.get(key) ?? []), a]);
+  }
+  for (const list of groups.values()) {
+    const n = list[0].n ?? 1,
+      bows = n === 1 ? '1 boogje' : `${n} boogjes`,
+      both = list.length === 2 ? 'allebei' : 'elk';
+    out.push(
+      list.length === 1
+        ? cap(`${angle(list[0])} heeft ${bows}.`)
+        : cap(`${and(list.map(angle))} hebben ${both} ${bows}.`),
+    );
+  }
+  // Een nummer bij een hoek, zoals C_1: in welke driehoek staat het?
+  const inside = ([x, y], t) => {
+    const [a, b, c] = [...t].map(P),
+      s = (p, q) => (q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0]),
+      v = [s(a, b), s(b, c), s(c, a)];
+    return v.every((z) => z > 0) || v.every((z) => z < 0);
+  };
+  for (const { at, t, off } of nums) {
+    const xy = [P(at)[0] + off[0], P(at)[1] + off[1]],
+      tri = tris.find((tr) => tr.includes(at) && inside(xy, tr));
+    out.push(tri ? `Hoek ${at}${t} ligt in driehoek ${tri}.` : `Bij ${at} staat het nummer ${t}.`);
+  }
+  return out.join(' ') || 'Meetkundige figuur';
+}
 
 function graph({
   xr = [-1, 6],
@@ -19,6 +150,7 @@ function graph({
   draw = false, // Een rooster om zelf in te tekenen, zie ui/draw.js.
   label = 'Grafiek in een assenstelsel',
 }) {
+  const desc = graphDesc({ xr, yr, lines, pts, xs, ys, xn, yn, sketch, label });
   const ml = 30,
     mr = 20,
     mt = 20,
@@ -77,7 +209,7 @@ function graph({
   });
   const drawing = draw ? `${inside(' class="drawn"')}</svg>` : '',
     drawData = draw ? ` data-draw="${[...xr, ...yr, u, ml, mt].join(',')}"` : '';
-  return `<svg class="fig" role="img" aria-label="${label}"${drawData} width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}">${o}${typeof extra === 'function' ? extra(X, Y) : extra}${drawing}</svg>`;
+  return `<svg class="fig" role="img" aria-label="${attr(desc)}"${drawData} width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}">${o}${typeof extra === 'function' ? extra(X, Y) : extra}${drawing}</svg>`;
 }
 // Tekent punten en de lijn erdoor in een rooster om zelf in te tekenen. data is de inhoud van
 // data-draw, zodat alles op dezelfde plek komt als in het rooster zelf.
@@ -145,6 +277,7 @@ function geo({
   pad = 30,
   off = {},
   nums = [], // Nummers bij hoeken, zoals C_1 en C_2: { at: 'C', t: 1, off: [x, y] }.
+  desc = '', // Een eigen beschrijving, als de punten geen zichtbare namen hebben.
 }) {
   const K = Object.keys(pts),
     xa = K.map((k) => pts[k][0]),
@@ -240,7 +373,8 @@ function geo({
     }
     o += `<text class="tv${/^[a-z]$/.test(String(t)) ? ' ti' : ''}" text-anchor="middle" x="${r2(mx + nx * (14 + Math.abs(nx) * Math.min(String(t).length * 3, 12)))}" y="${r2(my + ny * 14 + 5)}">${esc(String(t).replace('-', '−'))}</text>`;
   });
-  return `<svg class="fig" role="img" aria-label="Meetkundige figuur met lengtes en hoeken" width="${W.toFixed(0)}" height="${Ht.toFixed(0)}" viewBox="0 0 ${W.toFixed(0)} ${Ht.toFixed(0)}">${o}</svg>`;
+  const label = desc || geoDesc({ pts, segs, sides, arcs, rights, tris, hide, dash, nums, P });
+  return `<svg class="fig" role="img" aria-label="${attr(label)}" width="${W.toFixed(0)}" height="${Ht.toFixed(0)}" viewBox="0 0 ${W.toFixed(0)} ${Ht.toFixed(0)}">${o}</svg>`;
 }
 /* Evenwijdige lijnen met een snijlijn; markeer twee hoeken. pos: 0 rechtsboven, 1 linksboven, 2 linksonder, 3 rechtsonder */
 // Zonder hoek kiest de figuur er zelf een. Geef een hoek mee als de figuur steeds gelijk moet zijn.
@@ -269,7 +403,18 @@ function angleFig(p1, q1, p2, q2, w = 300, deg = pick([55, 65, 115, 125])) {
     uy = -Math.sin(th);
   const a = [P[0] + ux * ext, P[1] + uy * ext],
     b = [Q2[0] - ux * ext, Q2[1] - uy * ext];
-  return `<svg class="fig" role="img" aria-label="Twee evenwijdige lijnen met een snijlijn en twee gemarkeerde hoeken" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}">
+  const where = ['rechtsboven', 'linksboven', 'linksonder', 'rechtsonder'],
+    cut = (q) => (q === 0 ? 'het bovenste snijpunt' : 'het onderste snijpunt'),
+    marked = [
+      [p1, q1],
+      [p2, q2],
+    ]
+      .filter(([p]) => p != null)
+      .map(([p, q]) => `de hoek ${where[p]} bij ${cut(q)}`),
+    label =
+      'Twee evenwijdige horizontale lijnen met een schuine snijlijn.' +
+      (marked.length ? ` Gekleurd zijn ${and(marked)}.` : '');
+  return `<svg class="fig" role="img" aria-label="${label}" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}">
   ${p1 != null ? arc(q1 === 0 ? P : Q2, p1, 'w1') : ''}${p2 != null ? arc(q2 === 0 ? P : Q2, p2, 'w2') : ''}
   <line class="s" x1="16" x2="${w - 16}" y1="${yP}" y2="${yP}"/><line class="s" x1="16" x2="${w - 16}" y1="${yQ}" y2="${yQ}"/>
   <line class="s" x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>

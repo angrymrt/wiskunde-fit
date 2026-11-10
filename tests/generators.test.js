@@ -33,6 +33,34 @@ function typed(x) {
 // Een lopende proeftoets staat in de browser als JSON, en moet daarna nog na te kijken zijn.
 const stored = (q) => JSON.parse(JSON.stringify(q));
 
+// Een figuur zegt in woorden wat erin staat, zodat je de vraag ook met een schermlezer kunt
+// maken. Alles wat in de figuur geschreven staat, zoals een lengte, de naam van een punt of van
+// een lijn, staat dus ook in de beschrijving. Zie #55.
+const GENERIC = [
+  'Grafiek in een assenstelsel',
+  'Meetkundige figuur',
+  'Meetkundige figuur met lengtes en hoeken',
+];
+function assertDescribed(fig, q) {
+  const label = fig.match(/aria-label="([^"]*)"/)?.[1] ?? '';
+  assert.ok(!GENERIC.includes(label.replace(/\.$/, '')), `figuur zonder beschrijving: ${q}`);
+  const written = [
+    // Lengtes bij een zijde.
+    ...[...fig.matchAll(/<text class="tv[^"]*"[^>]*>([^<]+)<\/text>/g)].map((m) => m[1]),
+    // Namen van punten in een meetkundige figuur.
+    ...[...fig.matchAll(/<text class="ti" text-anchor="middle"[^>]*>([^<]+)<\/text>/g)].map(
+      (m) => m[1],
+    ),
+    // Namen van lijnen in een grafiek.
+    ...[...fig.matchAll(/<text class="t\d ti"[^>]*>([^<]+)<\/text>/g)].map((m) => `lijn ${m[1]}`),
+  ];
+  for (const w of written)
+    assert.ok(
+      label.toLowerCase().includes(w.toLowerCase()),
+      `"${w}" staat niet in de beschrijving: ${q}`,
+    );
+}
+
 // Het goede antwoord valt in geen enkele valkuil. Anders krijgt een leerling bij een vraag met
 // meer velden een melding over een veld dat goed is.
 function assertNoTrap(q, vals) {
@@ -46,6 +74,7 @@ function assertSound(q) {
     assert.ok(!text.includes(bad), `tekst bevat "${bad}": ${q.q}`);
   }
   assert.ok(!/[{}]/.test(text), `niet-omgezette accolade: ${q.q}`);
+  if (q.fig) assertDescribed(q.fig, q.q);
   assert.ok(q.hint, `geen hint: ${q.q}`);
   assert.ok(q.steps.length > 0, `geen uitwerking: ${q.q}`);
   // Elke vraag heeft een controle die het antwoord op een andere manier narekent. Zie AGENTS.md.
