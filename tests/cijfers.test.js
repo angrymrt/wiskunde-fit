@@ -170,11 +170,14 @@ test('de pagina Cijfers toont de cijfers, zegt het bij nepcijfers, en werkt ook 
   let html = vCijfers();
   assert.match(html, /Zodra er genoeg zijn/);
   assert.doesNotMatch(html, /nepcijfers/);
+  // De map met tellen op GitHub bestaat pas na de eerste samenvatting.
+  assert.doesNotMatch(html, /data\/tellen/);
 
   const dagen = nepTellen({ weken: 8, tot: new Date('2026-11-16T12:00:00Z') });
   globalThis.__CIJFERS__ = { ...cijfers(dagen), nep: true };
   html = vCijfers();
   assert.match(html, /Dit zijn nepcijfers/);
+  assert.match(html, /data\/tellen/);
   assert.match(html, /van 21 september 2026 tot en met 15 november 2026/);
   const koppen = [
     'Het meest geoefend',

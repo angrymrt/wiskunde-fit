@@ -171,15 +171,18 @@ function vCijfers() {
   const nep = c?.nep
     ? '<p class="notice"><b>Dit zijn nepcijfers</b>, om de pagina te ontwerpen. Ze komen nooit online.</p>'
     : '';
-  const about = `<div class="block"><h2 class="h3" id="niet-zeggen">Wat deze cijfers niet zeggen</h2>
+  // De map met tellen op GitHub bestaat pas na de eerste samenvatting, dus zonder cijfers geen link.
+  const about = (
+    github,
+  ) => `<div class="block"><h2 class="h3" id="niet-zeggen">Wat deze cijfers niet zeggen</h2>
   <ul>
   <li>We tellen geen leerlingen, alleen gemaakte vragen. Eén leerling die veel oefent, telt dus vaak mee.</li>
   <li>Iemand kan de cijfers expres opblazen. Dat kunnen we niet helemaal voorkomen.</li>
   <li>Een moeilijke soort vraag is niet per se een slechte vraag. Soms is de stof gewoon lastig.</li>
   </ul>
-  <p>Wat we precies tellen, staat op de pagina <a href="${to('privacy')}">Privacy</a>. De tellen per dag staan ${`<a href="${REPO}/tree/main/data/tellen" target="_blank" rel="noopener">op GitHub</a>`}, zodat je alles kunt nagaan.</p></div>`;
+  <p>Wat we precies tellen, staat op de pagina <a href="${to('privacy')}">Privacy</a>.${github ? ` De tellen per dag staan <a href="${REPO}/tree/main/data/tellen" target="_blank" rel="noopener">op GitHub</a>, zodat je alles kunt nagaan.` : ''}</p></div>`;
   if (!c?.totaal?.pogingen) {
-    return `${crumbs()}<div class="sheet">${pageHead('Cijfers')}${nep}<div class="block"><p>Hier komt te staan hoe er op Wiskundefit wordt geoefend: welke stof het meest, welke vragen moeilijk zijn en welke fouten vaak voorkomen. Elke week tellen we de anonieme tellen op. Zodra er genoeg zijn, staan de cijfers hier.</p></div>${about}</div>`;
+    return `${crumbs()}<div class="sheet">${pageHead('Cijfers')}${nep}<div class="block"><p>Hier komt te staan hoe er op Wiskundefit wordt geoefend: welke stof het meest, welke vragen moeilijk zijn en welke fouten vaak voorkomen. Elke week tellen we de anonieme tellen op. Zodra er genoeg zijn, staan de cijfers hier.</p></div>${about(false)}</div>`;
   }
   const t = c.totaal;
   const sinds =
@@ -188,7 +191,7 @@ function vCijfers() {
   <p class="small muted">We tellen gemaakte vragen, geen leerlingen. Lees de cijfers dus als een richting, niet als precieze waarheid. <a href="#niet-zeggen">Wat de cijfers niet zeggen</a></p>`;
   return `${crumbs()}<div class="sheet">${pageHead('Cijfers', lead)}${nep}
   <div class="tiles">${tile(getal(t.pogingen), 'vragen gemaakt')}${tile(procent(t.goed, t.pogingen), 'in één keer goed')}${t.duur === null ? '' : tile(tijd(t.duur), 'per goed antwoord', 'de helft was sneller')}${tile(getal(t.proeftoetsen), 'proeftoetsen gemaakt', sinds)}</div>
-  ${populair(c)}${moeilijkst(c)}${fouten(c)}${leeg(c)}${perOnderwerp(c)}${about}</div>`;
+  ${populair(c)}${moeilijkst(c)}${fouten(c)}${leeg(c)}${perOnderwerp(c)}${about(true)}</div>`;
 }
 
 export { vCijfers };
