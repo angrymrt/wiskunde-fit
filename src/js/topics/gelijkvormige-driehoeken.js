@@ -258,7 +258,9 @@ function s22comm() {
     fields: [F('DE =', de), F('BD =', bd)],
     hint: '△ABC en △ADE hebben hoek A gemeenschappelijk en door de evenwijdige lijnen zijn ook de andere hoeken gelijk. Bereken eerst AB om daarna BD te vinden.',
     steps: [
-      '△ABC ∼ △ADE',
+      '∠A (in △ABC) = ∠A (in △ADE)',
+      '∠B = ∠D (F-hoeken)',
+      'Dus △ABC ∼ △ADE.',
       H(
         vt(['AB', 'BC', 'AC'], ['AD', 'DE', 'AE']) +
           T(' geeft ') +
@@ -317,7 +319,9 @@ function s22py() {
       `KL^2 + ${a}^2 = ${c}^2`,
       `KL^2 = ${c * c - a * a}`,
       `KL = √${c * c - a * a} = ${b}`,
-      '△KLM ∼ △KPQ',
+      '∠K (in △KLM) = ∠K (in △KPQ)',
+      '∠L = ∠P (= 90°)',
+      'Dus △KLM ∼ △KPQ.',
       H(
         vt(['KL', 'LM'], ['KP', 'PQ']) +
           T(' geeft ') +

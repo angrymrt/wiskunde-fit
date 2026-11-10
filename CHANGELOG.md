@@ -15,6 +15,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 - Bij Inleveren waarschuwt de proeftoets nu ook als je een vraag maar half hebt ingevuld, zoals alleen a en nog niet b. In de lijst met vragen is zo'n vraag half gekleurd.
 - Bij verhoudingstabellen en gelijkvormige driehoeken zegt de site het nu als je een verhouding hebt omgedraaid.
 - Kies je bij een meerkeuzevraag over gelijkvormige driehoeken of over F-, Z- en overstaande hoeken het verkeerde antwoord, dan krijg je nu uitleg over wat er mis ging.
+- Bij 2.2 Gelijkvormige driehoeken staan in de uitwerking van Gemeenschappelijke hoek en Eerst Pythagoras nu ook de twee paar gelijke hoeken met de reden, zoals je dat in de methode opschrijft.
 
 ## 1.11.0
 
