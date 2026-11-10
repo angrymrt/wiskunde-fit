@@ -426,7 +426,11 @@ function s24rect() {
         },
         {
           id: 'tweede-stap-verschil-vergeten',
-          f: (v) => near(v[0], rt, 0.06) && near(v[1], Math.sqrt(h * h + rt * rt), 0.06),
+          // Met een marge van 0,06 moet het foute getal duidelijk naast het goede liggen.
+          f: (v) =>
+            near(v[0], rt, 0.06) &&
+            near(v[1], Math.sqrt(h * h + rt * rt), 0.06) &&
+            !near(Math.sqrt(h * h + rt * rt), pt, 0.12),
           m: 'RT klopt. In △PST heb je ST nodig, en dat is PQ min RT.',
         },
       ],
@@ -496,7 +500,7 @@ function s24par() {
         },
         {
           id: 'verhouding-omgedraaid',
-          f: (v) => near(v[0], (b * s) / rt, 0.06),
+          f: (v) => near(v[0], (b * s) / rt, 0.06) && !near((b * s) / rt, ru, 0.12),
           m: 'Je hebt de verhouding omgedraaid. Bij S hoort PS en bij R hoort RU, dus PS en ST staan samen in een rij.',
         },
       ],

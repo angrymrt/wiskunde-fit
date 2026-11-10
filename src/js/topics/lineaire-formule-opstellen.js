@@ -39,7 +39,7 @@ function s11read() {
       },
       {
         id: 'breuk-omgedraaid',
-        f: (v) => near(v[0], run / rise),
+        f: (v) => near(v[0], run / rise) && !near(run / rise, qv(a)),
         m: 'Je hebt de breuk omgedraaid. Reken a uit als verticaal gedeeld door horizontaal.',
       },
     ],
@@ -80,7 +80,7 @@ function s11two() {
       },
       {
         id: 'breuk-omgedraaid',
-        f: (v) => near(v[0], run / rise),
+        f: (v) => near(v[0], run / rise) && !near(run / rise, qv(a)),
         m: 'Je hebt de breuk omgedraaid. Het is verschil in y gedeeld door verschil in x.',
       },
     ],

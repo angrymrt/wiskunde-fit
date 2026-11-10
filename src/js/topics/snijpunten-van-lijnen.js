@@ -35,7 +35,7 @@ function s14axes() {
     traps: [
       {
         id: 'assen-omgewisseld',
-        f: (v) => near(v[0], b) && near(v[1], qv(xs)),
+        f: (v) => near(v[0], b) && near(v[1], qv(xs)) && !near(b, qv(xs)),
         m: 'Je hebt de twee omgewisseld. Op de x-as is y gelijk aan 0, op de y-as is x gelijk aan 0.',
       },
     ],

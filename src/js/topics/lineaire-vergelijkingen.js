@@ -197,7 +197,7 @@ function s13frac() {
       traps: [
         {
           id: 'niet-alle-termen',
-          f: (v) => near(v[0], (e - qv(b)) / (A - C)),
+          f: (v) => near(v[0], (e - qv(b)) / (A - C)) && !near((e - qv(b)) / (A - C), qv(x)),
           m: 'Vermenigvuldig álle termen, ook de getallen zonder breuk.',
         },
       ],

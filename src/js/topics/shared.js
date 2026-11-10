@@ -138,7 +138,8 @@ function drawLine(a, b, p, q, xn = 'x', yn = 'y') {
       },
       {
         id: 'lijn-verschoven',
-        f: (v) => near((v[3] - v[1]) / (v[2] - v[0]), a),
+        // De goede helling, maar het eerste punt ligt niet op de lijn.
+        f: (v) => near((v[3] - v[1]) / (v[2] - v[0]), a) && !near(a * v[0] + b, v[1]),
         m: 'De lijn loopt de goede kant op, maar hij ligt te hoog of te laag.',
       },
       {

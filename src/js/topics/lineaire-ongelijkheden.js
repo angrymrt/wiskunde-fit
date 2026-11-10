@@ -316,7 +316,9 @@ function s15story() {
     traps: [
       {
         id: 'getallen-omgewisseld',
-        f: (v) => (near(v[0], b1) && near(v[1], a1)) || (near(v[2], b2) && near(v[3], a2)),
+        f: (v) =>
+          (near(v[0], b1) && near(v[1], a1) && !near(a1, b1)) ||
+          (near(v[2], b2) && near(v[3], a2) && !near(a2, b2)),
         m: 'Je hebt de twee getallen van een formule omgewisseld. Wat er per week, bezoek of minuut bijkomt, staat voor x.',
       },
       {

@@ -41,7 +41,7 @@ function s21cross() {
     traps: [
       {
         id: 'verkeerd-kruislings',
-        f: (v) => near(v[0], (op[2] * op[0]) / op[1]) && op[0] !== op[1],
+        f: (v) => near(v[0], (op[2] * op[0]) / op[1]) && !near((op[2] * op[0]) / op[1], x),
         m: 'Vermenigvuldig de twee getallen die schuin tegenover elkaar staan en deel door het overgebleven getal.',
       },
     ],

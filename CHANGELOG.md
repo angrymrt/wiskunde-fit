@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.11.2
+
+### Hersteld
+
+- Bij sommige vragen met meer antwoorden kreeg je een melding over een fout die je niet had gemaakt. Was bijvoorbeeld de helling 1 of −1, dan kon je "Je hebt de breuk omgedraaid" zien terwijl a goed was en alleen b fout. Dat gebeurde bij lineaire formules, snijpunten met de assen, vergelijkingen met breuken, ongelijkheden uit een verhaal, verhoudingstabellen en lengtes in een rechthoek of parallellogram.
+
 ## 1.11.1
 
 ### Hersteld

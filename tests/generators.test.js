@@ -33,30 +33,14 @@ function typed(x) {
 // Een lopende proeftoets staat in de browser als JSON, en moet daarna nog na te kijken zijn.
 const stored = (q) => JSON.parse(JSON.stringify(q));
 
-// Valkuilen die nu nog ook bij het goede antwoord gelden, als soort vraag:valkuil. Zie #66. Haal
-// een regel weg zodra die valkuil is hersteld.
-const TRAP_ON_RIGHT = new Set([
-  '5:breuk-omgedraaid',
-  '6:breuk-omgedraaid',
-  '8:lijn-verschoven',
-  '16:lijn-verschoven',
-  '21:niet-alle-termen',
-  '23:assen-omgewisseld',
-  '31:getallen-omgewisseld',
-  '36:lijn-verschoven',
-  '41:verkeerd-kruislings',
-  '63:tweede-stap-verschil-vergeten',
-  '64:verhouding-omgedraaid',
-]);
 // Het goede antwoord valt in geen enkele valkuil. Anders krijgt een leerling bij een vraag met
 // meer velden een melding over een veld dat goed is.
-function assertNoTrap(q, vals, skill) {
+function assertNoTrap(q, vals) {
   const trap = findTrap(q, vals);
-  if (trap && !TRAP_ON_RIGHT.has(`${skill?.id}:${trap.id}`))
-    assert.fail(`goed antwoord in de valkuil ${trap.id}: ${q.q}`);
+  if (trap) assert.fail(`goed antwoord in de valkuil ${trap.id}: ${q.q}`);
 }
 
-function assertSound(q, skill) {
+function assertSound(q) {
   const text = q.q + (q.fig ?? '') + stepsHTML(q.steps) + q.hint + (q.mc ? q.mc.opts.join('') : '');
   for (const bad of ['NaN', 'undefined', 'Infinity', 'null', '[object']) {
     assert.ok(!text.includes(bad), `tekst bevat "${bad}": ${q.q}`);
@@ -78,7 +62,7 @@ function assertSound(q, skill) {
     assert.ok(q.mc.a >= 0 && q.mc.a < q.mc.opts.length, `juiste keuze bestaat niet: ${q.q}`);
     assert.equal(new Set(q.mc.opts).size, q.mc.opts.length, `dubbele keuzes: ${q.q}`);
     assert.ok(checkAnswer(q, [String(q.mc.a)]).ok, `goed antwoord afgekeurd: ${q.q}`);
-    assertNoTrap(q, [String(q.mc.a)], skill);
+    assertNoTrap(q, [String(q.mc.a)]);
     assert.ok(!checkAnswer(q, ['']).ok, `leeg antwoord goedgekeurd: ${q.q}`);
     assert.ok(checkAnswer(stored(q), [String(q.mc.a)]).ok, `bewaard niet na te kijken: ${q.q}`);
     return;
@@ -89,7 +73,7 @@ function assertSound(q, skill) {
     f.sel ? f.a : f.round ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
   );
   assert.ok(checkAnswer(q, right).ok, `goed antwoord afgekeurd (${right.join(' | ')}): ${q.q}`);
-  assertNoTrap(q, right, skill);
+  assertNoTrap(q, right);
   // Bij een tekenvraag verschuift alleen de eerste y, want twee punten even ver opschuiven kan weer
   // een punt op dezelfde lijn geven.
   const wrong = q.fields.map((f, i) =>
@@ -122,7 +106,7 @@ function eachQuestion(topic, skill, check) {
 for (const section of TOPICS) {
   test(section.title, async (t) => {
     for (const skill of section.skills) {
-      await t.test(skill.name, () => eachQuestion(section, skill, (q) => assertSound(q, skill)));
+      await t.test(skill.name, () => eachQuestion(section, skill, assertSound));
     }
   });
 }
