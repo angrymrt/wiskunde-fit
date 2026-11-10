@@ -59,6 +59,8 @@
   --good-soft: #daf2e8;
   --bad: #b02e2b;
   --bad-soft: #fbe4e2;
+  /* De schaduw aan de rand van een tabel die opzij schuift. */
+  --shade: rgba(19, 35, 63, 0.25);
   /* Welk icoon de knop voor licht en donker toont, zie .theme. */
   --moon: block;
   --sun: none;
@@ -88,6 +90,7 @@
     --good-soft: #0f3a2d;
     --bad: #ff9a92;
     --bad-soft: #452120;
+    --shade: rgba(0, 0, 0, 0.55);
     --moon: none;
     --sun: block;
     color-scheme: dark;
@@ -114,6 +117,7 @@
   --good-soft: #0f3a2d;
   --bad: #ff9a92;
   --bad-soft: #452120;
+  --shade: rgba(0, 0, 0, 0.55);
   --moon: none;
   --sun: block;
   color-scheme: dark;
@@ -899,6 +903,168 @@ sub {
 .block + .block {
   border-top: 1px solid var(--rule);
   padding-top: 18px;
+}
+
+/* De pagina Cijfers. Een blok en een onderwerp mogen smaller worden dan de tabel erin, zodat
+   alleen de tabel opzij schuift en niet de hele pagina. */
+.block,
+.ctopic {
+  min-width: 0;
+}
+.head .lead {
+  margin: 0;
+  max-width: 34em;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.tile {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.tile-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.cbars,
+.ranking {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.cbars {
+  list-style: none;
+  padding: 0;
+}
+.cbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 8px;
+}
+.cbar-n {
+  font-variant-numeric: tabular-nums;
+}
+.ranking {
+  padding-left: 1.4em;
+}
+.ranking li > span {
+  display: block;
+}
+.ranking .rank-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+/* Een staaf van 0 tot 100% met een streepje voor het gemiddelde. */
+.meter {
+  position: relative;
+  height: 8px;
+  margin: 4px 0 2px;
+  background: var(--grid);
+  border-radius: 4px;
+}
+.meter i {
+  display: block;
+  height: 100%;
+  background: var(--accent, var(--blue));
+  border-radius: 4px;
+}
+.meter b,
+.meter-key {
+  width: 2px;
+  background: var(--ink);
+}
+.meter b {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  margin-left: -1px;
+}
+.meter-key {
+  display: inline-block;
+  height: 12px;
+  vertical-align: -1px;
+}
+/* De uitleg die een leerling bij een veelgemaakte fout ziet. */
+.ranking .feedback {
+  margin-top: 4px;
+  padding-left: 10px;
+  border-left: 3px solid var(--rule);
+}
+.ctopic {
+  border-bottom: 1px solid var(--rule);
+}
+.ctopic summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px 12px;
+  min-height: 44px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+/* Met display: flex verdwijnt het pijltje van summary, dus dat komt terug als eigen teken. Na de /
+   staat wat een schermlezer voorleest: niets, want die zegt zelf al of het open is. */
+.ctopic summary > span:first-child::before {
+  content: '▸';
+  content: '▸' / '';
+  display: inline-block;
+  width: 1.1em;
+  color: var(--muted);
+}
+.ctopic[open] summary > span:first-child::before {
+  content: '▾';
+  content: '▾' / '';
+}
+/* Schuift de tabel opzij, dan laat een schaduw aan de rand zien dat er meer is. De bovenste twee
+   lagen schuiven mee en dekken de schaduw af zodra je aan het begin of eind bent. */
+.ctable {
+  overflow-x: auto;
+  background:
+    linear-gradient(to right, var(--sheet) 30%, transparent) left / 32px 100% no-repeat local,
+    linear-gradient(to left, var(--sheet) 30%, transparent) right / 32px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--shade), transparent) left / 12px 100% no-repeat,
+    radial-gradient(farthest-side at 100% 50%, var(--shade), transparent) right / 12px 100%
+      no-repeat;
+}
+.ctable table {
+  width: 100%;
+  font-size: 0.9rem;
+}
+.ctable th,
+.ctable td {
+  padding: 5px 8px;
+  text-align: right;
+  white-space: nowrap;
+}
+.ctable thead th {
+  border-bottom: 1px solid var(--rule);
+}
+.ctable thead th:first-child {
+  text-align: left;
+}
+.ctable tbody th {
+  min-width: 9em;
+  text-align: left;
+  font-weight: 400;
+  white-space: normal;
+}
+.ctable td {
+  font-variant-numeric: tabular-nums;
+}
+.ctopic > p {
+  margin: 6px 0 10px;
+}
+.ctable td.muted {
+  text-align: left;
 }
 .steps {
   margin: 0;

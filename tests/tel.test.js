@@ -11,10 +11,11 @@ const valkuil = { tel: 'valkuil', soort: 38, valkuil: 'wortel-vergeten' };
 const toetsvraag = { tel: 'toetsvraag', soort: 12, uitkomst: 'leeg' };
 
 test('alleen bekende tellen met bekende waarden zijn geldig', () => {
-  assert.deepEqual(checkTellen([poging, valkuil, toetsvraag], soorten), [
+  assert.deepEqual(checkTellen([poging, valkuil, toetsvraag, { tel: 'proeftoets' }], soorten), [
     poging,
     valkuil,
     toetsvraag,
+    { tel: 'proeftoets' },
   ]);
   const wrong = [
     [],
@@ -31,6 +32,8 @@ test('alleen bekende tellen met bekende waarden zijn geldig', () => {
     [{ ...valkuil, valkuil: 'x'.repeat(61) }],
     // Een veld dat er niet hoort, zoals een id, maakt het hele bericht ongeldig.
     [{ ...poging, id: 'abc' }],
+    [{ tel: 'proeftoets', soort: 12 }],
+    [{ ...poging, soort: undefined }],
     [poging, { ...valkuil, soort: '38' }],
     Array(41).fill(toetsvraag),
   ];

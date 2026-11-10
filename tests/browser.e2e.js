@@ -1344,7 +1344,8 @@ test('de site telt pogingen, valkuilen en proeftoetsen zonder iets over de leerl
     assert.equal(tellen[2].hint, false);
     assert.ok(tellen[2].duur <= 1, `de klok liep door: ${tellen[2].duur}`);
 
-    // Een ingeleverde proeftoets telt elke vraag, ook de lege.
+    // Een ingeleverde proeftoets telt zichzelf en elke vraag, ook de lege. Na goto is de lijst met
+    // verstuurde tellen weer leeg.
     await p.goto(at('/proeftoets'));
     await p.click('[data-act="stofall"]');
     await p.click('[data-act="len"][data-id="10"]');
@@ -1352,9 +1353,14 @@ test('de site telt pogingen, valkuilen en proeftoetsen zonder iets over de leerl
     await p.click('[data-act="tfin"]');
     await p.click('[data-act="tfin"]');
     await p.waitForURL(/\/proeftoets\/uitslag$/);
-    tellen = (await sent()).filter((x) => x.tel === 'toetsvraag');
-    assert.equal(tellen.length, 10);
-    assert.ok(tellen.every((x) => x.uitkomst === 'leeg' && Number.isInteger(x.soort)));
+    tellen = await sent();
+    assert.equal(tellen.length, 11);
+    assert.deepEqual(tellen[0], { tel: 'proeftoets' });
+    assert.ok(
+      tellen
+        .slice(1)
+        .every((x) => x.tel === 'toetsvraag' && x.uitkomst === 'leeg' && Number.isInteger(x.soort)),
+    );
 
     // Dit is een geautomatiseerde browser, net als een bot: er ging niets weg.
     assert.equal(requests, 0);

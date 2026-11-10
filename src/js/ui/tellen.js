@@ -64,17 +64,18 @@ function telValkuil(st, trap) {
   st.valkuilen.push(trap.id);
   stuur([{ tel: 'valkuil', soort: st.skill.id, valkuil: trap.id }]);
 }
-// Elke vraag van een ingeleverde proeftoets, in één bericht.
+// Een ingeleverde proeftoets en elke vraag daarvan, in één bericht.
 function telToets(items) {
   const filled = (x) =>
     x.vals.length && (x.q.mc ? x.vals[0] !== '' : x.vals.some((v) => String(v).trim()));
-  stuur(
-    items.map((x) => ({
+  stuur([
+    { tel: 'proeftoets' },
+    ...items.map((x) => ({
       tel: 'toetsvraag',
       soort: x.skill.id,
       uitkomst: x.c.ok ? 'goed' : filled(x) ? 'fout' : 'leeg',
     })),
-  );
+  ]);
 }
 
 export { runClock, telPoging, telValkuil, telToets, sent };

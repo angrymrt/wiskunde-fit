@@ -10,6 +10,10 @@ import { build } from 'esbuild';
 
 const root = new URL('../', import.meta.url);
 const dev = process.argv.includes('--dev');
+// Met --nep gebruikt de pagina Cijfers de nepcijfers uit data/nep-tellen/. Dat kan alleen in
+// dist-dev/, zodat nepcijfers nooit online komen.
+const nep = process.argv.includes('--nep');
+if (nep && !dev) throw new Error('--nep kan alleen samen met --dev.');
 // npm run dev bouwt in een eigen map. Zo verandert dist/ niet terwijl de browsertest of
 // scripts/controleer-site.js die gebruikt.
 const out = dev ? 'dist-dev' : 'dist';
@@ -28,6 +32,31 @@ if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) date = new Date().toISOString().slice(0, 
 // de voortgang van wie bouwt: elke pagina toont wat een nieuwe bezoeker ziet.
 globalThis.__VERSIE__ = version;
 globalThis.__DATUM__ = date;
+// De cijfers voor de pagina Cijfers, al uitgerekend. Zie src/js/cijfers.js.
+const { leesTellen } = await import('./tellen-lezen.js');
+const { cijfers } = await import('../src/js/cijfers.js');
+const tellen = leesTellen(fileURLToPath(new URL(nep ? 'data/nep-tellen/' : 'data/tellen/', root)), {
+  nep,
+});
+if (nep && !tellen.length)
+  throw new Error('Geen nepcijfers. Maak ze met node scripts/nep-tellen.js.');
+globalThis.__CIJFERS__ = { ...cijfers(tellen), nep };
+// Bij elke getelde valkuil de gerichte feedback, zoals een leerling die ziet. Uit de vragen van de
+// vraagsoort zelf, want een valkuil hoort bij een vraag.
+{
+  const { TOPICS, makeQuestion } = await import('../src/js/topics/index.js');
+  for (const skill of TOPICS.flatMap((t) => t.skills)) {
+    const s = globalThis.__CIJFERS__.soorten[skill.id];
+    if (!s) continue;
+    const ids = new Set(Object.keys(s.valkuilen));
+    s.teksten = {};
+    for (let seed = 1; seed <= 200 && ids.size; seed++) {
+      for (const trap of makeQuestion(skill, seed).traps ?? []) {
+        if (ids.delete(trap.id)) s.teksten[trap.id] = trap.m;
+      }
+    }
+  }
+}
 Object.defineProperty(globalThis, 'localStorage', { value: undefined, configurable: true });
 const { PAGES, SITE, redirects } = await import('../src/js/pages.js');
 const { screenHTML, shellHTML } = await import('../src/js/ui/screens.js');
@@ -54,7 +83,11 @@ const { metafile } = await build({
   assetNames: '[name]-[hash]',
   loader: { '.woff2': 'file', '.svg': 'file' },
   metafile: true,
-  define: { __VERSIE__: JSON.stringify(version), __DATUM__: JSON.stringify(date) },
+  define: {
+    __VERSIE__: JSON.stringify(version),
+    __DATUM__: JSON.stringify(date),
+    __CIJFERS__: JSON.stringify(globalThis.__CIJFERS__),
+  },
 });
 // esbuild rekent bij de code ook de paden van de modules mee in de hash, en Windows schrijft die
 // met \. Dan heet dezelfde code lokaal anders dan online, en kan scripts/controleer-site.js een

@@ -49,6 +49,8 @@ De anonieme tellen gaan naar de functie `/api/tel` uit `api/`, in een eigen Func
 
 Elke maandag vat de workflow [Tellen samenvatten](.github/workflows/tellen.yml) de losse tellen van de dagen die voorbij zijn samen, met `scripts/tellen-samenvatten.js`. Per dag telt hij hoe vaak elke combinatie voorkomt, zonder tijdstip of volgorde. Die van wiskundefit.nl komen in `data/tellen/<dag>.json`, via een pull request die de eigenaar nakijkt. Die van de previews komen alleen in het overzicht van de run. Daarna verwijdert de workflow de losse rijen, zodat ze hoogstens ongeveer acht dagen bestaan. De workflow logt in met dezelfde OIDC-identiteit als het online zetten. Lokaal zie je de samenvatting met `node scripts/tellen-samenvatten.js tellersdev`, na `az login` met een account dat de tabel mag lezen. Dat verandert niets.
 
+De build maakt uit `data/tellen/` de pagina `/cijfers`. Om die te ontwerpen zonder echte tellen, maakt `npm run dev:nep` nepcijfers in `data/nep-tellen/` en toont de site daarmee. Die map staat in `.gitignore`, de build zonder `--dev` weigert elk bestand met `"nep": true`, en de pagina zegt erbij dat het nepcijfers zijn.
+
 ### Wat er in `dist/` staat
 
 ```text

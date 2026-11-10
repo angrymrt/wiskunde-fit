@@ -14,7 +14,7 @@ let running = null,
   again = false;
 function rebuild() {
   if (running) return void (again = true);
-  running = spawn(process.execPath, ['scripts/build.js', '--dev'], {
+  running = spawn(process.execPath, ['scripts/build.js', '--dev', ...process.argv.slice(2)], {
     cwd: fileURLToPath(root),
     stdio: 'inherit',
   });

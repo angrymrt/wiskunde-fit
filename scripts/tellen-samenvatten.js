@@ -20,7 +20,7 @@ import { VORM } from '../src/js/tel.js';
 const ACCOUNT = 'https://stwewiskundefitprd.table.core.windows.net';
 const dag = (now) => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
 
-// Vergelijkt twee combinaties op soort en daarna op de velden in de volgorde van VORM.
+// Vergelijkt twee combinaties op de velden in de volgorde van VORM, dus eerst op soort.
 const compare = (keys) => (a, b) => {
   for (const key of keys) {
     if (a[key] !== b[key]) return a[key] < b[key] ? -1 : 1;
@@ -38,7 +38,7 @@ function telOp(rows) {
       onbekend.push(row);
       continue;
     }
-    const keys = ['soort', ...Object.keys(VORM[row.tel])];
+    const keys = [...Object.keys(VORM[row.tel])];
     const pick = Object.fromEntries(keys.map((k) => [k, row[k]]));
     const key = JSON.stringify(pick);
     totals[row.tel] ??= new Map();
@@ -48,7 +48,7 @@ function telOp(rows) {
   const out = {};
   for (const tel of Object.keys(VORM)) {
     if (!totals[tel]) continue;
-    const keys = ['soort', ...Object.keys(VORM[tel])];
+    const keys = [...Object.keys(VORM[tel])];
     out[tel] = [...totals[tel].values()].sort(compare(keys));
   }
   return { samenvatting: out, onbekend };

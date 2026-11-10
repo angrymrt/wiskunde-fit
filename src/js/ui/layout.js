@@ -52,7 +52,7 @@ const DATE_TEXT = (iso) =>
     year: 'numeric',
   });
 const footer = () =>
-  `<footer class="foot"><nav aria-label="Over de site"><a href="${to('over')}">Over</a><a href="${to('privacy')}">Privacy</a><a href="${to('contact')}">Contact</a><a href="${REPO}" target="_blank" rel="noopener">GitHub</a></nav><p class="small muted">${VERSION ? `Versie ${VERSION}, bijgewerkt op ${DATE_TEXT(DATE)}.` : 'Ontwikkelversie.'} <a href="${REPO}/releases" target="_blank" rel="noopener">Wat is er nieuw?</a></p></footer>`;
+  `<footer class="foot"><nav aria-label="Over de site"><a href="${to('over')}">Over</a><a href="${to('privacy')}">Privacy</a><a href="${to('contact')}">Contact</a><a href="${to('cijfers')}">Cijfers</a><a href="${REPO}" target="_blank" rel="noopener">GitHub</a></nav><p class="small muted">${VERSION ? `Versie ${VERSION}, bijgewerkt op ${DATE_TEXT(DATE)}.` : 'Ontwikkelversie.'} <a href="${REPO}/releases" target="_blank" rel="noopener">Wat is er nieuw?</a></p></footer>`;
 // Een proeftoets loopt door als je ergens anders heen gaat, dus zeg waar je hem terugvindt.
 const testNotice = () =>
   state.test && state.view.name !== 'toets'

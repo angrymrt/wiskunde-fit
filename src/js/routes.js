@@ -13,6 +13,7 @@ const SCREENS = {
   over: { path: '/over', title: 'Over Wiskundefit' },
   privacy: { path: '/privacy', title: 'Privacy' },
   contact: { path: '/contact', title: 'Contact' },
+  cijfers: { path: '/cijfers', title: 'Cijfers' },
 };
 
 function pathFor(v) {

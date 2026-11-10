@@ -9,16 +9,18 @@ const telAdres = (hostname) =>
 
 // Een langere eerste poging telt als 30 minuten: dan is de leerling waarschijnlijk weggelopen.
 const MAX_DUUR = 30 * 60;
-// Een proeftoets heeft hoogstens 30 vragen, en die gaan samen in één bericht.
+// Een proeftoets heeft hoogstens 30 vragen, en die gaan samen met de tel proeftoets in één bericht.
 const MAX_TELLEN = 40;
 // De id van een valkuil: kleine letters en cijfers met streepjes, zoals breuk-omgedraaid.
 const VALKUIL_ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-// Per soort tel de velden naast tel en soort. Een lijst noemt de waarden die mogen.
+// Per soort tel de velden naast tel. Een lijst noemt de waarden die mogen.
 const VORM = {
-  poging: { uitkomst: ['goed', 'fout', 'uitwerking'], duur: 'duur', hint: 'janee' },
-  valkuil: { valkuil: 'valkuil' },
-  toetsvraag: { uitkomst: ['goed', 'fout', 'leeg'] },
+  poging: { soort: 'soort', uitkomst: ['goed', 'fout', 'uitwerking'], duur: 'duur', hint: 'janee' },
+  valkuil: { soort: 'soort', valkuil: 'valkuil' },
+  toetsvraag: { soort: 'soort', uitkomst: ['goed', 'fout', 'leeg'] },
+  // Een ingeleverde proeftoets: alleen dat er een is gemaakt, zonder vraagsoort of score.
+  proeftoets: {},
 };
 const GELDIG = {
   duur: (x) => Number.isInteger(x) && x >= 0 && x <= MAX_DUUR,
@@ -33,11 +35,16 @@ function checkTellen(tellen, soorten) {
   const out = [];
   for (const t of tellen) {
     const vorm = VORM[t?.tel];
-    if (!vorm || !soorten.has(t.soort)) return null;
-    const clean = { tel: t.tel, soort: t.soort };
+    if (!vorm) return null;
+    const clean = { tel: t.tel };
     for (const [key, rule] of Object.entries(vorm)) {
       const value = t[key];
-      if (Array.isArray(rule) ? !rule.includes(value) : !GELDIG[rule](value)) return null;
+      const ok = Array.isArray(rule)
+        ? rule.includes(value)
+        : rule === 'soort'
+          ? soorten.has(value)
+          : GELDIG[rule](value);
+      if (!ok) return null;
       clean[key] = value;
     }
     if (Object.keys(t).length !== Object.keys(clean).length) return null;
