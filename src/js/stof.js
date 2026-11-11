@@ -1,7 +1,7 @@
 // De stofkeuze: altijd een lijst id's van vraagsoorten, of een leerling nu op paragraaf, hoofdstuk
 // of onderwerp kiest. Oefenen en de proeftoets gebruiken dezelfde lijst.
 import { MAPPING, MAPPINGS } from './mappings/index.js';
-import { prog, save } from './progress.js';
+import { prog, update } from './progress.js';
 import { pathFor, to } from './routes.js';
 import { TOPICS } from './topics/index.js';
 
@@ -12,14 +12,17 @@ const isChosen = (id) => (prog.stof || []).includes(id);
 const allChosen = (ids) => ids.length > 0 && ids.every(isChosen);
 const topicOf = (id) => TOPIC_OF.get(id);
 
+const sorted = (ids) => (ids.length ? [...new Set(ids)].sort((a, b) => a - b) : null);
 function setStof(ids) {
-  prog.stof = ids.length ? [...new Set(ids)].sort((a, b) => a - b) : null;
-  save();
+  update((p) => (p.stof = sorted(ids)));
 }
-// Kiest deze vraagsoorten, of haalt ze weg als ze allemaal al gekozen zijn.
+// Kiest deze vraagsoorten, of haalt ze weg als ze allemaal al gekozen zijn. Met de stofkeuze zoals
+// die nu bewaard is, want een ander tabblad kan die hebben veranderd.
 function toggleStof(ids) {
-  const rest = (prog.stof || []).filter((id) => !ids.includes(id));
-  setStof(allChosen(ids) ? rest : [...rest, ...ids]);
+  update((p) => {
+    const rest = (p.stof || []).filter((id) => !ids.includes(id));
+    p.stof = sorted(allChosen(ids) ? rest : [...rest, ...ids]);
+  });
 }
 // De gekozen vraagsoorten per onderwerp, in de volgorde van de site.
 function chosenTopics(ids = prog.stof || []) {

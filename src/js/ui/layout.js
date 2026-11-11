@@ -1,6 +1,7 @@
 // Onderdelen die op elk scherm terugkomen.
 import { crumbsFor, sectionFor, to } from '../routes.js';
 import { esc } from '../typeset.js';
+import { opslag } from '../progress.js';
 import { state } from './state.js';
 
 const REPO = 'https://github.com/angrymrt/wiskunde-fit';
@@ -60,7 +61,12 @@ const testNotice = () =>
   state.test && state.view.name !== 'toets'
     ? `<p class="notice small"><a href="${to('toets')}">Je proeftoets loopt nog. Ga verder met vraag ${state.test.i + 1}.</a></p>`
     : '';
+// Lukt opslaan niet, dan zegt de site dat, want overal staat dat je voortgang bewaard blijft.
+const storageNotice = () =>
+  opslag.mislukt
+    ? '<p class="notice small">Je voortgang kan in deze browser niet worden bewaard, bijvoorbeeld omdat de opslag vol is of is uitgezet. Oefenen gaat gewoon door, maar als je de pagina sluit, ben je je voortgang kwijt.</p>'
+    : '';
 const vMissing = () =>
   `${crumbs()}<div class="sheet">${pageHead('Deze pagina bestaat niet')}<p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
 
-export { REPO, topbar, footer, crumbs, pageHead, testNotice, vMissing };
+export { REPO, topbar, footer, crumbs, pageHead, testNotice, storageNotice, vMissing };

@@ -3,7 +3,7 @@ import { checkAnswer, fillState, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
-import { rec } from '../progress.js';
+import { opslag, rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { bookPath, chosenTopics, topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
@@ -35,7 +35,20 @@ function write(key, t) {
         items: t.items.map(({ topic, skill, ...x }) => ({ ...x, id: skill.id })),
       }),
     );
-  } catch (e) {}
+  } catch (e) {
+    if (typeof window !== 'undefined') opslag.mislukt = true;
+  }
+}
+// Of een bewaarde vraag nog na te kijken en te tekenen is. Bij de uitslag ook het nakijken zelf.
+const fine = (n) => Number.isFinite(n);
+function sound(x, result) {
+  const q = x?.q;
+  if (!q || typeof q !== 'object' || typeof q.q !== 'string' || !Array.isArray(x.vals))
+    return false;
+  const answer = q.mc
+    ? Array.isArray(q.mc.opts) && Number.isInteger(q.mc.a)
+    : Array.isArray(q.fields) && q.fields.length > 0;
+  return answer && (!result || (Array.isArray(x.c?.each) && fine(x.got) && fine(x.max)));
 }
 // Geeft null als er niets is, als een vraagsoort niet meer bestaat, of als de vragen of de
 // huidige vraag niet kloppen. Dan begint de leerling liever opnieuw dan dat de site vastloopt.
@@ -44,6 +57,9 @@ function read(key) {
     const t = JSON.parse(localStorage.getItem(key));
     if (t?.v !== STORED || !Array.isArray(t.items) || !t.items.length) return null;
     if ('i' in t && !(Number.isInteger(t.i) && t.i >= 0 && t.i < t.items.length)) return null;
+    const result = key === RESULT_KEY;
+    if (!fine(t.spent) || (result && !(fine(t.score) && fine(t.max) && fine(t.time)))) return null;
+    if (!t.items.every((x) => sound(x, result))) return null;
     t.items = t.items.map(({ id, ...x }) => {
       const topic = topicOf(id);
       return { ...x, topic, skill: topic.skills.find((k) => k.id === id) };
@@ -290,6 +306,8 @@ function fmtAns(a) {
 }
 
 export {
+  TEST_KEY,
+  RESULT_KEY,
   buildTest,
   vToetsSetup,
   vToetsRun,

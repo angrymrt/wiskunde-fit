@@ -4,10 +4,12 @@ import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
 import { TOPICS, TOPIC } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
-import { prog, save, rec, resetProgress } from './progress.js';
+import { STORE, load, prog, rec, resetProgress, update } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof } from './stof.js';
 import {
+  TEST_KEY,
+  RESULT_KEY,
   buildTest,
   loadTests,
   saveTest,
@@ -195,10 +197,7 @@ app.addEventListener('click', (e) => {
   if (link) {
     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
-    if (link.dataset.act === 'kiesgo') {
-      prog.mapping = link.dataset.id;
-      save();
-    }
+    if (link.dataset.act === 'kiesgo') update((p) => (p.mapping = link.dataset.id));
     const { pathname, search, hash } = new URL(link.href);
     return go(viewFor(pathname, search), hash);
   }
@@ -265,7 +264,7 @@ app.addEventListener('click', (e) => {
   }
   if (a === 'para' || a === 'chapter') {
     // Iets aanvinken maakt dit je boek. Alleen de pagina openen niet, want dat kan via een link zijn.
-    prog.mapping = state.view.id;
+    update((p) => (p.mapping = state.view.id));
     const chapters = MAPPING[state.view.id].chapters;
     const paragraphs =
       a === 'chapter'
@@ -493,6 +492,21 @@ window.addEventListener(
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') keepTyped();
   runClock();
+});
+// Een ander tabblad heeft iets bewaard. Neem dat over, zodat beide tabbladen hetzelfde laten zien
+// en het ene tabblad het werk van het andere niet overschrijft. Bij de proeftoets volgt dit tabblad
+// het andere: een antwoord dat je daar invult, staat hier ook, en lever je daar in, dan ziet dit
+// tabblad de uitslag. key is null als een ander tabblad alles heeft gewist.
+window.addEventListener('storage', (e) => {
+  const progress = e.key === STORE || e.key === null,
+    tests = e.key === TEST_KEY || e.key === RESULT_KEY || e.key === null;
+  if (!progress && !tests) return;
+  if (progress) load();
+  if (tests) {
+    loadTests();
+    if (!state.test) stopTimer();
+  }
+  render();
 });
 window.addEventListener('pagehide', () => {
   keepTyped();

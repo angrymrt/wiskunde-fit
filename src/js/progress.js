@@ -1,5 +1,8 @@
 // Voortgang van de leerling. Blijft alleen in deze browser bewaard (localStorage).
 import { MAPPING } from './mappings/index.js';
+import { TOPICS } from './topics/index.js';
+
+const SKILL_IDS = new Set(TOPICS.flatMap((t) => t.skills.map((k) => k.id)));
 
 // Oude naam van de site. Laat dit staan: een nieuwe sleutel wist de opgeslagen voortgang.
 const STORE = 'lijn-driehoek-v1';
@@ -110,55 +113,100 @@ function migrateScope(scope) {
   const chapter = MAPPING['gr13-havo3'].chapters.find((c) => c.number === number);
   return chapter ? chapter.paragraphs.flatMap((p) => p.skills) : null;
 }
-const prog = { v: 5, skills: {}, stof: null, mapping: null };
-try {
-  const raw = localStorage.getItem(STORE);
-  if (raw) {
-    const saved = JSON.parse(raw);
-    if (!saved.v) {
-      saved.skills = migrateSkills(saved.skills || {});
-      saved.v = 2;
-      if (saved.scope === 'core') saved.scope = 'all';
-    }
-    // Altijd omzetten: een tabblad met de oude code kan nog een oude id hebben bewaard.
-    saved.skills = migrateIds(saved.skills || {});
-    if ('scope' in saved) {
-      saved.stof = migrateScope(saved.scope);
-      saved.mapping = saved.stof ? 'gr13-havo3' : null;
-      delete saved.scope;
-    }
-    // De uitslag van de laatste proeftoets staat nu apart, met de vragen erbij. Zie ui/exam.js.
-    delete saved.tests;
-    saved.v = 5;
-    Object.assign(prog, saved);
+// Zet opgeslagen voortgang om naar de vorm van nu, en houdt alleen wat klopt. Een ongeldig deel,
+// zoals een vraagsoort zonder lijst met resultaten, valt weg. De rest blijft staan.
+function cleanProgress(saved) {
+  const out = { v: 5, skills: {}, stof: null, mapping: null };
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return out;
+  saved = { ...saved };
+  const map = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
+  if (!saved.v) {
+    saved.skills = migrateSkills(map(saved.skills));
+    if (saved.scope === 'core') saved.scope = 'all';
   }
-} catch (e) {}
-const save = () => {
+  // Altijd omzetten: een tabblad met de oude code kan nog een oude id hebben bewaard.
+  const skills = migrateIds(map(saved.skills));
+  if ('scope' in saved) {
+    saved.stof = migrateScope(saved.scope);
+    saved.mapping = saved.stof ? 'gr13-havo3' : null;
+  }
+  // Per vraagsoort hoogstens de laatste vijf resultaten, elk 0 of 1. Een onbekend nummer mag
+  // blijven: dat kan van een nieuwere versie in een ander tabblad zijn, en het stoort niets.
+  for (const [id, results] of Object.entries(skills)) {
+    if (!/^[1-9]\d*$/.test(id) || !Array.isArray(results)) continue;
+    const ok = results.filter((x) => x === 0 || x === 1).slice(-5);
+    if (ok.length) out.skills[id] = ok;
+  }
+  // De stofkeuze bevat alleen vraagsoorten die bestaan, want oefenen en de proeftoets kiezen daaruit.
+  if (Array.isArray(saved.stof)) {
+    const ids = [...new Set(saved.stof.filter((id) => SKILL_IDS.has(id)))].sort((a, b) => a - b);
+    out.stof = ids.length ? ids : null;
+  }
+  if (typeof saved.mapping === 'string' && Object.hasOwn(MAPPING, saved.mapping))
+    out.mapping = saved.mapping;
+  return out;
+}
+// Of opslaan in deze browser is mislukt, bijvoorbeeld omdat de opslag vol of geblokkeerd is. Het
+// scherm zegt dat dan. Zie ui/layout.js.
+const opslag = { mislukt: false };
+const prog = { v: 5, skills: {}, stof: null, mapping: null };
+// Leest de voortgang opnieuw, want een ander tabblad kan die intussen hebben veranderd.
+// Is er geen opslag, of lukte het bewaren niet, dan is wat in het geheugen staat het nieuwst.
+function load() {
+  if (opslag.mislukt) return;
+  let raw;
+  try {
+    raw = localStorage.getItem(STORE);
+  } catch (e) {
+    return;
+  }
+  let saved = null;
+  try {
+    saved = JSON.parse(raw);
+  } catch (e) {}
+  Object.assign(prog, cleanProgress(saved));
+}
+load();
+function save() {
   try {
     localStorage.setItem(STORE, JSON.stringify(prog));
-  } catch (e) {}
-};
-function rec(id, ok) {
-  const a = prog.skills[id] || (prog.skills[id] = []);
-  a.push(ok ? 1 : 0);
-  if (a.length > 5) a.shift();
+  } catch (e) {
+    if (typeof window !== 'undefined') opslag.mislukt = true;
+  }
+}
+// Elke wijziging begint met de voortgang zoals die nu bewaard is. Zo gaat niets verloren als je in
+// twee tabbladen oefent, en komt gewiste voortgang niet terug uit een ouder tabblad.
+function update(change) {
+  load();
+  change(prog);
   save();
+}
+function rec(id, ok) {
+  update((p) => {
+    const a = p.skills[id] || (p.skills[id] = []);
+    a.push(ok ? 1 : 0);
+    if (a.length > 5) a.shift();
+  });
 }
 const skillPct = (id) => {
   const a = prog.skills[id] || [];
   return a.reduce((t, x) => t + x, 0) / 5;
 };
 const topicPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
-const resetProgress = () => {
-  prog.skills = {};
-  prog.stof = null;
-  prog.mapping = null;
-  save();
-};
+const resetProgress = () =>
+  update((p) => {
+    p.skills = {};
+    p.stof = null;
+    p.mapping = null;
+  });
 
 export {
+  STORE,
   prog,
-  save,
+  opslag,
+  load,
+  update,
+  cleanProgress,
   rec,
   skillPct,
   topicPct,
