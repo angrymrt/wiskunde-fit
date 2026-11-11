@@ -224,7 +224,7 @@ Eerst, samen in versie 1.11.1 (online sinds 10 november 2026):
 
 Daarna:
 
-- [ ] De gegevens uit een figuur beschrijven voor een schermlezer ([#55](https://github.com/angrymrt/wiskunde-fit/issues/55)). Testen met een echte schermlezer hoort bij [#31](https://github.com/angrymrt/wiskunde-fit/issues/31).
+- [x] De gegevens uit een figuur beschrijven voor een schermlezer, in versie 1.11.3 ([#55](https://github.com/angrymrt/wiskunde-fit/issues/55)). Testen met een echte schermlezer hoort bij [#31](https://github.com/angrymrt/wiskunde-fit/issues/31).
 - [ ] De voortgang heel houden bij ongeldige opslag en een tweede tabblad ([#56](https://github.com/angrymrt/wiskunde-fit/issues/56)).
 - [ ] Vastleggen welke browsers de site ondersteunt ([#59](https://github.com/angrymrt/wiskunde-fit/issues/59)), samen met de test op een echte iPhone ([#20](https://github.com/angrymrt/wiskunde-fit/issues/20)).
 - [ ] Een gedeelde vraag dezelfde laten blijven als de generator verandert ([#60](https://github.com/angrymrt/wiskunde-fit/issues/60)), voordat we antwoorden laten delen ([#47](https://github.com/angrymrt/wiskunde-fit/issues/47)).
