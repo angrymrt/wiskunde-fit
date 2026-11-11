@@ -4,7 +4,7 @@ import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
 import { TOPICS, TOPIC } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
-import { STORE, load, prog, rec, resetProgress, update } from './progress.js';
+import { STORE, load, opslag, prog, rec, resetProgress, update } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof } from './stof.js';
 import {
@@ -39,10 +39,26 @@ function stopTimer() {
 // render() vervangt de velden, dus bewaar eerst wat de leerling heeft ingevuld.
 function keepTyped() {
   if (state.test) storeTest();
+  readTyped();
+}
+// Zet wat de leerling heeft ingevuld in het geheugen, zonder de proeftoets te bewaren.
+function readTyped() {
+  if (state.test && document.getElementById('tform')) {
+    const x = state.test.items[state.test.i];
+    x.vals = readVals(x.q, 't');
+  }
   if (document.getElementById('pform')) {
     const st = state.prac[state.view.slug];
     st.vals = readVals(st.q, 'p');
   }
+}
+// Bewaart de proeftoets. Heeft een ander tabblad die intussen ingeleverd of gestopt, dan toont dit
+// tabblad wat daar is gebeurd en geeft dit false.
+function storeOrFollow() {
+  if (storeTest()) return true;
+  if (!state.test) stopTimer();
+  render();
+  return false;
 }
 function leave() {
   keepTyped();
@@ -126,6 +142,7 @@ function render(focus) {
   if (prebuilt) Idiomorph.morph(app, screenHTML(), { morphStyle: 'innerHTML' });
   else app.innerHTML = screenHTML();
   prebuilt = false;
+  opslag.gemeld = opslag.voortgang || opslag.toets;
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
@@ -364,17 +381,20 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'start') {
-    state.test = { items: buildTest(prog.stof, state.len), i: 0, spent: 0, since: null };
+    // De id onderscheidt deze proeftoets van een die een ander tabblad begint. Zie storeTest().
+    const id = Date.now();
+    state.test = { id, items: buildTest(prog.stof, state.len), i: 0, spent: 0, since: null };
     saveTest();
     return go({ name: 'toets' });
   }
   if (a === 'tstop1' || a === 'tstop0') {
-    storeTest();
+    if (!storeOrFollow()) return;
     state.test.confirmStop = a === 'tstop1';
     render(a === 'tstop1' ? '[data-act="tstop2"]' : '[data-act="tstop1"]');
     return;
   }
   if (a === 'tstop2') {
+    if (!storeOrFollow()) return;
     stopTest();
     stopTimer();
     state.stopped = true;
@@ -382,19 +402,19 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'goto') {
-    storeTest();
+    if (!storeOrFollow()) return;
     toQuestion(+id);
     render('#tq');
     return;
   }
   if (a === 'tprev') {
-    storeTest();
+    if (!storeOrFollow()) return;
     toQuestion(state.test.i - 1);
     render('#tq');
     return;
   }
   if (a === 'tfin') {
-    storeTest();
+    if (!storeOrFollow()) return;
     const done = (x) => fillState(x.q, x.vals) === 'ingevuld';
     if (!state.test.items.every(done) && !state.test.warn) {
       state.test.warn = true;
@@ -409,7 +429,7 @@ app.addEventListener('click', (e) => {
 app.addEventListener('submit', (e) => {
   e.preventDefault();
   if (e.target.id === 'tform') {
-    storeTest();
+    if (!storeOrFollow()) return;
     // Op de laatste vraag is er geen knop Volgende, maar Enter verstuurt het formulier toch. Dan
     // blijft het antwoord bewaard en gaat de focus naar Inleveren, zonder al in te leveren.
     if (state.test.i === state.test.items.length - 1) {
@@ -497,13 +517,24 @@ document.addEventListener('visibilitychange', () => {
 // en het ene tabblad het werk van het andere niet overschrijft. Bij de proeftoets volgt dit tabblad
 // het andere: een antwoord dat je daar invult, staat hier ook, en lever je daar in, dan ziet dit
 // tabblad de uitslag. key is null als een ander tabblad alles heeft gewist.
+// Wat je hier aan het invullen bent, blijft staan, en je blijft bij je eigen vraag. Dat gaat alleen
+// via het geheugen: bewaren zou de proeftoets van het andere tabblad overschrijven.
 window.addEventListener('storage', (e) => {
   const progress = e.key === STORE || e.key === null,
     tests = e.key === TEST_KEY || e.key === RESULT_KEY || e.key === null;
   if (!progress && !tests) return;
+  const before = state.test,
+    known = before && JSON.stringify(before.items[before.i].vals);
+  readTyped();
   if (progress) load();
   if (tests) {
     loadTests();
+    if (before && state.test && state.test.id === before.id) {
+      const x = before.items[before.i];
+      state.test.i = before.i;
+      // Alleen wat je hier hebt veranderd, gaat voor op wat het andere tabblad bewaarde.
+      if (JSON.stringify(x.vals) !== known) state.test.items[before.i].vals = x.vals;
+    }
     if (!state.test) stopTimer();
   }
   render();
