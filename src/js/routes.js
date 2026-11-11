@@ -67,9 +67,10 @@ function viewFor(pathname, search = '') {
   if (!rest.length) {
     const mapping = first === 'methode-indeling' && MAPPINGS.find((m) => m.slug === second);
     if (mapping) return { name: 'mapping', id: mapping.id };
-    // Object.hasOwn, want /constructor is ook een eigenschap van een gewoon object.
-    if (Object.hasOwn(DOMAIN, first) && !second) return { name: 'domain', slug: first };
-    if (Object.hasOwn(TOPIC, first)) {
+    // Alleen eigen eigenschappen, want /constructor is ook een eigenschap van een gewoon object.
+    if (Object.prototype.hasOwnProperty.call(DOMAIN, first) && !second)
+      return { name: 'domain', slug: first };
+    if (Object.prototype.hasOwnProperty.call(TOPIC, first)) {
       if (!second) return { name: 'topic', slug: first };
       if (second === 'oefenen') return practiceView(first, search);
     }

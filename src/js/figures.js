@@ -10,7 +10,9 @@ const whole = (x) => near(x, Math.round(x), 1e-9);
 const spot = (x, y) =>
   whole(x) && whole(y) ? `(${num(x)}, ${num(y)})` : `x = ${num(x)} en y = ${num(y)}`;
 const and = (items) =>
-  items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} en ${items.at(-1)}`;
+  items.length < 2
+    ? items.join('')
+    : `${items.slice(0, -1).join(', ')} en ${items[items.length - 1]}`;
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 const attr = (s) => esc(s).replace(/"/g, '&quot;');
 const trend = (a) => (a > 0 ? 'stijgt' : a < 0 ? 'daalt' : 'loopt horizontaal');

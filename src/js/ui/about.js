@@ -16,6 +16,8 @@ function vOver() {
   <p>De computer maakt van elke soort vraag honderden varianten en rekent het antwoord op een tweede manier na. Zo vinden we rekenfouten, maar geen onduidelijke uitleg of een verkeerde aanpak.</p>
   <p>We maken het middelbare scholieren makkelijk om de juiste stof te vinden, door te verwijzen naar de hoofdstukken in bekende Nederlandse schoolboeken. Voorlopig is dat Getal &amp; Ruimte.</p>
   <p>De werkwijze is met het boek vergeleken, maar de stof is nog niet helemaal door een wiskundedocent nagekeken. Er kan dus iets niet kloppen. Zie je een fout? <a href="${to('contact')}">Laat het ons weten</a>, dan herstellen we die zo snel mogelijk.</p></div>
+  <div class="block"><h2 class="h3">Op welk apparaat</h2>
+  <p>De site werkt op een iPhone of iPad met iOS 14.5 of nieuwer. Dat kan elke iPhone vanaf de iPhone 6s krijgen. Op een computer of Android-telefoon werkt hij in Chrome, Edge en Firefox van eind 2020 of later, en op een Mac in Safari 14.1 of nieuwer. Werkt er iets niet op jouw apparaat? <a href="${to('contact')}">Laat het ons weten</a>.</p></div>
   <div class="block"><h2 class="h3">Open en eerlijk</h2>
   <p>De code, de bekende fouten en de plannen staan op ${repo('GitHub')}. Wat er in elke versie is veranderd, staat bij de ${repo('versies', '/releases')}, ook welke fouten we hebben hersteld.</p></div></div>`;
 }

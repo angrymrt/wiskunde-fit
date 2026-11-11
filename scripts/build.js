@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
+import { TARGETS } from './browsers.js';
 
 const root = new URL('../', import.meta.url);
 const dev = process.argv.includes('--dev');
@@ -72,7 +73,9 @@ const { metafile } = await build({
   entryPoints: { main: 'src/js/main.js', styles: 'src/styles.css' },
   bundle: true,
   format: 'iife',
-  target: 'es2020',
+  // esbuild zet nieuwere schrijfwijzen in de code en de CSS om voor deze browsers. Functies die er
+  // niet zijn, zoals Object.hasOwn, zet het niet om. Die bewaakt tests/browsers.test.js.
+  target: TARGETS,
   charset: 'utf8',
   minify: !dev,
   // Met npm run dev wijst een sourcemap naar src/, zodat je in de browser en in VS Code (zie
