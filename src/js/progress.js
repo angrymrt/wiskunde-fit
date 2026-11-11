@@ -146,14 +146,19 @@ function cleanProgress(saved) {
     out.mapping = saved.mapping;
   return out;
 }
-// Of opslaan in deze browser is mislukt, bijvoorbeeld omdat de opslag vol of geblokkeerd is. Het
-// scherm zegt dat dan. Zie ui/layout.js.
-const opslag = { mislukt: false };
+// Of het laatste bewaren in deze browser is mislukt, bijvoorbeeld omdat de opslag vol of
+// geblokkeerd is. Apart voor de voortgang en de proeftoets (ui/exam.js), want alleen voor de
+// voortgang is dan wat in het geheugen staat het nieuwst. Lukt het later weer, dan gaat de vlag
+// uit. Het scherm zegt het zolang een van de twee aan staat, en gemeld zegt of een schermlezer
+// dat al heeft gehoord. Zie ui/layout.js.
+const opslag = { voortgang: false, toets: false, gemeld: false };
+// In Node, bij het bouwen en testen, is er geen opslag. Dat is geen mislukte poging.
+const inBrowser = () => typeof window !== 'undefined';
 const prog = { v: 5, skills: {}, stof: null, mapping: null };
 // Leest de voortgang opnieuw, want een ander tabblad kan die intussen hebben veranderd.
 // Is er geen opslag, of lukte het bewaren niet, dan is wat in het geheugen staat het nieuwst.
 function load() {
-  if (opslag.mislukt) return;
+  if (opslag.voortgang) return;
   let raw;
   try {
     raw = localStorage.getItem(STORE);
@@ -170,8 +175,9 @@ load();
 function save() {
   try {
     localStorage.setItem(STORE, JSON.stringify(prog));
+    opslag.voortgang = false;
   } catch (e) {
-    if (typeof window !== 'undefined') opslag.mislukt = true;
+    if (inBrowser()) opslag.voortgang = true;
   }
 }
 // Elke wijziging begint met de voortgang zoals die nu bewaard is. Zo gaat niets verloren als je in
@@ -204,6 +210,7 @@ export {
   STORE,
   prog,
   opslag,
+  inBrowser,
   load,
   update,
   cleanProgress,

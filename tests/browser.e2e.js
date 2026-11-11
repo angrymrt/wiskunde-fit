@@ -1099,13 +1099,29 @@ test('de voortgang blijft heel in twee tabbladen, bij kapotte opslag en als opsl
     await answerRight(B);
     assert.deepEqual((await stored()).skills, { 41: [1] });
 
-    // Een proeftoets in twee tabbladen: lever je in A in, dan ziet B de uitslag.
+    // Wat je in B aan het invullen bent, blijft staan als A iets bewaart.
+    await B.click('#nextq');
+    await B.fill('#pf0', '12');
+    await A.goto(practice);
+    await answerRight(A);
+    await B.waitForFunction(() => wiskundefit.prog.skills[41]?.length === 2);
+    assert.equal(await B.inputValue('#pf0'), '12');
+
+    // Een proeftoets in twee tabbladen: elk tabblad blijft bij zijn eigen vraag, en lever je in A
+    // in, dan ziet B de uitslag.
     await A.goto(at('/proeftoets'));
     await A.click('[data-act="stofall"]');
     await A.click('[data-act="len"][data-id="10"]');
     await A.click('[data-act="start"]');
     await B.goto(at('/proeftoets'));
     assert.ok(await B.$('#tform'), 'B ziet de lopende proeftoets');
+    await A.click('[data-act="goto"][data-id="3"]');
+    const a3 = await A.evaluate(`(${answerOf})(wiskundefit.state.test.items[3].q)`);
+    if (a3.mc !== null) await A.check(`#tm${a3.mc}`);
+    else await fill(A, 't', a3.vals);
+    await A.click('[data-act="goto"][data-id="4"]');
+    await B.waitForFunction(() => wiskundefit.state.test.items[3].vals.length > 0);
+    assert.equal(await B.evaluate(() => wiskundefit.state.test.i), 0);
     await A.click('[data-act="tfin"]');
     await A.click('[data-act="tfin"]');
     await A.waitForURL(/\/proeftoets\/uitslag$/);

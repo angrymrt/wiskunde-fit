@@ -3,7 +3,7 @@ import { checkAnswer, fillState, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
-import { opslag, rec } from '../progress.js';
+import { inBrowser, opslag, rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { bookPath, chosenTopics, topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
@@ -35,8 +35,9 @@ function write(key, t) {
         items: t.items.map(({ topic, skill, ...x }) => ({ ...x, id: skill.id })),
       }),
     );
+    opslag.toets = false;
   } catch (e) {
-    if (typeof window !== 'undefined') opslag.mislukt = true;
+    if (inBrowser()) opslag.toets = true;
   }
 }
 // Of een bewaarde vraag nog na te kijken en te tekenen is. Bij de uitslag ook het nakijken zelf.
@@ -79,6 +80,19 @@ function loadTests() {
   state.result = read(RESULT_KEY);
 }
 const saveTest = () => write(TEST_KEY, state.test);
+// Of deze proeftoets nog de bewaarde is. Een ander tabblad kan hem hebben ingeleverd, gestopt of
+// een nieuwe zijn begonnen. Lukte het bewaren niet, dan is wat in het geheugen staat het nieuwst.
+// Een proeftoets van voor versie 1.11.4 heeft geen id; die blijft gewoon lopen.
+function current() {
+  if (!state.test) return false;
+  if (opslag.toets) return true;
+  try {
+    const raw = localStorage.getItem(TEST_KEY);
+    return (raw === null ? null : JSON.parse(raw)?.id) === state.test.id;
+  } catch (e) {
+    return true;
+  }
+}
 function stopTest() {
   state.test = null;
   remove(TEST_KEY);
@@ -164,10 +178,19 @@ function toQuestion(i) {
   state.test.i = Math.max(0, Math.min(state.test.items.length - 1, i));
   state.test.warn = false;
 }
+// Bewaart de proeftoets met wat er nu is ingevuld. Loopt die niet meer, dan neemt dit tabblad over
+// wat er nu bewaard is en geeft dit false. Zo zet een tabblad dat achterliep, bijvoorbeeld omdat
+// de browser het had stilgezet, een ingeleverde proeftoets niet terug, en telt die niet dubbel.
 function storeTest() {
-  if (!document.getElementById('tform')) return;
-  state.test.items[state.test.i].vals = readVals(state.test.items[state.test.i].q, 't');
-  saveTest();
+  if (!current()) {
+    loadTests();
+    return false;
+  }
+  if (globalThis.document?.getElementById('tform')) {
+    state.test.items[state.test.i].vals = readVals(state.test.items[state.test.i].q, 't');
+    saveTest();
+  }
+  return true;
 }
 function finishTest() {
   let score = 0,
