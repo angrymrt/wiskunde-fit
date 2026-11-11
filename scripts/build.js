@@ -261,8 +261,10 @@ await move(final, old, true);
 try {
   await move(dist, final);
 } catch (e) {
-  // Zet de vorige build terug, zodat npm run dev iets blijft tonen.
-  await move(old, final, true);
+  // Zet de vorige build terug, zodat npm run dev iets blijft tonen. De eerste fout is de echte.
+  await move(old, final, true).catch((e2) =>
+    console.warn(`De vorige build kon niet worden teruggezet: ${e2.message}`),
+  );
   throw e;
 }
 // De nieuwe build staat er al. Lukt opruimen niet, dan gebeurt dat bij de volgende build.
