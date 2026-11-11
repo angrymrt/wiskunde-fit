@@ -142,7 +142,10 @@ function cleanProgress(saved) {
     const ids = [...new Set(saved.stof.filter((id) => SKILL_IDS.has(id)))].sort((a, b) => a - b);
     out.stof = ids.length ? ids : null;
   }
-  if (typeof saved.mapping === 'string' && Object.hasOwn(MAPPING, saved.mapping))
+  if (
+    typeof saved.mapping === 'string' &&
+    Object.prototype.hasOwnProperty.call(MAPPING, saved.mapping)
+  )
     out.mapping = saved.mapping;
   return out;
 }

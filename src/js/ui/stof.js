@@ -28,7 +28,7 @@ const checkbox = (act, id, ids) => {
 };
 const skillNames = (skills) => skills.map((k) => T(k.name)).join(', ');
 const list = (items) =>
-  items.length > 1 ? `${items.slice(0, -1).join(', ')} en ${items.at(-1)}` : items[0];
+  items.length > 1 ? `${items.slice(0, -1).join(', ')} en ${items[items.length - 1]}` : items[0];
 
 // Kies uit je boek: een lijst met boeken en filters, zoals in een webshop, alles in één blok. De
 // filters staan in het adres, zoals ?niveau=havo. Zonder JavaScript zie je de hele lijst. Het

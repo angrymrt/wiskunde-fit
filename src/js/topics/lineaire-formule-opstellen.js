@@ -397,7 +397,7 @@ function s12table() {
     v: () => {
       const ts = rows[0].slice(1).map(Number),
         ls = rows[1].slice(1).map(Number),
-        slope = (ls.at(-1) - ls[0]) / (ts.at(-1) - ts[0]);
+        slope = (ls[ls.length - 1] - ls[0]) / (ts[ts.length - 1] - ts[0]);
       return (
         slope === a &&
         ls[0] - slope * ts[0] === b &&

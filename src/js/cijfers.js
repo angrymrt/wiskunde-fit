@@ -113,7 +113,7 @@ function cijfers(dagen) {
   const all = Object.values(soorten);
   return {
     van: dagen[0]?.[0] ?? null,
-    tot: dagen.at(-1)?.[0] ?? null,
+    tot: dagen[dagen.length - 1]?.[0] ?? null,
     dagen: dagen.length,
     // De eerste dag met een proeftoets: eerder telde de site die niet.
     proeftoetsenVan: dagen.find(([, s]) => s.proeftoets)?.[0] ?? null,

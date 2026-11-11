@@ -2,6 +2,16 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.11.5
+
+### Hersteld
+
+- Op een iPhone of iPad met iOS 14.5 tot 15.3 werkte de site niet: je kon de pagina's lezen, maar niet oefenen. Nu werkt alles weer.
+
+### Verbeterd
+
+- Op de pagina Over staat nu op welke apparaten en browsers de site werkt.
+
 ## 1.11.4
 
 ### Hersteld

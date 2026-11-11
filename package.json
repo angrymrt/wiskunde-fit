@@ -1,6 +1,6 @@
 {
   "name": "wiskundefit",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "description": "Wiskundefit: interactieve oefensite voor wiskunde havo 3",
   "private": true,
   "license": "MIT",
@@ -8,13 +8,20 @@
   "engines": {
     "node": ">=20"
   },
+  "browserslist": [
+    "chrome >= 87",
+    "edge >= 88",
+    "firefox >= 83",
+    "safari >= 14.1",
+    "ios_saf >= 14.5"
+  ],
   "scripts": {
     "dev": "node scripts/serve.js",
     "dev:nep": "node scripts/nep-tellen.js && node scripts/serve.js --nep",
     "build": "node scripts/build.js",
     "images": "node scripts/images.js",
     "fonts": "node scripts/lettertypes.js",
-    "test": "node --test tests/generators.test.js tests/adressen.test.js tests/methode-indelingen.test.js tests/schermen.test.js tests/paginas.test.js tests/server.test.js tests/tel.test.js tests/opslag.test.js tests/cijfers.test.js tests/release.test.js",
+    "test": "node --test tests/generators.test.js tests/adressen.test.js tests/methode-indelingen.test.js tests/schermen.test.js tests/paginas.test.js tests/server.test.js tests/tel.test.js tests/opslag.test.js tests/browsers.test.js tests/cijfers.test.js tests/release.test.js",
     "test:browser": "npm run build && node --test tests/browser.e2e.js",
     "format": "prettier --write ."
   },
