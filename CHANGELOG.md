@@ -2,6 +2,17 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.11.4
+
+### Hersteld
+
+- Had je de site in twee tabbladen open, dan kon het ene tabblad de voortgang van het andere overschrijven, of voortgang terugzetten die je had gewist. Nu nemen tabbladen elkaars voortgang over. Ook een proeftoets volgt het andere tabblad: lever je hem in het ene in, dan zie je in het andere de uitslag.
+- Was de opgeslagen voortgang of proeftoets beschadigd, dan kon de site vastlopen. Nu valt alleen het beschadigde deel weg.
+
+### Verbeterd
+
+- Kan je browser je voortgang niet bewaren, bijvoorbeeld omdat de opslag vol is, dan zegt de site dat nu. Oefenen gaat gewoon door.
+
 ## 1.11.3
 
 ### Verbeterd

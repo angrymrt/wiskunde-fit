@@ -1063,6 +1063,97 @@ test('de terugknop gaat naar het vorige scherm en bewaart een half gemaakte vraa
   }
 });
 
+test('de voortgang blijft heel in twee tabbladen, bij kapotte opslag en als opslaan mislukt', async () => {
+  // Uit #56.
+  const browser = await launch();
+  try {
+    const context = await browser.newContext();
+    const errors = [];
+    context.on('weberror', (e) => errors.push(e.error().message));
+    const [A, B] = [await context.newPage(), await context.newPage()];
+    const slug = 'verhoudingstabellen',
+      practice = at(`/${slug}/oefenen?soort=41`);
+    const stored = () => A.evaluate(() => JSON.parse(localStorage.getItem('lijn-driehoek-v1')));
+    const answerRight = async (p) => {
+      const a = await p.evaluate(
+        `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(slug)}].q)`,
+      );
+      await fill(p, 'p', a.vals);
+      await p.click('#pform button[type=submit]');
+      assert.match(await p.textContent('.fb'), /Goed gedaan/);
+    };
+
+    // Oefenen in A en daarna in B: allebei bewaard, en A neemt het resultaat van B over.
+    await A.goto(practice);
+    await B.goto(practice);
+    await answerRight(A);
+    await answerRight(B);
+    assert.deepEqual((await stored()).skills['41'], [1, 1]);
+    await A.waitForFunction(() => wiskundefit.prog.skills[41]?.length === 2);
+
+    // Wissen in A gaat voor: B zet de oude voortgang niet terug.
+    await A.goto(at('/mijn-stof'));
+    await A.click('[data-act="reset1"]');
+    await A.click('[data-act="reset2"]');
+    await B.click('#nextq');
+    await answerRight(B);
+    assert.deepEqual((await stored()).skills, { 41: [1] });
+
+    // Een proeftoets in twee tabbladen: lever je in A in, dan ziet B de uitslag.
+    await A.goto(at('/proeftoets'));
+    await A.click('[data-act="stofall"]');
+    await A.click('[data-act="len"][data-id="10"]');
+    await A.click('[data-act="start"]');
+    await B.goto(at('/proeftoets'));
+    assert.ok(await B.$('#tform'), 'B ziet de lopende proeftoets');
+    await A.click('[data-act="tfin"]');
+    await A.click('[data-act="tfin"]');
+    await A.waitForURL(/\/proeftoets\/uitslag$/);
+    await B.waitForFunction(() => !document.getElementById('tform') && wiskundefit.state.result);
+
+    // Geldige JSON met de verkeerde vorm laat de site niet vastlopen. Alleen het kapotte deel valt
+    // weg. Dat gebeurt op robots.txt, want bij het weggaan bewaart de site zelf nog.
+    for (const p of [A, B]) await p.goto(at('/robots.txt'));
+    await A.evaluate(() => {
+      localStorage.setItem(
+        'lijn-driehoek-v1',
+        JSON.stringify({ v: 5, skills: { 1: 'bad', 3: [1, 0] }, stof: 'x', mapping: 'onbekend' }),
+      );
+      const q = { q: 'x' };
+      localStorage.setItem(
+        'wiskundefit-proeftoets',
+        JSON.stringify({ v: 1, items: [{ id: 41, q, vals: 'bad' }], i: 0, spent: 0, since: null }),
+      );
+    });
+    await A.goto(siteUrl);
+    assert.deepEqual(await A.evaluate(() => wiskundefit.prog.skills), { 3: [1, 0] });
+    await A.goto(at('/proeftoets'));
+    assert.equal(await A.$('#tform'), null, 'een kapotte proeftoets begint opnieuw');
+    assert.match(await A.textContent('h1'), /Proeftoets/);
+    await A.goto(practice);
+    await answerRight(A);
+    assert.deepEqual((await stored()).skills, { 3: [1, 0], 41: [1] });
+    assert.deepEqual(errors, [], 'fouten in de browserconsole');
+
+    // Lukt opslaan niet, dan zegt de site dat, en oefenen gaat gewoon door.
+    const full = await browser.newPage();
+    await full.addInitScript(() => {
+      Storage.prototype.setItem = () => {
+        throw new DOMException('De opslag is vol', 'QuotaExceededError');
+      };
+    });
+    await full.goto(practice);
+    assert.equal(await full.$('.notice'), null);
+    await answerRight(full);
+    assert.match(await full.textContent('main'), /niet worden bewaard/);
+    await full.click('#nextq');
+    await answerRight(full);
+    assert.deepEqual(await full.evaluate(() => wiskundefit.prog.skills[41]), [1, 1]);
+  } finally {
+    await browser.close();
+  }
+});
+
 test('Enter op de laatste vraag van een proeftoets laat de site niet vastlopen', async () => {
   // Uit #51: Enter op de laatste vraag zette de index voorbij de laatste vraag, ook in de opslag.
   const browser = await launch();

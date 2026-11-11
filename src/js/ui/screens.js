@@ -7,7 +7,7 @@ import { vCijfers } from './cijfers.js';
 import { vToetsRes, vToetsRun, vToetsSetup } from './exam.js';
 import { vDomain, vHome } from './home.js';
 import { esc } from '../typeset.js';
-import { crumbs, footer, pageHead, testNotice, topbar, vMissing } from './layout.js';
+import { crumbs, footer, pageHead, storageNotice, testNotice, topbar, vMissing } from './layout.js';
 import { state } from './state.js';
 import { vMapping, vPick, vStof, vStofPractice } from './stof.js';
 import { vTopic } from './topic.js';
@@ -30,7 +30,7 @@ function content(v) {
   return '';
 }
 const screenHTML = () =>
-  `${topbar()}<main class="screen" id="inhoud">${testNotice()}${content(state.view)}</main>${footer()}`;
+  `${topbar()}<main class="screen" id="inhoud">${storageNotice()}${testNotice()}${content(state.view)}</main>${footer()}`;
 // Een schil voor een scherm dat afhangt van wat er in de browser staat, zoals oefenen of Mijn stof:
 // alleen het menu, het kruimelpad, het blok met de kop en de voettekst. main.js vult de rest.
 const shellHTML = (heading) =>

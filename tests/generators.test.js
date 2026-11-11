@@ -13,7 +13,7 @@ import {
   parseNum,
   roundTraps,
 } from '../src/js/answers.js';
-import { migrateIds, migrateSkills } from '../src/js/progress.js';
+import { cleanProgress, migrateIds, migrateSkills } from '../src/js/progress.js';
 import { VALKUIL_ID } from '../src/js/tel.js';
 import { stepsHTML, T } from '../src/js/typeset.js';
 import KNOWN_IDS from './vraagsoort-ids.js';
@@ -216,6 +216,40 @@ test('oude voortgang verhuist mee met de nieuwe indeling', () => {
   for (const gone of ['1.5#1', '1.5#4', '2.4#1', '2.4#2']) {
     assert.deepEqual(migrateSkills({ [gone]: [1] }), {}, gone);
   }
+});
+
+test('opgeslagen voortgang houdt alleen wat klopt', () => {
+  const empty = { v: 5, skills: {}, stof: null, mapping: null };
+  // Geen voortgang of iets wat geen voortgang is.
+  for (const saved of [null, 'x', 5, [], [1, 2]]) assert.deepEqual(cleanProgress(saved), empty);
+  // Uit #56: een tekst in plaats van een lijst liet het herladen vastlopen.
+  assert.deepEqual(cleanProgress({ v: 5, skills: { 1: 'bad' }, stof: null, mapping: null }), empty);
+  // Alleen het ongeldige deel valt weg.
+  assert.deepEqual(
+    cleanProgress({
+      v: 5,
+      skills: { 3: [1, 0, 1], 4: [1, 2, 'x', 0], 5: [1, 1, 1, 1, 1, 0, 0], 6: [], x: [1], 0: [1] },
+      stof: [41, 3, 999, 3, 'a'],
+      mapping: 'gr13-havo3',
+    }),
+    {
+      v: 5,
+      skills: { 3: [1, 0, 1], 4: [1, 0], 5: [1, 1, 1, 0, 0] },
+      stof: [3, 41],
+      mapping: 'gr13-havo3',
+    },
+  );
+  // Een onbekende indeling of stofkeuze wordt leeg, ook een naam als constructor.
+  for (const mapping of ['onbekend', 'constructor', 5, null])
+    assert.equal(cleanProgress({ v: 5, mapping }).mapping, null, String(mapping));
+  for (const stof of ['x', {}, [999], []])
+    assert.equal(cleanProgress({ v: 5, stof }).stof, null, JSON.stringify(stof));
+  // Een onbekende, nieuwere versie: wat klopt, blijft staan.
+  assert.deepEqual(cleanProgress({ v: 9, skills: { 3: [1] }, extra: true }).skills, { 3: [1] });
+  // De oudste vorm, zonder versie, wordt nog steeds omgezet.
+  assert.deepEqual(cleanProgress({ skills: { '1.1#0': [1, 1] }, scope: 'all' }).skills, {
+    3: [1, 1],
+  });
 });
 
 test('elk onderwerp heeft een adres dat bij de titel past', () => {
