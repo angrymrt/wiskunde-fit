@@ -20,7 +20,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 globalThis.window = globalThis;
 
 const { STORE, load, opslag, prog, rec } = await import('../src/js/progress.js');
-const { TEST_KEY, RESULT_KEY, buildTest, loadTests, saveTest, stopTest, storeTest } =
+const { TEST_KEY, RESULT_KEY, buildTest, finishTest, loadTests, saveTest, stopTest, storeTest } =
   await import('../src/js/ui/exam.js');
 const { state } = await import('../src/js/ui/state.js');
 const { storageNotice } = await import('../src/js/ui/layout.js');
@@ -92,6 +92,25 @@ test('een proeftoets die niet bewaard kon worden, blijft lopen tot je stopt', ()
   stopTest();
   assert.equal(opslag.toets, false);
   assert.equal(storageNotice(), '');
+});
+
+test('lukt het bewaren van de uitslag niet, dan telt de proeftoets één keer en blijft de melding', () => {
+  reset();
+  state.test = newTest(1);
+  saveTest();
+  full.add(RESULT_KEY);
+  finishTest();
+  assert.equal(state.test, null);
+  assert.equal(data.has(TEST_KEY), false);
+  assert.equal(data.has(RESULT_KEY), false);
+  // De uitslag staat in het geheugen, en het scherm zegt dat die niet is bewaard.
+  assert.equal(state.result.items.length, 2);
+  assert.ok(state.result.max > 0);
+  assert.equal(opslag.toets, true);
+  assert.match(storageNotice(), /niet worden bewaard/);
+  // Elke vraag telt één keer mee voor de voortgang, en die is wel bewaard.
+  const counted = Object.values(stored()).reduce((n, a) => n + a.length, 0);
+  assert.equal(counted, 2);
 });
 
 test('een tabblad dat achterliep, zet een ingeleverde proeftoets niet terug', () => {
