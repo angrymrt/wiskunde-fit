@@ -1,7 +1,5 @@
 node_modules/
-dist/
-dist-dev/
-dist-api/
+dist*/
 test-results/
 
 # Nepcijfers om de pagina Cijfers te ontwerpen: die mogen nooit online komen.

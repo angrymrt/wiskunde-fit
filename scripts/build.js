@@ -17,7 +17,10 @@ const nep = process.argv.includes('--nep');
 if (nep && !dev) throw new Error('--nep kan alleen samen met --dev.');
 // npm run dev bouwt in een eigen map. Zo verandert dist/ niet terwijl de browsertest of
 // scripts/controleer-site.js die gebruikt.
-const out = dev ? 'dist-dev' : 'dist';
+const target = dev ? 'dist-dev' : 'dist';
+// Eerst in een eigen map, en pas als alles klaar is op de plek van target. Zo toont npm run dev nooit
+// een halve site, en blijft na een fout de vorige build staan.
+const out = `${target}-bouw`;
 const dist = new URL(`${out}/`, root);
 const read = (path) => readFile(new URL(path, root), 'utf8');
 
@@ -238,7 +241,27 @@ if (!dev) {
   );
 }
 
+// Op Windows kan een map even niet verplaatst worden, als de server net een bestand eruit leest.
+// Bij de eerste build is er nog geen vorige build om weg te zetten.
+async function move(from, to, missingOk = false) {
+  for (let i = 0; ; i++) {
+    try {
+      return await rename(from, to);
+    } catch (e) {
+      if (e.code === 'ENOENT' && missingOk) return;
+      if (i === 20 || !['EPERM', 'EBUSY', 'EACCES'].includes(e.code)) throw e;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+}
+const final = new URL(`${target}/`, root),
+  old = new URL(`${target}-oud/`, root);
+await rm(old, { recursive: true, force: true });
+await move(final, old, true);
+await move(dist, final);
+await rm(old, { recursive: true, force: true, maxRetries: 5 });
+
 const kB = (path) => Math.round(metafile.outputs[`${out}${path}`].bytes / 1024);
 console.log(
-  `${out}/ gebouwd: ${PAGES.length} pagina's, code ${kB(asset(/\/main-\w+\.js$/))} kB, CSS ${kB(asset(/\/styles-\w+\.css$/))} kB${dev ? ', niet kleiner gemaakt' : ''}`,
+  `${target}/ gebouwd: ${PAGES.length} pagina's, code ${kB(asset(/\/main-\w+\.js$/))} kB, CSS ${kB(asset(/\/styles-\w+\.css$/))} kB${dev ? ', niet kleiner gemaakt' : ''}`,
 );

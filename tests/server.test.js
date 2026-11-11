@@ -53,6 +53,27 @@ test('een adres toont het bestand, met .html of index.html erachter', async () =
   }
 });
 
+test('een fout bij een verzoek stopt de server niet', async (t) => {
+  // Uit #57: /% liet de hele server stoppen met URIError.
+  for (const path of ['/%', '/%E0%A4%A', '/over/%zz']) {
+    const res = await get(path);
+    assert.equal(res.status, 400, path);
+    assert.equal(await res.text(), 'Ongeldig adres', path);
+  }
+  // Ontbreekt een bestand dat de server nodig heeft, bijvoorbeeld net tijdens het bouwen, dan 500.
+  t.mock.method(console, 'error', () => {});
+  const config = join(dir, 'staticwebapp.config.json');
+  await rm(config);
+  try {
+    assert.equal((await get('/over')).status, 500);
+  } finally {
+    await writeFile(config, files['staticwebapp.config.json']);
+  }
+  const res = await get('/over');
+  assert.equal(res.status, 200);
+  assert.equal(await res.text(), 'over');
+});
+
 test('een streep, .html of /index gaat met een 301 naar het adres zonder', async () => {
   for (const [from, to] of [
     ['/over/', '/over'],

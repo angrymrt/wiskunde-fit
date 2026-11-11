@@ -19,18 +19,23 @@ function rebuild() {
     stdio: 'inherit',
   });
   return new Promise((resolve) =>
-    running.on('exit', () => {
+    running.on('exit', (code) => {
       running = null;
       if (again) {
         again = false;
         rebuild();
       }
-      resolve();
+      resolve(code);
     }),
   );
 }
 
-await rebuild();
+// Lukt de eerste build niet, dan is er niets om te tonen. Een latere fout laat de vorige build staan.
+const code = await rebuild();
+if (code !== 0) {
+  console.error('De eerste build is mislukt, dus de server start niet. Zie de fout hierboven.');
+  process.exit(code || 1);
+}
 let timer;
 const changed = () => {
   clearTimeout(timer);
