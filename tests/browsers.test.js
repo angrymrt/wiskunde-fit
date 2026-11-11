@@ -12,7 +12,7 @@ const root = new URL('../', import.meta.url);
 
 // Wat er niet is in Safari 14.1, Chrome 87 of Firefox 83, met wat je ervoor in de plaats gebruikt.
 const JS = [
-  [/\bObject\.hasOwn\b/, 'Object.hasOwn', 'Object.prototype.hasOwnProperty.call(...)'],
+  [/\bhasOwn\b/, 'Object.hasOwn', 'Object.prototype.hasOwnProperty.call(...)'],
   [/\.at\(/, '.at()', 'x[x.length - 1]'],
   [/\bstructuredClone\b/, 'structuredClone', 'JSON.parse(JSON.stringify(...))'],
   [/\.findLast(Index)?\b/, '.findLast()', 'een lus van achteren'],
@@ -71,6 +71,7 @@ test('de controle vindt wat ze zoekt', () => {
   for (const bad of [
     'Object.hasOwn(a, b)',
     'keys.filter(Object.hasOwn)',
+    'const { hasOwn } = Object',
     'x.at(-1)',
     'x.at(i)',
     'x.at(x.length - 1)',
