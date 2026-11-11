@@ -37,9 +37,11 @@ function stopTimer() {
   }
 }
 // render() vervangt de velden, dus bewaar eerst wat de leerling heeft ingevuld.
-// Viel de proeftoets intussen weg, dan horen de velden op het scherm bij een andere proeftoets.
+// Viel de proeftoets intussen weg, dan toont het scherm meteen wat er nu bewaard is. Anders blijven
+// de velden van de oude proeftoets staan, en komt wat daar staat later in een andere proeftoets.
 function keepTyped() {
-  readTyped(!state.test || storeTest());
+  readTyped(false);
+  if (state.test) storeOrFollow();
 }
 // Zet wat de leerling heeft ingevuld in het geheugen, zonder de proeftoets te bewaren.
 function readTyped(test = true) {
