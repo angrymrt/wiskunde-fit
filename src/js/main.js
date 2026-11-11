@@ -37,13 +37,13 @@ function stopTimer() {
   }
 }
 // render() vervangt de velden, dus bewaar eerst wat de leerling heeft ingevuld.
+// Viel de proeftoets intussen weg, dan horen de velden op het scherm bij een andere proeftoets.
 function keepTyped() {
-  if (state.test) storeTest();
-  readTyped();
+  readTyped(!state.test || storeTest());
 }
 // Zet wat de leerling heeft ingevuld in het geheugen, zonder de proeftoets te bewaren.
-function readTyped() {
-  if (state.test && document.getElementById('tform')) {
+function readTyped(test = true) {
+  if (test && state.test && document.getElementById('tform')) {
     const x = state.test.items[state.test.i];
     x.vals = readVals(x.q, 't');
   }
