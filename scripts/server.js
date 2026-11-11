@@ -95,7 +95,13 @@ function startServer(dir, port) {
 }
 
 async function handle(dir, req, res, tellen) {
-  const url = new URL(req.url, 'http://localhost');
+  // Een adres dat geen adres is, zoals //, geeft ook 400.
+  let url;
+  try {
+    url = new URL(req.url, 'http://localhost');
+  } catch {
+    throw new URIError(`Ongeldig adres: ${req.url}`);
+  }
   if (url.pathname === '/api/tel') return api(req, res, tellen);
   // Lees de regels bij elk verzoek, want npm run dev bouwt steeds opnieuw.
   const config = JSON.parse(await readFile(join(dir, 'staticwebapp.config.json'), 'utf8'));

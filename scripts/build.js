@@ -258,8 +258,17 @@ const final = new URL(`${target}/`, root),
   old = new URL(`${target}-oud/`, root);
 await rm(old, { recursive: true, force: true });
 await move(final, old, true);
-await move(dist, final);
-await rm(old, { recursive: true, force: true, maxRetries: 5 });
+try {
+  await move(dist, final);
+} catch (e) {
+  // Zet de vorige build terug, zodat npm run dev iets blijft tonen.
+  await move(old, final, true);
+  throw e;
+}
+// De nieuwe build staat er al. Lukt opruimen niet, dan gebeurt dat bij de volgende build.
+await rm(old, { recursive: true, force: true, maxRetries: 5 }).catch((e) =>
+  console.warn(`${target}-oud/ kon niet worden gewist: ${e.message}`),
+);
 
 const kB = (path) => Math.round(metafile.outputs[`${out}${path}`].bytes / 1024);
 console.log(

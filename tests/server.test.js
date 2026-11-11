@@ -5,6 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { connect } from 'node:net';
 import { join } from 'node:path';
 import { startServer } from '../scripts/server.js';
 
@@ -60,6 +61,18 @@ test('een fout bij een verzoek stopt de server niet', async (t) => {
     assert.equal(res.status, 400, path);
     assert.equal(await res.text(), 'Ongeldig adres', path);
   }
+  // fetch maakt van // een gewoon adres, dus dit gaat als ruw verzoek.
+  const raw = await new Promise((resolve, reject) => {
+    const socket = connect(server.address().port, '127.0.0.1', () =>
+      socket.end('GET // HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n'),
+    );
+    let text = '';
+    socket
+      .on('data', (d) => (text += d))
+      .on('end', () => resolve(text))
+      .on('error', reject);
+  });
+  assert.match(raw, /^HTTP\/1\.1 400 /);
   // Ontbreekt een bestand dat de server nodig heeft, bijvoorbeeld net tijdens het bouwen, dan 500.
   t.mock.method(console, 'error', () => {});
   const config = join(dir, 'staticwebapp.config.json');
