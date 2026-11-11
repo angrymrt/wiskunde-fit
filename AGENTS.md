@@ -57,9 +57,9 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 2. Zet de functie in de lijst `skills` onderaan het bestand, met het eerstvolgende vrije nummer: `[66, 'Naam van de vraagsoort', mijnFunctie]`.
 3. Zet hetzelfde nummer in `tests/vraagsoort-ids.js`: `66: 'mijnFunctie'`.
 4. Draai `npm test`. De test vindt de nieuwe vraag vanzelf en zegt welk nummer vrij is.
-5. Draai `node scripts/vingerafdrukken.js`. Dat bewaart de antwoorden bij een paar vaste seeds in `tests/vingerafdrukken.json`.
+5. Draai `node scripts/vingerafdrukken.js`. Dat bewaart een vingerafdruk van de vraag bij een paar vaste seeds in `tests/vingerafdrukken.json`. Doe dat ook als een vraagsoort stopt.
 
-Een gedeelde link bevat alleen de vraagsoort en de seed. Geeft dezelfde seed later een andere vraag, dan ziet wie de link opent iets anders dan de leerling die hem deelde. Daarom faalt `npm test` als de antwoorden van een vraagsoort bij dezelfde seed veranderen. Een andere tekst, hint of uitwerking mag gewoon. Moeten de getallen of antwoorden echt anders, geef de vraagsoort dan eerst een versie in de link. Die bestaat nog niet: bouw hem de eerste keer dat dit nodig is ([#60](https://github.com/angrymrt/wiskunde-fit/issues/60)).
+Een gedeelde link bevat alleen de vraagsoort en de seed. Geeft dezelfde seed later een andere vraag, dan ziet wie de link opent iets anders dan de leerling die hem deelde. Daarom faalt `npm test` als de getallen in de vraag of de antwoorden bij dezelfde seed veranderen. Andere woorden, een hint, een uitwerking of de opmaak van een figuur mogen gewoon. Het script werkt een veranderde vingerafdruk niet vanzelf bij. Moeten de getallen of antwoorden echt anders, geef de vraagsoort dan eerst een versie in de link. Die bestaat nog niet: bouw hem de eerste keer dat dit nodig is ([#60](https://github.com/angrymrt/wiskunde-fit/issues/60)). Werk daarna de vingerafdruk bij met het nummer erbij, zoals `node scripts/vingerafdrukken.js 17`.
 
 Een eenvoudig voorbeeld:
 
