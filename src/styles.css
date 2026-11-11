@@ -1754,8 +1754,9 @@ label.pick {
 .pick.off {
   color: var(--muted);
 }
-/* Zo valt een vinkje dat de focus krijgt niet achter de balk onderaan. */
-html:has(.stof-bar) {
+/* Zo valt een vinkje dat de focus krijgt niet achter de balk onderaan. main.js zet de klasse, want
+   :has() is er pas vanaf Safari 15.4, Chrome 105 en Firefox 121. */
+html.met-stof-bar {
   scroll-padding-bottom: 80px;
 }
 .stof-bar {

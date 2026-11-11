@@ -317,8 +317,13 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     assert.deepEqual(await current(), ['Mijn stof true']);
     assert.equal(await p.locator('.chapter details').count(), 7, 'ingeklapte hoofdstukken');
     await p.click('[data-act="chapter"][data-id="1"]');
+    // De balk onderaan geeft ruimte bij het scrollen, ook in browsers zonder :has().
+    const withBar = () =>
+      p.evaluate(() => document.documentElement.classList.contains('met-stof-bar'));
+    assert.equal(await withBar(), true);
     await p.click('.stof-bar a');
     assert.deepEqual(await current(), ['Mijn stof page']);
+    assert.equal(await withBar(), false);
     assert.match(
       await p.textContent('main'),
       /Uit je boek, Getal & Ruimte, 13e editie, havo 3: hoofdstuk 1\./,
