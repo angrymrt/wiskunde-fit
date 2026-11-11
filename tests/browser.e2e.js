@@ -13,7 +13,9 @@ import { check } from '../scripts/controleer-site.js';
 import { startServer } from '../scripts/server.js';
 import { MAPPINGS } from '../src/js/mappings/index.js';
 import { PAGES } from '../src/js/pages.js';
+import { graph } from '../src/js/figures.js';
 import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
+import { MC, orFields } from '../src/js/topics/shared.js';
 
 const server = await startServer(fileURLToPath(new URL('../dist', import.meta.url)), 0);
 after(() => {
@@ -30,7 +32,8 @@ const launch = () =>
     ? webkit.launch({ headless: true })
     : chromium.launch({ channel: process.env.BROWSER || 'msedge', headless: true });
 
-// Geeft de juiste antwoorden van een vraag, getypt zoals een leerling dat zou doen.
+// Geeft de juiste antwoorden van een vraag, getypt zoals een leerling dat zou doen. In een groep
+// velden, zoals bij x = −2 ∨ x = 9, staan ze in omgekeerde volgorde: die volgorde moet ook goed zijn.
 const answerOf = `(q) => {
   const typed = (x) => {
     if (Number.isInteger(x)) return String(x);
@@ -40,10 +43,14 @@ const answerOf = `(q) => {
     }
     return String(x).replace('.', ',');
   };
-  return {
-    mc: q.mc ? q.mc.a : null,
-    vals: q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a)))),
-  };
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
+  const groups = {};
+  if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
+  for (const g of Object.values(groups)) {
+    const back = g.map((i) => vals[i]).reverse();
+    g.forEach((i, k) => (vals[i] = back[k]));
+  }
+  return { mc: q.mc ? q.mc.a : null, vals };
 }`;
 
 async function fill(page, prefix, vals, numericOverride) {
@@ -462,6 +469,125 @@ test('een lijn tekenen werkt met tikken en met typen', { timeout: 60_000 }, asyn
     await browser.close();
   }
 });
+
+test(
+  'een groep velden en schetsen als keuzes werken bij oefenen en in de proeftoets',
+  {
+    timeout: 60_000,
+  },
+  async () => {
+    // Nog geen vraagsoort gebruikt dit, dus de test maakt de vragen zelf, als gegevens.
+    const sketch = (abc) =>
+      graph({ xr: [-4, 4], yr: [-4, 4], u: 16, sketch: true, curves: [{ abc }], label: 'Schets' });
+    const group = {
+      q: 'Los op: x² − 7x − 18 = 0.',
+      fig: graph({ xr: [-3, 10], yr: [-6, 6], ys: 5, curves: [{ abc: [1, -7, -18], name: 'f' }] }),
+      fields: orFields([-2, 9]),
+      hint: 'Ontbind in factoren.',
+      steps: ['(x + 2)(x - 9) = 0'],
+    };
+    const choice = {
+      q: 'Welke schets hoort bij y = x² − 2?',
+      mc: MC([sketch([1, 0, -2]), sketch([-1, 0, 2]), sketch([1, 2, 0]), sketch([-1, 2, 0])], 0),
+      hint: 'Kijk naar a en c.',
+      steps: ['a > 0, dus een dalparabool.'],
+    };
+    const browser = await launch();
+    try {
+      await mkdir(shotDir, { recursive: true });
+      const p = await browser.newPage({ viewport: { width: 390, height: 900 } });
+      await p.goto(siteUrl);
+      const slug = 'lineaire-grafieken-tekenen';
+      await p.evaluate((s) => wiskundefit.go({ name: 'topic', slug: s, oefen: true }), slug);
+      const show = (q) =>
+        p.evaluate(
+          ([s, q]) => {
+            Object.assign(wiskundefit.state.prac[s], {
+              q,
+              status: 'open',
+              vals: [],
+              marks: null,
+              msg: '',
+            });
+            wiskundefit.go({ name: 'topic', slug: s, oefen: true });
+          },
+          [slug, q],
+        );
+      const marks = () => p.$$eval('#pform .fld', (els) => els.map((e) => e.className.trim()));
+      const check = async (a, b) => {
+        await p.fill('#pf0', a);
+        await p.fill('#pf1', b);
+        await p.click('#pform button[type=submit]');
+      };
+      await show(group);
+      assert.equal(await p.getAttribute('#pf1', 'aria-label'), 'x, tweede oplossing');
+      // Twee keer hetzelfde getal: één veld goed en één fout.
+      await check('9', '9');
+      assert.deepEqual(await marks(), ['fld no', 'fld ok']);
+      await check('5', '-2');
+      assert.deepEqual(await marks(), ['fld no', 'fld ok']);
+      await p.screenshot({ path: `${shotDir}groep-velden.png`, fullPage: true });
+      await check('9', '-2');
+      assert.match(await p.textContent('.fb'), /Goed gedaan/);
+
+      await show(choice);
+      // Elke keuze heeft de beschrijving van de schets als naam.
+      const names = await p.$$eval('#pform input[type=radio]', (els) =>
+        els.map((e) => e.closest('label').querySelector('svg').getAttribute('aria-label')),
+      );
+      assert.equal(names.length, 4);
+      assert.ok(names.every((n) => /^Schets\. De grafiek is een (dal|berg)parabool/.test(n)));
+      const box = await p.$$eval('#pform .opt', (els) =>
+        els.map((e) => e.getBoundingClientRect().toJSON()),
+      );
+      // Op een telefoon twee naast elkaar.
+      assert.equal(box[0].top, box[1].top);
+      await p.check(`#pm${choice.mc.a}`);
+      await p.click('#pform button[type=submit]');
+      assert.match(await p.textContent('.fb'), /Goed gedaan/);
+      await p.screenshot({ path: `${shotDir}schets-kiezen.png`, fullPage: true });
+
+      // In een proeftoets, die als JSON wordt bewaard, en in de uitslag.
+      await p.evaluate(
+        ([s, qs]) => {
+          // Zoals ui/exam.js een lopende proeftoets in de browser bewaart.
+          const id = wiskundefit.TOPIC[s].skills[0].id;
+          localStorage.setItem(
+            'wiskundefit-proeftoets',
+            JSON.stringify({
+              v: 1,
+              id: 1,
+              i: 0,
+              spent: 0,
+              since: null,
+              items: qs.map((q) => ({ q, vals: [], id })),
+            }),
+          );
+        },
+        [slug, [group, choice]],
+      );
+      // De bewaarde proeftoets wordt gelezen bij het openen van de site.
+      await p.reload();
+      await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+      await p.fill('#tf0', '9');
+      await p.fill('#tf1', '5');
+      await p.click('#tform button[type=submit]');
+      await p.check(`#tm${choice.mc.a === 0 ? 1 : 0}`);
+      await p.click('[data-act="tfin"]');
+      const result = await p.evaluate(() => wiskundefit.state.result.items.map((x) => x.c.each));
+      assert.deepEqual(result, [[true, false], [false]]);
+      // Bij het foute veld staat het antwoord dat nog over is: −2, niet 9.
+      const rows = await p.$$eval('.resq:first-child tbody tr', (trs) =>
+        trs.map((tr) => tr.textContent.replace(/\s+/g, ' ').trim()),
+      );
+      assert.match(rows[1], /5.*−2$/);
+      assert.equal(await p.$$eval('.resq .answers svg.fig', (s) => s.length), 2);
+      await p.screenshot({ path: `${shotDir}groep-en-schets-uitslag.png`, fullPage: true });
+    } finally {
+      await browser.close();
+    }
+  },
+);
 
 test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 }, async () => {
   const browser = await launch();

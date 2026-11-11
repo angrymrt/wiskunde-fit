@@ -6,8 +6,10 @@ import { esc, T } from '../typeset.js';
 import { app, state } from './state.js';
 
 function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
+  // Keuzes met een figuur, zoals schetsen van een grafiek, staan naast elkaar zolang ze passen. De
+  // beschrijving van de figuur is de naam van de keuze voor een schermlezer.
   if (q.mc)
-    return `<div class="opts" role="radiogroup" aria-labelledby="${pfx}q">${q.mc.opts.map((o, i) => `<label class="opt ${marks ? (i === q.mc.a && marks.reveal ? 'ok' : String(vals[0]) === String(i) ? (marks.each[0] ? 'ok' : 'no') : '') : ''}"><input type="radio" name="${pfx}mc" id="${pfx}m${i}" value="${i}" ${String(vals[0]) === String(i) ? 'checked' : ''} ${locked ? 'disabled' : ''}><span>${o}</span></label>`).join('')}</div>`;
+    return `<div class="opts${q.mc.opts.some((o) => /^<svg/.test(o)) ? ' figs' : ''}" role="radiogroup" aria-labelledby="${pfx}q">${q.mc.opts.map((o, i) => `<label class="opt ${marks ? (i === q.mc.a && marks.reveal ? 'ok' : String(vals[0]) === String(i) ? (marks.each[0] ? 'ok' : 'no') : '') : ''}"><input type="radio" name="${pfx}mc" id="${pfx}m${i}" value="${i}" ${String(vals[0]) === String(i) ? 'checked' : ''} ${locked ? 'disabled' : ''}><span>${o}</span></label>`).join('')}</div>`;
   return `<div class="fields${q.compact ? ' compact' : ''}">${q.fields
     .map((f, i) => {
       const cl = marks ? (marks.each[i] ? 'ok' : 'no') : '',

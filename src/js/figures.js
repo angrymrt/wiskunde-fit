@@ -1,5 +1,5 @@
 // Tekent figuren als SVG-tekst: grafieken, driehoeken en evenwijdige lijnen.
-import { pick, near, d } from './math.js';
+import { pick, near, d, rd, isNice } from './math.js';
 import { esc } from './typeset.js';
 
 // Elke figuur zegt in woorden wat erin staat, voor wie hem niet kan zien: de gemarkeerde punten,
@@ -17,7 +17,71 @@ const cap = (s) => s[0].toUpperCase() + s.slice(1);
 const attr = (s) => esc(s).replace(/"/g, '&quot;');
 const trend = (a) => (a > 0 ? 'stijgt' : a < 0 ? 'daalt' : 'loopt horizontaal');
 
-function graphDesc({ xr, yr, lines, pts, xs, ys, xn, yn, sketch, label }) {
+// Een parabool y = ax² + bx + c staat als gegevens in abc: [a, b, c], met a niet 0.
+const val = ([a, b, c], x) => (a * x + b) * x + c;
+// De snijpunten met de x-as, van links naar rechts. Raakt de parabool de x-as, dan is er één.
+function roots([a, b, c]) {
+  const D = b * b - 4 * a * c;
+  if (near(D, 0, 1e-9)) return [-b / (2 * a)];
+  if (D < 0) return [];
+  return [(-b - Math.sqrt(D)) / (2 * a), (-b + Math.sqrt(D)) / (2 * a)].sort((p, q) => p - q);
+}
+// Een getal dat niet mooi uitkomt, zoals bij een snijpunt met een wortel, staat afgerond met ≈.
+const about = (n, x) => (isNice(x, 4) ? `${n} = ${num(x)}` : `${n} ≈ ${num(rd(x, 1))}`);
+// Wat je van een parabool ziet: dal- of bergparabool, de top en de snijpunten met de assen, voor
+// zover die in het beeld liggen. Bij een schets alleen waar ze liggen, want getallen staan er niet.
+function curveDesc(k, who, { view, xn, yn, sketch }) {
+  const { abc } = k,
+    [a, , c] = abc,
+    xt = -abc[1] / (2 * a),
+    yt = val(abc, xt),
+    seen = (x, y) =>
+      x >= view[0] - 1e-9 && x <= view[1] + 1e-9 && y >= view[2] - 1e-9 && y <= view[3] + 1e-9,
+    xAxis = seen(view[0], 0) && seen(view[1], 0),
+    yAxis = seen(0, view[2]) && seen(0, view[3]),
+    all = roots(abc),
+    cuts = all.filter((x) => seen(x, 0)),
+    top = seen(xt, yt),
+    out = [];
+  const kind = a > 0 ? 'dalparabool' : 'bergparabool';
+  if (sketch) {
+    out.push(cap(`${who} is een ${kind}.`));
+    const side = (v, axis, lo, hi) =>
+      near(v, 0, 1e-9) ? `op de ${axis}-as` : v < 0 ? `${lo} de ${axis}-as` : `${hi} de ${axis}-as`;
+    if (top)
+      out.push(
+        near(xt, 0, 1e-9) && near(yt, 0, 1e-9)
+          ? 'De top ligt in O.'
+          : `De top ligt ${side(xt, yn, 'links van', 'rechts van')} en ${side(yt, xn, 'onder', 'boven')}.`,
+      );
+  } else {
+    const where =
+      whole(xt) && whole(yt) ? `in ${spot(xt, yt)}` : `bij ${about(xn, xt)} en ${about(yn, yt)}`;
+    out.push(cap(`${who} is een ${kind}${top ? ` met de top ${where}` : ''}.`));
+  }
+  // Raakt de parabool de x-as of snijdt hij die niet, dan is dat een eigen zin.
+  const parts = [];
+  if (xAxis) {
+    if (all.length === 1 && cuts.length) out.push(`Hij raakt de ${xn}-as in de top.`);
+    else if (!all.length) out.push(`Hij snijdt de ${xn}-as niet.`);
+    else if (cuts.length)
+      parts.push(
+        sketch
+          ? `de ${xn}-as ${cuts.length === 2 ? 'twee keer' : 'één keer'}`
+          : `de ${xn}-as bij ${and(cuts.map((x) => about(xn, x)))}`,
+      );
+  }
+  if (yAxis && seen(0, c))
+    parts.push(
+      sketch
+        ? `de ${yn}-as ${near(c, 0, 1e-9) ? 'in O' : c > 0 ? 'boven O' : 'onder O'}`
+        : `de ${yn}-as bij ${about(yn, c)}`,
+    );
+  if (parts.length) out.push(`Hij snijdt ${parts.join(sketch ? ' en ' : ', en ')}.`);
+  return out.join(' ');
+}
+
+function graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, label }) {
   const out = [label.replace(/\.$/, '') + '.'];
   if (!sketch) {
     out.push(
@@ -54,6 +118,15 @@ function graphDesc({ xr, yr, lines, pts, xs, ys, xn, yn, sketch, label }) {
           ? `het gemarkeerde punt ${m[0]} en het roosterpunt ${g[0]}`
           : `de roosterpunten ${and(g)}`;
     out.push(cap(`${n} gaat door ${through}.`));
+  });
+  const view = [xr[0] * xs, xr[1] * xs, yr[0] * ys, yr[1] * ys];
+  curves.forEach((k, i) => {
+    const who = k.name
+      ? `de grafiek van ${k.name}`
+      : curves.length > 1
+        ? `grafiek ${i + 1}`
+        : 'de grafiek';
+    out.push(curveDesc(k, who, { view, xn, yn, sketch }));
   });
   pts.forEach((p) => {
     const ls = lines.map((l, i) => [l, i]).filter(([l]) => on(l, p)),
@@ -135,10 +208,38 @@ function geoDesc({ pts, segs, sides, arcs, rights, tris, hide, dash, nums, P }) 
   return out.join(' ') || 'Meetkundige figuur';
 }
 
+// Het pad van een parabool in het rooster. Een stuk van een parabool is precies een kwadratische
+// Bézier-kromme, met als controlepunt het snijpunt van de raaklijnen in de eindpunten. Zo is het pad
+// vloeiend met weinig tekst. Alleen de stukken die bij het rooster in de buurt komen, worden
+// getekend: verder weg worden de getallen groot. De rand van het rooster snijdt de rest af.
+function curvePath(abc, { xr, yr, xs, ys, X, Y }) {
+  const f = (x) => val(abc, x * xs) / ys,
+    slope = (x) => ((2 * abc[0] * x * xs + abc[1]) * xs) / ys,
+    r2 = (n) => String(Number(n.toFixed(2))),
+    n = (xr[1] - xr[0]) * 20,
+    xk = (k) => xr[0] + (k * (xr[1] - xr[0])) / n,
+    near = (k) => f(xk(k)) >= yr[0] - 1 && f(xk(k)) <= yr[1] + 1;
+  let o = '';
+  for (let k = 0; k <= n; k++) {
+    if (!near(k) || (k > 0 && near(k - 1))) continue;
+    let e = k;
+    while (e < n && near(e + 1)) e++;
+    // Eén stap verder aan beide kanten, zodat het pad tot buiten het rooster doorloopt.
+    const x0 = xk(Math.max(k - 1, 0)),
+      x1 = xk(Math.min(e + 1, n)),
+      cx = (x0 + x1) / 2,
+      cy = f(x0) + (slope(x0) * (x1 - x0)) / 2;
+    o += `M${r2(X(x0))} ${r2(Y(f(x0)))}Q${r2(X(cx))} ${r2(Y(cy))} ${r2(X(x1))} ${r2(Y(f(x1)))}`;
+  }
+  return o;
+}
 function graph({
   xr = [-1, 6],
   yr = [-5, 6],
   lines = [],
+  // Parabolen: { abc: [a, b, c], name: 'f', c: 2, at: 3 } voor y = ax² + bx + c. Net als bij lines
+  // is c de kleur en at de plek van de naam.
+  curves = [],
   pts = [],
   u = 26,
   xs = 1,
@@ -152,7 +253,7 @@ function graph({
   draw = false, // Een rooster om zelf in te tekenen, zie ui/draw.js.
   label = 'Grafiek in een assenstelsel',
 }) {
-  const desc = graphDesc({ xr, yr, lines, pts, xs, ys, xn, yn, sketch, label });
+  const desc = graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, label });
   const ml = 30,
     mr = 20,
     mt = 20,
@@ -190,6 +291,11 @@ function graph({
     const f = (x) => (l.a * x * xs + l.b) / ys;
     o += `<line class="l${l.c || i + 1}" x1="${X(xr[0])}" y1="${Y(f(xr[0]))}" x2="${X(xr[1])}" y2="${Y(f(xr[1]))}"/>`;
   });
+  // Een parabool krijgt na de lijnen de volgende kleur, of een eigen kleur met c.
+  const color = (k, i) => k.c || ((lines.length + i) % 3) + 1;
+  curves.forEach((k, i) => {
+    o += `<path class="l${color(k, i)}" d="${curvePath(k.abc, { xr, yr, xs, ys, X, Y })}"/>`;
+  });
   o += '</svg>';
   lines.forEach((l, i) => {
     if (!l.name) return;
@@ -203,6 +309,19 @@ function graph({
       // Met een eigen plek (at) komt de naam aan de kant waar de lijn niet naartoe loopt.
       after = l.at !== undefined && l.a < 0;
     o += `<text class="t${l.c || i + 1} ti" text-anchor="${after ? 'start' : 'end'}" x="${X(tx) + (after ? 6 : -6)}" y="${Y(f(tx)) + up}">${l.name}</text>`;
+  });
+  curves.forEach((k, i) => {
+    if (!k.name) return;
+    const f = (x) => val(k.abc, x * xs) / ys,
+      slope = (x) => ((2 * k.abc[0] * x * xs + k.abc[1]) * xs) / ys;
+    let tx = k.at ?? xr[1] - 0.1;
+    for (let j = 0; j < 400 && k.at === undefined; j++) {
+      if (f(tx) >= yr[0] + 0.3 && f(tx) <= yr[1] - 0.3) break;
+      tx -= (xr[1] - xr[0]) / 400;
+    }
+    // De naam staat boven de grafiek: links van een stijgend stuk, rechts van een dalend stuk.
+    const after = slope(tx) < 0;
+    o += `<text class="t${color(k, i)} ti" text-anchor="${after ? 'start' : 'end'}" x="${(X(tx) + (after ? 6 : -6)).toFixed(1)}" y="${(Y(f(tx)) - 8).toFixed(1)}">${k.name}</text>`;
   });
   pts.forEach((p) => {
     o += `<circle class="dot" cx="${X(p.x / xs)}" cy="${Y(p.y / ys)}" r="3.6"/>`;

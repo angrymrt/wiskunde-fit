@@ -16,6 +16,19 @@ const H = (html) => ({ h: html });
 const F = (pre, a, post = '') => ({ pre, a: qv(a), post });
 const RF = (pre, x, n = 1, post = '') =>
   isNice(x, n) ? { pre, a: x, post } : { pre, a: x, post, round: n };
+// De velden voor de oplossingen van een vergelijking, zoals x = −2 ∨ x = 9. Ze horen bij één groep
+// (grp), dus de leerling mag ze in elke volgorde invullen. Met n rondt elk veld af op n decimalen,
+// net als bij RF. xn is de letter van de onbekende.
+const ORD = ['eerste', 'tweede', 'derde', 'vierde'];
+const orFields = (answers, { n, xn = 'x' } = {}) =>
+  answers.map((a, i) => {
+    const pre = `${i ? '∨ ' : ''}${xn} =`;
+    return {
+      ...(n === undefined ? F(pre, a) : RF(pre, a, n)),
+      grp: xn,
+      label: `${xn}, ${ORD[i]} oplossing`,
+    };
+  });
 // De valkuil voor een omgedraaide verhouding. wrong geeft per veld het getal dat je dan krijgt,
 // zoals { 0: c * m / a }. Een afgerond fout getal telt ook mee. Valt het foute getal samen met het
 // goede, dan geldt de valkuil niet.
@@ -157,6 +170,7 @@ export {
   F,
   RF,
   needRound,
+  orFields,
   flipTrap,
   MC,
   plug,
