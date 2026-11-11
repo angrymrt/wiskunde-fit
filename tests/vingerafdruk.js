@@ -12,7 +12,11 @@ const SEEDS = Array.from({ length: 25 }, (_, i) => 1000 + i * 7919);
 // woorden, een hint of een uitwerking veranderen de vraag niet, en mogen dus zonder nieuwe versie.
 // De figuur telt niet mee, want daarin staat ook de opmaak. Wat erin gegeven is, staat meestal ook
 // in de vraag of het antwoord.
-const numbers = (html) => html.replace(/<[^>]*>/g, ' ').match(/\d+(?:[.,]\d+)?/g) ?? [];
+// Met het teken ervoor, zodat ook `4s − 29` tegenover `4s + 29` opvalt.
+const numbers = (html) =>
+  (html.replace(/<[^>]*>/g, ' ').match(/(?:[−+-]\s?)?\d+(?:[.,]\d+)?/g) ?? []).map((n) =>
+    n.replace(/\s/g, ''),
+  );
 const answers = (q) => ({
   numbers: numbers(q.q),
   fields: (q.fields ?? []).map((f) => f.a),
