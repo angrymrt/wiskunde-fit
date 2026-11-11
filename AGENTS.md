@@ -156,20 +156,34 @@ Leg feedback, gevonden fouten, ideeën en open vragen vast als issue op GitHub, 
 
 De repository is openbaar, en dus de issues ook. Zet er geen namen of andere gegevens van leerlingen, docenten of ouders in, en geen materiaal uit een boek.
 
+## Een pull request maken
+
+Push nooit rechtstreeks naar `main`. Zet elke wijziging op een eigen branch en open een pull request naar `main`. Die komt dan ook op een eigen preview-adres, zie [README.md](README.md).
+
+Laat elke pull request reviewen door een agent die op de achtergrond draait, met het model Sonnet. Kies de effort die bij de pull request past:
+
+- **low:** alleen documentatie, tests of de werkwijze.
+- **medium:** schermen, opmaak of teksten, zonder wijziging in de stof of in wat de browser bewaart.
+- **high:** de stof, de antwoordcontrole, de voortgang en de proeftoets in de browser, de anonieme tellen, de build, de regels voor Azure, en elke grote wijziging die veel bestanden raakt.
+
+De agent zet zijn bevindingen als opmerkingen bij de pull request, waar mogelijk bij de regel waar ze over gaan. Voorlopig doet hij dat met `gh` op het account van de eigenaar. Zet daarom boven elke opmerking dat die van de review-agent komt. Een eigen account voor de agent staat in [#67](https://github.com/angrymrt/wiskunde-fit/issues/67). Verwerk ze daarna met een nieuwe commit en antwoord bij elke opmerking wat je hebt gedaan. Laat je een bevinding liggen, schrijf dan waarom. Laat de agent daarna opnieuw reviewen. Hij kijkt dan naar de nieuwe commits en naar wat er met zijn opmerkingen is gebeurd.
+
+Zo gaat het hoogstens drie rondes heen en weer. Zijn er na de derde ronde nog bevindingen, leg ze dan voor aan de eigenaar. Die besluit of de pull request zo samen mag. Voeg pas samen als de tests slagen en elke opmerking is verwerkt of beantwoord.
+
 ## Een release maken
 
-Elke push naar `main` zet de site meteen online. Een release legt vast wat er is veranderd en ontstaat vanzelf: heeft de versie in `package.json` na een geslaagde deploy nog geen release, dan maakt de workflow `Online zetten` de tag en de release, met de notities uit `CHANGELOG.md`. Maak dus geen tags of releases met de hand.
+Elke merge naar `main` zet de site meteen online. Een release legt vast wat er is veranderd en ontstaat vanzelf: heeft de versie in `package.json` na een geslaagde deploy nog geen release, dan maakt de workflow `Online zetten` de tag en de release, met de notities uit `CHANGELOG.md`. Maak dus geen tags of releases met de hand.
 
-Merken leerlingen iets van je wijziging, doe dan dit in dezelfde push:
+Merken leerlingen iets van je wijziging, doe dan dit in dezelfde pull request:
 
 1. Verhoog de versie zonder commit of tag: `npm version minor --no-git-tag-version` (of `patch`).
 2. Zet bovenaan in `CHANGELOG.md` een kop met het nieuwe nummer, bijvoorbeeld `## 1.1.0`, met de notities eronder. `npm test` faalt als de bovenste kop niet gelijk is aan de versie, en dan gaat er ook niets online.
-3. Commit en push naar `main`.
+3. Commit, push de branch en open een pull request, zoals hierboven.
 
-Wijzigingen in tests, documentatie of de werkwijze houden dezelfde versie en krijgen dus geen release. Meerdere kleine pushes mogen samen één versie worden: verhoog de versie dan bij de laatste.
+Wijzigingen in tests, documentatie of de werkwijze houden dezelfde versie en krijgen dus geen release. Meerdere kleine pull requests mogen samen één versie worden: verhoog de versie dan bij de laatste.
 
 - **Patch** (`1.0.1`): een herstelde fout of een kleine verbetering.
 - **Minor** (`1.1.0`): nieuwe stof of een nieuwe functie.
-- **Major** (`2.0.0`): een wijziging waardoor opgeslagen voortgang of bestaande links niet meer werken zoals eerst. Alleen de eigenaar van het project besluit hierover. Verhoog de major-versie dus nooit zelf. Leg zo'n wijziging eerst voor en push niets voordat de eigenaar heeft gekozen.
+- **Major** (`2.0.0`): een wijziging waardoor opgeslagen voortgang of bestaande links niet meer werken zoals eerst. Alleen de eigenaar van het project besluit hierover. Verhoog de major-versie dus nooit zelf. Leg zo'n wijziging eerst voor en voeg niets samen voordat de eigenaar heeft gekozen.
 
 Schrijf de notities zelf, in het Nederlands en voor leerlingen, dus zonder bestandsnamen of technische details. Gebruik de kopjes die van toepassing zijn: `Nieuw`, `Verbeterd` en `Hersteld`. Noem een fout in de wiskunde altijd onder `Hersteld`, met de paragraaf en wat er fout was, want een leerling kan dat verkeerd hebben geleerd.
