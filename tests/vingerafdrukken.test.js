@@ -12,15 +12,16 @@ const saved = JSON.parse(
 test('dezelfde seed geeft dezelfde vraag als in een gedeelde link', () => {
   const now = fingerprints();
   const fresh = Object.keys(now).filter((id) => !(id in saved));
+  const gone = Object.keys(saved).filter((id) => !(id in now));
   assert.deepEqual(
-    fresh,
+    [...fresh, ...gone],
     [],
-    `Nieuwe vraagsoort zonder vingerafdruk: ${fresh.join(', ')}. Draai node scripts/vingerafdrukken.js.`,
+    `Nieuwe of gestopte vraagsoort: ${[...fresh, ...gone].join(', ')}. Draai node scripts/vingerafdrukken.js.`,
   );
   const changed = Object.keys(now).filter((id) => now[id] !== saved[id]);
   assert.deepEqual(
     changed,
     [],
-    `De antwoorden van vraagsoort ${changed.join(', ')} zijn veranderd bij dezelfde seed. Een gedeelde link toont dan een andere vraag dan de leerling zag. Geef de vraagsoort eerst een versie in de link, zie #60 en AGENTS.md.`,
+    `Vraagsoort ${changed.join(', ')} geeft bij dezelfde seed een andere vraag. Een gedeelde link toont dan iets anders dan de leerling zag. Geef de vraagsoort eerst een versie in de link, zie #60 en AGENTS.md.`,
   );
 });
