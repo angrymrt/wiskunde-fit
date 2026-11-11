@@ -20,7 +20,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 globalThis.window = globalThis;
 
 const { STORE, load, opslag, prog, rec } = await import('../src/js/progress.js');
-const { TEST_KEY, RESULT_KEY, buildTest, loadTests, saveTest, storeTest } =
+const { TEST_KEY, RESULT_KEY, buildTest, loadTests, saveTest, stopTest, storeTest } =
   await import('../src/js/ui/exam.js');
 const { state } = await import('../src/js/ui/state.js');
 const { storageNotice } = await import('../src/js/ui/layout.js');
@@ -77,6 +77,21 @@ test('een mislukte proeftoets houdt het lezen van de voortgang niet tegen', () =
   full.clear();
   saveTest();
   assert.equal(opslag.toets, false);
+});
+
+test('een proeftoets die niet bewaard kon worden, blijft lopen tot je stopt', () => {
+  reset();
+  full.add(TEST_KEY);
+  state.test = newTest(1);
+  saveTest();
+  // Een ander tabblad bewaart een uitslag of wist alles. Het geheugen gaat voor.
+  loadTests();
+  assert.equal(state.test?.id, 1);
+  assert.equal(storeTest(), true);
+  // Gestopt: er is niets meer dat niet bewaard kon worden, dus de melding verdwijnt.
+  stopTest();
+  assert.equal(opslag.toets, false);
+  assert.equal(storageNotice(), '');
 });
 
 test('een tabblad dat achterliep, zet een ingeleverde proeftoets niet terug', () => {

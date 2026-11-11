@@ -75,8 +75,9 @@ function remove(key) {
     localStorage.removeItem(key);
   } catch (e) {}
 }
+// Lukte het bewaren van de proeftoets niet, dan is die in het geheugen het nieuwst.
 function loadTests() {
-  state.test = read(TEST_KEY);
+  if (!opslag.toets || !state.test) state.test = read(TEST_KEY);
   state.result = read(RESULT_KEY);
 }
 const saveTest = () => write(TEST_KEY, state.test);
@@ -93,8 +94,10 @@ function current() {
     return true;
   }
 }
+// Er loopt geen proeftoets meer, dus er is ook niets meer dat niet bewaard kon worden.
 function stopTest() {
   state.test = null;
+  opslag.toets = false;
   remove(TEST_KEY);
 }
 function forgetTests() {
@@ -210,10 +213,11 @@ function finishTest() {
   t.score = score;
   t.max = max;
   t.time = Math.floor(elapsed(t) / 1000);
-  // Alleen de laatste uitslag blijft bewaard, dus de vorige verdwijnt nu pas.
+  // Alleen de laatste uitslag blijft bewaard, dus de vorige verdwijnt nu pas. Eerst stoppen: lukt
+  // het bewaren van de uitslag niet, dan blijft de melding daarover staan.
+  stopTest();
   state.result = t;
   write(RESULT_KEY, t);
-  stopTest();
 }
 function perTopic(items) {
   const per = new Map();
