@@ -6,11 +6,12 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 
 ### Hersteld
 
-- Op een iPhone of iPad met iOS 14.5 tot 15.3 werkte de site niet: je kon de pagina's lezen, maar niet oefenen. Nu werkt alles weer.
+- Op een iPhone of iPad met iOS 14.5 tot 15.3 stopte de site bij het laden: je kon de pagina's lezen, maar niet oefenen. De oorzaak is weggehaald. Op zo'n iPhone hebben we het nog niet zelf getest.
 
 ### Verbeterd
 
-- Op de pagina Over staat nu op welke apparaten en browsers de site werkt.
+- Op de pagina Over staat nu voor welke apparaten en browsers de site is gemaakt.
+- Op Kies uit je boek valt een vinkje met het toetsenbord nu ook in oudere browsers niet achter de balk onderaan.
 
 ## 1.11.4
 

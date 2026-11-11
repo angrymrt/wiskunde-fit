@@ -145,6 +145,7 @@ function render(focus) {
   else app.innerHTML = screenHTML();
   prebuilt = false;
   opslag.gemeld = opslag.voortgang || opslag.toets;
+  document.documentElement.classList.toggle('met-stof-bar', !!app.querySelector('.stof-bar'));
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));

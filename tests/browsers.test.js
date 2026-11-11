@@ -12,23 +12,25 @@ const root = new URL('../', import.meta.url);
 
 // Wat er niet is in Safari 14.1, Chrome 87 of Firefox 83, met wat je ervoor in de plaats gebruikt.
 const JS = [
-  [/\bObject\.hasOwn\(/, 'Object.hasOwn', 'Object.prototype.hasOwnProperty.call(...)'],
-  [/\.at\(-?\d/, '.at()', 'x[x.length - 1]'],
-  [/\bstructuredClone\(/, 'structuredClone', 'JSON.parse(JSON.stringify(...))'],
-  [/\.findLast(Index)?\(/, '.findLast()', 'een lus van achteren'],
-  [/\.(toSorted|toReversed|toSpliced)\(/, '.toSorted() en dergelijke', '[...x].sort()'],
-  [/\b(Object|Map)\.groupBy\(/, 'groupBy', 'een lus met een Map'],
-  [/\bArray\.fromAsync\(/, 'Array.fromAsync', 'Promise.all'],
-  [/\bcrypto\.randomUUID\(/, 'crypto.randomUUID', 'crypto.getRandomValues'],
-  [/\bAbortSignal\.(timeout|any)\(/, 'AbortSignal.timeout', 'setTimeout met een AbortController'],
-  [/\bnew WeakRef\(|\bFinalizationRegistry\b/, 'WeakRef', 'een gewone verwijzing'],
+  [/\bObject\.hasOwn\b/, 'Object.hasOwn', 'Object.prototype.hasOwnProperty.call(...)'],
+  [/\.at\(/, '.at()', 'x[x.length - 1]'],
+  [/\bstructuredClone\b/, 'structuredClone', 'JSON.parse(JSON.stringify(...))'],
+  [/\.findLast(Index)?\b/, '.findLast()', 'een lus van achteren'],
+  [/\.(toSorted|toReversed|toSpliced)\b/, '.toSorted() en dergelijke', '[...x].sort()'],
+  [/\b(Object|Map)\.groupBy\b/, 'groupBy', 'een lus met een Map'],
+  [/\bArray\.fromAsync\b/, 'Array.fromAsync', 'Promise.all'],
+  [/\bcrypto\.randomUUID\b/, 'crypto.randomUUID', 'crypto.getRandomValues'],
+  [/\bAbortSignal\.(timeout|any)\b/, 'AbortSignal.timeout', 'setTimeout met een AbortController'],
+  [/\bWeakRef\b|\bFinalizationRegistry\b/, 'WeakRef', 'een gewone verwijzing'],
   [/\bIntl\.(ListFormat|Segmenter)\b/, 'Intl.ListFormat', 'zelf samenvoegen'],
-  [/\brequestIdleCallback\(/, 'requestIdleCallback (nooit in Safari)', 'setTimeout'],
-  [/\.showModal\(|<dialog/, '<dialog>', 'een gewoon blok'],
+  [/\brequestIdleCallback\b/, 'requestIdleCallback (nooit in Safari)', 'setTimeout'],
+  [/\.showModal\b|<dialog/, '<dialog>', 'een gewoon blok'],
 ];
-// Nieuwere CSS die de opmaak zou breken. Wat alleen iets mooier maakt, zoals :has() voor
-// scroll-padding, :focus-visible en text-wrap, mag wel: een oudere browser slaat het over.
+// Nieuwere CSS die de opmaak zou breken. Wat alleen iets mooier maakt, zoals :focus-visible en
+// text-wrap, mag wel: een oudere browser slaat het over. :has() is er pas vanaf Safari 15.4,
+// Chrome 105 en Firefox 121, en is meestal nodig voor de opmaak. Gebruik daar een klasse.
 const CSS = [
+  [/:has\(/, ':has(), gebruik een klasse'],
   [/@container\b/, '@container'],
   [/\bcolor-mix\(/, 'color-mix()'],
   [/\b\d+(dvh|svh|lvh)\b/, 'dvh, svh of lvh'],
@@ -66,7 +68,18 @@ test('de CSS gebruikt niets wat de opmaak in de ondersteunde browsers breekt', a
 
 test('de controle vindt wat ze zoekt', () => {
   // Zo blijft de test werken als een patroon per ongeluk niets meer vindt.
-  const bad = 'Object.hasOwn(a, b); x.at(-1); structuredClone(y); a.findLast(f); a.toSorted();';
-  assert.equal(found(bad, JS).length, 5);
-  assert.equal(found('div{height:100dvh} @container x{}', CSS).length, 2);
+  for (const bad of [
+    'Object.hasOwn(a, b)',
+    'keys.filter(Object.hasOwn)',
+    'x.at(-1)',
+    'x.at(i)',
+    'x.at(x.length - 1)',
+    'structuredClone(y)',
+    'a.findLast(f)',
+    'a.toSorted()',
+    'new WeakRef(x)',
+  ])
+    assert.equal(found(bad, JS).length, 1, bad);
+  for (const bad of ['html:has(.x){}', 'div{height:100dvh}', '@container x{}'])
+    assert.equal(found(bad, CSS).length, 1, bad);
 });
