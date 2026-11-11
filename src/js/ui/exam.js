@@ -1,5 +1,5 @@
 // De proeftoets: samenstellen, afnemen, bewaren en nakijken.
-import { checkAnswer, fillState, parseNum } from '../answers.js';
+import { checkAnswer, fillState, matchFields, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
@@ -258,11 +258,14 @@ function answerRows({ q, vals, c }) {
   const named = q.fields.some((f) => f.pre || f.post);
   const label = (f, i) =>
     f.pre ? T(f.pre) : named ? '' : q.fields.length > 1 ? `Antwoord ${i + 1}` : null;
+  // In een groep velden, zoals bij x = −2 ∨ x = 9, is het goede antwoord bij een fout veld het
+  // antwoord dat nog over is. Zie matchFields in answers.js.
+  const to = matchFields(q.fields, vals);
   return q.fields.map((f, i) => [
     label(f, i),
     `${typed(vals[i])}${f.post && filled(vals[i]) ? ' ' + T(f.post) : ''}`,
     c.each[i],
-    rightField(f),
+    rightField(q.fields[to[i]]),
   ]);
 }
 function answersHTML(x) {

@@ -1289,6 +1289,21 @@ ol.how {
   border-color: var(--bad);
   background: var(--bad-soft);
 }
+/* Keuzes met een figuur, zoals schetsen van een grafiek: naast elkaar zolang ze passen. */
+.opts.figs {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+.opts.figs .opt {
+  align-items: flex-start;
+  padding: 8px;
+}
+.opts.figs .opt > span {
+  flex: 1;
+  min-width: 0;
+}
+.opts.figs .fig {
+  width: 100%;
+}
 .fb {
   padding: 10px 14px;
   border-radius: 4px;
@@ -1519,6 +1534,12 @@ ol.how {
 }
 .nowrap {
   white-space: nowrap;
+}
+/* Een gekozen figuur in de uitslag, zoals een schets. Smaller als de tabel anders niet past. */
+.answers .fig {
+  width: 100%;
+  max-width: 150px;
+  margin-top: 4px;
 }
 .answers tbody th {
   font-weight: 400;

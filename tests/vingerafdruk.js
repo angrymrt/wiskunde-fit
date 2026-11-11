@@ -20,7 +20,8 @@ const numbers = (html) =>
 const answers = (q) => ({
   numbers: numbers(q.q),
   fields: (q.fields ?? []).map((f) => f.a),
-  mc: q.mc ? { opts: q.mc.opts, a: q.mc.a } : null,
+  // Een keuze die een figuur is, zoals een schets, telt net als de figuur van de vraag niet mee.
+  mc: q.mc ? { opts: q.mc.opts.map((o) => (/^<svg/.test(o) ? 'figuur' : o)), a: q.mc.a } : null,
   line: q.line ?? null,
 });
 // Afgerond op 10 cijfers, zodat een verschil in de laatste bit tussen Node-versies, bijvoorbeeld

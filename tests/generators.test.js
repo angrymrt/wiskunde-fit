@@ -3,13 +3,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
-import { flipTrap } from '../src/js/topics/shared.js';
+import { flipTrap, orFields, MC } from '../src/js/topics/shared.js';
+import { graph } from '../src/js/figures.js';
 import { parseSeed, rd, seedText } from '../src/js/math.js';
 import {
   checkAnswer,
   checkField,
   fillState,
   findTrap,
+  matchFields,
   parseNum,
   roundTraps,
 } from '../src/js/answers.js';
@@ -51,14 +53,42 @@ function assertDescribed(fig, q) {
     ...[...fig.matchAll(/<text class="ti" text-anchor="middle"[^>]*>([^<]+)<\/text>/g)].map(
       (m) => m[1],
     ),
-    // Namen van lijnen in een grafiek.
-    ...[...fig.matchAll(/<text class="t\d ti"[^>]*>([^<]+)<\/text>/g)].map((m) => `lijn ${m[1]}`),
   ];
   for (const w of written)
     assert.ok(
       label.toLowerCase().includes(w.toLowerCase()),
       `"${w}" staat niet in de beschrijving: ${q}`,
     );
+  // Namen van lijnen en parabolen in een grafiek.
+  for (const [, name] of fig.matchAll(/<text class="t\d ti"[^>]*>([^<]+)<\/text>/g))
+    assert.ok(
+      [`lijn ${name}`, `grafiek van ${name}`].some((w) =>
+        label.toLowerCase().includes(w.toLowerCase()),
+      ),
+      `"${name}" staat niet in de beschrijving: ${q}`,
+    );
+}
+
+// Alle volgordes van de goede antwoorden: binnen een groep velden mag elke volgorde.
+function rightOrders(fields, right) {
+  let all = [right];
+  const groups = new Map();
+  fields.forEach((f, i) => {
+    if (f.grp != null) groups.set(f.grp, [...(groups.get(f.grp) || []), i]);
+  });
+  const orders = (a) =>
+    a.length < 2
+      ? [a]
+      : a.flatMap((x, i) => orders([...a.slice(0, i), ...a.slice(i + 1)]).map((p) => [x, ...p]));
+  for (const idx of groups.values())
+    all = all.flatMap((vals) =>
+      orders(idx).map((p) => {
+        const v = [...vals];
+        idx.forEach((i, k) => (v[i] = vals[p[k]]));
+        return v;
+      }),
+    );
+  return all;
 }
 
 // Het goede antwoord valt in geen enkele valkuil. Anders krijgt een leerling bij een vraag met
@@ -89,6 +119,8 @@ function assertSound(q) {
 
   if (q.mc) {
     assert.ok(q.mc.a >= 0 && q.mc.a < q.mc.opts.length, `juiste keuze bestaat niet: ${q.q}`);
+    // Een keuze kan een figuur zijn, zoals een schets. Die heeft dan ook een beschrijving.
+    for (const o of q.mc.opts) if (/^<svg/.test(o)) assertDescribed(o, q.q);
     assert.equal(new Set(q.mc.opts).size, q.mc.opts.length, `dubbele keuzes: ${q.q}`);
     assert.ok(checkAnswer(q, [String(q.mc.a)]).ok, `goed antwoord afgekeurd: ${q.q}`);
     assertNoTrap(q, [String(q.mc.a)]);
@@ -98,11 +130,23 @@ function assertSound(q) {
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
   for (const f of q.fields) if (!f.sel) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+  // Een groep velden wordt zonder volgorde nagekeken. Dat kan alleen bij getallen, en met
+  // hoogstens vier velden, want het nakijken probeert alle volgordes.
+  const groups = q.fields.filter((f) => f.grp != null);
+  for (const f of groups) {
+    assert.ok(!f.sel && !q.line, `groep bij een keuzelijst of tekenvraag: ${q.q}`);
+    const size = groups.filter((g) => g.grp === f.grp).length;
+    assert.ok(size >= 2 && size <= 4, `groep met ${size} velden: ${q.q}`);
+  }
   const right = q.fields.map((f) =>
     f.sel ? f.a : f.round ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
   );
-  assert.ok(checkAnswer(q, right).ok, `goed antwoord afgekeurd (${right.join(' | ')}): ${q.q}`);
-  assertNoTrap(q, right);
+  // Bij een groep velden in elke volgorde.
+  for (const r of rightOrders(q.fields, right)) {
+    assert.ok(checkAnswer(q, r).ok, `goed antwoord afgekeurd (${r.join(' | ')}): ${q.q}`);
+    assert.ok(checkAnswer(stored(q), r).ok, `bewaard goed antwoord afgekeurd: ${q.q}`);
+    assertNoTrap(q, r);
+  }
   // Bij een tekenvraag verschuift alleen de eerste y, want twee punten even ver opschuiven kan weer
   // een punt op dezelfde lijn geven.
   const wrong = q.fields.map((f, i) =>
@@ -445,6 +489,106 @@ test('checkField keurt alleen het goed afgeronde getal goed', () => {
     assert.equal(checkField(field, input), want, `${input} bij ${field.a}`);
 });
 
+test('een groep velden wordt zonder volgorde nagekeken', () => {
+  const q = { q: '', fields: orFields([-2, 9]) };
+  const each = (...vals) => checkAnswer(q, vals).each;
+  assert.deepEqual(each('-2', '9'), [true, true]);
+  assert.deepEqual(each('9', '−2'), [true, true], 'omgekeerde volgorde');
+  // Twee keer hetzelfde getal is één goed antwoord, niet twee.
+  assert.deepEqual(each('9', '9'), [false, true]);
+  assert.deepEqual(each('-2', '-2'), [true, false]);
+  // Alleen het foute veld is fout, ook als het goede getal in het andere veld hoort.
+  assert.deepEqual(each('-2', '5'), [true, false]);
+  assert.deepEqual(each('5', '-2'), [false, true]);
+  assert.deepEqual(each('', '9'), [false, true]);
+  assert.deepEqual(each('', ''), [false, false]);
+  // In de uitslag staat bij een fout veld het antwoord dat nog over is.
+  assert.deepEqual(matchFields(q.fields, ['9', '5']), [1, 0]);
+  assert.deepEqual(matchFields(q.fields, ['5', '9']), [0, 1]);
+  // Velden buiten de groep houden hun plek.
+  const mixed = { q: '', fields: [...orFields([1, 4]), { pre: 'y =', a: 1 }] };
+  assert.ok(checkAnswer(mixed, ['4', '1', '1']).ok);
+  assert.deepEqual(checkAnswer(mixed, ['4', '1', '4']).each, [true, true, false]);
+  // Een bewaarde proeftoets is JSON, en de groep blijft dan werken.
+  assert.ok(checkAnswer(JSON.parse(JSON.stringify(q)), ['9', '-2']).ok);
+  // Twee gelijke antwoorden: dan mag het getal twee keer.
+  assert.ok(checkAnswer({ q: '', fields: orFields([3, 3]) }, ['3', '3']).ok);
+});
+
+test('een groep met afronden kent de valkuilen voor afronden in elke volgorde', () => {
+  // x = 1 ± √3: 2,73 en −0,73.
+  const fields = orFields([1 + Math.sqrt(3), 1 - Math.sqrt(3)], { n: 2 });
+  const q = { q: '', fields, traps: roundTraps(fields) };
+  assert.ok(checkAnswer(q, ['-0,73', '2,73']).ok);
+  assert.ok(checkAnswer(q, ['2,73', '-0,73']).ok);
+  assert.deepEqual(checkAnswer(q, ['2,73', '-0,74']).each, [true, false]);
+  const trap = (...vals) => findTrap(q, vals)?.id ?? null;
+  assert.equal(trap('-0,73', '2,73'), null);
+  assert.equal(trap('-0,732', '2,73'), 'te-veel-decimalen');
+  assert.equal(trap('2,73', '-0,732'), 'te-veel-decimalen');
+  assert.equal(trap('-0,73', '2,74'), 'verkeerd-afgerond');
+  assert.equal(trap('2,74', '-0,73'), 'verkeerd-afgerond');
+  assert.equal(trap('5', '2,73'), null);
+  // Valt een antwoord mooi uit, dan rondt dat veld niet af, en dan is het getal ook goed.
+  const half = orFields([2, Math.sqrt(2)], { n: 1 });
+  assert.deepEqual(
+    half.map((f) => f.round),
+    [undefined, 1],
+  );
+  assert.ok(checkAnswer({ q: '', fields: half }, ['1,4', '2']).ok);
+  assert.equal(findTrap({ q: '', fields: half, traps: roundTraps(half) }, ['1,4', '2']), null);
+});
+
+test('een parabool staat in de grafiek en in de beschrijving', () => {
+  const opts = { xr: [-3, 6], yr: [-5, 6], curves: [{ abc: [1, -2, -3], name: 'f' }] };
+  const fig = graph(opts);
+  assert.equal(graph(opts), fig, 'twee keer dezelfde tekst');
+  assert.doesNotMatch(fig, / id="/);
+  assert.match(fig, /<path class="l1" d="M[^"]+Q[^"]+"\/>/);
+  assertDescribed(fig, 'parabool');
+  const label = fig.match(/aria-label="([^"]*)"/)[1];
+  assert.match(label, /De grafiek van f is een dalparabool met de top in \(1, −4\)\./);
+  assert.match(label, /Hij snijdt de x-as bij x = −1 en x = 3, en de y-as bij y = −3\./);
+  const desc = (o) => graph(o).match(/aria-label="([^"]*)"/)[1];
+  // Snijpunten die niet mooi uitkomen, staan afgerond, en wat buiten beeld ligt, staat er niet.
+  assert.match(
+    desc({ xr: [-3, 3], yr: [-3, 3], curves: [{ abc: [1, 0, -2] }] }),
+    /De grafiek is een dalparabool met de top in \(0, −2\)\. Hij snijdt de x-as bij x ≈ −1,4 en x ≈ 1,4, en de y-as bij y = −2\./,
+  );
+  assert.match(
+    desc({ xr: [-2, 2], yr: [-2, 2], curves: [{ abc: [-1, 6, -5] }] }),
+    /De grafiek is een bergparabool\. Hij snijdt de x-as bij x = 1\.$/,
+  );
+  assert.match(desc({ xr: [-3, 3], yr: [-3, 6], curves: [{ abc: [1, 0, 1] }] }), /de x-as niet/);
+  // Met een andere schaal en andere letters.
+  assert.match(
+    desc({ xr: [0, 6], yr: [0, 8], ys: 5, xn: 't', yn: 'h', curves: [{ abc: [-5, 20, 0] }] }),
+    /bergparabool met de top in \(2, 20\)\. Hij snijdt de t-as bij t = 0 en t = 4, en de h-as bij h = 0\./,
+  );
+  // Een schets noemt geen getallen.
+  const sketch = (abc) =>
+    desc({ xr: [-4, 4], yr: [-4, 4], sketch: true, curves: [{ abc }], label: 'Schets' });
+  assert.equal(
+    sketch([1, -2, -3]),
+    'Schets. De grafiek is een dalparabool. De top ligt rechts van de y-as en onder de x-as. Hij snijdt de x-as twee keer en de y-as onder O.',
+  );
+  assert.equal(
+    sketch([-1, -4, -4]),
+    'Schets. De grafiek is een bergparabool. De top ligt links van de y-as en op de x-as. Hij raakt de x-as in de top. Hij snijdt de y-as onder O.',
+  );
+});
+
+test('een schets kan een keuze zijn bij meerkeuze', () => {
+  const sketch = (abc) =>
+    graph({ xr: [-4, 4], yr: [-4, 4], u: 16, sketch: true, curves: [{ abc }] });
+  const q = { q: '', mc: MC([sketch([1, 0, -2]), sketch([-1, 0, 2]), sketch([1, 2, 0])], 0) };
+  assert.equal(new Set(q.mc.opts).size, 3);
+  for (const o of q.mc.opts) assertDescribed(o, 'schets');
+  const kept = JSON.parse(JSON.stringify(q));
+  assert.deepEqual(kept, q);
+  assert.ok(checkAnswer(kept, [String(q.mc.a)]).ok);
+});
+
 test('flipTrap herkent een omgedraaide verhouding, ook afgerond', () => {
   // x = 7·3/4 = 5,25; omgedraaid 4·3/7 ≈ 1,714.
   const fields = [{ a: 5.25, round: 1 }, { a: 6 }];
@@ -570,4 +714,7 @@ test('T zet wiskunde goed om', () => {
   assert.match(T('{3/4}'), /class="f"/);
   assert.match(T('2*3'), /·/);
   assert.equal(T('F-hoeken'), 'F-hoeken');
+  assert.equal(T('x_top'), '<span class="v">x</span><sub>top</sub>');
+  assert.equal(T('y_top'), '<span class="v">y</span><sub>top</sub>');
+  assert.equal(T('x = -2 ∨ x = 9'), '<span class="v">x</span> = −2 ∨ <span class="v">x</span> = 9');
 });

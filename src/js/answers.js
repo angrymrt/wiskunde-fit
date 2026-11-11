@@ -42,8 +42,18 @@ function roundTraps(fields = []) {
   if (!rounded.length) return [];
   const n = rounded[0].round,
     op = n === 1 ? '1 decimaal' : `${n} decimalen`;
+  // In een groep kan elk getal bij elk antwoord van de groep horen, zie matchFields. Een getal dat
+  // goed is voor een van die antwoorden, valt in geen van deze valkuilen.
+  const mates = (i) =>
+    fields[i].grp != null ? fields.filter((g) => g.grp === fields[i].grp) : [fields[i]];
+  const right = (ms, x) => ms.some((g) => near(x, g.round ? rd(g.a, g.round) : g.a, 1e-9));
   const some = (test) => (v) =>
-    fields.some((f, i) => f.round && Number.isFinite(v[i]) && test(f, v[i]));
+    fields.some(
+      (f, i) =>
+        Number.isFinite(v[i]) &&
+        !right(mates(i), v[i]) &&
+        mates(i).some((g) => g.round && test(g, v[i])),
+    );
   return [
     {
       // Het antwoord klopt, maar is niet of niet ver genoeg afgerond, zoals 8,18 bij 8,1818.
@@ -74,6 +84,36 @@ function checkLine({ a, b }, v) {
     second = on(v[2], v[3]) && !same;
   return [first, first, second, second];
 }
+// Velden met dezelfde groep (grp), zoals de twee velden bij x = −2 ∨ x = 9, worden zonder volgorde
+// nagekeken: elk ingevuld getal mag bij een antwoord van de groep horen dat nog niet is gebruikt.
+// Geeft per veld het veld waarvan het antwoord erbij hoort. Van alle manieren om de getallen bij de
+// antwoorden te zetten, telt die met de meeste goede velden. Bij gelijkspel wint de gewone volgorde,
+// zodat de uitslag bij hetzelfde antwoord steeds hetzelfde laat zien. Een groep heeft hoogstens een
+// paar velden, dus alle volgordes proberen gaat snel.
+const orders = (a) =>
+  a.length < 2
+    ? [a]
+    : a.flatMap((x, i) => orders([...a.slice(0, i), ...a.slice(i + 1)]).map((p) => [x, ...p]));
+function matchFields(fields, vals = []) {
+  const to = fields.map((f, i) => i),
+    groups = new Map();
+  fields.forEach((f, i) => {
+    if (f.grp != null && !f.sel) groups.set(f.grp, [...(groups.get(f.grp) || []), i]);
+  });
+  for (const idx of groups.values()) {
+    let best = idx,
+      most = -1;
+    for (const p of orders(idx)) {
+      const n = idx.filter((i, k) => checkField(fields[p[k]], vals[i] ?? '')).length;
+      if (n > most) {
+        best = p;
+        most = n;
+      }
+    }
+    idx.forEach((i, k) => (to[i] = best[k]));
+  }
+  return to;
+}
 function checkAnswer(q, vals) {
   if (q.mc) {
     const hit = vals[0] !== '' && vals[0] != null && +vals[0] === q.mc.a;
@@ -84,7 +124,7 @@ function checkAnswer(q, vals) {
         q.line,
         q.fields.map((f, i) => parseNum(vals[i] ?? '')),
       )
-    : q.fields.map((f, i) => checkField(f, vals[i] ?? ''));
+    : matchFields(q.fields, vals).map((j, i) => checkField(q.fields[j], vals[i] ?? ''));
   return { each, ok: each.every(Boolean) };
 }
 // Of een vraag leeg, half of helemaal is ingevuld. Alleen spaties telt als leeg, en bij een
@@ -97,6 +137,8 @@ function fillState(q, vals = []) {
 }
 // Geeft de eerste valkuil waar het antwoord in valt, met de gerichte feedback in m.
 // Bij meerkeuze krijgt een valkuil de tekst van de gekozen keuze, zoals [q.mc.opts[2]].
+// Een valkuil krijgt de getallen in de volgorde waarin ze zijn ingevuld, ook bij een groep velden.
+// Een valkuil bij een groep kijkt dus zelf naar alle velden van de groep.
 function findTrap(q, vals) {
   if (!q.traps) return null;
   const v = q.mc
@@ -110,4 +152,4 @@ function findTrap(q, vals) {
   return null;
 }
 
-export { parseNum, checkField, checkAnswer, fillState, findTrap, roundTraps };
+export { parseNum, checkField, checkAnswer, matchFields, fillState, findTrap, roundTraps };
