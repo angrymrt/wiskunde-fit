@@ -75,48 +75,62 @@ function addressOf(dir, file) {
   return path === '/index' ? path : path.replace(/\/index$/, '');
 }
 
+// Een fout bij één verzoek stopt de server niet. Een ongeldig adres, zoals /%, krijgt 400. Een
+// andere fout krijgt 500, bijvoorbeeld als npm run dev net opnieuw bouwt.
 function startServer(dir, port) {
   const tellen = [];
   const server = createServer(async (req, res) => {
-    const url = new URL(req.url, 'http://localhost');
-    if (url.pathname === '/api/tel') return api(req, res, tellen);
-    // Lees de regels bij elk verzoek, want npm run dev bouwt steeds opnieuw.
-    const config = JSON.parse(await readFile(join(dir, 'staticwebapp.config.json'), 'utf8'));
-    const path = decodeURIComponent(url.pathname);
-    const redirect = (to, code = 301) => res.writeHead(code, { Location: to + url.search }).end();
-    const bare = path.replace(/\/+$/, '') || '/';
-    const rule = (config.routes || []).find((r) => routeRegex(r.route).test(bare));
-    if (rule?.redirect) return redirect(rule.redirect, rule.statusCode || 302);
-
-    const send = async (file, status, extra = {}) => {
-      let body = await readFile(file);
-      const type = types[extname(file)] ?? 'application/octet-stream';
-      const headers = {
-        'Content-Type': type,
-        'Cache-Control': 'public, must-revalidate, max-age=30',
-        ...extra,
-      };
-      // Azure comprimeert tekst met brotli, ongeveer op niveau 4. Zo kloppen ook de metingen.
-      if (compressible.test(type) && /\bbr\b/.test(req.headers['accept-encoding'])) {
-        body = brotliCompressSync(body, { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } });
-        Object.assign(headers, { 'Content-Encoding': 'br', Vary: 'Accept-Encoding' });
-      }
-      res.writeHead(status, headers);
-      res.end(req.method === 'HEAD' ? undefined : body);
-    };
-    const file = await findFile(dir, bare);
-    if (file) {
-      const address = addressOf(dir, file);
-      const home = address === '/index' && path === '/';
-      if (config.trailingSlash === 'never' && path !== address && !home) return redirect(address);
-      return send(file, 200, rule?.headers);
+    try {
+      await handle(dir, req, res, tellen);
+    } catch (e) {
+      const bad = e instanceof URIError;
+      if (!bad) console.error(`${req.method} ${req.url}:`, e);
+      if (res.headersSent) return void res.end();
+      res.writeHead(bad ? 400 : 500, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end(bad ? 'Ongeldig adres' : 'Er ging iets mis op de server');
     }
-    const missing = config.responseOverrides?.['404'];
-    if (missing) return send(join(dir, missing.rewrite), missing.statusCode || 404);
-    res.writeHead(404).end('Niet gevonden');
   });
   server.tellen = tellen;
   return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
+}
+
+async function handle(dir, req, res, tellen) {
+  const url = new URL(req.url, 'http://localhost');
+  if (url.pathname === '/api/tel') return api(req, res, tellen);
+  // Lees de regels bij elk verzoek, want npm run dev bouwt steeds opnieuw.
+  const config = JSON.parse(await readFile(join(dir, 'staticwebapp.config.json'), 'utf8'));
+  const path = decodeURIComponent(url.pathname);
+  const redirect = (to, code = 301) => res.writeHead(code, { Location: to + url.search }).end();
+  const bare = path.replace(/\/+$/, '') || '/';
+  const rule = (config.routes || []).find((r) => routeRegex(r.route).test(bare));
+  if (rule?.redirect) return redirect(rule.redirect, rule.statusCode || 302);
+
+  const send = async (file, status, extra = {}) => {
+    let body = await readFile(file);
+    const type = types[extname(file)] ?? 'application/octet-stream';
+    const headers = {
+      'Content-Type': type,
+      'Cache-Control': 'public, must-revalidate, max-age=30',
+      ...extra,
+    };
+    // Azure comprimeert tekst met brotli, ongeveer op niveau 4. Zo kloppen ook de metingen.
+    if (compressible.test(type) && /\bbr\b/.test(req.headers['accept-encoding'])) {
+      body = brotliCompressSync(body, { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } });
+      Object.assign(headers, { 'Content-Encoding': 'br', Vary: 'Accept-Encoding' });
+    }
+    res.writeHead(status, headers);
+    res.end(req.method === 'HEAD' ? undefined : body);
+  };
+  const file = await findFile(dir, bare);
+  if (file) {
+    const address = addressOf(dir, file);
+    const home = address === '/index' && path === '/';
+    if (config.trailingSlash === 'never' && path !== address && !home) return redirect(address);
+    return send(file, 200, rule?.headers);
+  }
+  const missing = config.responseOverrides?.['404'];
+  if (missing) return send(join(dir, missing.rewrite), missing.statusCode || 404);
+  res.writeHead(404).end('Niet gevonden');
 }
 
 export { startServer };

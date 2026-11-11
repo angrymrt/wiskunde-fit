@@ -1,6 +1,4 @@
-dist/
-dist-dev/
-dist-api/
+dist*/
 naslag/
 test-results/
 package-lock.json
