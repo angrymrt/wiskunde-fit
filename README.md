@@ -115,7 +115,7 @@ src/
         └── state.js        Gedeelde toestand van de schermen
 api/                        De functie /api/tel, die de anonieme tellen in een tabel zet
 data/tellen/                De anonieme tellen van wiskundefit.nl, samengevat per dag
-scripts/                    Build, ontwikkelserver, controle na de deploy, meting, afbeeldingen,
+scripts/                    Build, ontwikkelserver, controle na de deploy, metingen, afbeeldingen,
                             lettertypes, releasenotities en het samenvatten van de tellen
 tests/                      Generatortests, adressen, schermen, pagina's, server, releasecontrole
                             en browsertest
