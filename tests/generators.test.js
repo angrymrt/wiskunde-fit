@@ -217,6 +217,31 @@ test('een seed staat kort in het adres en gaat heen en terug', () => {
   }
 });
 
+// Uit de review van #74: bij f(-1) = f(3) is de halve afstand 2, net als -1 + 3. Ook dan hoort de
+// valkuil halve-afstand bij de vraag.
+test('x_top uit gelijke functiewaarden herkent de halve afstand', () => {
+  const topic = TOPICS.find((t) => t.slug === 'kwadratische-functies'),
+    skill = topic.skills.find((k) => k.id === 70);
+  assert.ok(
+    makeQuestion(skill, 14).traps.some((t) => t.id === 'halve-afstand'),
+    'seed 14',
+  );
+  let checked = 0;
+  eachQuestion(topic, skill, (q) => {
+    if (q.fields.length !== 3) return;
+    const [p, r] = q.fields.slice(0, 2).map((f) => Number(f.pre.match(/\((-?\d+)\)/)[1])),
+      half = (r - p) / 2,
+      vals = [q.fields[0].a, q.fields[1].a, half].map(String);
+    // Bij p = 0 is de halve afstand het goede antwoord.
+    if (p === 0) return assert.equal(findTrap(q, vals), null);
+    checked++;
+    // Is de halve afstand ook p + q, dan past het getal bij twee fouten, en komt midden-vergeten eerst.
+    const want = half === p + r ? 'midden-vergeten' : 'halve-afstand';
+    assert.equal(findTrap(q, vals)?.id, want, q.q);
+  });
+  assert.ok(checked > 50, 'genoeg vragen met de halve afstand');
+});
+
 test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
   const drawing = TOPICS.flatMap((s) => s.skills).filter((k) => /tekenen$/.test(k.name));
   assert.equal(drawing.length, 3);

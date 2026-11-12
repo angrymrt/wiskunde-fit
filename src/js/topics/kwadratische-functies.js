@@ -316,7 +316,8 @@ function symPair() {
         m: 'x_top ligt precies in het midden. Tel de twee x-waarden op en deel door 2.',
       },
     ];
-  if (p && !near((q - p) / 2, p + q))
+  // Alleen bij p = 0 is de halve afstand gelijk aan x_top.
+  if (p)
     traps.push({
       id: 'halve-afstand',
       f: (v) => near(v[2], (q - p) / 2),
@@ -830,7 +831,7 @@ export default {
           'Dus de bal komt niet verder dan 18 meter.',
         ],
       },
-      watch: 'Schrijf je antwoord als een zin, met de eenheid erbij.',
+      watch: 'Een negatieve hoogte betekent dat de bal al op de grond is gekomen.',
     },
   ],
 };
