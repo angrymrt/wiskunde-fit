@@ -323,7 +323,7 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     // Mijn stof: uit welk boek de stof komt, en een half gekozen onderwerp staat half aangevinkt.
     await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-3'));
     assert.deepEqual(await current(), ['Mijn stof true']);
-    assert.equal(await p.locator('.chapter details').count(), 7, 'ingeklapte hoofdstukken');
+    assert.equal(await p.locator('.chapter details').count(), 6, 'ingeklapte hoofdstukken');
     await p.click('[data-act="chapter"][data-id="1"]');
     // De balk onderaan geeft ruimte bij het scrollen, ook in browsers zonder :has().
     const withBar = () =>
@@ -705,8 +705,13 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     assert.equal((await stof()).length, 20);
     assert.equal(await p.isChecked('[data-act="chapter"][data-id="2"]'), false);
     await p.click('[data-act="para"][data-id="2.3"]');
-    assert.equal(await p.locator('[data-act="chapter"][data-id="3"]').count(), 0);
-    assert.match(await p.textContent('.chapter:nth-of-type(3)'), /nog niet oefenen/);
+    // Hoofdstuk 3 is deels gedekt: bij de paragraaf staat wat nog ontbreekt.
+    assert.match(
+      await p.textContent('label:has([data-act="para"][data-id="3.1"])'),
+      /Zelf een parabool tekenen .* nog niet oefenen/,
+    );
+    assert.equal(await p.locator('[data-act="chapter"][data-id="4"]').count(), 0);
+    assert.match(await p.textContent('.chapter:nth-of-type(4)'), /nog niet oefenen/);
     await fits('methode-indeling');
     await p.screenshot({ path: `${shotDir}methode-indeling.png`, fullPage: true });
 

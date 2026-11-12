@@ -99,7 +99,7 @@ function paragraphHTML(p) {
     .join(', ');
   const part =
     p.coverage === 'deels'
-      ? `<span class="small muted pick-note">Dit kun je hier al oefenen: ${skillNames(chosenTopics(p.skills).flatMap((g) => g.skills))}.</span>`
+      ? `<span class="small muted pick-note">Dit kun je hier al oefenen: ${skillNames(chosenTopics(p.skills).flatMap((g) => g.skills))}.${p.note ? ` ${T(p.note)}` : ''}</span>`
       : '';
   return `<li><label class="pick">${checkbox('para', esc(p.number), p.skills)}<span>${label}${part}</span></label><span class="small pick-topics">Onderwerp: ${topics}</span></li>`;
 }
@@ -136,7 +136,7 @@ function topicPickHTML(topic) {
 function gapsHTML() {
   const gaps = stofGaps();
   if (!gaps.length) return '';
-  return `<section class="sheet"><h2 class="h3">Wat je hier nog niet kunt oefenen</h2><p class="small muted">Uit de hoofdstukken die je koos, in ${mappingName(MAPPING[prog.mapping])}.</p><ul class="stof-gaps small">${gaps.map((p) => `<li><b>${esc(p.number)}</b> ${T(p.description)}${p.coverage === 'deels' ? ' (een deel kun je hier oefenen)' : ''}</li>`).join('')}</ul></section>`;
+  return `<section class="sheet"><h2 class="h3">Wat je hier nog niet kunt oefenen</h2><p class="small muted">Uit de hoofdstukken die je koos, in ${mappingName(MAPPING[prog.mapping])}.</p><ul class="stof-gaps small">${gaps.map((p) => `<li><b>${esc(p.number)}</b> ${T(p.description)}${p.coverage === 'deels' ? ` (een deel kun je hier oefenen)${p.note ? `<span class="pick-note muted">${T(p.note)}</span>` : ''}` : ''}</li>`).join('')}</ul></section>`;
 }
 // Waar de stof vandaan komt: uit welk boek, en welke hoofdstukken of paragrafen.
 function sourceHTML() {
