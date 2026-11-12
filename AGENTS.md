@@ -198,6 +198,8 @@ Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarme
 
 Leg feedback, gevonden fouten, ideeën en open vragen vast als issue op GitHub, zodat ze niet verloren gaan in een gesprek. Zet één onderwerp in één issue en schrijf erbij wat er moet gebeuren en waarom. Zet `Fixes #12` in de commit die het punt oplost, dan sluit het issue vanzelf.
 
+Elk nieuw issue komt op het [projectbord](https://github.com/users/angrymrt/projects/1) met een Fase. Staat het punt er niet op, dan zet je het erop. Merken leerlingen er nu iets van, geef het dan Prioriteit Hoog. Een nieuw besluit komt als opmerking in het besluit-issue van het thema, of als nieuw issue met het label `besluit`. Besluiten zijn [issues met het label `besluit`](https://github.com/angrymrt/wiskunde-fit/issues?q=label%3Abesluit), met de reden erbij.
+
 De repository is openbaar, en dus de issues ook. Zet er geen namen of andere gegevens van leerlingen, docenten of ouders in, en geen materiaal uit een boek.
 
 ## Een pull request maken

@@ -12,7 +12,7 @@ const open = (address) => {
 const [topic] = TOPICS;
 const soort = topic.skills[0].id;
 
-test('elk scherm heeft het adres uit de roadmap', () => {
+test('elk scherm heeft het adres uit de navigatie in README.md', () => {
   const screens = [
     ['/', { name: 'home' }],
     ['/methode-indeling', { name: 'kies' }],
