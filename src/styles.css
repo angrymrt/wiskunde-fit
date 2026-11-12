@@ -1140,6 +1140,10 @@ sub {
   line-height: 1.2;
   white-space: nowrap;
 }
+/* Een formule bij de pijl breekt niet in het midden af, alleen bij de pijl. */
+.heel {
+  white-space: nowrap;
+}
 .pijl::after {
   content: '';
   position: absolute;

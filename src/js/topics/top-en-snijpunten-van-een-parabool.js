@@ -51,7 +51,8 @@ function fillFactors(n, a, r, s, x) {
     k = rd(x - s, 6),
     part = (t) => `(${d(x)}${sg(-t)})`,
     num = typeof a === 'object' ? fr(a) : d(A),
-    prod = `${A === 1 ? '' : `${num}*`}${d(m)}*${d(k)}`;
+    // Bij a = −1 staat de min voor het product, zoals −(−1 · 1), en niet −1 · −1 · 1.
+    prod = A === 1 ? `${d(m)}*${d(k)}` : A === -1 ? `-(${d(m)}*${d(k)})` : `${num}*${d(m)}*${d(k)}`;
   return `${n}(${d(x)}) = ${coef(a)}${part(r)}${part(s)} = ${prod} = ${d(rd(A * m * k, 6))}`;
 }
 // x_top = −b/(2a) met de getallen ingevuld, zoals in het boek: {-(-6)/2*1}.
@@ -302,7 +303,8 @@ function atZero(n, abc) {
   const [A, B, C] = abc.map(qv),
     abs = (k) => Q(Math.abs(k.n), k.d);
   let s = A === 1 ? '0^2' : A === -1 ? '-0^2' : `${fr(abc[0])}*0^2`;
-  if (B) s += ` ${B < 0 ? '-' : '+'} ${Math.abs(B) === 1 ? '0' : `${fr(abs(abc[1]))}*0`}`;
+  if (B)
+    s += ` ${B < 0 ? '-' : '+'} ${Math.abs(B) === 1 ? '0' : `${abs(abc[1]).d === 1 ? fr(abs(abc[1])) : `{${abs(abc[1]).n}/${abs(abc[1]).d}}`}*0`}`;
   if (C) s += ` ${C < 0 ? '-' : '+'} ${fr(abs(abc[2]))}`;
   return `${n}(0) = ${s} = ${fr(abc[2])}`;
 }
@@ -463,8 +465,8 @@ const FLIGHTS = [
     wat: 'de dolfijn',
     van: 'de plek waar de dolfijn uit het water komt',
     boven: 'het water',
-    a: [-0.4, -0.5, -0.8],
-    h: [2, 2.5, 3],
+    a: [-0.4, -0.5, -0.6],
+    h: [1.5, 2, 2.5],
     c: [0],
   },
   {
@@ -490,7 +492,7 @@ const FLIGHTS = [
     wat: 'de bal',
     van: 'Lotte',
     boven: 'de grond',
-    a: [-0.3, -0.4, -0.5],
+    a: [-0.2, -0.25, -0.3],
     h: [1.5, 2, 2.5, 3],
     c: [1.8, 2, 2.2],
   },
@@ -499,8 +501,8 @@ const FLIGHTS = [
     wat: 'de motor',
     van: 'het eind van de schans',
     boven: 'de grond',
-    a: [-0.02, -0.025, -0.03],
-    h: [10, 12, 15],
+    a: [-0.02, -0.025],
+    h: [8, 10, 12],
     c: [1.5, 2, 2.5],
   },
 ];

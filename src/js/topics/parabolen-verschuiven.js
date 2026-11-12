@@ -50,7 +50,8 @@ function s35apq() {
   if (Math.abs(qv(a)) === 1)
     traps.push({
       id: 'a-is-een',
-      f: (v) => near(v[0], 0),
+      // Ook a = 1 bij −(x + 4)²: de min vergeten.
+      f: (v) => near(v[0], 0) || near(v[0], -qv(a)),
       m: 'Staat er geen getal voor de haakjes, dan is a = 1. Staat er alleen een min, dan is a = −1.',
     });
   if (p !== q)
@@ -88,12 +89,17 @@ const moveText = (h, v) =>
     .filter(Boolean)
     .join(' en ');
 // De pijl met de verschuiving erboven, van de ene formule naar de andere.
+// Een formule breekt niet midden op een telefoon af, alleen bij de pijl.
 const arrow = (from, move, to) =>
-  H(`<span class="schuif">${T(from)} <span class="pijl">${esc(move)}</span> ${T(to)}</span>`);
+  H(
+    `<span class="heel">${T(from)}</span> <span class="pijl">${esc(move)}</span> <span class="heel">${T(to)}</span>`,
+  );
+// Spaties die niet afbreken, zodat x − 2 op één regel blijft.
+const keep = (s) => s.replace(/ /g, ' ');
 // Wat je in de formule doet bij elke verschuiving.
 const howText = (h, v) => [
   ...(h
-    ? [`${Math.abs(h)} naar ${h > 0 ? 'rechts' : 'links'}: vervang x door ${dlin(1, -h)}.`]
+    ? [`${Math.abs(h)} naar ${h > 0 ? 'rechts' : 'links'}: vervang x door ${keep(dlin(1, -h))}.`]
     : []),
   ...(v
     ? [`${Math.abs(v)} ${v > 0 ? 'omhoog' : 'omlaag'}: zet ${sg(v).trim()} achter het voorschrift.`]
@@ -144,7 +150,15 @@ function s35shift() {
   const sign = (s) => (s === '+' ? 1 : s === '−' ? -1 : NaN),
     gotP = (w) => (P ? -sign(w[iP]) * w[iP + 1] : 0),
     gotR = (w) => (R ? sign(w[iR]) * w[iR + 1] : 0),
-    traps = [];
+    // Een getal met een min erbij, zoals + en −3 voor − 3. Wiskundig kan dat hetzelfde zijn, maar
+    // het teken hoort in de lijst. Deze valkuil staat voor de andere.
+    traps = [
+      {
+        id: 'getal-met-teken',
+        f: (w) => fields.some((f, i) => !f.sel && w[i] < 0),
+        m: 'Typ het getal zonder min. Het teken kies je in de lijst ervoor.',
+      },
+    ];
   if (h)
     traps.push({
       id: 'links-rechts-omgedraaid',
@@ -173,7 +187,7 @@ function s35shift() {
     });
   return {
     q: T(
-      `De grafiek van f(x) = ${fn} schuif je ${moveText(h, v)}. Zo krijg je de grafiek van g. Wat is de formule van g?`,
+      `De grafiek van f(x) = ${fn} schuif je ${moveText(h, v)}. Zo krijg je de grafiek van g. Wat is de formule van g? Kies het teken in de lijst en typ het getal zonder teken.`,
     ),
     fields,
     compact: true,
@@ -213,6 +227,11 @@ function s35howshift() {
     ud = v > 0 ? UD[0] : UD[1],
     traps = [
       {
+        id: 'getal-met-teken',
+        f: (w) => w[0] < 0 || w[2] < 0,
+        m: 'Een afstand is altijd positief. Typ het getal zonder min, en kies de richting in de lijst.',
+      },
+      {
         id: 'links-rechts-omgedraaid',
         f: (w) => near(w[0], Math.abs(h)) && !!w[1] && w[1] !== lr,
         m: 'Kijk naar x_top. Wordt x_top groter, dan gaat de grafiek naar rechts. Wordt x_top kleiner, dan naar links.',
@@ -233,7 +252,7 @@ function s35howshift() {
     });
   return {
     q: T(
-      `Gegeven zijn f(x) = ${vertexForm(a, p, q)} en g(x) = ${vertexForm(a, P, R)}. Hoe moet je de grafiek van f verschuiven om de grafiek van g te krijgen?`,
+      `Gegeven zijn f(x) = ${vertexForm(a, p, q)} en g(x) = ${vertexForm(a, P, R)}. Hoe moet je de grafiek van f verschuiven om de grafiek van g te krijgen? Typ de afstanden zonder teken en kies de richting in de lijst.`,
     ),
     fields: [
       { ...F('De grafiek van f gaat', Math.abs(h)), label: 'Hoe ver naar links of rechts' },
