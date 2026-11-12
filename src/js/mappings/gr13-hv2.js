@@ -109,9 +109,9 @@ export default {
       part: 'deel 2',
       description: 'Ontbinden en vergelijkingen met x^2',
       paragraphs: [
-        ['7.1', 'Een gemeenschappelijke factor voor de haakjes zetten'],
-        ['7.2', 'Ontbinden met getallen die passen bij som en product'],
-        ['7.3', 'Vergelijkingen met x^2 oplossen'],
+        ['7.1', 'Een gemeenschappelijke factor voor de haakjes zetten', [74], 'deels'],
+        ['7.2', 'Ontbinden met getallen die passen bij som en product', [75, 76, 77], 'deels'],
+        ['7.3', 'Vergelijkingen met x^2 oplossen', [78, 79], 'deels'],
         ['7.4', 'De passende oplosmanier kiezen'],
       ],
     },

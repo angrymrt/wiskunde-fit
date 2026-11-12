@@ -2,6 +2,21 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.12.0
+
+### Nieuw
+
+- Hoofdstuk 3 van havo 3, over parabolen en kwadratische vergelijkingen, staat er nu. Er zijn zes nieuwe onderwerpen met uitleg, video's en samen 30 nieuwe soorten vragen: Kwadratische functies, Top en snijpunten van een parabool, Parabolen verschuiven, Kwadratische vergelijkingen, Ontbinden in factoren en Haakjes wegwerken.
+- Je oefent onder meer functiewaarden en de top berekenen, de grafiek of schets bij een formule kiezen, ontbinden met product en som, vergelijkingen oplossen met het werkschema, snijpunten met de assen berekenen en de formule van een verschoven parabool opstellen. Er zijn ook verhalen, zoals over de hoogte van een sprong of de breedte van een boog.
+- Heeft een vergelijking twee oplossingen, dan mag je die in elke volgorde invullen.
+- Ontbinden in factoren en Haakjes wegwerken staan in een nieuw domein: Rekenen met letters.
+- Bij Kies uit je boek kun je nu paragraaf 3.1 tot en met 3.5 van havo 3 kiezen. Kun je een paragraaf hier maar voor een deel oefenen, dan staat erbij wat nog ontbreekt, zoals zelf een parabool tekenen.
+- Bij havo/vwo 2 kun je nu ook ontbinden en vergelijkingen met x² uit hoofdstuk 7 oefenen. Die vragen zijn gemaakt voor havo 3 en nog niet met dat boek vergeleken.
+
+### Verbeterd
+
+- Een tabel heeft op een telefoon smallere vakjes, zodat een tabel met zeven punten beter past.
+
 ## 1.11.5
 
 ### Hersteld

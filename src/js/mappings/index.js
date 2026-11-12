@@ -7,14 +7,18 @@ const MAPPINGS = [hv1, hv2, havo3];
 const MAPPING = Object.fromEntries(MAPPINGS.map((m) => [m.id, m]));
 
 // Dekking: zonder vraagsoorten niet gedekt, en anders gedekt tenzij de paragraaf 'deels' zegt.
+// Een paragraaf die deels gedekt is, kan zeggen wat je nog niet kunt oefenen (note).
 for (const mapping of MAPPINGS) {
   for (const chapter of mapping.chapters) {
-    chapter.paragraphs = chapter.paragraphs.map(([number, description, skills = [], coverage]) => ({
-      number,
-      description,
-      skills,
-      coverage: coverage || (skills.length ? 'gedekt' : 'niet'),
-    }));
+    chapter.paragraphs = chapter.paragraphs.map(
+      ([number, description, skills = [], coverage, note = '']) => ({
+        number,
+        description,
+        skills,
+        coverage: coverage || (skills.length ? 'gedekt' : 'niet'),
+        note,
+      }),
+    );
   }
 }
 

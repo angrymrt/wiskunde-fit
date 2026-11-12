@@ -1,5 +1,6 @@
 // Getal & Ruimte, 13e editie, havo 3. De koppelingen zijn met de theorie in het boek vergeleken.
 // Voorkennis hoort hier niet: dat is een kenmerk van een onderwerp. Zie PREREQUISITES.
+// Een paragraaf die deels gedekt is, zegt als vijfde waarde wat je hier nog niet kunt oefenen.
 export default {
   id: 'gr13-havo3',
   slug: 'getal-en-ruimte-13-havo-3',
@@ -77,11 +78,35 @@ export default {
       part: 'deel 1',
       description: 'Parabolen en kwadratische formules',
       paragraphs: [
-        ['3.1', 'De parabool als grafiek van een kwadratische formule'],
-        ['3.2', 'Opgaven met een kwadratische formule en de grafiek'],
-        ['3.3', 'Kwadratische vergelijkingen oplossen'],
-        ['3.4', 'Kwadratische formule met twee factoren tussen haakjes'],
-        ['3.5', 'Kwadratische formule waaruit je de top afleest'],
+        [
+          '3.1',
+          'De parabool als grafiek van een kwadratische formule',
+          [66, 67, 68, 69, 70, 71, 83],
+          'deels',
+          'Zelf een parabool tekenen en een onbekend getal in de formule berekenen kun je hier nog niet oefenen.',
+        ],
+        [
+          '3.2',
+          'Opgaven met een kwadratische formule en de grafiek',
+          [72, 73, 88],
+          'deels',
+          'De hoogte van een tunnel op een afstand van het midden kun je hier nog niet oefenen.',
+        ],
+        [
+          '3.3',
+          'Kwadratische vergelijkingen oplossen',
+          [74, 75, 76, 77, 78, 79, 80, 81, 82, 86],
+          'deels',
+          'Een vergelijking opstellen met de stelling van Pythagoras kun je hier nog niet oefenen.',
+        ],
+        ['3.4', 'Kwadratische formule met twee factoren tussen haakjes', [85, 89, 93, 94]],
+        [
+          '3.5',
+          'Kwadratische formule waaruit je de top afleest',
+          [84, 87, 90, 91, 92, 95],
+          'deels',
+          'Zelf een schets van een parabool maken kun je hier nog niet oefenen. Je kiest hier de goede schets.',
+        ],
       ],
     },
     {

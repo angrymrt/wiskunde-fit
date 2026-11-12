@@ -76,16 +76,26 @@ test('een methode-indeling die niet is vergeleken met het boek zegt dat', () => 
   for (const m of MAPPINGS) {
     const coverage = paragraphsOf(m).map((p) => p.coverage);
     if (m.note) assert.ok(!coverage.includes('gedekt'), `${m.id}: gedekt zonder vergelijking`);
-    else assert.ok(!coverage.includes('deels'), `${m.id}: deels gedekt zonder uitleg`);
   }
 });
 
-test('havo 3 dekt tien paragrafen, zonder de voorkennis', () => {
+test('een deels gedekte paragraaf zegt wat ontbreekt', () => {
+  for (const m of MAPPINGS) {
+    for (const p of paragraphsOf(m)) {
+      if (p.note) assert.equal(p.coverage, 'deels', `${m.id} ${p.number}: uitleg zonder deels`);
+      if (p.coverage === 'deels' && !m.note) assert.ok(p.note, `${m.id} ${p.number}: geen uitleg`);
+      if (p.note) assert.ok(!/[{}]/.test(T(p.note)), `${m.id} ${p.number}: accolade`);
+    }
+  }
+});
+
+test('havo 3 dekt vijftien paragrafen, zonder de voorkennis', () => {
   const m = MAPPING['gr13-havo3'];
   const count = (c) => paragraphsOf(m).filter((p) => p.coverage === c).length;
-  assert.equal(count('gedekt'), 10);
-  assert.equal(count('niet'), 36);
-  assert.equal(skillIdsOf(m).length, 60);
+  assert.equal(count('gedekt'), 11);
+  assert.equal(count('deels'), 4);
+  assert.equal(count('niet'), 31);
+  assert.equal(skillIdsOf(m).length, 90);
   for (const id of [1, 2, 38, 39, 40]) assert.ok(!skillIdsOf(m).includes(id), `voorkennis ${id}`);
 });
 

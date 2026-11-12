@@ -1,13 +1,13 @@
 # Wiskundefit
 
-Interactieve oefensite voor de wiskundetoets over hoofdstuk 1 (lineaire problemen) en hoofdstuk 2 (gelijkvormigheid) van havo 3. De site sluit aan op _Getal & Ruimte_, editie 13, FLEX-boek deel 1.
+Interactieve oefensite voor de wiskundetoets over hoofdstuk 1 (lineaire problemen), hoofdstuk 2 (gelijkvormigheid) en hoofdstuk 3 (parabolen en kwadratische vergelijkingen) van havo 3. De site sluit aan op _Getal & Ruimte_, editie 13, FLEX-boek deel 1.
 
 ![Het overzichtsscherm van de site](docs/overzicht.png)
 
 ## Wat de site doet
 
 - **Uitleg per paragraaf**, met voorbeelden die stap voor stap verschijnen en interactieve onderdelen, zoals schuifjes voor `a` en `b` in `y = ax + b`.
-- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 65 vraagsoorten, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
+- **Oefenvragen** die elke keer nieuwe getallen krijgen. Er zijn 95 vraagsoorten in 18 onderwerpen, met hints, uitwerkingen en gerichte feedback op veelgemaakte fouten.
 - **Proeftoetsen** van 10 tot 30 vragen, met aan het eind een score per paragraaf en alle uitwerkingen.
 - **Video's** per paragraaf, als links naar YouTube.
 - **Voortgang** per vraagsoort, bewaard in de browser. Er is geen server en er is geen account nodig.
