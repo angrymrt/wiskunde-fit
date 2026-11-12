@@ -4,7 +4,7 @@ Deze lijst legt vast welke woorden we gebruiken als we over Wiskundefit praten, 
 
 Teksten voor leerlingen volgen dezelfde betekenis, maar mogen gewonere woorden gebruiken. Zie [Voor de leerling](#voor-de-leerling).
 
-De stof staat in de code per onderwerp in `topics/`, de methode-indelingen staan in `mappings/`. De stofkeuze staat in `stof.js`. Zie ook de [roadmap](ROADMAP.md).
+De stof staat in de code per onderwerp in `topics/`, de methode-indelingen staan in `mappings/`. De stofkeuze staat in `stof.js`. Zie ook het [projectbord](https://github.com/users/angrymrt/projects/1).
 
 ## Het overzicht
 
