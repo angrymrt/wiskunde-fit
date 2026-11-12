@@ -1,12 +1,21 @@
 // Onderwerp: Kwadratische functies. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, nz, pick, coin, near, d, rd, sg } from '../math.js';
-import { F, H, MC, quad } from './shared.js';
+import {
+  F,
+  H,
+  MC,
+  quad,
+  quadValue as value,
+  fillQuad as fill,
+  slips,
+  fairSlips as distinct,
+  valueTraps,
+} from './shared.js';
 import { graph } from '../figures.js';
 import { T, dt } from '../typeset.js';
 
-// Een kwadratische functie staat als [a, b, c] voor f(x) = ax² + bx + c.
-// De functiewaarde term voor term, zoals in de uitwerking.
-const value = ([a, b, c], x) => rd(a * x * x + b * x + c, 6);
+// Een kwadratische functie staat als [a, b, c] voor f(x) = ax² + bx + c. De functiewaarde, de
+// invulling en de valkuilen daarbij staan in shared.js, want Top en snijpunten gebruikt ze ook.
 // Dezelfde functiewaarde op een andere manier, voor de controle v: f(x) = (ax + b)x + c.
 const horner = ([a, b, c], x) => rd((a * x + b) * x + c, 6);
 // Waar de grafiek de x-as snijdt, met de abc-formule. Voor de controle bij een verhaal.
@@ -27,60 +36,9 @@ function readQuad(s) {
   }
   return k;
 }
-// De invulling zoals in het boek: f(-1) = -2*(-1)^2 + 5*-1 + 1 = -2 - 5 + 1 = -6. Een negatief
-// getal staat in het kwadraat tussen haakjes, maar niet in de term met x.
-function fill(n, abc, x) {
-  const [a, b, c] = abc;
-  if (!x) return `${n}(0) = ${d(c)}`;
-  const sq = x < 0 ? `(${d(x)})^2` : `${d(x)}^2`;
-  let s = a === 1 ? sq : a === -1 ? `-${sq}` : `${d(a)}*${sq}`;
-  if (b) s += ` ${b < 0 ? '-' : '+'} ${Math.abs(b) === 1 ? d(x) : `${d(Math.abs(b))}*${d(x)}`}`;
-  if (c) s += sg(c);
-  const parts = [rd(a * x * x, 6), ...(b ? [rd(b * x, 6)] : []), ...(c ? [c] : [])],
-    mid = parts.map((p, i) => (i ? sg(p) : d(p))).join('');
-  return `${n}(${d(x)}) = ${s}${parts.length > 1 ? ` = ${mid}` : ''} = ${d(value(abc, x))}`;
-}
-
 const NAMES = ['f', 'g', 'h'];
 // Voor b geen 1 of -1: dan zou er bij een negatieve x iets als + -3 staan.
 const B = [-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8];
-// Bekende fouten bij het invullen, als het verschil met de goede functiewaarde.
-function slips([a, b], x) {
-  const out = {};
-  // (-3)^2 als -9, of -3^2 als 9: de term met x² krijgt het verkeerde teken.
-  if (x && (x < 0 || a < 0)) out['kwadraat-teken'] = -2 * a * x * x;
-  // Het teken van b · x omgedraaid.
-  if (x && b) out['teken-bx'] = -2 * b * x;
-  // x² uitgerekend als 2x.
-  if (x && x !== 2) out['kwadraat-keer-twee'] = 2 * a * x - a * x * x;
-  return out;
-}
-// Elke fout geeft een ander getal, zodat de gerichte feedback over de goede fout gaat.
-const distinct = (abc, x) => {
-  const offs = Object.values(slips(abc, x)).map((o) => rd(o, 6));
-  return offs.every((o) => o !== 0) && new Set(offs).size === offs.length;
-};
-const SLIP_MSG = {
-  'kwadraat-teken':
-    'Let op het teken van de term met x². Een negatief getal kwadrateer je tussen haakjes: (−3)² = 9. Maar bij −x² blijft de min staan: −3² = −9.',
-  'teken-bx': 'Let op het teken van de term met x. Min maal min is plus, en min maal plus is min.',
-  'kwadraat-keer-twee':
-    'Een kwadraat is een getal keer zichzelf: 5² = 5 · 5 = 25, en niet 2 · 5 = 10.',
-};
-// De valkuilen bij het invullen. entries noemt per veld de x: [[0, -2], [1, 4]].
-function valueTraps(abc, entries) {
-  return Object.keys(SLIP_MSG)
-    .map((id) => {
-      const hits = entries
-        .map(([i, x]) => [i, slips(abc, x)[id]])
-        .filter(([, o]) => o !== undefined)
-        .map(([i, o]) => [i, rd(value(abc, entries.find((e) => e[0] === i)[1]) + o, 6)]);
-      return hits.length
-        ? { id, f: (v) => hits.some(([i, w]) => near(v[i], w, 1e-6)), m: SLIP_MSG[id] }
-        : null;
-    })
-    .filter(Boolean);
-}
 function fillHint(a, x) {
   if (x < 0) return `Vervang elke x door ${x}. Zet ${x} tussen haakjes bij het kwadraat: (${x})^2.`;
   if (a < 0)

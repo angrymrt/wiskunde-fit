@@ -1,6 +1,16 @@
 // Onderwerp: Kwadratische vergelijkingen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { nz, pick, coin, gcd, Q, qv, qSub, qMul, qDiv, near, fr, lin } from '../math.js';
-import { orFields, quad, factors, byFactor, close, setTrap, intRoots } from './shared.js';
+import { nz, pick, coin, gcd, Q, qv, qSub, qMul, qDiv, near, lin } from '../math.js';
+import {
+  orFields,
+  quad,
+  factors,
+  byFactor,
+  close,
+  setTrap,
+  intRoots,
+  solveSteps,
+  scaleText,
+} from './shared.js';
 import { T } from '../typeset.js';
 
 // Meestal x, soms een andere letter, zoals in het boek.
@@ -30,22 +40,6 @@ const term = (c, i, v) =>
   );
 // De waarde van ax² + bx + c bij x = s.
 const at = (abc, s) => abc.map(qv).reduce((t, c) => t * s + c, 0);
-
-// De laatste stappen vanaf de ontbinding, zoals in het boek:
-// (x + 2)(x − 9) = 0, dan x + 2 = 0 ∨ x − 9 = 0, dan x = −2 ∨ x = 9.
-function solveSteps(fs, v) {
-  const sol = ([m, n]) => `${v} = ${fr(Q(-n, m))}`;
-  const out = [`${factors(fs, v)} = 0`, fs.map(([m, n]) => `${lin(m, n, v)} = 0`).join(' ∨ ')];
-  if (fs.some(([m, n]) => m !== 1 && n))
-    out.push(fs.map(([m, n]) => (m === 1 ? sol([m, n]) : `${lin(m, 0, v)} = ${-n}`)).join(' ∨ '));
-  out.push(fs.map(sol).join(' ∨ '));
-  return out;
-}
-// De zin bij delen of vermenigvuldigen, zodat er x² komt te staan.
-const scaleText = (k) =>
-  k.d === 1 && k.n !== -1
-    ? `Deel alle termen door ${k.n}.`
-    : `Vermenigvuldig alle termen met ${fr(Q(k.d, k.n))}.`;
 
 // Maakt de vraag bij een vergelijking die je met het werkschema oplost.
 // L = R is de vergelijking na het wegwerken van haakjes, als [a, b, c]. L − R = k · N, met N de

@@ -25,17 +25,26 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - De site heeft geen gemengde opgaven en geen onderzoeken, zoals die aan het eind van een hoofdstuk in het boek staan.
 - Bij ontbinden met de product-som-methode vul je de twee getallen in op de plek van de stippen in (x + …)(x + …). Een negatief getal vul je in als −3. Dat staat dan als (x + −3), en de uitwerking schrijft (x − 3).
 - Bij een kwadratische vergelijking mag je de oplossingen in elke volgorde invullen. Een oplossing die een breuk is, mag je invullen als breuk, als gemengd getal of als kommagetal dat goed is afgerond op twee of meer decimalen. Bij 5/3 is 1,67 dus goed, maar 1,66 en 1,7 niet. Een valkuil herkent zo'n afgerond getal ook.
+- Bij de top vul je x_top en y_top in twee velden in. In het boek schrijf je daarna nog "Dus de top is (3, −5)". Die zin staat in de uitwerking.
+- Bij de snijpunten met de assen en de top staat een schets zonder getallen bij de vraag, met de punten A, B, C en T, zoals de figuren in het boek. Staat er "A links van B", dan moet A de kleinste x-coördinaat hebben.
+- Een schets maak je niet zelf. Je kiest uit vier schetsen zonder getallen: de goede, een met dal en berg omgedraaid, en twee met de top aan de verkeerde kant van een as.
+- Bij de formule na een verschuiving kies je het teken uit een lijst en vul je het getal zonder teken in, zoals g(x) = 2(x [+] [4])² [−] [7]. Zo schrijf je de formule op zoals in het boek, zonder (x − −4). Valt een getal na de verschuiving weg, zoals bij (x − 3)² die 3 naar links gaat, dan past de vorm van de velden niet. Zulke verschuivingen komen daarom niet voor.
+- Bij de vraag hoe een grafiek is verschoven, vul je de afstand in en kies je de richting uit een lijst. De grafiek gaat altijd zowel opzij als omhoog of omlaag. De uitwerking vergelijkt de toppen.
+- Bij a, d en e aflezen mag je d en e in elke volgorde invullen, want a(x − d)(x − e) = a(x − e)(x − d).
 
 ## Onderwerpen
 
 | Onderwerp                          | Nagekeken door | Datum |
 | ---------------------------------- | -------------- | ----- |
 | Ontbinden in factoren              |                |       |
+| Haakjes wegwerken                  |                |       |
 | Rekenen met een formule            |                |       |
 | Lineaire grafieken tekenen         |                |       |
 | Lineaire formule opstellen         |                |       |
 | Snijpunten van lijnen              |                |       |
 | Kwadratische functies              |                |       |
+| Top en snijpunten van een parabool |                |       |
+| Parabolen verschuiven              |                |       |
 | Lineaire vergelijkingen            |                |       |
 | Lineaire ongelijkheden             |                |       |
 | Vergelijkingen met twee variabelen |                |       |

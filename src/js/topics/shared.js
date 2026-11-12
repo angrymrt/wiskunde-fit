@@ -1,6 +1,6 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
 import { geo, graph } from '../figures.js';
-import { shuffle, Q, qv, isNice, sg, near, fr, d, lin } from '../math.js';
+import { shuffle, Q, qv, isNice, sg, near, fr, d, rd, lin, dlin } from '../math.js';
 import { dt } from '../typeset.js';
 
 // Letterparen voor een formule met andere letters dan x en y.
@@ -103,6 +103,99 @@ function intRoots([a, b, c]) {
   const r = [(-b - Math.sqrt(D)) / (2 * a), (-b + Math.sqrt(D)) / (2 * a)];
   return r.every((x) => isNice(x, 0) && Math.abs(x) <= 99) ? r.map(Math.round) : null;
 }
+// De laatste stappen van het werkschema vanaf de ontbinding, zoals in het boek:
+// (x + 2)(x − 9) = 0, dan x + 2 = 0 ∨ x − 9 = 0, dan x = −2 ∨ x = 9.
+function solveSteps(fs, v = 'x') {
+  const sol = ([m, n]) => `${v} = ${fr(Q(-n, m))}`;
+  const out = [`${factors(fs, v)} = 0`, fs.map(([m, n]) => `${lin(m, n, v)} = 0`).join(' ∨ ')];
+  if (fs.some(([m, n]) => m !== 1 && n))
+    out.push(fs.map(([m, n]) => (m === 1 ? sol([m, n]) : `${lin(m, 0, v)} = ${-n}`)).join(' ∨ '));
+  out.push(fs.map(sol).join(' ∨ '));
+  return out;
+}
+// De zin bij delen of vermenigvuldigen, zodat er x² komt te staan. k is een breuk uit Q.
+const scaleText = (k) =>
+  k.d === 1 && k.n !== -1
+    ? `Deel alle termen door ${k.n}.`
+    : `Vermenigvuldig alle termen met ${fr(Q(k.d, k.n))}.`;
+
+// Een kwadratische functie [a, b, c] is f(x) = ax² + bx + c. De functiewaarde term voor term,
+// zoals in de uitwerking.
+const quadValue = ([a, b, c], x) => rd(a * x * x + b * x + c, 6);
+// De invulling zoals in het boek: f(-1) = -2*(-1)^2 + 5*-1 + 1 = -2 - 5 + 1 = -6. Een negatief
+// getal staat in het kwadraat tussen haakjes, maar niet in de term met x.
+function fillQuad(n, abc, x) {
+  const [a, b, c] = abc;
+  if (!x) return `${n}(0) = ${d(c)}`;
+  const sq = x < 0 ? `(${d(x)})^2` : `${d(x)}^2`;
+  let s = a === 1 ? sq : a === -1 ? `-${sq}` : `${d(a)}*${sq}`;
+  if (b) s += ` ${b < 0 ? '-' : '+'} ${Math.abs(b) === 1 ? d(x) : `${d(Math.abs(b))}*${d(x)}`}`;
+  if (c) s += sg(c);
+  const parts = [rd(a * x * x, 6), ...(b ? [rd(b * x, 6)] : []), ...(c ? [c] : [])],
+    mid = parts.map((p, i) => (i ? sg(p) : d(p))).join('');
+  return `${n}(${d(x)}) = ${s}${parts.length > 1 ? ` = ${mid}` : ''} = ${d(quadValue(abc, x))}`;
+}
+// Bekende fouten bij het invullen, als het verschil met de goede functiewaarde.
+function slips([a, b], x) {
+  const out = {};
+  // (-3)^2 als -9, of -3^2 als 9: de term met x² krijgt het verkeerde teken.
+  if (x && (x < 0 || a < 0)) out['kwadraat-teken'] = -2 * a * x * x;
+  // Het teken van b · x omgedraaid.
+  if (x && b) out['teken-bx'] = -2 * b * x;
+  // x² uitgerekend als 2x.
+  if (x && x !== 2) out['kwadraat-keer-twee'] = 2 * a * x - a * x * x;
+  return out;
+}
+// Elke fout geeft een ander getal, zodat de gerichte feedback over de goede fout gaat.
+const fairSlips = (abc, x) => {
+  const offs = Object.values(slips(abc, x)).map((o) => rd(o, 6));
+  return offs.every((o) => o !== 0) && new Set(offs).size === offs.length;
+};
+const SLIP_MSG = {
+  'kwadraat-teken':
+    'Let op het teken van de term met x². Een negatief getal kwadrateer je tussen haakjes: (−3)² = 9. Maar bij −x² blijft de min staan: −3² = −9.',
+  'teken-bx': 'Let op het teken van de term met x. Min maal min is plus, en min maal plus is min.',
+  'kwadraat-keer-twee':
+    'Een kwadraat is een getal keer zichzelf: 5² = 5 · 5 = 25, en niet 2 · 5 = 10.',
+};
+// De valkuilen bij het invullen. entries noemt per veld de x: [[0, -2], [1, 4]].
+function valueTraps(abc, entries) {
+  return Object.keys(SLIP_MSG)
+    .map((id) => {
+      const hits = entries
+        .map(([i, x]) => [i, slips(abc, x)[id]])
+        .filter(([, o]) => o !== undefined)
+        .map(([i, o]) => [i, rd(quadValue(abc, entries.find((e) => e[0] === i)[1]) + o, 6)]);
+      return hits.length
+        ? { id, f: (v) => hits.some(([i, w]) => near(v[i], w, 1e-6)), m: SLIP_MSG[id] }
+        : null;
+    })
+    .filter(Boolean);
+}
+
+// Het getal voor de haakjes of voor x²: niets bij 1, alleen een min bij −1. a mag een breuk uit Q
+// zijn, zoals {1/2}.
+// Een negatieve breuk krijgt de min ervoor, zoals in quad: -{1/2}(x - 4)^2.
+const coef = (a) =>
+  val(a) === 1
+    ? ''
+    : val(a) === -1
+      ? '-'
+      : typeof a === 'object'
+        ? `${a.n < 0 ? '-' : ''}${fr(Q(Math.abs(a.n), a.d))}`
+        : d(a);
+// a(x − p)² + q als tekst voor T. Bij p = 0 staat er ax², en bij q = 0 valt + q weg.
+const vertexForm = (a, p, q, v = 'x') =>
+  `${coef(a)}${p ? `(${dlin(1, -p, v)})^2` : `${v}^2`}${q ? sg(q) : ''}`;
+// a(x − d)(x − e) als tekst voor T. Een factor x staat zonder haakjes vooraan, zoals 3x(x − 5).
+function factorForm(a, r, s, v = 'x') {
+  const f = (t) => (t ? `(${dlin(1, -t, v)})` : v);
+  return `${coef(a)}${s ? f(r) + f(s) : f(s) + f(r)}`;
+}
+// Een punt zoals in het boek: (3, −5), maar met kommagetallen een puntkomma: (2,5; 19,25).
+const pt = (x, y) =>
+  Number.isInteger(x) && Number.isInteger(y) ? `(${d(x)}, ${d(y)})` : `(${d(x)}; ${d(y)})`;
+
 // Een bedrag zoals op een prijskaartje: 3 of 2,50.
 const euro = (x) => x.toFixed(Number.isInteger(x) ? 0 : 2).replace('.', ',');
 const TRP = [
@@ -228,6 +321,17 @@ export {
   close,
   setTrap,
   intRoots,
+  solveSteps,
+  scaleText,
+  quadValue,
+  fillQuad,
+  slips,
+  fairSlips,
+  valueTraps,
+  coef,
+  vertexForm,
+  factorForm,
+  pt,
   euro,
   TRP,
   nestedPts,
