@@ -21,6 +21,7 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - Bij gelijkvormigheid schrijft het boek een accolade achter de twee paar gelijke hoeken. De site schrijft `Dus △ABC ∼ △DEF.` op een eigen regel, omdat de accolade niet op het scherm van een telefoon past.
 - Gelijke hoeken staan in sommige figuren met boogjes aangegeven in plaats van met tekens als een kruisje of een bolletje.
 - Een getekende lijn controleert de site aan de hand van twee punten in een rooster. Lijnen die niet door twee roosterpunten gaan, komen daarom niet voor.
+- Bij de vraag of een bal verder komt dan een afstand, rekent de leerling de hoogte bij die afstand uit en kiest daarna uit verder of niet verder. In het boek schrijf je bij onderzoek een uitleg in een zin.
 - De site heeft geen gemengde opgaven en geen onderzoeken, zoals die aan het eind van een hoofdstuk in het boek staan.
 
 ## Onderwerpen
@@ -31,6 +32,7 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 | Lineaire grafieken tekenen         |                |       |
 | Lineaire formule opstellen         |                |       |
 | Snijpunten van lijnen              |                |       |
+| Kwadratische functies              |                |       |
 | Lineaire vergelijkingen            |                |       |
 | Lineaire ongelijkheden             |                |       |
 | Vergelijkingen met twee variabelen |                |       |

@@ -1944,11 +1944,13 @@ test(
 // oude telefoon met traag internet merkt elke kilobyte. Verstuurd is met brotli, zoals Azure dat
 // doet. In november 2026 was de grootste pagina 3,5 kB, een schil 1,6 kB, de code 62 kB (179 kB
 // zelf) en de CSS 5 kB. Wordt een grens te krap, kijk dan eerst met node scripts/meet.js dist <naam>
-// wat er groeide, en verhoog de grens alleen als dat nodig is.
+// wat er groeide, en verhoog de grens alleen als dat nodig is. Met Kwadratische functies, het eerste
+// onderwerp van hoofdstuk 3, werd de code 81 kB (229 kB zelf): ongeveer 6 kB per onderwerp. Daarom
+// is de grens voor de code toen verhoogd voor de rest van dat hoofdstuk (#72).
 const LIMITS = {
   page: { sent: 6, why: 'een vooraf gebouwde pagina' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  code: { sent: 80, own: 230, why: 'de code' },
+  code: { sent: 100, own: 290, why: 'de code' },
   css: { sent: 8, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
