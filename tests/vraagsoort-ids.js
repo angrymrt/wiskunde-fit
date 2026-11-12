@@ -75,4 +75,13 @@ export default {
   71: 's31pick',
   72: 's32height',
   73: 's32further',
+  74: 's33common',
+  75: 's33pair',
+  76: 's33pick',
+  77: 's33factor',
+  78: 's33zero',
+  79: 's33move',
+  80: 's33brackets',
+  81: 's33scale',
+  82: 's33value',
 };

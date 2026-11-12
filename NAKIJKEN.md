@@ -23,11 +23,14 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - Een getekende lijn controleert de site aan de hand van twee punten in een rooster. Lijnen die niet door twee roosterpunten gaan, komen daarom niet voor.
 - Bij de vraag of een bal verder komt dan een afstand, rekent de leerling de hoogte bij die afstand uit en kiest daarna uit verder of niet verder. In het boek schrijf je bij onderzoek een uitleg in een zin.
 - De site heeft geen gemengde opgaven en geen onderzoeken, zoals die aan het eind van een hoofdstuk in het boek staan.
+- Bij ontbinden met de product-som-methode vul je de twee getallen in op de plek van de stippen in (x + …)(x + …). Een negatief getal vul je in als −3. Dat staat dan als (x + −3), en de uitwerking schrijft (x − 3).
+- Bij een kwadratische vergelijking mag je de oplossingen in elke volgorde invullen. Een oplossing die een breuk is, mag je invullen als breuk, als gemengd getal of als kommagetal met minstens twee decimalen.
 
 ## Onderwerpen
 
 | Onderwerp                          | Nagekeken door | Datum |
 | ---------------------------------- | -------------- | ----- |
+| Ontbinden in factoren              |                |       |
 | Rekenen met een formule            |                |       |
 | Lineaire grafieken tekenen         |                |       |
 | Lineaire formule opstellen         |                |       |
@@ -36,6 +39,7 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 | Lineaire vergelijkingen            |                |       |
 | Lineaire ongelijkheden             |                |       |
 | Vergelijkingen met twee variabelen |                |       |
+| Kwadratische vergelijkingen        |                |       |
 | Stelling van Pythagoras            |                |       |
 | Verhoudingstabellen                |                |       |
 | Gelijkvormige driehoeken           |                |       |
