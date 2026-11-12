@@ -242,6 +242,37 @@ test('x_top uit gelijke functiewaarden herkent de halve afstand', () => {
   assert.ok(checked > 50, 'genoeg vragen met de halve afstand');
 });
 
+// Bij ax² = bx is x = 0 een oplossing en de andere vaak een breuk, zoals 3x² = 8x. Die mag als
+// gemengd getal, als breuk of afgerond, in elke volgorde. Wie door x deelt, mist x = 0.
+test('een kwadratische vergelijking met een breuk als oplossing', () => {
+  const topic = TOPICS.find((t) => t.slug === 'kwadratische-vergelijkingen'),
+    skill = topic.skills.find((k) => k.id === 79);
+  let checked = 0;
+  eachQuestion(topic, skill, (q) => {
+    const [a, b] = q.fields.map((f) => f.a);
+    if (a !== 0 || Number.isInteger(b)) return;
+    checked++;
+    // Het getal voor x² is 2, 3, 4 of 5, dus dat is ook de noemer.
+    const den = [2, 3, 4, 5].find((n) => Number.isInteger(rd(b * n, 6))),
+      whole = Math.trunc(b),
+      rest = Math.round(Math.abs(b - whole) * den),
+      sign = b < 0 ? '-' : '',
+      mixed = whole ? `${sign}${Math.abs(whole)} ${rest}/${den}` : `${sign}${rest}/${den}`;
+    for (const r of [
+      mixed,
+      `${Math.round(b * den)}/${den}`,
+      String(b.toFixed(2)).replace('.', ','),
+    ]) {
+      assert.ok(checkAnswer(q, ['0', r]).ok, `${r} afgekeurd: ${q.q}`);
+      assert.ok(checkAnswer(q, [r, '0']).ok, `${r} in andere volgorde afgekeurd: ${q.q}`);
+    }
+    const trap = (...vals) => findTrap(q, vals.map(String))?.id;
+    assert.equal(trap(b, b), 'nul-vergeten', q.q);
+    assert.equal(trap(0, -b), 'teken-omgedraaid', q.q);
+  });
+  assert.ok(checked > 20, 'genoeg vragen met een breuk');
+});
+
 test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
   const drawing = TOPICS.flatMap((s) => s.skills).filter((k) => /tekenen$/.test(k.name));
   assert.equal(drawing.length, 3);

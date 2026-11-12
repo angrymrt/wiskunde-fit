@@ -1,6 +1,6 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
 import { geo, graph } from '../figures.js';
-import { shuffle, Q, qv, isNice, sg, near, fr } from '../math.js';
+import { shuffle, Q, qv, isNice, sg, near, fr, d, lin } from '../math.js';
 import { dt } from '../typeset.js';
 
 // Letterparen voor een formule met andere letters dan x en y.
@@ -55,6 +55,51 @@ const MC = (opts, a) => {
   return { opts: idx.map((i) => opts[i]), a: idx.indexOf(a) };
 };
 const plug = (a, x, b) => `${a}*${x}${sg(b)}`;
+
+// ax² + bx + c als tekst voor T. order zegt in welke volgorde de termen staan, met de macht van x:
+// [0, 1, 2] geeft c + bx + ax². Een term met 0 valt weg, en 1x² wordt x². Een getal mag ook een
+// breuk uit Q zijn, zoals {1/3}x². v is de letter, zoals p in p² + p − 20.
+const val = (k) => (typeof k === 'object' ? k.n / k.d : k);
+function quad([a, b, c], order = [2, 1, 0], v = 'x') {
+  const k = { 2: a, 1: b, 0: c };
+  let s = '';
+  for (const p of order) {
+    const x = val(k[p]);
+    if (!x) continue;
+    const n = typeof k[p] === 'object' ? fr(Q(Math.abs(k[p].n), k[p].d)) : d(Math.abs(x)),
+      t = p ? `${n === '1' ? '' : n}${v}${p === 2 ? '^2' : ''}` : n;
+    s += s ? ` ${x < 0 ? '-' : '+'} ${t}` : `${x < 0 ? '-' : ''}${t}`;
+  }
+  return s;
+}
+// Een ontbinding als tekst voor T. Een factor [m, n] is mx + n, en [1, 0] is de factor x zonder
+// haakjes. Zoals in het boek staat x vooraan, en verder de factor met het kleinste getal: (x + 2)(x − 9).
+const byFactor = (f, g) => !!f[1] - !!g[1] || Math.abs(f[1]) - Math.abs(g[1]) || g[1] - f[1];
+const factors = (fs, v = 'x') =>
+  [...fs]
+    .sort(byFactor)
+    .map(([m, n]) => (m === 1 && !n ? v : `(${lin(m, n, v)})`))
+    .join('');
+// Of de ingevulde getallen precies deze getallen zijn, in welke volgorde ook. Voor een valkuil bij
+// een groep velden, zoals x = −2 ∨ x = 9.
+const sameSet = (v, want) => {
+  const a = [...v].sort((p, q) => p - q),
+    b = want.map(qv).sort((p, q) => p - q);
+  return a.length === b.length && a.every((x, i) => near(x, b[i]));
+};
+// Een valkuil voor een groep velden: de leerling vult precies de getallen uit wrong in. Zijn dat
+// ook de goede getallen, dan geldt de valkuil niet.
+const setTrap = (id, wrong, right, m) =>
+  wrong && !sameSet(wrong.map(qv), right) ? { id, f: (v) => sameSet(v, wrong), m } : null;
+// De twee verschillende gehele oplossingen van ax² + bx + c = 0, of null. Voor een valkuil: welke
+// oplossingen krijg je met een bekende fout?
+function intRoots([a, b, c]) {
+  [a, b, c] = [a, b, c].map(val);
+  const D = b * b - 4 * a * c;
+  if (D <= 0) return null;
+  const r = [(-b - Math.sqrt(D)) / (2 * a), (-b + Math.sqrt(D)) / (2 * a)];
+  return r.every((x) => isNice(x, 0) && Math.abs(x) <= 99) ? r.map(Math.round) : null;
+}
 // Een bedrag zoals op een prijskaartje: 3 of 2,50.
 const euro = (x) => x.toFixed(Number.isInteger(x) ? 0 : 2).replace('.', ',');
 const TRP = [
@@ -174,6 +219,11 @@ export {
   flipTrap,
   MC,
   plug,
+  quad,
+  factors,
+  byFactor,
+  setTrap,
+  intRoots,
   euro,
   TRP,
   nestedPts,

@@ -110,6 +110,7 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
       await p.evaluate(() => wiskundefit.go({ name: 'kies' }));
       await check('kiezen uit je boek');
       for (const slug of [
+        'rekenen-met-letters',
         'formules-en-grafieken',
         'vergelijkingen-en-ongelijkheden',
         'meetkunde',

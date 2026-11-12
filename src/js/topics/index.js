@@ -7,6 +7,8 @@ import kwadratisch from './kwadratische-functies.js';
 import vergelijkingen from './lineaire-vergelijkingen.js';
 import ongelijkheden from './lineaire-ongelijkheden.js';
 import tweeVariabelen from './vergelijkingen-met-twee-variabelen.js';
+import kwVergelijkingen from './kwadratische-vergelijkingen.js';
+import ontbinden from './ontbinden-in-factoren.js';
 import pythagoras from './stelling-van-pythagoras.js';
 import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
@@ -16,6 +18,16 @@ import { newSeed, withSeed } from '../math.js';
 import { roundTraps } from '../answers.js';
 
 const DOMAINS = [
+  {
+    slug: 'rekenen-met-letters',
+    name: 'Rekenen met letters',
+    intro:
+      'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen.',
+    description:
+      'Rekenen met letters: ontbinden in factoren met x buiten haakjes en de product-som-methode. Gratis wiskunde oefenen met uitleg.',
+    color: 'plum',
+    topics: [ontbinden],
+  },
   {
     slug: 'formules-en-grafieken',
     name: 'Formules en grafieken',
@@ -30,11 +42,11 @@ const DOMAINS = [
     slug: 'vergelijkingen-en-ongelijkheden',
     name: 'Vergelijkingen en ongelijkheden',
     intro:
-      'Bij een vergelijking zoek je wanneer twee kanten even groot zijn. Bij een ongelijkheid zoek je wanneer de ene kant groter of kleiner is dan de andere. Hier leer je ze oplossen, ook als er twee variabelen in staan.',
+      'Bij een vergelijking zoek je wanneer twee kanten even groot zijn. Bij een ongelijkheid zoek je wanneer de ene kant groter of kleiner is dan de andere. Hier leer je ze oplossen, ook als er twee variabelen of een kwadraat in staan.',
     description:
-      'Lineaire vergelijkingen en ongelijkheden oplossen, ook met haakjes, breuken en twee variabelen. Gratis wiskunde oefenen met uitleg.',
+      'Lineaire vergelijkingen en ongelijkheden oplossen, ook met haakjes, breuken en twee variabelen, en kwadratische vergelijkingen. Gratis oefenen met uitleg.',
     color: 'forest',
-    topics: [vergelijkingen, ongelijkheden, tweeVariabelen],
+    topics: [vergelijkingen, ongelijkheden, tweeVariabelen, kwVergelijkingen],
   },
   {
     slug: 'meetkunde',
@@ -57,6 +69,7 @@ const PREREQUISITES = new Map([
   [kwadratisch, [rekenen]],
   [ongelijkheden, [vergelijkingen, snijpunten]],
   [tweeVariabelen, [lijnen]],
+  [kwVergelijkingen, [ontbinden, vergelijkingen]],
   [gelijkvormig, [verhoudingen, pythagoras]],
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],

@@ -1,6 +1,6 @@
 // Onderwerp: Kwadratische functies. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, nz, pick, coin, near, d, rd, sg } from '../math.js';
-import { F, H, MC } from './shared.js';
+import { F, H, MC, quad } from './shared.js';
 import { graph } from '../figures.js';
 import { T, dt } from '../typeset.js';
 
@@ -16,19 +16,6 @@ function roots([a, b, c]) {
   return [(-b - Math.sqrt(D)) / (2 * a), (-b + Math.sqrt(D)) / (2 * a)].sort((p, q) => p - q);
 }
 
-// ax² + bx + c als tekst voor T. order zegt in welke volgorde de termen staan, met de macht van x:
-// [0, 1, 2] geeft c + bx + ax². Een term met 0 valt weg, en 1x² wordt x².
-function quad([a, b, c], order = [2, 1, 0]) {
-  const k = { 2: a, 1: b, 0: c };
-  let s = '';
-  for (const p of order) {
-    if (!k[p]) continue;
-    const n = Math.abs(k[p]),
-      t = p ? `${n === 1 ? '' : d(n)}x${p === 2 ? '^2' : ''}` : d(n);
-    s += s ? ` ${k[p] < 0 ? '-' : '+'} ${t}` : `${k[p] < 0 ? '-' : ''}${t}`;
-  }
-  return s;
-}
 // Leest [a, b, c] terug uit de tekst van quad. Voor de controle: zo klopt het antwoord met de
 // formule zoals die in de vraag staat, ook als de termen in een andere volgorde staan.
 function readQuad(s) {
