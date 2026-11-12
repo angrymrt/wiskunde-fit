@@ -37,7 +37,7 @@ const vt = (top, bot) =>
 // Een tabel met veel kolommen kan op een telefoon opzij schuiven. Geef die een naam (label): dan kun
 // je hem ook met het toetsenbord schuiven. De naam is uniek op het scherm.
 const dt = (rows, label) =>
-  `<div class="scroll"${label ? ` role="region" tabindex="0" aria-label="${esc(label)}"` : ''}><table class="dt">${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${T(c)}</td>` : `<th>${T(c)}</th>`)).join('')}</tr>`).join('')}</table></div>`;
+  `<div class="scroll"${label ? ` role="region" tabindex="0" aria-label="${esc(label).replace(/"/g, '&quot;')}"` : ''}><table class="dt">${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${T(c)}</td>` : `<th>${T(c)}</th>`)).join('')}</tr>`).join('')}</table></div>`;
 const stepsHTML = (st) =>
   `<ul class="steps">${st.map((s) => `<li>${typeof s === 'string' ? T(s) : s.h}</li>`).join('')}</ul>`;
 
