@@ -3,6 +3,7 @@ import rekenen from './rekenen-met-een-formule.js';
 import lijnen from './lineaire-grafieken-tekenen.js';
 import opstellen from './lineaire-formule-opstellen.js';
 import snijpunten from './snijpunten-van-lijnen.js';
+import kwadratisch from './kwadratische-functies.js';
 import vergelijkingen from './lineaire-vergelijkingen.js';
 import ongelijkheden from './lineaire-ongelijkheden.js';
 import tweeVariabelen from './vergelijkingen-met-twee-variabelen.js';
@@ -19,11 +20,11 @@ const DOMAINS = [
     slug: 'formules-en-grafieken',
     name: 'Formules en grafieken',
     intro:
-      'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden.',
+      'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden, en werk je met parabolen.',
     description:
-      'Rekenen met formules, lineaire grafieken tekenen, een formule opstellen en snijpunten berekenen. Gratis wiskunde oefenen met uitleg.',
+      'Rekenen met formules, lineaire grafieken, een formule opstellen, snijpunten van lijnen en kwadratische functies. Gratis wiskunde oefenen met uitleg.',
     color: 'blue',
-    topics: [rekenen, lijnen, opstellen, snijpunten],
+    topics: [rekenen, lijnen, opstellen, snijpunten, kwadratisch],
   },
   {
     slug: 'vergelijkingen-en-ongelijkheden',
@@ -53,6 +54,7 @@ const PREREQUISITES = new Map([
   [lijnen, [rekenen]],
   [opstellen, [lijnen]],
   [snijpunten, [vergelijkingen, lijnen]],
+  [kwadratisch, [rekenen]],
   [ongelijkheden, [vergelijkingen, snijpunten]],
   [tweeVariabelen, [lijnen]],
   [gelijkvormig, [verhoudingen, pythagoras]],

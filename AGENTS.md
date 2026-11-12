@@ -132,15 +132,15 @@ Een veld kan ook `label` krijgen, de naam voor een schermlezer als de tekst erna
 
 `T(tekst)` uit `typeset.js` zet gewone tekst om naar wiskundezetting. Geef het geen HTML.
 
-| Je schrijft        | Resultaat                                            |
-| ------------------ | ---------------------------------------------------- |
-| `y = ax + b`       | Losse letters, `ax` en hoofdletters als `AB` cursief |
-| `{3/4}`            | Breuk                                                |
-| `{1 1/2}`          | Gemengd getal                                        |
-| `{DE/AB}`          | Breuk met letters                                    |
-| `8*-4`             | `8·−4`                                               |
-| `AC^2`, `rc_k`     | Superscript en subscript                             |
-| `x-as`, `F-hoeken` | Koppelteken blijft staan, geen minteken              |
+| Je schrijft        | Resultaat                                                  |
+| ------------------ | ---------------------------------------------------------- |
+| `y = ax + b`       | Losse letters, `ax`, `bx` en hoofdletters als `AB` cursief |
+| `{3/4}`            | Breuk                                                      |
+| `{1 1/2}`          | Gemengd getal                                              |
+| `{DE/AB}`          | Breuk met letters                                          |
+| `8*-4`             | `8·−4`                                                     |
+| `AC^2`, `rc_k`     | Superscript en subscript                                   |
+| `x-as`, `F-hoeken` | Koppelteken blijft staan, geen minteken                    |
 
 Let op: een losse letter wordt altijd als variabele gezet, dus schrijf `meter` in plaats van `m`. Bij een andere letter dan x, zoals `a` gevolgd door `s`, zet je `​` ertussen. Anders wordt het het woord "as".
 

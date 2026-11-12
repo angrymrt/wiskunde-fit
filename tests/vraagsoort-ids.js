@@ -67,4 +67,12 @@ export default {
   63: 's24rect',
   64: 's24par',
   65: 's24story',
+  66: 's31value',
+  67: 's31abc',
+  68: 's31dalberg',
+  69: 's31point',
+  70: 's31sym',
+  71: 's31pick',
+  72: 's32height',
+  73: 's32further',
 };

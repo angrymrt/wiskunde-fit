@@ -515,6 +515,13 @@ sub {
 .dt th {
   background: var(--blue-soft);
 }
+/* Een tabel met zeven punten past zo nog op een telefoon. */
+@media (max-width: 560px) {
+  .dt th,
+  .dt td {
+    padding: 3px 7px;
+  }
+}
 .scroll {
   overflow-x: auto;
   max-width: 100%;
@@ -1100,6 +1107,12 @@ sub {
   list-style: none;
   display: grid;
   gap: 5px;
+}
+/* Zonder min-width: 0 groeit een stap in het grid mee met een brede tabel, zoals een tabel met
+   zeven punten. Dan schuift de tabel zelf (.scroll) en niet de hele pagina. */
+.steps,
+.steps li {
+  min-width: 0;
 }
 .steps li {
   padding-left: 14px;

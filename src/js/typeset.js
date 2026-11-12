@@ -25,7 +25,7 @@ function T(s) {
     } else if (t[0] === '^' && t.length > 1) o += `<sup>${T(t.slice(1))}</sup>`;
     else if (t[0] === '_' && t.length > 1) o += `<sub>${T(t.slice(1))}</sub>`;
     else if (/^[FZ]-hoek/.test(t)) o += t;
-    else if (/^[A-Za-z]$|^[A-Z]{2,4}$|^ax$/.test(t)) o += `<span class="v">${t}</span>`;
+    else if (/^[A-Za-z]$|^[A-Z]{2,4}$|^[ab]x$/.test(t)) o += `<span class="v">${t}</span>`;
     else if (t === '-') o += /[A-Za-zÀ-ÿ]/.test(p) && /[A-Za-zÀ-ÿ]/.test(n) ? '-' : '−';
     else if (t === '*') o += '·';
     else o += esc(t);
@@ -34,8 +34,10 @@ function T(s) {
 }
 const vt = (top, bot) =>
   `<table class="vt"><tr>${top.map((c) => `<td>${T(c)}</td>`).join('')}</tr><tr>${bot.map((c) => `<td>${T(c)}</td>`).join('')}</tr></table>`;
-const dt = (rows) =>
-  `<div class="scroll"><table class="dt">${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${T(c)}</td>` : `<th>${T(c)}</th>`)).join('')}</tr>`).join('')}</table></div>`;
+// Een tabel met veel kolommen kan op een telefoon opzij schuiven. Geef die een naam (label): dan kun
+// je hem ook met het toetsenbord schuiven. De naam is uniek op het scherm.
+const dt = (rows, label) =>
+  `<div class="scroll"${label ? ` role="region" tabindex="0" aria-label="${esc(label)}"` : ''}><table class="dt">${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${T(c)}</td>` : `<th>${T(c)}</th>`)).join('')}</tr>`).join('')}</table></div>`;
 const stepsHTML = (st) =>
   `<ul class="steps">${st.map((s) => `<li>${typeof s === 'string' ? T(s) : s.h}</li>`).join('')}</ul>`;
 
