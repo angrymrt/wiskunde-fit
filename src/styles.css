@@ -1128,6 +1128,27 @@ sub {
   padding-left: 14px;
   border-left: 3px solid var(--rule);
 }
+/* Een verschuiving zoals in het boek: een pijl van de ene formule naar de andere, met de
+   verschuiving erboven. */
+.pijl {
+  display: inline-block;
+  position: relative;
+  margin: 0 0.5em 0.4em 0.2em;
+  padding: 0 0.7em 1px 0.2em;
+  border-bottom: 1.5px solid currentColor;
+  font-size: 0.85em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.pijl::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  bottom: -5.5px;
+  border: 5px solid transparent;
+  border-right: 0;
+  border-left: 8px solid currentColor;
+}
 ol.how {
   margin: 0;
   padding-left: 1.3em;

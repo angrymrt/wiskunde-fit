@@ -4,11 +4,14 @@ import lijnen from './lineaire-grafieken-tekenen.js';
 import opstellen from './lineaire-formule-opstellen.js';
 import snijpunten from './snijpunten-van-lijnen.js';
 import kwadratisch from './kwadratische-functies.js';
+import topSnijpunten from './top-en-snijpunten-van-een-parabool.js';
+import verschuiven from './parabolen-verschuiven.js';
 import vergelijkingen from './lineaire-vergelijkingen.js';
 import ongelijkheden from './lineaire-ongelijkheden.js';
 import tweeVariabelen from './vergelijkingen-met-twee-variabelen.js';
 import kwVergelijkingen from './kwadratische-vergelijkingen.js';
 import ontbinden from './ontbinden-in-factoren.js';
+import haakjes from './haakjes-wegwerken.js';
 import pythagoras from './stelling-van-pythagoras.js';
 import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
@@ -22,21 +25,21 @@ const DOMAINS = [
     slug: 'rekenen-met-letters',
     name: 'Rekenen met letters',
     intro:
-      'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen.',
+      'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen. Ook leer je het omgekeerde: haakjes wegwerken.',
     description:
-      'Rekenen met letters: ontbinden in factoren met x buiten haakjes en de product-som-methode. Gratis wiskunde oefenen met uitleg.',
+      'Rekenen met letters: ontbinden in factoren met x buiten haakjes en de product-som-methode, en haakjes wegwerken. Gratis wiskunde oefenen met uitleg.',
     color: 'plum',
-    topics: [ontbinden],
+    topics: [ontbinden, haakjes],
   },
   {
     slug: 'formules-en-grafieken',
     name: 'Formules en grafieken',
     intro:
-      'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden, en werk je met parabolen.',
+      'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden, en werk je met parabolen: de top, de snijpunten met de assen en verschuiven.',
     description:
-      'Rekenen met formules, lineaire grafieken, een formule opstellen, snijpunten van lijnen en kwadratische functies. Gratis wiskunde oefenen met uitleg.',
+      'Rekenen met formules, lineaire grafieken, snijpunten van lijnen, kwadratische functies, de top van een parabool en verschuiven. Gratis oefenen met uitleg.',
     color: 'blue',
-    topics: [rekenen, lijnen, opstellen, snijpunten, kwadratisch],
+    topics: [rekenen, lijnen, opstellen, snijpunten, kwadratisch, topSnijpunten, verschuiven],
   },
   {
     slug: 'vergelijkingen-en-ongelijkheden',
@@ -67,9 +70,12 @@ const PREREQUISITES = new Map([
   [opstellen, [lijnen]],
   [snijpunten, [vergelijkingen, lijnen]],
   [kwadratisch, [rekenen]],
+  [topSnijpunten, [kwadratisch, kwVergelijkingen]],
+  [verschuiven, [topSnijpunten]],
   [ongelijkheden, [vergelijkingen, snijpunten]],
   [tweeVariabelen, [lijnen]],
   [kwVergelijkingen, [ontbinden, vergelijkingen]],
+  [haakjes, [kwadratisch]],
   [gelijkvormig, [verhoudingen, pythagoras]],
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],
