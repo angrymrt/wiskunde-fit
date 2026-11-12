@@ -82,10 +82,13 @@ const factors = (fs, v = 'x') =>
     .join('');
 // Of de ingevulde getallen precies deze getallen zijn, in welke volgorde ook. Voor een valkuil bij
 // een groep velden, zoals x = −2 ∨ x = 9.
+// Een getal dat niet mooi uitkomt, zoals 5/3, mag ook afgerond zijn, zoals 1,67: net als bij het
+// nakijken in answers.js.
+const close = (x, w) => near(x, w) || (!isNice(w, 4) && Math.abs(x - w) < 0.0051);
 const sameSet = (v, want) => {
   const a = [...v].sort((p, q) => p - q),
     b = want.map(qv).sort((p, q) => p - q);
-  return a.length === b.length && a.every((x, i) => near(x, b[i]));
+  return a.length === b.length && a.every((x, i) => close(x, b[i]));
 };
 // Een valkuil voor een groep velden: de leerling vult precies de getallen uit wrong in. Zijn dat
 // ook de goede getallen, dan geldt de valkuil niet.
@@ -222,6 +225,7 @@ export {
   quad,
   factors,
   byFactor,
+  close,
   setTrap,
   intRoots,
   euro,

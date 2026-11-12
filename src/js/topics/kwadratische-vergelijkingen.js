@@ -1,6 +1,6 @@
 // Onderwerp: Kwadratische vergelijkingen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { nz, pick, coin, gcd, Q, qv, qSub, qMul, qDiv, near, fr, lin } from '../math.js';
-import { orFields, quad, factors, byFactor, setTrap, intRoots } from './shared.js';
+import { orFields, quad, factors, byFactor, close, setTrap, intRoots } from './shared.js';
 import { T } from '../typeset.js';
 
 // Meestal x, soms een andere letter, zoals in het boek.
@@ -95,6 +95,15 @@ function solve({
         : `Let op het teken van je oplossingen. Vul ze in om te controleren.`,
     ),
   );
+  // Is een oplossing 0, dan raakt wie door x deelt die kwijt.
+  const r = sols.map(qv).find((x) => x !== 0);
+  if (sols.some((x) => qv(x) === 0))
+    add({
+      id: 'nul-vergeten',
+      f: (x) => !x.some((y) => near(y, 0)) && x.some((y) => close(y, r)),
+      m: `Je mist de oplossing ${v} = 0. Deel niet door ${v}, want dan raak je die kwijt. Haal ${v} buiten haakjes.`,
+      wrong: [r, r],
+    });
   for (const t of traps) add(t);
   if (moved.length) {
     const t = term(R[moved[0]], moved[0], v);
@@ -190,8 +199,7 @@ function s33move() {
     const k = coin() ? 0 : nz(-6, 6);
     if (k + b === 0) return s33move();
     const L = [a, k, 0].map((x) => Q(x)),
-      R = [0, k + b, 0].map((x) => Q(x)),
-      r = b / a;
+      R = [0, k + b, 0].map((x) => Q(x));
     return solve({
       v,
       text: equals(L, R, v),
@@ -203,14 +211,6 @@ function s33move() {
       ],
       orig: (s) => at(L, s) - at(R, s),
       hint: T(`Maak het rechterlid 0 en haal ${v} buiten haakjes. Deel niet door ${v}.`),
-      traps: [
-        {
-          id: 'nul-vergeten',
-          f: (x) => !x.some((y) => near(y, 0)) && x.some((y) => near(y, r)),
-          m: `Je mist de oplossing ${v} = 0. Deel niet door ${v}, want dan raak je die kwijt. Haal ${v} buiten haakjes.`,
-          wrong: [r, r],
-        },
-      ],
     });
   }
   const rs = roots(48),

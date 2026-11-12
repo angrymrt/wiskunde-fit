@@ -69,18 +69,25 @@ function pairSteps(b, c, v) {
   ];
 }
 // De valkuilen bij twee getallen met product c en som b, voor een groep van twee velden.
-function pairTraps(p, q) {
+// Met v gaat het om de velden in (x + …)(x + …). Wie daar de getallen zonder teken of met het
+// verkeerde teken invult, denkt vaak niets fout over de ontbinding, maar over wat in het veld hoort.
+function pairTraps(p, q, v) {
   const b = p + q,
-    c = p * q;
+    c = p * q,
+    sign = v
+      ? `Er staat (${v} + …), dus je vult het getal met zijn teken in: voor (${v} − 4) typ je −4, en voor (${v} + 4) typ je 4.`
+      : null;
   return [
+    ...(v ? [setTrap('teken-in-haakjes', [Math.abs(p), Math.abs(q)], [p, q], sign)] : []),
     setTrap(
       'tekens-omgedraaid',
       [-p, -q],
       [p, q],
-      `Het product klopt, maar de som niet: die is nu ${-b} in plaats van ${b}. Draai de tekens van allebei de getallen om.`.replace(
-        /-/g,
-        '−',
-      ),
+      sign ||
+        `Het product klopt, maar de som niet: die is nu ${-b} in plaats van ${b}. Draai de tekens van allebei de getallen om.`.replace(
+          /-/g,
+          '−',
+        ),
     ),
     {
       id: 'som-klopt-niet',
@@ -262,7 +269,9 @@ function s33factor() {
     b = p + q,
     c = p * q;
   return {
-    q: T(`Ontbind in factoren: ${quad([1, b, c], undefined, v)}`),
+    q: T(
+      `Ontbind in factoren: ${quad([1, b, c], undefined, v)}. Staat er een min in de haakjes, typ dan een minteken voor het getal.`,
+    ),
     fields: [
       { ...F(`(${v} +`, p, ')'), grp: 'factor', label: 'Getal in de eerste haakjes' },
       { ...F(`(${v} +`, q, ')'), grp: 'factor', label: 'Getal in de tweede haakjes' },
@@ -272,7 +281,7 @@ function s33factor() {
       `Zoek twee getallen met product ${c} en som ${b}. Is een getal negatief, vul dan bijvoorbeeld -3 in: (${v} + -3) is hetzelfde als (${v} - 3).`,
     ),
     steps: pairSteps(b, c, v),
-    traps: pairTraps(p, q),
+    traps: pairTraps(p, q, v),
     // De haakjes weer wegwerken moet bij elke x hetzelfde geven.
     v: () => [-3, 0, 2, 5].every((x) => near((x + p) * (x + q), x * x + b * x + c)),
   };

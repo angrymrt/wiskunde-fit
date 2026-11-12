@@ -269,8 +269,48 @@ test('een kwadratische vergelijking met een breuk als oplossing', () => {
     const trap = (...vals) => findTrap(q, vals.map(String))?.id;
     assert.equal(trap(b, b), 'nul-vergeten', q.q);
     assert.equal(trap(0, -b), 'teken-omgedraaid', q.q);
+    // Ook als de leerling een afgerond kommagetal invult, zoals −1,67 bij −5/3.
+    const comma = (x) => x.toFixed(2).replace('.', ',');
+    assert.equal(trap(comma(b), comma(b)), 'nul-vergeten', q.q);
+    assert.equal(trap(0, comma(-b)), 'teken-omgedraaid', q.q);
   });
   assert.ok(checked > 20, 'genoeg vragen met een breuk');
+});
+
+// Uit de review van #76: is een oplossing 0, dan herkent elke vraagsoort wie door x deelt.
+test('wie bij een oplossing 0 door x deelt, krijgt nul-vergeten', () => {
+  const topic = TOPICS.find((t) => t.slug === 'kwadratische-vergelijkingen');
+  for (const id of [79, 80, 82]) {
+    let checked = 0;
+    eachQuestion(
+      topic,
+      topic.skills.find((k) => k.id === id),
+      (q) => {
+        const r = q.fields.map((f) => f.a).find((a) => a !== 0);
+        if (!q.fields.some((f) => f.a === 0)) return;
+        checked++;
+        assert.equal(findTrap(q, [String(r), String(r)])?.id, 'nul-vergeten', q.q);
+      },
+    );
+    assert.ok(checked > 20, `genoeg vragen met een oplossing 0 bij ${id}`);
+  }
+});
+
+// Uit de review van #76: bij (t + …)(t + …) typt wie (t − 4)(t − 7) bedoelt soms 4 en 7. De melding
+// gaat dan over het teken in het veld, en niet over product en som.
+test('ontbinden: getallen zonder teken in (x + …) krijgen een melding over het teken', () => {
+  const topic = TOPICS.find((t) => t.slug === 'ontbinden-in-factoren'),
+    skill = topic.skills.find((k) => k.id === 77);
+  let checked = 0;
+  eachQuestion(topic, skill, (q) => {
+    const [p, r] = q.fields.map((f) => f.a);
+    if (p > 0 && r > 0) return;
+    checked++;
+    const trap = findTrap(q, [String(Math.abs(p)), String(Math.abs(r))]);
+    assert.equal(trap?.id, 'teken-in-haakjes', q.q);
+    assert.match(trap.m, /met zijn teken/);
+  });
+  assert.ok(checked > 50, 'genoeg vragen met een negatief getal');
 });
 
 test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {

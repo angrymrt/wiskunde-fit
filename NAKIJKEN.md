@@ -24,7 +24,7 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - Bij de vraag of een bal verder komt dan een afstand, rekent de leerling de hoogte bij die afstand uit en kiest daarna uit verder of niet verder. In het boek schrijf je bij onderzoek een uitleg in een zin.
 - De site heeft geen gemengde opgaven en geen onderzoeken, zoals die aan het eind van een hoofdstuk in het boek staan.
 - Bij ontbinden met de product-som-methode vul je de twee getallen in op de plek van de stippen in (x + …)(x + …). Een negatief getal vul je in als −3. Dat staat dan als (x + −3), en de uitwerking schrijft (x − 3).
-- Bij een kwadratische vergelijking mag je de oplossingen in elke volgorde invullen. Een oplossing die een breuk is, mag je invullen als breuk, als gemengd getal of als kommagetal met minstens twee decimalen.
+- Bij een kwadratische vergelijking mag je de oplossingen in elke volgorde invullen. Een oplossing die een breuk is, mag je invullen als breuk, als gemengd getal of als kommagetal dat goed is afgerond op twee of meer decimalen. Bij 5/3 is 1,67 dus goed, maar 1,66 en 1,7 niet. Een valkuil herkent zo'n afgerond getal ook.
 
 ## Onderwerpen
 
