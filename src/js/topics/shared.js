@@ -66,7 +66,10 @@ function quad([a, b, c], order = [2, 1, 0], v = 'x') {
   for (const p of order) {
     const x = val(k[p]);
     if (!x) continue;
-    const n = typeof k[p] === 'object' ? fr(Q(Math.abs(k[p].n), k[p].d)) : d(Math.abs(x)),
+    // Voor een letter staat een breuk nooit als gemengd getal: {9/2}x en niet 4½x, want dat lees
+    // je als 4 · ½x.
+    const q = typeof k[p] === 'object' ? Q(Math.abs(k[p].n), k[p].d) : null,
+      n = q ? (p && q.d !== 1 ? `{${q.n}/${q.d}}` : fr(q)) : d(Math.abs(x)),
       t = p ? `${n === '1' ? '' : n}${v}${p === 2 ? '^2' : ''}` : n;
     s += s ? ` ${x < 0 ? '-' : '+'} ${t}` : `${x < 0 ? '-' : ''}${t}`;
   }

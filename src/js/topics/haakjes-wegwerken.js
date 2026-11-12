@@ -59,7 +59,8 @@ function s34ade() {
   if (Math.abs(qv(a)) === 1)
     traps.push({
       id: 'a-is-een',
-      f: (v) => near(v[0], 0),
+      // Ook a = 1 bij −(x + 8)(x + 4): de min vergeten.
+      f: (v) => near(v[0], 0) || near(v[0], -qv(a)),
       m: 'Staat er geen getal vooraan, dan is a = 1. Staat er alleen een min, dan is a = −1.',
     });
   return {
@@ -254,7 +255,11 @@ export default {
     },
     {
       t: 'a(x - p)^2 + q uitwerken',
-      p: [T('Schrijf het kwadraat als twee gelijke haakjes: (x - 2)^2 = (x - 2)(x - 2).')],
+      p: [
+        T(
+          'Bij a(x - p)^2 + q is a het getal vooraan, staat p met een min in de haakjes en staat q achter het kwadraat. Schrijf het kwadraat als twee gelijke haakjes: (x - 2)^2 = (x - 2)(x - 2). Werk die weg en vermenigvuldig met a. Tel q er pas daarna bij op.',
+        ),
+      ],
       ex: {
         q: T('Schrijf f(x) = 3(x - 2)^2 - 5 in de vorm ax^2 + bx + c.'),
         steps: [

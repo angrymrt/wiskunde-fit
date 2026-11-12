@@ -495,7 +495,7 @@ const STORIES = [
     neer: 'op de grond',
     start: 'Op welke hoogte laat de handballer de bal los?',
     a: [-0.05, -0.06, -0.08],
-    b: [0.5, 0.6, 0.8],
+    b: [0.4, 0.5, 0.6],
     c: [1.6, 1.8, 2],
   },
   {
