@@ -161,6 +161,29 @@ Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.c
 3. Een paragraaf is `['1.1', 'Omschrijving', [3, 4]]`. Zonder vraagsoorten is die niet gedekt. Schrijf `'deels'` als vierde waarde als er nog stof ontbreekt of als de stof niet met dit boek is vergeleken. Ontbreekt er stof, zet dan als vijfde waarde een korte zin voor de leerling over wat je hier nog niet kunt oefenen. Is de stof niet met dit boek vergeleken, leg dat dan uit in `note` van de methode-indeling.
 4. Zet het aantal paragrafen in `tests/methode-indelingen.test.js` en draai `npm test`.
 
+## Een hoofdstuk toevoegen
+
+Een hoofdstuk is veel werk: hoofdstuk 3 werden 30 vraagsoorten in vier pull requests. Het meeste werk zit in de agents die de vraagsoorten bouwen. Elke stap van een agent leest de hele context opnieuw, dus de kosten zijn ongeveer het aantal stappen maal de grootte van de context. Houd agents daarom klein en gericht, zonder te bezuinigen op de controles.
+
+1. **Werkwijze uit het boek.** De eigenaar zet foto's van het hoofdstuk in `naslag/`, op de plek die `naslag/LEESMIJ.md` beschrijft. Laat agents met Sonnet de foto's per deel verwerken tot notities. Vat die zelf samen in een `werkwijze.md` naast de foto's: de notatie, de werkwijze per paragraaf en wat je bewust niet gebruikt. Controleer de notatie op een paar foto's. Daarna werkt niemand meer vanuit de foto's, want een foto kost veel meer dan een notitie.
+2. **Plan.** Schrijf in het issue van het hoofdstuk welke onderwerpen er komen, in welk domein en met welke vraagsoorten, en wat een paragraaf nog mist. Gebruik de bestaande domeinen in `topics/index.js`. Leg het plan voor aan de eigenaar.
+3. **Branches.** Maak een integratiebranch `hoofdstuk-N` vanaf `main` en open een draft-PR naar `main`. Die geeft de preview en wordt later de PR die het hoofdstuk online zet. Elk deel komt als laag in een stack, zie [Een pull request maken](#een-pull-request-maken).
+4. **Bouwen: één agent per onderwerp.** Laat elk onderwerp bouwen door een eigen agent met Opus, want het bedenken van de sommen en de controle vragen het meeste denkwerk. Geef de agent alleen wat hij nodig heeft: het issue, `werkwijze.md`, een bestaand onderwerp als voorbeeld en de vrije nummers. Laat hij `npm test` draaien en alleen de fouten bekijken. Nieuwe techniek die meer onderwerpen nodig hebben, zoals een nieuw soort figuur, bouwt een eigen agent eerst.
+5. **Review.** Laat elke laag reviewen zoals bij elke pull request. Verwerk de bevindingen met een nieuwe, kleine agent die alleen de opmerkingen en de bestanden krijgt waar ze over gaan. Stuur ze niet terug naar de agent die de laag bouwde, want die heeft dan al een grote context.
+6. **Afronden met Sonnet.** De methode-indeling, de versie, de `CHANGELOG.md` en de aantallen in README en `index.html` zijn mechanisch werk. Laat een agent met Sonnet dat doen in de laatste laag.
+7. **Meten.** Tel na de release de tokens met `node scripts/tokens.js <sessie.jsonl>` en zet de tabel in het issue van het hoofdstuk. Zo vergelijk je hoofdstukken met elkaar.
+
+Draai niet meer dan twee agents en één browsertest tegelijk, anders raakt het geheugen van de computer op.
+
+Controleer voor de release van een hoofdstuk:
+
+- Elke paragraaf van het hoofdstuk staat in de methode-indeling: gedekt, deels met een zin over wat ontbreekt, of niet gedekt.
+- Wat ontbreekt staat als sub-issue onder het issue van het hoofdstuk.
+- Elke vraagsoort volgt de notatie uit `werkwijze.md` en heeft een `v`, een hint, een uitwerking en valkuilen voor de fouten die leerlingen echt maken.
+- Nieuwe invoerkeuzes, zoals een teken in een keuzelijst, staan in `NAKIJKEN.md`.
+- `npm test` en `npm run test:browser` slagen, en je hebt de schermafbeeldingen van nieuwe figuren bekeken.
+- De code blijft onder de grens voor de grootte ([#80](https://github.com/angrymrt/wiskunde-fit/issues/80)).
+
 ## Zo werken de schermen
 
 Alle schermen zijn functies die een HTML-tekst teruggeven. `screenHTML()` in `ui/screens.js` maakt daarmee het hele scherm, en `render()` in `main.js` zet dat in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`.
@@ -190,6 +213,15 @@ Laat elke pull request reviewen door een agent die op de achtergrond draait, met
 De agent zet zijn bevindingen als opmerkingen bij de pull request, waar mogelijk bij de regel waar ze over gaan. Voorlopig doet hij dat met `gh` op het account van de eigenaar. Zet daarom boven elke opmerking dat die van de review-agent komt. Een eigen account voor de agent staat in [#67](https://github.com/angrymrt/wiskunde-fit/issues/67). Verwerk ze daarna met een nieuwe commit en antwoord bij elke opmerking wat je hebt gedaan. Laat je een bevinding liggen, schrijf dan waarom. Laat de agent daarna opnieuw reviewen. Hij kijkt dan naar de nieuwe commits en naar wat er met zijn opmerkingen is gebeurd.
 
 Zo gaat het hoogstens drie rondes heen en weer. Zijn er na de derde ronde nog bevindingen, leg ze dan voor aan de eigenaar. Die besluit of de pull request zo samen mag. Voeg pas samen als de tests slagen en elke opmerking is verwerkt of beantwoord.
+
+### Een stack van pull requests
+
+Bouwt een wijziging in delen op elkaar voort, zoals een hoofdstuk, maak dan een stack met de extensie [gh-stack](https://github.com/github/gh-stack). Elk deel is een eigen pull request, die alleen de wijzigingen van dat deel toont. Zo kan de review per deel, en staat er nooit een half hoofdstuk online.
+
+- Begin met `gh stack init` op de integratiebranch, zoals `hoofdstuk-3`. Maak elk volgend deel met `gh stack add <branch>` en zet alles op GitHub met `gh stack submit`. Een integratiebranch krijgt geen tests en geen preview op GitHub; die geeft de draft-PR van de integratiebranch naar `main`.
+- Voeg een deel samen door de integratiebranch vooruit te zetten: `git push origin origin/<branch>:refs/heads/hoofdstuk-3`. GitHub ziet de pull request dan als samengevoegd. Draai daarna `gh stack sync`, dat de hogere delen op de nieuwe basis zet.
+- De basis van een pull request in een stack kun je niet wijzigen. Zet bij het bovenste deel daarom ook zijn eigen basis vooruit, zodat GitHub ook die pull request als samengevoegd ziet.
+- Stuit `gh stack sync` op een conflict, dan stopt het en verandert het niets. Los het op met `git rebase --onto` en draai `gh stack sync` opnieuw. `gh stack modify` werkt alleen interactief.
 
 ## Een release maken
 
