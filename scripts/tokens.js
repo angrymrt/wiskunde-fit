@@ -21,6 +21,11 @@ if (!sessies.length) {
   console.error('Gebruik: node scripts/tokens.js <sessie.jsonl> [...]');
   process.exit(1);
 }
+const ontbreekt = sessies.filter((s) => !existsSync(s));
+if (ontbreekt.length) {
+  console.error(`Deze sessie bestaat niet: ${ontbreekt.join(', ')}`);
+  process.exit(1);
+}
 
 function bestanden(sessie) {
   const map = join(dirname(sessie), basename(sessie, '.jsonl'), 'subagents');
