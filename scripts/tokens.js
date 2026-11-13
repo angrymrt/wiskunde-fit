@@ -32,7 +32,9 @@ const args = process.argv.slice(2);
 const perIssue = args.includes('--per-issue');
 const naarBord = args.includes('--bord');
 const sessies = args.filter((a) => !a.startsWith('--'));
-if (!sessies.length || (naarBord && !perIssue)) {
+const onbekend = args.filter((a) => a.startsWith('--') && !['--per-issue', '--bord'].includes(a));
+if (!sessies.length || onbekend.length || (naarBord && !perIssue)) {
+  if (onbekend.length) console.error(`Onbekende optie: ${onbekend.join(', ')}`);
   console.error('Gebruik: node scripts/tokens.js [--per-issue [--bord]] <sessie.jsonl> [...]');
   process.exit(1);
 }
@@ -55,6 +57,7 @@ function tel({ sessie, hoofd, pad }) {
   const gezien = new Set();
   const t = { sessie, naam: hoofd ? 'hoofdsessie' : null, model: '', stappen: 0 };
   Object.assign(t, { input: 0, cacheWrite: 0, cacheRead: 0, output: 0 });
+  t.hoofd = hoofd;
   t.rol = hoofd ? 'orkestratie' : null;
   t.issue = null;
   for (const regel of readFileSync(pad, 'utf8').split('\n')) {
@@ -117,7 +120,9 @@ if (!perIssue) {
   process.exit(0);
 }
 
-// Per issue en rol. Agents zonder `Issue:` of met een onbekende rol tellen niet mee voor een issue.
+// Per issue en rol. Een agent heeft de rol bouw of review; zonder `Issue:` of met een andere rol telt
+// hij niet mee voor een issue. Alleen de hoofdsessie is orkestratie.
+const AGENTROL = (t) => !t.hoofd && t.issue && (t.rol === 'bouw' || t.rol === 'review');
 const per = new Map();
 const los = [];
 const voeg = (issue, rol, n) => {
@@ -126,15 +131,14 @@ const voeg = (issue, rol, n) => {
 };
 for (const sessie of sessies) {
   const hier = rijen.filter((t) => t.sessie === sessie);
-  const agents = hier.filter((t) => t.rol !== 'orkestratie');
-  for (const t of agents) {
-    if (t.issue && ROLLEN[t.rol] && t.rol !== 'orkestratie') voeg(t.issue, t.rol, t.gewogen);
+  for (const t of hier.filter((x) => !x.hoofd)) {
+    if (AGENTROL(t)) voeg(t.issue, t.rol, t.gewogen);
     else los.push(t);
   }
   // De orkestratie naar verhouding over de issues van deze sessie.
-  const metIssue = agents.filter((t) => t.issue && ROLLEN[t.rol]);
+  const metIssue = hier.filter(AGENTROL);
   const somAgents = metIssue.reduce((s, t) => s + t.gewogen, 0);
-  for (const hoofd of hier.filter((t) => t.rol === 'orkestratie')) {
+  for (const hoofd of hier.filter((t) => t.hoofd)) {
     if (!somAgents) {
       los.push(hoofd);
       continue;
@@ -176,7 +180,9 @@ if (naarBord) {
     ),
   ).items;
   for (const [issue, r] of per) {
-    let item = items.find((i) => i.content?.number === issue)?.id;
+    let item = items.find(
+      (i) => i.content?.number === issue && i.content?.repository === BORD.repo,
+    )?.id;
     if (!item) {
       const url = `https://github.com/${BORD.repo}/issues/${issue}`;
       item = JSON.parse(
@@ -196,7 +202,8 @@ if (naarBord) {
     for (const [rol, veldnaam] of Object.entries(ROLLEN)) {
       const veld = velden.find((v) => v.name === veldnaam);
       if (!veld) throw new Error(`Het bord heeft geen veld ${veldnaam}.`);
-      const waarde = String(Math.round(r[rol] / 1e5) / 10);
+      // Op 0,01 miljoen, zodat een kleine rol niet op 0 uitkomt.
+      const waarde = String(Math.round(r[rol] / 1e4) / 100);
       gh(
         'project',
         'item-edit',
