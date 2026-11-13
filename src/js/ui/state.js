@@ -12,6 +12,8 @@ const state = {
   // Of de site nu donker is, door het apparaat of door de knop in de kop. Zie main.js.
   dark: false,
   test: null,
+  // De onderwerpen van het scherm laden nog ('bezig'), of dat lukte niet ('fout'). Zie ui/laden.js.
+  laden: null,
   result: null,
   len: 20,
   timer: null,

@@ -5,9 +5,11 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { basename, relative } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'esbuild';
 import { TARGETS } from './browsers.js';
+import { catalogusPlugin } from './catalogus.js';
 
 const root = new URL('../', import.meta.url);
 const dev = process.argv.includes('--dev');
@@ -71,11 +73,16 @@ await rm(dist, { recursive: true, force: true });
 
 // De code, de CSS en de lettertypes. De hash in de naam verandert als de inhoud verandert, dus de
 // browser mag ze een jaar bewaren (zie staticwebapp.config.json).
-const { metafile } = await build({
+// De code staat in meer bestanden: main met de schermen en de catalogus, een bestand per onderwerp
+// dat main pas laadt als het nodig is, en gedeelde code in chunk-*.js. Zie scripts/catalogus.js.
+const { metafile, outputFiles } = await build({
   absWorkingDir: fileURLToPath(root),
   entryPoints: { main: 'src/js/main.js', styles: 'src/styles.css' },
   bundle: true,
-  format: 'iife',
+  format: 'esm',
+  splitting: true,
+  plugins: [catalogusPlugin()],
+  write: false,
   // esbuild zet nieuwere schrijfwijzen in de code en de CSS om voor deze browsers. Functies die er
   // niet zijn, zoals Object.hasOwn, zet het niet om. Die bewaakt tests/browsers.test.js.
   target: TARGETS,
@@ -86,6 +93,7 @@ const { metafile } = await build({
   sourcemap: dev ? 'inline' : false,
   outdir: `${out}/assets`,
   entryNames: '[name]-[hash]',
+  chunkNames: '[name]-[hash]',
   assetNames: '[name]-[hash]',
   loader: { '.woff2': 'file', '.svg': 'file' },
   metafile: true,
@@ -97,19 +105,40 @@ const { metafile } = await build({
 });
 // esbuild rekent bij de code ook de paden van de modules mee in de hash, en Windows schrijft die
 // met \. Dan heet dezelfde code lokaal anders dan online, en kan scripts/controleer-site.js een
-// preview niet met dist/ vergelijken. Daarom krijgt de code een hash van alleen de inhoud.
-for (const [path, output] of Object.entries(metafile.outputs)) {
-  if (!path.endsWith('.js')) continue;
-  const file = new URL(path, root);
-  const hash = createHash('sha256')
-    .update(await readFile(file))
-    .digest('hex')
-    .slice(0, 8);
-  const renamed = path.replace(/-\w+\.js$/, `-${hash.toUpperCase()}.js`);
-  await rename(file, new URL(renamed, root));
-  delete metafile.outputs[path];
-  metafile.outputs[renamed] = output;
+// preview niet met dist/ vergelijken. Daarom krijgt de code een hash van alleen de inhoud. Een
+// codebestand noemt de bestanden die het laadt bij naam, dus die krijgen eerst hun nieuwe naam.
+const files = new Map(
+  outputFiles.map((f) => [relative(fileURLToPath(root), f.path).replace(/\\/g, '/'), f.contents]),
+);
+const todo = new Set(Object.keys(metafile.outputs).filter((path) => path.endsWith('.js')));
+const renamed = new Map();
+while (todo.size) {
+  const ready = [...todo].filter((path) =>
+    metafile.outputs[path].imports.every((i) => !todo.has(i.path)),
+  );
+  if (!ready.length) throw new Error(`Codebestanden laden elkaar: ${[...todo].join(', ')}`);
+  for (const path of ready) {
+    const output = metafile.outputs[path];
+    let code = Buffer.from(files.get(path)).toString('utf8');
+    for (const i of output.imports) {
+      const to = renamed.get(i.path);
+      if (to) code = code.replaceAll(basename(i.path), basename(to));
+    }
+    const hash = createHash('sha256').update(code).digest('hex').slice(0, 8);
+    const to = path.replace(/-\w+\.js$/, `-${hash.toUpperCase()}.js`);
+    renamed.set(path, to);
+    files.delete(path);
+    files.set(to, code);
+    delete metafile.outputs[path];
+    metafile.outputs[to] = output;
+    todo.delete(path);
+  }
 }
+for (const output of Object.values(metafile.outputs)) {
+  output.imports = output.imports.map((i) => ({ ...i, path: renamed.get(i.path) ?? i.path }));
+}
+await mkdir(new URL('assets/', dist), { recursive: true });
+for (const [path, contents] of files) await writeFile(new URL(path, root), contents);
 const assets = Object.keys(metafile.outputs).map((path) => path.slice(out.length));
 const asset = (pattern) => {
   const found = assets.find((path) => pattern.test(path));
@@ -126,6 +155,32 @@ const preload = [
 ]
   .map((p) => `<link rel="preload" href="${asset(p)}" as="font" type="font/woff2" crossorigin />`)
   .join('\n    ');
+
+// De code die main meteen laadt, en per onderwerp het bestand met de generatoren en de uitleg. Op
+// de pagina van een onderwerp haalt de browser dat al op terwijl main nog laadt. Een browser die
+// modulepreload niet kent, haalt het pas op als main erom vraagt.
+const imported = (file, seen = new Set()) => {
+  for (const i of metafile.outputs[`${out}${file}`].imports) {
+    const f = i.path.slice(out.length);
+    if (i.kind === 'import-statement' && !seen.has(f)) imported(f, seen.add(f));
+  }
+  return seen;
+};
+const main = asset(/\/main-\w+\.js$/);
+const start = [main, ...imported(main)];
+const topicCode = new Map();
+for (const [path, { entryPoint }] of Object.entries(metafile.outputs)) {
+  if (!/^src\/js\/topics\/.+\.js$/.test(entryPoint ?? '') || entryPoint.endsWith('/index.js'))
+    continue;
+  const { default: topic } = await import(pathToFileURL(fileURLToPath(new URL(entryPoint, root))));
+  const file = path.slice(out.length);
+  topicCode.set(
+    topic.slug,
+    [file, ...imported(file)].filter((f) => !start.includes(f)),
+  );
+}
+const modulepreload = (list) =>
+  list.map((f) => `\n    <link rel="modulepreload" href="${f}" />`).join('');
 
 // Vervang een deel van src/index.html. Met een functie, want de tekst kan $-tekens bevatten.
 function replace(html, pattern, replacement) {
@@ -176,7 +231,7 @@ function pageHTML(page, body) {
   html = replace(
     html,
     /<script type="module" src="\/js\/main\.js"><\/script>/,
-    `<script defer src="${asset(/\/main-\w+\.js$/)}"></script>`,
+    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : [])])}`,
   );
   return replace(
     html,
@@ -272,7 +327,9 @@ await rm(old, { recursive: true, force: true, maxRetries: 5 }).catch((e) =>
   console.warn(`${target}-oud/ kon niet worden gewist: ${e.message}`),
 );
 
-const kB = (path) => Math.round(metafile.outputs[`${out}${path}`].bytes / 1024);
+const kB = (...list) =>
+  Math.round(list.reduce((n, f) => n + Buffer.byteLength(files.get(`${out}${f}`)), 0) / 1024);
+const most = Math.max(...[...topicCode.values()].map(([f]) => kB(f)));
 console.log(
-  `${target}/ gebouwd: ${PAGES.length} pagina's, code ${kB(asset(/\/main-\w+\.js$/))} kB, CSS ${kB(asset(/\/styles-\w+\.css$/))} kB${dev ? ', niet kleiner gemaakt' : ''}`,
+  `${target}/ gebouwd: ${PAGES.length} pagina's, code bij het eerste bezoek ${kB(...start)} kB, grootste onderwerp ${most} kB, CSS ${kB(asset(/\/styles-\w+\.css$/))} kB${dev ? ', niet kleiner gemaakt' : ''}`,
 );

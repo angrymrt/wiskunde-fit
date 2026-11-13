@@ -21,7 +21,7 @@
     "build": "node scripts/build.js",
     "images": "node scripts/images.js",
     "fonts": "node scripts/lettertypes.js",
-    "test": "node --test tests/generators.test.js tests/adressen.test.js tests/methode-indelingen.test.js tests/schermen.test.js tests/paginas.test.js tests/server.test.js tests/tel.test.js tests/opslag.test.js tests/browsers.test.js tests/vingerafdrukken.test.js tests/cijfers.test.js tests/release.test.js",
+    "test": "node --test tests/generators.test.js tests/adressen.test.js tests/methode-indelingen.test.js tests/schermen.test.js tests/paginas.test.js tests/server.test.js tests/tel.test.js tests/opslag.test.js tests/browsers.test.js tests/vingerafdrukken.test.js tests/cijfers.test.js tests/release.test.js tests/catalogus.test.js",
     "test:browser": "npm run build && node --test tests/browser.e2e.js",
     "format": "prettier --write ."
   },
