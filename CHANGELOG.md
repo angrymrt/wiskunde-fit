@@ -2,6 +2,20 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.16.0
+
+### Nieuw
+
+- Nieuw domein **Statistiek**, met de rest van hoofdstuk 4 van havo 3.
+- **Tabellen en diagrammen** (4.3): een ontbrekend getal in een tabel invullen, rekenen met een tabel, rekenen met een staaf-, stapel- of cirkeldiagram, en kiezen welk diagram bij gegevens past.
+- **Misleidende statistiek** (4.4): zien wat er misleidend is aan een diagram, het verschil tussen procentpunten en procentuele verandering, en nagaan of een bewering klopt.
+- **Interpoleren en extrapoleren** (4.5): de gemiddelde verandering per jaar, een waarde tussen twee waarnemingen schatten, verder schatten met de laatste twee waarnemingen, en zoeken bij welk jaar een waarde hoort.
+- Nog niet te oefenen: lange artikelen uitwerken, een samengesteld staafdiagram lezen, zelf uitleggen waarom een diagram misleidt, en het onderzoek met Excel en trendlijnen.
+
+### Verbeterd
+
+- Elk diagram heeft een beschrijving voor een schermlezer, met de waarden van de staven, sectoren of punten.
+
 ## 1.15.0
 
 ### Nieuw

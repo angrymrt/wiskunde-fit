@@ -102,9 +102,27 @@ export default {
       paragraphs: [
         ['4.1', 'Toename en afname in procenten', [106, 107, 108, 109, 110]],
         ['4.2', 'Verschillende berekeningen met procenten', [111, 112, 113, 114]],
-        ['4.3', 'Gegevens verwerken in tabellen en diagrammen'],
-        ['4.4', 'Cijfers en diagrammen die een verkeerd beeld geven'],
-        ['4.5', 'Waarden schatten tussen en buiten bekende gegevens'],
+        [
+          '4.3',
+          'Gegevens verwerken in tabellen en diagrammen',
+          [115, 116, 117, 118, 119],
+          'deels',
+          'Een lang artikel uitwerken en een samengesteld staafdiagram lezen kun je hier nog niet oefenen.',
+        ],
+        [
+          '4.4',
+          'Cijfers en diagrammen die een verkeerd beeld geven',
+          [120, 121, 122],
+          'deels',
+          'Je kiest hier uit antwoorden. Zelf uitleggen in je eigen woorden kun je hier nog niet oefenen.',
+        ],
+        [
+          '4.5',
+          'Waarden schatten tussen en buiten bekende gegevens',
+          [123, 124, 125, 126],
+          'deels',
+          'Het onderzoek met Excel en trendlijnen kun je hier nog niet oefenen.',
+        ],
       ],
     },
     {
