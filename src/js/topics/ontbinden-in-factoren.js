@@ -324,9 +324,12 @@ export default {
         T(
           'Bij x^2 + bx + c zoek je twee getallen met product c en som b. Zijn dat p en q, dan is x^2 + bx + c = (x + p)(x + q).',
         ),
+        T(
+          'Let op: c is het losse getal, zonder x. b is het getal vóór x. Het product is dus altijd het losse getal, ook als b verder van 0 ligt dan c.',
+        ),
       ],
       how: [
-        'Kijk naar de tekens. Is het product positief, dan hebben de getallen hetzelfde teken als de som. Is het product negatief, dan is één getal positief en één negatief.',
+        'Kijk naar de tekens. Is het product positief, dan hebben de getallen hetzelfde teken als de som. Is het product negatief, dan is één getal positief en één negatief, en het getal dat het verst van 0 ligt heeft het teken van de som.',
         'Schrijf de paren getallen op met het goede product, en reken van elk paar de som uit.',
         T('Kies het paar met de goede som en schrijf de ontbinding op.'),
       ],
@@ -347,6 +350,25 @@ export default {
           ),
           'Dus 3 en -7, want 3*-7 = -21 en 3 + -7 = -4.',
           'x^2 - 4x - 21 = (x + 3)(x - 7)',
+        ],
+      },
+      ex2: {
+        q: T('Ontbind in factoren: x^2 + 9x + 8'),
+        steps: [
+          'Zoek twee getallen met product 8 en som 9. Het product is 8 (het losse getal) en de som is 9 (het getal vóór x), ook al ligt 9 verder van 0 dan 8.',
+          'Het product is positief en de som is positief, dus beide getallen zijn positief.',
+          H(
+            dt(
+              [
+                ['product 8', 'som'],
+                ['2 en 4', '6'],
+                ['1 en 8', '9'],
+              ],
+              'Paren getallen met product 8',
+            ),
+          ),
+          'Dus 1 en 8, want 1*8 = 8 en 1 + 8 = 9.',
+          'x^2 + 9x + 8 = (x + 1)(x + 8)',
         ],
       },
       watch: T(
