@@ -4,6 +4,7 @@
 //   node scripts/tokens.js <sessie.jsonl> [nog een sessie.jsonl ...]           tabel per agent
 //   node scripts/tokens.js --per-issue <sessie.jsonl> [...]                    tabel per issue en rol
 //   node scripts/tokens.js --per-issue --bord <sessie.jsonl> [...]             en zet het op het bord
+//   node scripts/tokens.js --per-issue --bord --issue=100 <sessie.jsonl> [...] alleen dat issue op het bord
 //
 // De logboeken staan in ~/.claude/projects/<map van de repo>/<sessie-id>.jsonl, en die van de agents
 // in <sessie-id>/subagents/. Het script neemt die vanzelf mee.
@@ -31,11 +32,27 @@ const BORD = { nummer: '1', eigenaar: 'angrymrt', repo: 'angrymrt/wiskunde-fit' 
 const args = process.argv.slice(2);
 const perIssue = args.includes('--per-issue');
 const naarBord = args.includes('--bord');
+const issueArg = args.find((a) => a.startsWith('--issue='));
+const alleen = issueArg ? Number(issueArg.slice(8)) : null;
+// Een ongeldig nummer mag nooit betekenen dat alle issues naar het bord gaan.
+const slechtIssue = issueArg && (!/^\d+$/.test(issueArg.slice(8)) || alleen < 1);
 const sessies = args.filter((a) => !a.startsWith('--'));
-const onbekend = args.filter((a) => a.startsWith('--') && !['--per-issue', '--bord'].includes(a));
-if (!sessies.length || onbekend.length || (naarBord && !perIssue)) {
+const onbekend = args.filter(
+  (a) => a.startsWith('--') && !['--per-issue', '--bord'].includes(a) && !a.startsWith('--issue='),
+);
+if (
+  !sessies.length ||
+  onbekend.length ||
+  (naarBord && !perIssue) ||
+  slechtIssue ||
+  (issueArg && !naarBord)
+) {
   if (onbekend.length) console.error(`Onbekende optie: ${onbekend.join(', ')}`);
-  console.error('Gebruik: node scripts/tokens.js [--per-issue [--bord]] <sessie.jsonl> [...]');
+  if (slechtIssue) console.error(`Ongeldig issue: ${issueArg}. Schrijf --issue=100.`);
+  if (issueArg && !naarBord) console.error('--issue= werkt alleen samen met --per-issue --bord.');
+  console.error(
+    'Gebruik: node scripts/tokens.js [--per-issue [--bord [--issue=N]]] <sessie.jsonl> [...]',
+  );
   process.exit(1);
 }
 const ontbreekt = sessies.filter((s) => !existsSync(s));
@@ -212,6 +229,8 @@ if (naarBord) {
     ),
   ).items;
   for (const [issue, r] of per) {
+    // Met --issue= blijven de andere issues staan, want die hebben vaak sessies die nu niet meedoen.
+    if (alleen && issue !== alleen) continue;
     let item = items.find(
       (i) => i.content?.number === issue && i.content?.repository === BORD.repo,
     )?.id;
