@@ -53,6 +53,8 @@
   --forest-soft: #dff3e6;
   --plum: #7b3a96;
   --plum-soft: #f1e4f7;
+  --teal: #00727a;
+  --teal-soft: #d9f1f2;
   --pink: #cf1f68;
   --green: #4e8a12;
   --mark: #ffe75e;
@@ -86,6 +88,8 @@
     --forest-soft: #143524;
     --plum: #d6a3ef;
     --plum-soft: #34203f;
+    --teal: #5fd3d9;
+    --teal-soft: #103a3d;
     --pink: #ff7fb0;
     --green: #a6d96a;
     --mark: #5c4f10;
@@ -115,6 +119,8 @@
   --forest-soft: #143524;
   --plum: #d6a3ef;
   --plum-soft: #34203f;
+  --teal: #5fd3d9;
+  --teal-soft: #103a3d;
   --pink: #ff7fb0;
   --green: #a6d96a;
   --mark: #5c4f10;
@@ -742,6 +748,10 @@ sub {
 .color-plum {
   --accent: var(--plum);
   --accent-soft: var(--plum-soft);
+}
+.color-teal {
+  --accent: var(--teal);
+  --accent-soft: var(--teal-soft);
 }
 .par {
   display: grid;

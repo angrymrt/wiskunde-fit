@@ -106,4 +106,10 @@ export default {
   102: 's32unknown',
   103: 's31draw',
   104: 's35draw',
+  105: 's41percent',
+  106: 's41change',
+  107: 's41factor',
+  108: 's41new',
+  109: 's41chain',
+  110: 's41chainNew',
 };

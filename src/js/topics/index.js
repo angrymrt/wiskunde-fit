@@ -22,10 +22,21 @@ import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
 import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
+import procenten from './procentuele-verandering.js';
 import { newSeed, withSeed } from '../math.js';
 import { roundTraps } from '../answers.js';
 
 const DOMAINS = [
+  {
+    slug: 'getallen-en-rekenen',
+    name: 'Getallen en rekenen',
+    intro:
+      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Hier reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is.',
+    description:
+      'Rekenen met procenten: procentuele verandering, de vermenigvuldigingsfactor en procent op procent. Gratis wiskunde oefenen met uitleg.',
+    color: 'teal',
+    topics: [procenten],
+  },
   {
     slug: 'rekenen-met-letters',
     name: 'Rekenen met letters',
