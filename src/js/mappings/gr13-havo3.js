@@ -81,11 +81,11 @@ export default {
         [
           '3.1',
           'De parabool als grafiek van een kwadratische formule',
-          [66, 67, 68, 69, 70, 71, 83],
+          [66, 67, 68, 69, 70, 71, 83, 100, 101],
           'deels',
-          'Zelf een parabool tekenen en een onbekend getal in de formule berekenen kun je hier nog niet oefenen.',
+          'Zelf een parabool tekenen kun je hier nog niet oefenen.',
         ],
-        ['3.2', 'Opgaven met een kwadratische formule en de grafiek', [72, 73, 88, 96, 97]],
+        ['3.2', 'Opgaven met een kwadratische formule en de grafiek', [72, 73, 88, 96, 97, 102]],
         [
           '3.3',
           'Kwadratische vergelijkingen oplossen',

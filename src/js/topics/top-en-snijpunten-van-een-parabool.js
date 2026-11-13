@@ -18,6 +18,9 @@ import {
   pt,
   solveSteps,
   scaleText,
+  quadP,
+  unknownSteps,
+  unknownTraps,
 } from './shared.js';
 import { graph } from '../figures.js';
 import { T } from '../typeset.js';
@@ -152,6 +155,75 @@ function s31top() {
       near(horner(abc, h - 1), horner(abc, h + 1)) &&
       near(horner(abc, h), yt) &&
       horner(abc, h + 0.1) * Math.sign(a) > yt * Math.sign(a),
+  };
+}
+
+// Een onbekend getal p in de formule, met een gegeven x_top of y_top. Bij x_top staat p op de
+// plek van b: −p/(2a) = x_top. Bij y_top staat p op de plek van c: eerst x_top, dan f(x_top) = y_top.
+function s31topUnknown() {
+  const byX = coin();
+  let abc, h;
+  do {
+    const a = pick(A_INT);
+    h = nz(-4, 4);
+    abc = [a, -2 * a * h, nz(-9, 9)];
+  } while (Math.abs(value(abc, h)) > 40 || !fairSlips(abc, h));
+  const [a, b, c] = abc,
+    n = pick(NAMES),
+    yt = value(abc, h),
+    f = quadP(abc, byX ? 1 : 2),
+    xTraps = (i, w) => [
+      {
+        id: 'teken-xtop',
+        f: (v) => near(v[i], -w),
+        m: 'Let op de min in x_top = −b/(2a). Is b negatief, dan is −b positief.',
+      },
+      {
+        id: 'twee-vergeten',
+        f: (v) => near(v[i], byX ? w / 2 : 2 * w),
+        m: 'Deel door 2a en niet alleen door a: x_top = −b/(2a).',
+      },
+    ],
+    // De top ligt midden tussen twee punten met dezelfde functiewaarde.
+    v = () => near(horner(abc, h - 1), horner(abc, h + 1)) && near(horner(abc, h), yt);
+  if (byX) {
+    // −p/(2a) met a ingevuld. Is 2a negatief, dan valt de min weg: −p/−4 = p/4.
+    const den = 2 * a,
+      frac = den < 0 ? `{p/${-den}}` : `{-p/${den}}`;
+    return {
+      q: T(`Gegeven is de functie ${n}(x) = ${f} met x_top = ${h}. Bereken p en y_top.`),
+      fields: [F('p =', b), F('y_top =', yt)],
+      compact: true,
+      hint: T(
+        `Vul a = ${a} en b = p in bij x_top = {-b/2a}. Dat moet ${h} zijn. Los die vergelijking op en bereken daarna y_top.`,
+      ),
+      steps: [
+        `a = ${a} en b = p`,
+        `x_top = {-b/2a} = {-p/2*${a}} = ${frac}`,
+        `${frac} = ${h}`,
+        ...(den < 0 ? [`p = ${-den * h}`] : [`-p = ${den * h}`, `p = ${b}`]),
+        `y_top = ${fill(n, abc, h)}`,
+        `Dus p = ${b} en de top is ${pt(h, yt)}.`,
+      ],
+      traps: [...xTraps(0, b), ...valueTraps(abc, [[1, h]])],
+      v,
+    };
+  }
+  return {
+    q: T(`Gegeven is de functie ${n}(x) = ${f} met y_top = ${yt}. Bereken x_top en p.`),
+    fields: [F('x_top =', h), F('p =', c)],
+    compact: true,
+    hint: T(
+      `Bereken eerst x_top = {-b/2a}. Vul x_top in de formule in: de uitkomst moet y_top = ${yt} zijn. Los die vergelijking op.`,
+    ),
+    steps: [
+      `a = ${a} en b = ${b}`,
+      `${xtopText(a, b)} = ${h}`,
+      `y_top = ${yt}, dus ${n}(${h}) = ${yt}.`,
+      ...unknownSteps(abc, 2, h, yt),
+    ],
+    traps: [...xTraps(0, h), ...unknownTraps(abc, 2, h, yt, 1)],
+    v,
   };
 }
 
@@ -947,6 +1019,7 @@ export default {
   },
   skills: [
     [83, 'Top van ax² + bx + c', s31top],
+    [101, 'Onbekend getal met de top', s31topUnknown],
     [84, 'Top van a(x − p)² + q', s35top],
     [85, 'Snijpunten en top van a(x − d)(x − e)', s34top],
     [86, 'Snijpunten met de assen', s33axes],
@@ -984,6 +1057,24 @@ export default {
       watch: T(
         'Komt er een kommagetal in de top, zet dan een puntkomma tussen de coördinaten, zoals (1,5; 6,75). Anders zie je niet waar het ene getal ophoudt.',
       ),
+    },
+    {
+      t: 'Een onbekend getal en de top',
+      p: [
+        T(
+          'Staat er een letter p in de formule, dan kun je p berekenen als je x_top of y_top weet. Weet je x_top, vul dan b = p in bij x_top = {-b/2a}. Weet je y_top, bereken dan eerst x_top en vul die in de formule in. De uitkomst is y_top.',
+        ),
+      ],
+      ex: {
+        q: T('Gegeven is f(x) = 2x^2 + px + 1 met x_top = 2. Bereken p.'),
+        steps: [
+          'a = 2 en b = p',
+          'x_top = {-b/2a} = {-p/2*2} = {-p/4}',
+          '{-p/4} = 2',
+          '-p = 8',
+          'p = -8',
+        ],
+      },
     },
     {
       t: 'De top van f(x) = a(x - p)^2 + q',

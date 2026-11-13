@@ -176,6 +176,106 @@ function valueTraps(abc, entries) {
     .filter(Boolean);
 }
 
+// Een onbekend getal p in ax² + bx + c, op plek k: 0 is a, 1 is b en 2 is c. De andere getallen
+// staan in abc, en het getal op plek k doet niet mee. quadP([2, 0, 10], 1) geeft 2x^2 + px + 10.
+const POW = ['x^2', 'x', ''];
+function quadP(abc, k) {
+  let s = '';
+  for (const i of [0, 1, 2]) {
+    const t = i === k ? `p${POW[i]}` : quad(abc.map((c, j) => (j === i ? c : 0)));
+    if (t) s += !s ? t : t[0] === '-' ? ` - ${t.slice(1)}` : ` + ${t}`;
+  }
+  return s;
+}
+// Wat x invullen geeft bij een onbekend getal op plek k, als [m, K] voor m · p + K. sq is wat
+// de leerling voor x² neemt en sx wat voor x in de term met x, zodat een valkuil hetzelfde
+// rekent met een fout erin.
+function linP(abc, k, x, sq = x * x, sx = x) {
+  const w = [sq, sx, 1];
+  let m = 0,
+    K = 0;
+  w.forEach((t, i) => (i === k ? (m = t) : (K += abc[i] * t)));
+  return [rd(m, 6), rd(K, 6)];
+}
+const solveP = ([m, K], y) => (m ? rd((y - K) / m, 6) : NaN);
+// De uitwerking als het punt (x, y) op de grafiek ligt, zoals in het boek: eerst invullen, dan
+// de vergelijking oplossen, elke stap op een eigen regel.
+// 2*(-3)^2 + p*-3 + 1 = 10, dan 18 - 3p + 1 = 10, dan -3p + 19 = 10, dan -3p = -9, dan p = 3.
+function unknownSteps(abc, k, x, y) {
+  const [m, K] = linP(abc, k, x),
+    sq = x < 0 ? `(${d(x)})^2` : `${d(x)}^2`,
+    w = [x * x, x, 1];
+  let s = '',
+    e = '';
+  const add = (str, t, neg) => (str ? `${str} ${neg ? '-' : '+'} ${t}` : (neg ? '-' : '') + t);
+  for (const i of [0, 1, 2]) {
+    if (i === k) {
+      s = add(s, ['p*' + sq, `p*${d(x)}`, 'p'][i], false);
+      e = add(e, dlin(Math.abs(w[i]), 0, 'p'), w[i] < 0);
+    } else if (abc[i]) {
+      const A = Math.abs(abc[i]),
+        t = rd(abc[i] * w[i], 6);
+      s = add(s, [A === 1 ? sq : `${d(A)}*${sq}`, `${d(A)}*${d(x)}`, d(A)][i], abc[i] < 0);
+      e = add(e, d(Math.abs(t)), t < 0);
+    }
+  }
+  const out = [`${s} = ${d(y)}`];
+  if (e !== s) out.push(`${e} = ${d(y)}`);
+  // Staan er twee getallen zonder p, dan tel je die eerst op.
+  if (abc.filter((c, i) => i !== k && c).length > 1) out.push(`${dlin(m, K, 'p')} = ${d(y)}`);
+  if (K) out.push(`${dlin(m, 0, 'p')} = ${d(rd(y - K, 6))}`);
+  if (m !== 1) out.push(`p = ${d(solveP([m, K], y))}`);
+  return out;
+}
+// Een melding na een valkuil is gewone tekst, dus met een echt minteken.
+const mn = (x) => d(x).replace('-', '−');
+// De valkuilen bij een onbekend getal: wat p wordt met een bekende fout. i is het veld voor p.
+// Met point, zoals 'A', komt er ook een valkuil bij voor x en y verwisselen.
+function unknownTraps(abc, k, x, y, i, point) {
+  const p = solveP(linP(abc, k, x), y),
+    K = linP(abc, k, x)[1],
+    sign = (t) => (t < 0 ? `− ${mn(-t)}` : `+ ${mn(t)}`),
+    all = [
+      x < 0 && [
+        'kwadraat-teken',
+        solveP(linP(abc, k, x, -x * x), y),
+        `Zet een negatief getal tussen haakjes als je het kwadrateert: (${mn(x)})² = ${mn(x * x)}, en niet ${mn(-x * x)}.`,
+      ],
+      x !== 2 && [
+        'kwadraat-keer-twee',
+        solveP(linP(abc, k, x, 2 * x), y),
+        `Een kwadraat is een getal keer zichzelf: ${mn(x)}² = ${mn(x)} · ${mn(x)} = ${mn(x * x)}, en niet 2 · ${mn(x)}.`,
+      ],
+      // Bij een negatieve x, of een negatieve b: min maal min is plus.
+      (x < 0 ? k === 1 || abc[1] : k !== 1 && abc[1] < 0) && [
+        'teken-bx',
+        solveP(linP(abc, k, x, x * x, -x), y),
+        'Let op het teken van de term met x. Min maal min is plus, en min maal plus is min.',
+      ],
+      K && [
+        'teken-overbrengen',
+        solveP(linP(abc, k, x), rd(y + 2 * K, 6)),
+        `Breng je een getal naar de andere kant van het isgelijkteken, dan verandert het teken. Van ${sign(K)} maak je ${sign(-K)}.`,
+      ],
+      point &&
+        !near(x, y) && [
+          'x-en-y-verwisseld',
+          solveP(linP(abc, k, y), x),
+          `In ${point}(${mn(x)}, ${mn(y)}) staat eerst de x-coördinaat. Vul dus x = ${mn(x)} in, en de uitkomst is ${mn(y)}.`,
+        ],
+    ],
+    seen = [p],
+    out = [];
+  // Elke fout geeft een ander getal dan het goede antwoord en dan de andere fouten.
+  for (const t of all) {
+    if (!t || !isNice(t[1], 2) || Math.abs(t[1]) > 999 || seen.some((s) => near(s, t[1]))) continue;
+    const [id, wrong, m] = t;
+    seen.push(wrong);
+    out.push({ id, f: (v) => near(v[i], wrong, 1e-6), m });
+  }
+  return out;
+}
+
 // Het getal voor de haakjes of voor x²: niets bij 1, alleen een min bij −1. a mag een breuk uit Q
 // zijn, zoals {1/2}.
 // Een negatieve breuk krijgt de min ervoor, zoals in quad: -{1/2}(x - 4)^2.
@@ -331,6 +431,10 @@ export {
   slips,
   fairSlips,
   valueTraps,
+  quadP,
+  linP,
+  unknownSteps,
+  unknownTraps,
   coef,
   vertexForm,
   factorForm,
