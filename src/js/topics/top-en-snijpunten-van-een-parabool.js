@@ -558,7 +558,6 @@ function s35draw() {
     y = (x) => A * (x - p) ** 2 + q,
     left = [p - s, y(p - s)],
     right = [p + s, y(p + s)],
-    draw = drawParabola(abc, [p, q], left, right),
     // De invulling zoals in het boek: f(4) = 2(4 − 3)² + 1 = 3. Een negatief getal staat tussen haakjes.
     fillIn = (x) => {
       const inner = p ? `${x}${sg(-p)}` : x < 0 ? `(${x})` : String(x);
@@ -579,6 +578,7 @@ function s35draw() {
       f: (v) => near(v[0], q) && near(v[1], p),
       m: 'De top is (p, q): eerst het getal in de haakjes, dan het getal erachter.',
     });
+  const draw = drawParabola(abc, [p, q], left, right, traps);
   return {
     q: T(
       `Teken de grafiek van ${n}(x) = ${vertexForm(a, p, q)}. Zet de top en nog twee punten van de grafiek in het rooster.`,
@@ -594,7 +594,6 @@ function s35draw() {
       `Zet de top (${p}, ${q}) en de punten (${left[0]}, ${left[1]}) en (${right[0]}, ${right[1]}) in het rooster en teken de ${A > 0 ? 'dal' : 'berg'}parabool erdoor.`,
       H(parabolaFig(abc, [p, q], [left, right])),
     ],
-    traps: [...traps, ...draw.traps],
     // De top ook met x_top = −b/(2a), uit de parabool die de formule zelf geeft.
     v: () => {
       const k = fromValues(y),

@@ -508,7 +508,15 @@ function s31draw() {
     ys = xs.map((x) => value(abc, x)),
     p = [h - 1, ys[2]],
     q = [h + 1, ys[4]],
-    draw = drawParabola(abc, [h, k], p, q);
+    draw = drawParabola(abc, [h, k], p, q, [
+      {
+        id: 'teken-xtop',
+        f: (v) => near(v[0], -h),
+        m: `Je top ligt aan de verkeerde kant van de y-as. ${n}(0) = ${n}(${M(2 * h)}), dus x_top ligt midden tussen 0 en ${M(2 * h)}.`,
+      },
+      // Een rekenfout in y_top, alleen als x_top klopt: dan heb je f(x_top) uitgerekend.
+      ...valueTraps(abc, [[1, h]]).map((t) => ({ ...t, f: (v) => near(v[0], h) && t.f(v) })),
+    ]);
   return {
     q: T(
       `Teken de grafiek van ${n}(x) = ${quad(abc)}. Zet de top en nog twee punten van de grafiek in het rooster.`,
@@ -539,15 +547,6 @@ function s31draw() {
           xs.map((x, i) => [x, ys[i]]),
         ),
       ),
-    ],
-    traps: [
-      {
-        id: 'teken-xtop',
-        f: (v) => near(v[0], -h),
-        m: `Je top ligt aan de verkeerde kant van de y-as. ${n}(0) = ${n}(${M(2 * h)}), dus x_top ligt midden tussen 0 en ${M(2 * h)}.`,
-      },
-      ...valueTraps(abc, [[1, h]]),
-      ...draw.traps,
     ],
     // De top met de regel x_top = −b/(2a), die later komt, en de voorbeeldpunten in a(x − p)² + q.
     v: () =>
