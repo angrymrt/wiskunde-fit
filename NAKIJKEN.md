@@ -43,6 +43,9 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 | ---------------------------------- | -------------- | ----- |
 | Procentuele verandering            |                |       |
 | Rekenen met procenten              |                |       |
+| Tabellen en diagrammen             |                |       |
+| Misleidende statistiek             |                |       |
+| Interpoleren en extrapoleren       |                |       |
 | Ontbinden in factoren              |                |       |
 | Haakjes wegwerken                  |                |       |
 | Rekenen met een formule            |                |       |
