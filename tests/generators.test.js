@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
 import { flipTrap, orFields, MC } from '../src/js/topics/shared.js';
-import { drawnHTML, graph } from '../src/js/figures.js';
-import { parseSeed, rd, seedText } from '../src/js/math.js';
+import { chart, drawnHTML, graph } from '../src/js/figures.js';
+import { near, parseSeed, rd, seedText } from '../src/js/math.js';
 import {
   checkAnswer,
   checkField,
@@ -54,6 +54,8 @@ function assertDescribed(fig, q) {
     ...[...fig.matchAll(/<text class="ti" text-anchor="middle"[^>]*>([^<]+)<\/text>/g)].map(
       (m) => m[1],
     ),
+    // De titel, de assen, de categorieën, de legenda en de getallen in een diagram.
+    ...[...fig.matchAll(/<text class="t[ct]"[^>]*>([^<]+)<\/text>/g)].map((m) => m[1]),
   ];
   for (const w of written)
     assert.ok(
@@ -800,6 +802,89 @@ test('een parabool staat in de grafiek en in de beschrijving', () => {
     sketch([-1, -4, -4]),
     'Schets. De grafiek is een bergparabool. De top ligt links van de y-as en op de x-as. Hij raakt de x-as in de top. Hij snijdt de y-as onder O.',
   );
+});
+
+test('een diagram tekent de getallen en noemt ze in de beschrijving', () => {
+  const desc = (fig) => fig.match(/aria-label="([^"]*)"/)[1];
+  const heights = (fig) =>
+    [...fig.matchAll(/<rect class="st c\d"[^>]*height="([\d.]+)"/g)].map((m) => +m[1]);
+  const staaf = {
+    kind: 'staaf',
+    title: 'Neerslag per maand',
+    cats: ['jan', 'feb', 'mrt'],
+    series: [{ name: 'neerslag', values: [60, 30, 45] }],
+    yn: 'neerslag',
+    unit: 'mm',
+    xn: 'maand',
+    vals: true,
+  };
+  const figs = [
+    chart(staaf),
+    chart({ ...staaf, yr: [20, 70], ys: 10, brk: true }),
+    chart({
+      kind: 'stapel',
+      cats: ['klas 1', 'klas 2'],
+      series: [
+        { name: 'fiets', values: [18, 15] },
+        { name: 'bus', values: [6, 9] },
+      ],
+      vals: true,
+    }),
+    chart({
+      kind: 'cirkel',
+      title: 'Sport',
+      cats: ['voetbal', 'hockey', 'tennis'],
+      series: [{ values: [30, 15, 5] }],
+      pct: true,
+    }),
+    chart({
+      kind: 'lijn',
+      cats: ['2000', '2010', '2015'],
+      at: [2000, 2010, 2015],
+      series: [
+        { name: 'mannen', values: [4, 5, 5.5] },
+        { name: 'vrouwen', values: [4.5, 5, 6], c: 3 },
+      ],
+      vals: true,
+    }),
+  ];
+  for (const fig of figs) {
+    assertDescribed(fig, 'diagram');
+    assert.doesNotMatch(fig, / id="/);
+  }
+  assert.equal(chart(staaf), figs[0], 'twee keer dezelfde tekst');
+  // Een staaf is even hoog als zijn getal, en de as loopt standaard van 0 tot een mooi getal.
+  const h = heights(figs[0]);
+  assert.ok(near(h[0] / h[1], 2, 0.02) && near(h[2] / h[1], 1.5, 0.02), String(h));
+  assert.equal(
+    desc(figs[0]),
+    'Staafdiagram: Neerslag per maand. Langs de horizontale as: maand. Langs de verticale as: neerslag (mm). De verticale as loopt van 0 tot 60, in stappen van 10. De staven: jan 60 mm, feb 30 mm en mrt 45 mm.',
+  );
+  // Een onderbroken as begint bij 0 en springt dan naar 20.
+  assert.match(figs[1], /l5 3l-10 6l10 6l-5 2/);
+  assert.match(desc(figs[1]), /begint bij 0, is onderbroken en loopt verder van 20 tot 70/);
+  const hb = heights(figs[1]);
+  assert.ok(hb[0] > hb[2] && hb[2] > hb[1], String(hb));
+  assert.doesNotMatch(chart({ ...staaf, yr: [20, 70] }), /l5 3l-10 6/);
+  // Gestapeld: per klas de reeksen van onder naar boven, en een legenda met de namen.
+  assert.match(
+    desc(figs[2]),
+    /van onder naar boven uit fiets en bus\. Klas 1: fiets 18 en bus 6\. Klas 2: fiets 15 en bus 9\./,
+  );
+  assert.equal(heights(figs[2]).length, 2 * 2 + 2);
+  // Een cirkeldiagram met procenten, met de klok mee vanaf boven.
+  assert.match(desc(figs[3]), /vanaf boven: voetbal 60%, hockey 30% en tennis 10%\.$/);
+  assert.equal(figs[3].match(/<path class="sec c\d"/g).length, 3);
+  assert.match(
+    chart({ kind: 'cirkel', cats: ['alles'], series: [{ values: [7] }] }),
+    /<circle class="sec c1"/,
+  );
+  // Een lijn per reeks met een eigen vorm van de punten, op afstand naar de jaartallen.
+  assert.match(desc(figs[4]), /De lijn van mannen, met rondjes: 2000 4, 2010 5 en 2015 5,5\./);
+  assert.match(desc(figs[4]), /De lijn van vrouwen, met vierkantjes/);
+  const xs = [...figs[4].matchAll(/<circle class="mk c1" cx="([\d.]+)"/g)].map((m) => +m[1]);
+  assert.ok(near((xs[1] - xs[0]) / (xs[2] - xs[1]), 2, 0.02), String(xs));
+  assert.match(figs[4], /<rect class="mk c3"/);
 });
 
 test('een schets kan een keuze zijn bij meerkeuze', () => {
