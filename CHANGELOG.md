@@ -2,6 +2,17 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.13.0
+
+### Nieuw
+
+- Je berekent nu de hoogte van een tunnel of boog op een afstand van het midden, en je onderzoekt of iets erdoor past, zoals een vrachtwagen door een tunnel.
+- Je berekent een onbekend getal in een kwadratische formule, met een punt op de parabool, met de top of in een verhaal.
+
+### Verbeterd
+
+- De uitleg van de product-som-methode zegt duidelijker welk getal het product is en welk getal de som. Er is een tweede voorbeeld bij, waarin het getal voor x verder van 0 ligt dan het losse getal.
+
 ## 1.12.1
 
 ### Verbeterd
