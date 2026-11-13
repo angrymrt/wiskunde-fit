@@ -43,7 +43,7 @@ const answerOf = `(q) => {
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {

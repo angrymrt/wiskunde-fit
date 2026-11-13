@@ -140,7 +140,7 @@ function assertSound(q) {
     assert.ok(size >= 2 && size <= 4, `groep met ${size} velden: ${q.q}`);
   }
   const right = q.fields.map((f) =>
-    f.sel ? f.a : f.round ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
+    f.sel ? f.a : f.round != null ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
   );
   // Bij een groep velden in elke volgorde.
   for (const r of rightOrders(q.fields, right)) {
@@ -626,6 +626,44 @@ test('rd rondt een halve stap weg van nul af, ook als de computer er net onder z
   ];
   for (const [x, n, want] of cases) assert.equal(rd(x, n), want, `${x} op ${n}`);
   assert.ok(Object.is(rd(-0.04, 1), 0), 'geen −0');
+});
+
+test('afronden op gehelen, duizendtallen en miljoenen', async () => {
+  const { RF, needRound } = await import('../src/js/topics/shared.js');
+  assert.equal(rd(37333, -3), 37000);
+  assert.equal(rd(37500, -3), 38000);
+  assert.equal(rd(-2499, -3), -2000);
+  assert.equal(rd(5497804, -6), 5000000);
+  assert.equal(rd(12.5, 0), 13);
+  // Getallen met een spatie tussen de duizendtallen, zoals in het boek.
+  assert.equal(parseNum('16 100'), 16100);
+  assert.equal(parseNum('1 250 000'), 1250000);
+  assert.equal(parseNum('−37 000'), -37000);
+  assert.equal(parseNum('12 345,6'), 12345.6);
+  assert.equal(parseNum('1 1/2'), 1.5, 'een gemengd getal blijft een gemengd getal');
+  assert.ok(Number.isNaN(parseNum('16 10')));
+
+  const k = RF('', 37333, -3);
+  assert.equal(needRound([k]), ' Rond af op duizendtallen.');
+  assert.equal(needRound([RF('', 12.5, 0)]), ' Rond af op gehelen.');
+  assert.equal(needRound([RF('', 3.75, 1)]), ' Rond af op 1 decimaal.');
+  // Een getal dat al precies uitkomt, hoeft niet te worden afgerond.
+  assert.equal(RF('', 37000, -3).round, undefined);
+  assert.ok(checkField(k, '37000'));
+  assert.ok(checkField(k, '37 000'));
+  assert.ok(!checkField(k, '37333'), 'niet afgerond');
+  assert.ok(!checkField(k, '38000'), 'verkeerd afgerond');
+  const q = { fields: [k], traps: roundTraps([k]) };
+  assert.equal(findTrap(q, ['37333'])?.id, 'te-veel-decimalen');
+  assert.equal(findTrap(q, ['37300'])?.id, 'te-veel-decimalen');
+  assert.equal(findTrap(q, ['38000'])?.id, 'verkeerd-afgerond');
+  assert.equal(findTrap(q, ['37000']), null);
+  assert.match(roundTraps([k])[0].m, /duizendtallen/);
+  const g = RF('', 12.5, 0),
+    gq = { fields: [g], traps: roundTraps([g]) };
+  assert.ok(checkField(g, '13') && !checkField(g, '12,5') && !checkField(g, '12'));
+  assert.equal(findTrap(gq, ['12,5'])?.id, 'te-veel-decimalen');
+  assert.equal(findTrap(gq, ['12'])?.id, 'verkeerd-afgerond');
 });
 
 test('checkField keurt alleen het goed afgeronde getal goed', () => {

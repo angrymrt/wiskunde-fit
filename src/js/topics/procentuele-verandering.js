@@ -21,7 +21,7 @@ const signed = (c) => (c.up ? c.p : -c.p);
 const joinAnd = (xs) =>
   xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} en ${xs[xs.length - 1]}`;
 // De zin bij een rondingsvraag over geld.
-const centen = (fs) => (fs.some((f) => f.round) ? ' Rond af op centen.' : '');
+const centen = (fs) => (fs.some((f) => f.round != null) ? ' Rond af op centen.' : '');
 
 // Een valkuil voor veld i: de leerling vult een getal uit ws in dat je met een bekende fout krijgt,
 // ook als hij dat zelf afrondt (tol). allow is hoeveel het goede antwoord na afronden mag schelen.
