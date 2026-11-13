@@ -62,6 +62,8 @@ function tel({ sessie, hoofd, pad }) {
   t.issue = null;
   // Per stap het tijdstip en het gewicht, om de orkestratie in de tijd te kunnen verdelen.
   t.beurten = [];
+  // Het tijdvak van een agent loopt van zijn eerste tot zijn laatste regel, dus ook vanaf de opdracht.
+  const tijden = [];
   for (const regel of readFileSync(pad, 'utf8').split('\n')) {
     if (!regel) continue;
     let j;
@@ -70,6 +72,8 @@ function tel({ sessie, hoofd, pad }) {
     } catch {
       continue;
     }
+    const tijd = Date.parse(j.timestamp);
+    if (!Number.isNaN(tijd)) tijden.push(tijd);
     if (!t.naam && j.type === 'user') {
       const c = j.message?.content;
       const tekst = typeof c === 'string' ? c : (c?.find?.((x) => x.type === 'text')?.text ?? '');
@@ -102,7 +106,6 @@ function tel({ sessie, hoofd, pad }) {
     t.beurten.push({ tijd: Date.parse(j.timestamp), gewogen: gewicht(stap, t.model) });
   }
   t.gewogen = t.beurten.reduce((s, b) => s + b.gewogen, 0);
-  const tijden = t.beurten.map((b) => b.tijd).filter((x) => !Number.isNaN(x));
   t.van = Math.min(...tijden);
   t.tot = Math.max(...tijden);
   return t;
