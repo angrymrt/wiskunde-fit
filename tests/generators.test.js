@@ -352,6 +352,9 @@ test('bij een parabool tekenen is de top precies, en elk ander punt op de parabo
         const answer = (...vals) => checkAnswer(q, vals.map(String));
         assert.ok(answer(h, k, ...far, ...far2).ok, `andere punten afgekeurd: ${q.q}`);
         assert.ok(answer(h, k, x3, y3, x2, y2).ok, `omgekeerde volgorde afgekeurd: ${q.q}`);
+        // Ook een ander goed antwoord valt in geen enkele valkuil.
+        assertNoTrap(q, [h, k, ...far, ...far2].map(String));
+        assertNoTrap(q, [h, k, x3, y3, x2, y2].map(String));
         assert.ok(!answer(h, k, x2, y2, x2, y2).ok, `twee keer hetzelfde punt goedgekeurd: ${q.q}`);
         assert.ok(!answer(h, k, h, k, x2, y2).ok, `de top als ander punt goedgekeurd: ${q.q}`);
         assert.ok(!answer(...far, h, k, x2, y2).ok, `top op een andere plek goedgekeurd: ${q.q}`);
