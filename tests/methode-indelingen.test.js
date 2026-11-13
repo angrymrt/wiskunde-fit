@@ -92,10 +92,10 @@ test('een deels gedekte paragraaf zegt wat ontbreekt', () => {
 test('havo 3 dekt vijftien paragrafen, zonder de voorkennis', () => {
   const m = MAPPING['gr13-havo3'];
   const count = (c) => paragraphsOf(m).filter((p) => p.coverage === c).length;
-  assert.equal(count('gedekt'), 10);
-  assert.equal(count('deels'), 5);
+  assert.equal(count('gedekt'), 12);
+  assert.equal(count('deels'), 3);
   assert.equal(count('niet'), 31);
-  assert.equal(skillIdsOf(m).length, 90);
+  assert.equal(skillIdsOf(m).length, 94);
   for (const id of [1, 2, 38, 39, 40]) assert.ok(!skillIdsOf(m).includes(id), `voorkennis ${id}`);
 });
 
@@ -132,7 +132,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
   );
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 95);
+  assert.equal(prog.stof.length, 99);
   setStof([]);
 });
 

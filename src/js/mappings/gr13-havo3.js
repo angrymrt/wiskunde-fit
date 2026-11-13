@@ -85,13 +85,7 @@ export default {
           'deels',
           'Zelf een parabool tekenen en een onbekend getal in de formule berekenen kun je hier nog niet oefenen.',
         ],
-        [
-          '3.2',
-          'Opgaven met een kwadratische formule en de grafiek',
-          [72, 73, 88],
-          'deels',
-          'De hoogte van een tunnel op een afstand van het midden kun je hier nog niet oefenen.',
-        ],
+        ['3.2', 'Opgaven met een kwadratische formule en de grafiek', [72, 73, 88, 96, 97]],
         [
           '3.3',
           'Kwadratische vergelijkingen oplossen',
@@ -99,13 +93,7 @@ export default {
           'deels',
           'Een vergelijking opstellen met de stelling van Pythagoras kun je hier nog niet oefenen.',
         ],
-        [
-          '3.4',
-          'Kwadratische formule met twee factoren tussen haakjes',
-          [85, 89, 93, 94],
-          'deels',
-          'De hoogte van een tunnel of boog op een afstand van het midden kun je hier nog niet oefenen.',
-        ],
+        ['3.4', 'Kwadratische formule met twee factoren tussen haakjes', [85, 89, 93, 94, 98, 99]],
         [
           '3.5',
           'Kwadratische formule waaruit je de top afleest',

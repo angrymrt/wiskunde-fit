@@ -25,6 +25,7 @@ import { T } from '../typeset.js';
 const NAMES = ['f', 'g', 'h'];
 // Een melding na een valkuil is gewone tekst, dus met een echt minteken.
 const minus = (s) => String(s).replace(/-/g, '−');
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
 // De functiewaarde op een andere manier dan in de uitwerking, voor de controle v.
 const horner = ([a, b, c], x) => (a * x + b) * x + c;
 // Waar de grafiek de x-as snijdt, met de abc-formule. Voor de controle v.
@@ -646,11 +647,294 @@ function s34tunnel() {
   };
 }
 
+// Een boog voor de vragen over de hoogte op een afstand van het midden. Met kind 'de' staat de
+// formule als a(x − d)(x − e), anders als ax² + bx + c. r en e zijn de x van de linker- en de
+// rechterkant, xt is het midden en top de hoogte. half is de halve breedte die minstens nodig is.
+function makeArch(kind, half) {
+  let a, r, e, xt, top, abc;
+  do {
+    if (kind === 'de') {
+      a = pick([-0.1, -0.15, -0.2, -0.25, -0.3, -0.4, -0.5]);
+      r = pick([0.5, 0.8, 1, 1.2, 1.5, 2, 2.5, 3]);
+      const w = pick([4, 4.4, 5, 5.6, 6, 6.4, 7, 7.2, 8, 9, 10]);
+      e = rd(r + w, 6);
+      xt = rd((r + e) / 2, 6);
+      top = rd(-a * (w / 2) ** 2, 6);
+      abc = [a, rd(-a * (r + e), 6), rd(a * r * e, 6)];
+    } else {
+      // Eerst de top, dan de formule: zo komen b en c mooi uit. De kanten hoeven dat niet.
+      a = pick([-0.2, -0.25, -0.3, -0.4, -0.5, -0.6]);
+      xt = pick([3, 3.5, 4, 4.5, 5, 5.5, 6]);
+      top = ri(25, 60) / 10;
+      abc = [a, rd(-2 * a * xt, 6), rd(a * xt * xt + top, 6)];
+      const h = Math.sqrt(top / -a);
+      r = xt - h;
+      e = xt + h;
+    }
+  } while (
+    top < 2 ||
+    top > 6 ||
+    r < 0.3 ||
+    (e - r) / 2 < half ||
+    (kind !== 'de' && (!isNice(abc[1], 2) || !isNice(abc[2], 2)))
+  );
+  return { a, r, e, xt, top, abc };
+}
+// Een schets van de boog op de x-as, zonder getallen. Met getallen zou de beschrijving voor een
+// schermlezer de top verklappen.
+function archFig(abc, e, top, n, label) {
+  const x1 = e + 1,
+    y1 = top + 1,
+    u = Math.min(260 / (x1 + 0.5), 170 / y1);
+  return graph({
+    xr: [-0.5, x1],
+    yr: [0, y1],
+    u,
+    sketch: true,
+    curves: [{ abc, name: n }],
+    label,
+  });
+}
+// Een afgerond getal mag ook: een fout getal geldt als het daar hoogstens 0,05 van af ligt.
+const hit = (v, w) => Math.abs(v - w) < 0.051;
+// Valkuilen voor één veld met een hoogte. Een fout getal telt alleen mee als het duidelijk verschilt
+// van het goede getal en van de fouten ervoor, zodat de melding over de goede fout gaat.
+function heightTraps(y, list) {
+  const used = [y];
+  return list.filter(([, w]) => {
+    if (!Number.isFinite(w) || used.some((t) => Math.abs(t - w) < 0.15)) return false;
+    used.push(w);
+    return true;
+  });
+}
+
+// kind is 'abc' voor f(x) = ax² + bx + c, zoals in paragraaf 3.2, of 'de' voor
+// f(x) = a(x − d)(x − e), zoals in paragraaf 3.4.
+function wall(kind) {
+  const s = pick(ARCHES),
+    n = pick(NAMES),
+    // Vanaf de kant kan alleen als je de kanten zo uit de formule afleest.
+    from = kind === 'de' && coin() ? 'kant' : 'midden',
+    side = pick(['links', 'rechts']),
+    { a, r, e, xt, top, abc } = makeArch(kind, 1.8),
+    half = (e - r) / 2,
+    u = pick([0.5, 1, 1.5, 2, 2.5, 3, 3.5].filter((t) => t <= half - 0.6)),
+    right = side === 'rechts',
+    edge = right ? e : r,
+    x = rd(from === 'midden' ? xt + (right ? u : -u) : edge + (right ? -u : u), 6),
+    at = (t) => rd(value(abc, t), 6),
+    y = at(x),
+    fields = [RF('hoogte:', y, 1, 'meter')],
+    formula = kind === 'de' ? factorForm(a, r, e) : quad(abc),
+    plus = (p, q) => `${d(p)} ${q < 0 ? '-' : '+'} ${d(Math.abs(q))}`,
+    where =
+      from === 'midden'
+        ? `${d(u)} meter ${side} van het midden`
+        : `${d(u)} meter van de ${right ? 'rechter' : 'linker'}kant`,
+    list =
+      from === 'midden'
+        ? [
+            [
+              'hoogte-top',
+              top,
+              'Dat is de hoogte in het midden, y_top. Ga vanaf x_top de afstand naar links of rechts, en vul die x in de formule in.',
+            ],
+            [
+              'afstand-als-x',
+              at(u),
+              'Je hebt de afstand zelf als x ingevuld. Maar het midden ligt bij x_top en niet bij x = 0. Tel de afstand op bij x_top, of trek hem ervan af.',
+            ],
+            ...(kind === 'de'
+              ? [
+                  [
+                    'afstand-vanaf-kant',
+                    at(r + u),
+                    'Je bent vanaf de kant gaan meten. De afstand is vanaf het midden, dus begin bij x_top.',
+                  ],
+                ]
+              : []),
+          ]
+        : [
+            [
+              'afstand-vanaf-midden',
+              at(xt + u),
+              'De afstand is vanaf de kant en niet vanaf het midden. De kant staat waar de grafiek de x-as snijdt.',
+            ],
+            [
+              'afstand-als-x',
+              at(u),
+              'Je hebt de afstand zelf als x ingevuld. Maar de kant staat niet bij x = 0. Begin bij het snijpunt met de x-as.',
+            ],
+          ];
+  return {
+    q:
+      T(
+        `${s.t} Voor de bovenkant geldt ${n}(x) = ${formula}. De grond ligt op de x-as, en x en ${n}(x) zijn in meter. Hoe hoog is ${s.wat} ${where}?`,
+      ) + T(needRound(fields)),
+    fig: archFig(abc, e, top, n, `Schets van de bovenkant van ${s.wat}, de grafiek van ${n}`),
+    fields,
+    hint: T(
+      from === 'midden'
+        ? `Het midden ligt bij x_top. Bereken eerst x_top, ga dan ${d(u)} meter naar ${side} en vul die x in.`
+        : `De kanten staan waar de grafiek de x-as snijdt. Ga vanaf de ${right ? 'rechter' : 'linker'}kant ${d(u)} meter naar binnen en vul die x in.`,
+    ),
+    steps: [
+      ...(from === 'kant'
+        ? [
+            `De grafiek snijdt de x-as bij x = ${d(r)} en x = ${d(e)}.`,
+            `De ${right ? 'rechter' : 'linker'}kant staat bij x = ${d(edge)}. ${cap(where)} is x = ${plus(edge, right ? -u : u)} = ${d(x)}.`,
+          ]
+        : [
+            ...(kind === 'de'
+              ? [`x_top = {d + e/2} = {${d(r)} + ${d(e)}/2} = ${d(xt)}`]
+              : [`a = ${d(a)} en b = ${d(abc[1])}`, `${xtopText(a, abc[1])} = ${d(xt)}`]),
+            `${cap(where)} is x = ${plus(xt, right ? u : -u)} = ${d(x)}.`,
+          ]),
+      kind === 'de' ? fillFactors(n, a, r, e, x) : fill(n, abc, x),
+      `Dus ${s.wat} is daar ${isNice(y, 1) ? d(y) : `ongeveer ${fixed(y, 1)}`} meter hoog.`,
+    ],
+    traps: heightTraps(y, list).map(([id, w, m]) => ({ id, f: (v) => hit(v[0], w), m })),
+    // Met de snijpunten uit de abc-formule: de hoogte als a(x − x1)(x − x2), en de afstand tot
+    // het midden of tot de kant.
+    v: () => {
+      const [x1, x2] = roots(abc),
+        base = from === 'midden' ? (x1 + x2) / 2 : right ? x2 : x1;
+      return near(Math.abs(x - base), u, 1e-6) && near(a * (x - x1) * (x - x2), y, 1e-6);
+    },
+  };
+}
+
+// Eigen verhalen over iets dat precies door het midden van een boog gaat.
+const PASS = [
+  {
+    t: 'Een vrachtwagen wil door een tunnel onder een spoorlijn.',
+    boog: 'de bovenkant van de tunnel',
+    de: 'de tunnel',
+    wie: 'de vrachtwagen',
+    gaat: 'rijdt',
+    grond: 'De weg',
+    W: [2.2, 2.4, 2.5, 2.6],
+  },
+  {
+    t: 'Een rondvaartboot vaart onder een stenen brug door. De onderkant van de brug is een boog.',
+    boog: 'de boog',
+    de: 'de boog',
+    wie: 'de boot',
+    gaat: 'vaart',
+    grond: 'Het water',
+    W: [1.6, 1.8, 2, 2.4, 3],
+  },
+  {
+    t: 'Een boer rijdt met een kar vol hooi een schuur in. De deur van de schuur heeft een boog als bovenkant.',
+    boog: 'de bovenkant van de deur',
+    de: 'de deur',
+    wie: 'de kar',
+    gaat: 'rijdt',
+    grond: 'De grond',
+    W: [1.8, 2, 2.2, 2.5],
+  },
+];
+function fit(kind) {
+  const s = pick(PASS),
+    n = pick(NAMES),
+    W = pick(s.W);
+  let arch, xs, y, H;
+  // Bij de zijkant is de boog nog minstens 1,2 meter hoog, anders past er nooit iets door.
+  do {
+    arch = makeArch(kind, W / 2 + 0.5);
+    xs = rd(arch.xt + W / 2, 6);
+    y = rd(value(arch.abc, xs), 6);
+  } while (y < 1.2);
+  const { a, r, e, xt, top, abc } = arch,
+    at = (t) => rd(value(abc, t), 6);
+  // Wat erdoor moet, is lager dan de top. Anders zie je het antwoord zonder te rekenen.
+  do H = rd(y + pick([-0.5, -0.4, -0.3, -0.2, 0.2, 0.3, 0.4, 0.5]), 1);
+  while (Math.abs(H - y) < 0.15 || H < 1 || H > top - 0.15);
+  const fits = y > H,
+    yes = 'past erdoor',
+    no = 'past er niet door',
+    sel = fits ? yes : no,
+    Wie = cap(s.wie),
+    fields = [
+      RF('hoogte bij de zijkant:', y, 1, 'meter'),
+      { sel: [yes, no], a: sel, pre: Wie, label: `Past ${s.wie} erdoor?`, br: true },
+    ],
+    formula = kind === 'de' ? factorForm(a, r, e) : quad(abc),
+    list = [
+      [
+        'hele-breedte',
+        at(xt + W),
+        `${Wie} ${s.gaat} door het midden, dus aan elke kant van het midden zit de helft van de breedte. Ga vanaf x_top de halve breedte opzij.`,
+      ],
+      [
+        'hoogte-top',
+        top,
+        `Dat is de hoogte in het midden. Maar de zijkant van ${s.wie} zit niet in het midden, en daar is ${s.de} lager.`,
+      ],
+      [
+        'afstand-als-x',
+        at(W / 2),
+        'Je hebt de halve breedte zelf als x ingevuld. Maar het midden ligt bij x_top en niet bij x = 0. Tel de halve breedte op bij x_top.',
+      ],
+      ...(kind === 'de'
+        ? [
+            [
+              'afstand-vanaf-kant',
+              at(r + W / 2),
+              `Je bent vanaf de kant gaan meten. ${Wie} ${s.gaat} door het midden, dus begin bij x_top.`,
+            ],
+          ]
+        : []),
+    ];
+  return {
+    q:
+      T(
+        `${s.t} Voor ${s.boog} geldt ${n}(x) = ${formula}. ${s.grond} ligt op de x-as, en x en ${n}(x) zijn in meter. ${Wie} is ${d(W)} meter breed en ${d(H)} meter hoog, en ${s.gaat} precies door het midden. Onderzoek of ${s.wie} erdoor past.`,
+      ) + T(needRound(fields)),
+    fig: archFig(abc, e, top, n, `Schets van ${s.boog}, de grafiek van ${n}`),
+    fields,
+    hint: T(
+      `Het midden ligt bij x_top. De zijkant van ${s.wie} zit de halve breedte van het midden af. Bereken de hoogte van ${s.de} daar en vergelijk die met ${d(H)} meter.`,
+    ),
+    steps: [
+      ...(kind === 'de'
+        ? [`x_top = {d + e/2} = {${d(r)} + ${d(e)}/2} = ${d(xt)}`]
+        : [`a = ${d(a)} en b = ${d(abc[1])}`, `${xtopText(a, abc[1])} = ${d(xt)}`]),
+      `${Wie} ${s.gaat} door het midden. De helft van ${d(W)} meter is ${d(W / 2)} meter.`,
+      `De zijkant van ${s.wie} is bij x = ${d(xt)} + ${d(W / 2)} = ${d(xs)}.`,
+      kind === 'de' ? fillFactors(n, a, r, e, xs) : fill(n, abc, xs),
+      `Daar is ${s.de} ${isNice(y, 1) ? d(y) : `ongeveer ${fixed(y, 1)}`} meter hoog. Dat is ${fits ? 'meer' : 'minder'} dan ${d(H)} meter, dus ${s.wie} ${fits ? yes : no}.`,
+    ],
+    traps: [
+      ...heightTraps(y, list).map(([id, w, m]) => ({ id, f: (v) => hit(v[0], w), m })),
+      {
+        id: 'conclusie-omgedraaid',
+        f: (v) => hit(v[0], y) && !!v[1] && v[1] !== sel,
+        m: `Je hoogte klopt. Is ${s.de} bij de zijkant hoger dan ${s.wie}, dan past ${s.wie} erdoor. Is ${s.de} daar lager, dan niet.`,
+      },
+    ],
+    // Andersom: hoe breed is de boog op de hoogte H? Uit a(x − x_top)² + y_top = H. Past het
+    // erdoor, dan is de boog daar breder dan W.
+    v: () => {
+      const [x1, x2] = roots(abc),
+        mid = (x1 + x2) / 2,
+        yt = horner(abc, mid),
+        wide = 2 * Math.sqrt((H - yt) / a);
+      return near(a * (xs - x1) * (xs - x2), y, 1e-6) && wide > W === fits;
+    },
+  };
+}
+
+const s32wall = () => wall('abc');
+const s34wall = () => wall('de');
+const s32fit = () => fit('abc');
+const s34fit = () => fit('de');
+
 export default {
   slug: 'top-en-snijpunten-van-een-parabool',
   title: 'Top en snijpunten van een parabool',
   intro:
-    'De top is het hoogste of laagste punt van een parabool. Hier leer je de top berekenen, en de punten waar de grafiek de x-as en de y-as snijdt. Daarmee bereken je ook hoe hoog een bal komt of hoe breed een tunnel is.',
+    'De top is het hoogste of laagste punt van een parabool. Hier leer je de top berekenen, en de punten waar de grafiek de x-as en de y-as snijdt. Daarmee bereken je ook hoe hoog een bal komt, hoe breed een tunnel is en of iets erdoor past.',
   description:
     'Bereken de top van een parabool met x_top = −b/(2a), de snijpunten met de assen, en de top van a(x − p)² + q en a(x − d)(x − e). Met uitleg.',
   videos: {
@@ -669,6 +953,10 @@ export default {
     [87, 'Schets bij een formule', s35sketch],
     [88, 'Maximale hoogte', s32max],
     [89, 'Hoogte en breedte van een boog', s34tunnel],
+    [96, 'Hoogte op een afstand bij ax² + bx + c', s32wall],
+    [97, 'Past het erdoor bij ax² + bx + c?', s32fit],
+    [98, 'Hoogte op een afstand bij a(x − d)(x − e)', s34wall],
+    [99, 'Past het erdoor bij a(x − d)(x − e)?', s34fit],
   ],
   learn: [
     {
@@ -820,6 +1108,30 @@ export default {
           'Dus de tunnel is 4,5 meter hoog.',
         ],
       },
+    },
+    {
+      t: 'Hoogte op een afstand van het midden',
+      p: [
+        T(
+          'Het midden van een tunnel of boog ligt bij x_top. Wil je weten hoe hoog de tunnel 1,5 meter rechts van het midden is, bereken dan eerst x_top. Vul daarna x = x_top + 1,5 in de formule in.',
+        ),
+        'Past iets van een bepaalde breedte erdoor? Laat het precies door het midden gaan. De zijkant zit dan de halve breedte van het midden af. Vergelijk de hoogte van de tunnel daar met de hoogte van wat erdoor moet.',
+      ],
+      ex: {
+        q: T(
+          'Voor een tunnel geldt f(x) = -0,4x^2 + 3,2x - 2,4. De grond ligt op de x-as, en x en f(x) zijn in meter. Een busje van 2 meter breed en 3,5 meter hoog rijdt precies door het midden. Onderzoek of het busje erdoor past.',
+        ),
+        steps: [
+          'a = -0,4 en b = 3,2',
+          'x_top = {-b/2a} = {-3,2/2*-0,4} = 4',
+          'Het busje rijdt door het midden. De helft van 2 meter is 1 meter.',
+          'De zijkant van het busje is bij x = 4 + 1 = 5.',
+          'f(5) = -0,4*5^2 + 3,2*5 - 2,4 = -10 + 16 - 2,4 = 3,6',
+          'Daar is de tunnel 3,6 meter hoog. Dat is meer dan 3,5 meter, dus het busje past erdoor.',
+        ],
+      },
+      watch:
+        'Ga vanaf het midden opzij, en niet vanaf de y-as of vanaf de kant van de tunnel. En neem de halve breedte, want aan elke kant van het midden zit de helft.',
     },
   ],
 };
