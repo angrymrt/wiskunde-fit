@@ -152,6 +152,8 @@ Handige hulpen uit `math.js` zijn `lin(a, b, 'x')` voor een nette formule zonder
 2. Zet het onderwerp in een domein in `topics/index.js`, op de plek waar het in de volgorde hoort.
 3. Zet de voorkennis in `PREREQUISITES` in hetzelfde bestand. Voorkennis is een kenmerk van een onderwerp, ook als die in een boek als los stukje voor een hoofdstuk staat. Maak dus geen apart onderwerp voor voorkennis.
 
+In de browser komt elk onderwerp in een eigen bestand, dat pas laadt als het nodig is. Bij het eerste bezoek is er alleen een catalogus: de velden uit `VELDEN` in `scripts/catalogus.js` en per vraagsoort het nummer en de naam. De build maakt die uit het onderwerpbestand, dus je hoeft niets dubbel bij te houden. Krijgt een onderwerp een nieuw veld, zet het dan in `VELDEN` als Home, Mijn stof of een ander scherm zonder het onderwerp het nodig heeft, en anders in `VELDEN_LATER`. `npm test` faalt tot je kiest. Een scherm dat de generatoren of de uitleg gebruikt, moet in `nodig()` in `ui/laden.js` staan, zodat `render()` het onderwerp eerst laadt. In Node, dus in de tests, de scripts en de build, is alles meteen geladen.
+
 Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.css`. Wijzig het nummer van een vraagsoort nooit, want de opgeslagen voortgang verwijst daarnaar. De naam, de volgorde en het onderwerp van een vraagsoort mogen wel veranderen. Stopt een vraagsoort, zet dan `null` achter het nummer in `tests/vraagsoort-ids.js`, leg in `progress.js` vast waar de voortgang heen gaat en gebruik het nummer nooit opnieuw.
 
 ## Een methode-indeling toevoegen
@@ -186,7 +188,7 @@ Controleer voor de release van een hoofdstuk:
 
 ## Zo werken de schermen
 
-Alle schermen zijn functies die een HTML-tekst teruggeven. `screenHTML()` in `ui/screens.js` maakt daarmee het hele scherm, en `render()` in `main.js` zet dat in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`.
+Alle schermen zijn functies die een HTML-tekst teruggeven. `screenHTML()` in `ui/screens.js` maakt daarmee het hele scherm, en `render()` in `main.js` zet dat in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`. Heeft het scherm een onderwerp nodig dat nog niet geladen is (`nodig()` in `ui/laden.js`), dan laadt `render()` dat eerst en geeft het een Promise. Duurt dat langer, dan toont het scherm dat het laadt, en lukt het niet, dan een melding met een knop om het opnieuw te proberen. Een browsertest die `wiskundefit.go(...)` gebruikt, wacht dus op wat `go` teruggeeft.
 
 Alleen Home heeft een losse kop. Op elk ander scherm staat het kruimelpad (`crumbs()`) boven het blok, en begint het eerste blok met de kop en de intro (`pageHead()`). Zet dus geen kop of tekst los tussen het kruimelpad en het blok.
 

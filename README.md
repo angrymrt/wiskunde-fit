@@ -78,6 +78,8 @@ dist/
 └── favicon.svg, apple-touch-icon.png, og.png
 ```
 
+De code in `assets/` staat in meer bestanden. `main-*.js` heeft de schermen en een kleine catalogus van de onderwerpen: de naam, het adres, de intro en de namen van de vraagsoorten. Elk onderwerp heeft een eigen bestand met de generatoren en de uitleg, dat de browser pas laadt bij de uitleg, bij oefenen, bij Mijn stof oefenen of bij de proeftoets. Code die meer bestanden gebruiken, staat in `chunk-*.js`. De build maakt de catalogus uit de onderwerpbestanden zelf (`scripts/catalogus.js`), dus die hoef je niet bij te houden. Lukt het laden van een onderwerp niet, dan toont het scherm een melding met een knop om het opnieuw te proberen.
+
 Een vooraf gebouwde pagina bevat al alle tekst, zodat je die zonder JavaScript kunt lezen en zoekmachines de stof zien. Een schil heeft alleen het menu en de kop, want wat erop staat hangt af van wat in de browser is bewaard. Azure toont `over/index.html` op `/over`, en stuurt `/over/` en `/over/index.html` met een 301 daarheen. De lijst met pagina's staat in `src/js/pages.js`.
 
 Een pull request naar `main` komt op een eigen preview-adres, dat Azure als reactie bij de pull request zet. Dat adres is openbaar, en het verdwijnt als de pull request dicht gaat. Het gratis plan heeft ruimte voor drie previews tegelijk. Een pull request uit een fork komt niet online.
