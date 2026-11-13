@@ -112,4 +112,8 @@ export default {
   108: 's41new',
   109: 's41chain',
   110: 's41chainNew',
+  111: 's42big',
+  112: 's42old',
+  113: 's42whole',
+  114: 's42mixed',
 };

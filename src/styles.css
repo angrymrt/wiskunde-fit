@@ -1165,6 +1165,41 @@ sub {
   border-right: 0;
   border-left: 8px solid currentColor;
 }
+/* Een pijl terug, met de punt links. */
+.pijl.terug {
+  padding: 0 0.2em 1px 0.7em;
+}
+.pijl.terug::after {
+  right: auto;
+  left: -2px;
+  border-right: 8px solid currentColor;
+  border-left: 0;
+}
+/* Een pijlschema zoals in het boek: vakken met heen een pijl met × en terug een pijl met :. */
+.schema {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+  vertical-align: middle;
+  margin: 2px 0;
+}
+.schema .vak {
+  padding: 2px 9px;
+  border: 1.5px solid var(--blue);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.pijlen {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 2px;
+  text-align: center;
+}
+.pijlen .pijl {
+  margin: 0 0.5em 0.35em;
+}
 ol.how {
   margin: 0;
   padding-left: 1.3em;
