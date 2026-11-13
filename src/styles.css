@@ -686,18 +686,20 @@ sub {
     display: none;
   }
 }
+/* Metselwerk: de domeinen staan in twee kolommen en sluiten onder elkaar aan, ook als het ene
+   domein veel meer onderwerpen heeft dan het andere (#106). De volgorde loopt per kolom. */
 .domains {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  align-items: start;
+  columns: 2;
+  column-gap: 20px;
 }
 @media (max-width: 720px) {
   .domains {
-    grid-template-columns: minmax(0, 1fr);
+    columns: 1;
   }
 }
 .domain {
+  break-inside: avoid;
+  margin-bottom: 20px;
   background: var(--sheet);
   border: 1px solid var(--rule);
   border-radius: 6px;
