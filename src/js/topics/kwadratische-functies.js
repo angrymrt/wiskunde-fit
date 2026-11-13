@@ -697,19 +697,19 @@ function s32unknown() {
     q: T(
       `${storyText(s, n, abc, f)} ${
         land
-          ? `Op ${x} meter vanaf ${s.van} komt ${s.wat} ${s.neer}.`
+          ? `Op ${x} meter vanaf ${s.van} komt ${s.wat} ${s.neer} terecht.`
           : `Op ${x} meter vanaf ${s.van} is ${s.wat} ${d(y)} meter hoog.`
       } Bereken p. Hoe hoog is ${s.wat} op ${e} meter vanaf ${s.van}?`,
     ),
     fields: [F('p =', p), F(`hoogte bij x = ${e}:`, h, 'meter')],
     hint: T(
       land
-        ? `Komt ${s.wat} bij x = ${x} ${s.neer}, dan is de hoogte daar 0. Dus ${n}(${x}) = 0. Los die vergelijking op. Vul daarna p en x = ${e} in.`
+        ? `Komt ${s.wat} bij x = ${x} ${s.neer} terecht, dan is de hoogte daar 0. Dus ${n}(${x}) = 0. Los die vergelijking op. Vul daarna p en x = ${e} in.`
         : `Bij x = ${x} is de hoogte ${d(y)}, dus ${n}(${x}) = ${d(y)}. Los die vergelijking op. Vul daarna p en x = ${e} in.`,
     ),
     steps: [
       land
-        ? `${s.Wat} komt bij x = ${x} ${s.neer}, dus ${n}(${x}) = 0.`
+        ? `${s.Wat} komt bij x = ${x} ${s.neer} terecht, dus ${n}(${x}) = 0.`
         : `Bij x = ${x} is de hoogte ${d(y)} meter, dus ${n}(${x}) = ${d(y)}.`,
       ...unknownSteps(abc, 1, x, y),
       `Dus ${n}(x) = ${quad(abc)}.`,
