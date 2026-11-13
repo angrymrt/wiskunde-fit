@@ -209,7 +209,8 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
     await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
     await p.click('[data-act="stofall"]');
-    assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
+    // Eerst laden de onderwerpen van de stofkeuze, dan pas staat het scherm er.
+    await p.waitForFunction(() => document.activeElement.tagName === 'H1');
     await p.click('[data-act="len"][data-id="10"]');
     assert.equal(await p.getAttribute('[data-act="len"][data-id="10"]', 'aria-pressed'), 'true');
     assert.equal(await focused(), 'len');
@@ -798,6 +799,8 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
       await p.evaluate(() => wiskundefit.go({ name: 'home' }));
       await checkOverflow('overzicht');
       await p.click(`a.par[href="/${id}"]`);
+      // De uitleg staat er pas als het onderwerp geladen is.
+      await p.waitForSelector('.topic-body');
       await checkOverflow(`${id} uitleg`);
       for (const b of await p.$$('[data-act="exnext"]')) {
         while (await b.isVisible()) await b.click();
