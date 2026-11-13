@@ -23,13 +23,14 @@ function nodig(v = state.view) {
 const nogTeLaden = () => nodig().filter((t) => !geladen(t));
 
 // Zoals een schil: het kruimelpad en de kop staan er al, met daaronder dat het laadt, of een
-// melding met een knop om het opnieuw te proberen.
+// melding met een knop om het opnieuw te proberen. Een schermlezer hoort "Even laden…" uit
+// #laadmelding, dat main.js maakt en vult. De foutmelding krijgt de focus.
 function vLaden() {
   const heading = esc(titleFor(state.view).replace(/ \| Wiskundefit$/, ''));
   const body =
     state.laden === 'fout'
       ? `<p class="fb bad" id="laadfout" tabindex="-1">Dit deel van de site kon niet worden geladen. Misschien is je internet even weg. Controleer je verbinding en probeer het opnieuw.</p><div class="row"><button class="btn main" type="button" data-act="opnieuw">Probeer opnieuw</button></div>`
-      : `<p class="muted" role="status">Even laden…</p>`;
+      : `<p class="muted" aria-hidden="true">Even laden…</p>`;
   return `${crumbs()}<div class="sheet">${pageHead(heading)}${body}</div>`;
 }
 

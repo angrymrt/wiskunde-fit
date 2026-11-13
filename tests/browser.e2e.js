@@ -2032,11 +2032,51 @@ test('een onderwerp dat niet laadt, geeft een melding met opnieuw proberen', asy
       await route.continue();
     });
     const shown = p.evaluate((v) => wiskundefit.go(v), practice);
-    await p.waitForSelector('[role="status"]:text("Even laden")');
+    await p.waitForSelector('#app :text("Even laden")');
+    // Een schermlezer hoort het uit een gebied dat er al stond.
+    assert.equal(await p.textContent('#laadmelding'), 'Even laden…');
     release();
     await shown;
     assert.ok(await p.$('#pq'), 'na het laden staat de vraag er');
+    assert.equal(await p.textContent('#laadmelding'), '', 'na het laden is de melding weg');
     await p.unroute(file);
+    // Opent de site met een vooraf gebouwde uitleg die nog laadt, dan blijft die staan. Ga je dan
+    // naar een ander onderwerp, dan zie je dat dat laadt, en niet de oude uitleg.
+    {
+      const context = await browser.newContext({ viewport: { width: 390, height: 800 } });
+      const q = await context.newPage();
+      const other = '**/assets/ontbinden-in-factoren-*.js';
+      let open;
+      const wait = new Promise((resolve) => (open = resolve));
+      for (const f of [file, other])
+        await q.route(f, async (route) => {
+          await wait;
+          await route.continue();
+        });
+      await q.goto(at('/haakjes-wegwerken'), { waitUntil: 'domcontentloaded' });
+      await q.waitForFunction(() => window.wiskundefit);
+      await q.waitForTimeout(400);
+      assert.match(await q.textContent('h1'), /Haakjes wegwerken/, 'de eigen uitleg blijft staan');
+      assert.ok(
+        !(await q.$('#app :text("Even laden")')),
+        'de eigen uitleg zegt niet dat hij laadt',
+      );
+      const naar = q.evaluate((v) => wiskundefit.go(v), {
+        name: 'topic',
+        slug: 'ontbinden-in-factoren',
+      });
+      await q.waitForSelector('#app :text("Even laden")');
+      assert.match(
+        await q.textContent('h1'),
+        /Ontbinden in factoren/,
+        'de kop is van het nieuwe onderwerp',
+      );
+      open();
+      await naar;
+      assert.match(await q.textContent('h1'), /Ontbinden in factoren/);
+      assert.ok(!(await q.$('#app :text("Even laden")')), 'na het laden staat de uitleg er');
+      await context.close();
+    }
     // Lukt het niet, dan een melding met een knop, en geen witte pagina.
     for (const open of ['in de site', 'met een adres']) {
       const context = await browser.newContext({ viewport: { width: 390, height: 800 } });
