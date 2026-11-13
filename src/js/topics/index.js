@@ -24,6 +24,7 @@ import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
+import tabellen from './tabellen-en-diagrammen.js';
 import { newSeed, withSeed } from '../math.js';
 import { roundTraps } from '../answers.js';
 
@@ -78,6 +79,16 @@ const DOMAINS = [
     color: 'orange',
     topics: [pythagoras, verhoudingen, gelijkvormig, aantonen, lengtes],
   },
+  {
+    slug: 'statistiek',
+    name: 'Statistiek',
+    intro:
+      'Bij statistiek verzamel je gegevens en zet je ze overzichtelijk in een tabel of een diagram. Hier reken je met gegevens uit tabellen, staafdiagrammen en cirkeldiagrammen, en leer je welk diagram bij welke gegevens past.',
+    description:
+      'Statistiek: rekenen met tabellen en diagrammen, met het gemiddelde, een aandeel en de procentuele verandering. Gratis wiskunde oefenen met uitleg.',
+    color: 'berry',
+    topics: [tabellen],
+  },
 ];
 
 // Stof die je al moet kennen voordat je aan een onderwerp begint.
@@ -97,6 +108,7 @@ const PREREQUISITES = new Map([
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],
   [terugrekenen, [procenten]],
+  [tabellen, [procenten, terugrekenen]],
 ]);
 
 const DOMAIN = Object.fromEntries(DOMAINS.map((d) => [d.slug, d]));

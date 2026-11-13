@@ -38,6 +38,11 @@ const vt = (top, bot) =>
 // je hem ook met het toetsenbord schuiven. De naam is uniek op het scherm.
 const dt = (rows, label) =>
   `<div class="scroll"${label ? ` role="region" tabindex="0" aria-label="${esc(label).replace(/"/g, '&quot;')}"` : ''}><table class="dt">${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${T(c)}</td>` : `<th>${T(c)}</th>`)).join('')}</tr>`).join('')}</table></div>`;
+// Een tabel met een titel, een kopregel en per rij een naam vooraan, zoals een tabel met gegevens in
+// het boek. De titel staat in gewone letters, want een schermlezer spelt een woord in hoofdletters
+// soms letter voor letter. De naam (label) is uniek op het scherm, net als bij dt.
+const tabel = (title, head, rows, label) =>
+  `<div class="scroll" role="region" tabindex="0" aria-label="${esc(label).replace(/"/g, '&quot;')}"><table class="dt">${title ? `<caption>${esc(title)}</caption>` : ''}<tr>${head.map((c) => `<th scope="col">${T(c)}</th>`).join('')}</tr>${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${T(c)}</td>` : `<th scope="row">${T(c)}</th>`)).join('')}</tr>`).join('')}</table></div>`;
 // Een pijlschema zoals in het boek: vakken, met tussen elk paar heen een pijl met × en terug een
 // pijl met :, zoals oud → nieuw met × 1,12 en terug : 1,12. factoren staan tussen de vakken, als
 // tekst. Een schermlezer leest de zin uit aria-label.
@@ -55,4 +60,4 @@ function schema(vakken, factoren) {
 const stepsHTML = (st) =>
   `<ul class="steps">${st.map((s) => `<li>${typeof s === 'string' ? T(s) : s.h}</li>`).join('')}</ul>`;
 
-export { esc, T, vt, dt, schema, stepsHTML };
+export { esc, T, vt, dt, tabel, schema, stepsHTML };

@@ -55,6 +55,8 @@
   --plum-soft: #f1e4f7;
   --teal: #00727a;
   --teal-soft: #d9f1f2;
+  --berry: #a3245f;
+  --berry-soft: #fae3ee;
   --pink: #cf1f68;
   --green: #4e8a12;
   --mark: #ffe75e;
@@ -90,6 +92,8 @@
     --plum-soft: #34203f;
     --teal: #5fd3d9;
     --teal-soft: #103a3d;
+    --berry: #f59ac3;
+    --berry-soft: #43172c;
     --pink: #ff7fb0;
     --green: #a6d96a;
     --mark: #5c4f10;
@@ -121,6 +125,8 @@
   --plum-soft: #34203f;
   --teal: #5fd3d9;
   --teal-soft: #103a3d;
+  --berry: #f59ac3;
+  --berry-soft: #43172c;
   --pink: #ff7fb0;
   --green: #a6d96a;
   --mark: #5c4f10;
@@ -527,6 +533,10 @@ sub {
 .dt th {
   background: var(--blue-soft);
 }
+.dt caption {
+  padding-bottom: 4px;
+  font-weight: 600;
+}
 /* Een tabel met zeven punten past zo nog op een telefoon. */
 @media (max-width: 560px) {
   .dt th,
@@ -800,6 +810,10 @@ sub {
 .color-teal {
   --accent: var(--teal);
   --accent-soft: var(--teal-soft);
+}
+.color-berry {
+  --accent: var(--berry);
+  --accent-soft: var(--berry-soft);
 }
 .par {
   display: grid;
