@@ -876,53 +876,61 @@ function wall(kind) {
   };
 }
 
-// Eigen verhalen over iets dat precies door het midden van een boog gaat.
+// Eigen verhalen over iets dat precies door het midden van een boog gaat. W is de breedte en
+// H van en tot de hoogte, zodat de maten bij het verhaal passen.
 const PASS = [
   {
-    t: 'Een vrachtwagen wil door een tunnel onder een spoorlijn.',
-    boog: 'de bovenkant van de tunnel',
-    de: 'de tunnel',
+    t: 'Een bestelbus rijdt onder een spoorviaduct door. De onderkant van het viaduct is een boog.',
+    boog: 'de onderkant van het viaduct',
+    de: 'het viaduct',
+    wie: 'de bestelbus',
+    gaat: 'rijdt',
+    grond: 'De weg',
+    W: [1.8, 1.9, 2, 2.1],
+    H: [2.2, 2.9],
+  },
+  {
+    t: 'Een boer rijdt met een hooiwagen door de poort van zijn boerderij. De poort heeft een boog als bovenkant.',
+    boog: 'de bovenkant van de poort',
+    de: 'de poort',
+    wie: 'de hooiwagen',
+    gaat: 'rijdt',
+    grond: 'De grond',
+    W: [2.2, 2.4, 2.5],
+    H: [2.8, 4],
+  },
+  {
+    t: 'Een vrachtwagen wil door de oude stadspoort het centrum in. De poort heeft een boog als bovenkant.',
+    boog: 'de bovenkant van de poort',
+    de: 'de poort',
     wie: 'de vrachtwagen',
     gaat: 'rijdt',
     grond: 'De weg',
-    W: [2.2, 2.4, 2.5, 2.6],
-  },
-  {
-    t: 'Een rondvaartboot vaart onder een stenen brug door. De onderkant van de brug is een boog.',
-    boog: 'de boog',
-    de: 'de boog',
-    wie: 'de boot',
-    gaat: 'vaart',
-    grond: 'Het water',
-    W: [1.6, 1.8, 2, 2.4, 3],
-  },
-  {
-    t: 'Een boer rijdt met een kar vol hooi een schuur in. De deur van de schuur heeft een boog als bovenkant.',
-    boog: 'de bovenkant van de deur',
-    de: 'de deur',
-    wie: 'de kar',
-    gaat: 'rijdt',
-    grond: 'De grond',
-    W: [1.8, 2, 2.2, 2.5],
+    W: [2.4, 2.5, 2.55],
+    H: [3.4, 4],
   },
 ];
 function fit(kind) {
   const s = pick(PASS),
     n = pick(NAMES),
-    W = pick(s.W);
-  let arch, xs, y, H;
-  // Bij de zijkant is de boog nog minstens 1,2 meter hoog, anders past er nooit iets door.
+    W = pick(s.W),
+    // Eerst of het erdoor past, dan de maten. Zo is het ongeveer half om half.
+    fits = coin(),
+    [lo, hi] = s.H;
+  let arch, xs, y, options;
+  // Wat erdoor moet, is lager dan de top. Anders zie je het antwoord zonder te rekenen. En het
+  // scheelt minstens 0,15 meter met de hoogte bij de zijkant.
   do {
     arch = makeArch(kind, W / 2 + 0.5);
     xs = rd(arch.xt + W / 2, 6);
     y = rd(value(arch.abc, xs), 6);
-  } while (y < 1.2);
-  const { a, r, e, xt, top, abc } = arch,
-    at = (t) => rd(value(abc, t), 6);
-  // Wat erdoor moet, is lager dan de top. Anders zie je het antwoord zonder te rekenen.
-  do H = rd(y + pick([-0.5, -0.4, -0.3, -0.2, 0.2, 0.3, 0.4, 0.5]), 1);
-  while (Math.abs(H - y) < 0.15 || H < 1 || H > top - 0.15);
-  const fits = y > H,
+    options = (fits ? [-0.5, -0.4, -0.3, -0.2] : [0.2, 0.3, 0.4, 0.5])
+      .map((t) => rd(y + t, 1))
+      .filter((h) => Math.abs(h - y) >= 0.15 && h >= lo && h <= hi && h <= arch.top - 0.15);
+  } while (!options.length);
+  const H = pick(options),
+    { a, r, e, xt, top, abc } = arch,
+    at = (t) => rd(value(abc, t), 6),
     yes = 'past erdoor',
     no = 'past er niet door',
     sel = fits ? yes : no,
@@ -1204,21 +1212,21 @@ export default {
       t: 'Hoogte op een afstand van het midden',
       p: [
         T(
-          'Het midden van een tunnel of boog ligt bij x_top. Wil je weten hoe hoog de tunnel 1,5 meter rechts van het midden is, bereken dan eerst x_top. Vul daarna x = x_top + 1,5 in de formule in.',
+          'Het midden van een tunnel of boog ligt bij x_top. Wil je weten hoe hoog de tunnel 1,5 meter rechts van het midden is, bereken dan eerst x_top. Vul daarna x = x_top + 1,5 in de formule in. Staat de afstand vanaf de kant gegeven, bepaal dan eerst de x van dat punt: begin bij het snijpunt met de x-as aan die kant en ga de afstand naar binnen.',
         ),
         'Past iets van een bepaalde breedte erdoor? Laat het precies door het midden gaan. De zijkant zit dan de halve breedte van het midden af. Vergelijk de hoogte van de tunnel daar met de hoogte van wat erdoor moet.',
       ],
       ex: {
         q: T(
-          'Voor een tunnel geldt f(x) = -0,4x^2 + 3,2x - 2,4. De grond ligt op de x-as, en x en f(x) zijn in meter. Een busje van 2 meter breed en 3,5 meter hoog rijdt precies door het midden. Onderzoek of het busje erdoor past.',
+          'Voor een tunnel geldt f(x) = -0,4x^2 + 3,2x - 2,4. De grond ligt op de x-as, en x en f(x) zijn in meter. Een kleine vrachtwagen van 2 meter breed en 3,5 meter hoog rijdt precies door het midden. Onderzoek of de vrachtwagen erdoor past.',
         ),
         steps: [
           'a = -0,4 en b = 3,2',
           'x_top = {-b/2a} = {-3,2/2*-0,4} = 4',
-          'Het busje rijdt door het midden. De helft van 2 meter is 1 meter.',
-          'De zijkant van het busje is bij x = 4 + 1 = 5.',
+          'De vrachtwagen rijdt door het midden. De helft van 2 meter is 1 meter.',
+          'De zijkant van de vrachtwagen is bij x = 4 + 1 = 5.',
           'f(5) = -0,4*5^2 + 3,2*5 - 2,4 = -10 + 16 - 2,4 = 3,6',
-          'Daar is de tunnel 3,6 meter hoog. Dat is meer dan 3,5 meter, dus het busje past erdoor.',
+          'Daar is de tunnel 3,6 meter hoog. Dat is meer dan 3,5 meter, dus de vrachtwagen past erdoor.',
         ],
       },
       watch:
