@@ -35,7 +35,7 @@ npm run format        # Prettier
 
 Draai `npm test` na elke wijziging in de stof. Draai `npm run test:browser` na wijzigingen in `ui/`, `main.js`, `styles.css` of de build. Bekijk daarna de schermafbeeldingen in `test-results/`, want de test ziet niet of een figuur er goed uitziet. Een andere browser kies je met de omgevingsvariabele `BROWSER`, bijvoorbeeld `chrome`, of `webkit` voor de motor van Safari. Die installeer je eenmalig met `npx playwright-core install webkit`. Dit vervangt geen test op een echte iPhone.
 
-Meet na wijzigingen in de schermen, de opmaak of de build ook met Lighthouse, op de preview en op de site die nu online staat, voor Home en een oefenpagina: `npx -y lighthouse@13.6.0 <adres> --chrome-flags="--headless=new"`. Zet daarvoor `CHROME_PATH` op Edge of Chrome. Lighthouse meet als een telefoon. SEO is op een preview en een oefenpagina lager, omdat die niet in zoekmachines horen (`noindex`); dat is goed.
+Meet na wijzigingen in de schermen, de opmaak of de build ook met Lighthouse, op de preview en op de site die nu online staat, voor Home en het oefenscherm van een onderwerp, zoals `/top-en-snijpunten-van-een-parabool/oefenen`: `npx -y lighthouse@13.6.0 <adres> --chrome-flags="--headless=new"`. Zet daarvoor `CHROME_PATH` op Edge of Chrome. Lighthouse meet als een telefoon. SEO is op een preview en een oefenscherm lager, omdat die niet in zoekmachines horen (`noindex`); dat is goed.
 
 De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor kleine wijzigingen. Draai bij grote wijzigingen, zoals in de schermen, de antwoordcontrole of de build, ook `ROUNDS=4 npm run test:browser` (in PowerShell: `$env:ROUNDS=4; npm run test:browser`). Dat duurt ongeveer 6 minuten. Voeg een gerichte test toe als je een bepaald randgeval wilt vastleggen.
 
@@ -187,7 +187,7 @@ Controleer voor de release van een hoofdstuk:
 - Nieuwe invoerkeuzes, zoals een teken in een keuzelijst, staan in `NAKIJKEN.md`.
 - `npm test` en `npm run test:browser` slagen, en je hebt de schermafbeeldingen van nieuwe figuren bekeken.
 - De code blijft onder de grens voor de grootte ([#80](https://github.com/angrymrt/wiskunde-fit/issues/80)).
-- Lighthouse op de preview, voor Home en een oefenpagina: geen score lager dan op de site die nu online staat.
+- Lighthouse op de preview, voor Home en een oefenscherm: geen score lager dan op de site die nu online staat, behalve SEO.
 
 ## Zo werken de schermen
 
