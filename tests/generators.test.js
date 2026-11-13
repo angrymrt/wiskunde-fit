@@ -371,6 +371,7 @@ test('bij een parabool tekenen is de top precies, en elk ander punt op de parabo
         );
         assert.equal(findTrap(q, [h, k, x2, y2, x2, y2])?.id, 'zelfde-punt');
         assert.equal(findTrap(q, [h, k, x2, y2, x3, y3 + 1])?.id, 'een-punt-fout');
+        assert.equal(findTrap(q, [x2, y2, h, k, x3, y3])?.id, 'top-niet-eerst');
       },
     );
   }

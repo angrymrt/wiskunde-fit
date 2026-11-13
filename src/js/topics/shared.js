@@ -410,7 +410,9 @@ function drawLine(a, b, p, q, xn = 'x', yn = 'y') {
 // Een parabool tekenen in hetzelfde rooster: de top en twee andere punten. De top is precies één
 // punt, en elk ander punt op de parabool is goed, dus p en q zijn alleen een voorbeeld. abc zijn de
 // getallen van y = ax² + bx + c; a mag een breuk uit Q zijn. Zie checkParabola in answers.js.
-function drawParabola(abc, top, p, q) {
+// topTraps zijn de valkuilen van de vraag zelf voor de top. Die komen na top-niet-eerst: liggen
+// alle drie de punten op de parabool, dan is dat de beste melding.
+function drawParabola(abc, top, p, q, topTraps = []) {
   const [a, b, c] = abc.map(qv),
     f = (x) => a * x * x + b * x + c,
     [h, k] = top,
@@ -443,6 +445,14 @@ function drawParabola(abc, top, p, q) {
         f: (v) => same(v, 0, 2) || same(v, 0, 4) || same(v, 2, 4),
         m: 'Je hebt twee keer hetzelfde punt gekozen. Kies naast de top twee andere punten van de parabool.',
       },
+      {
+        // Drie punten op de parabool, maar bij Top staat een ander punt. Wie eerst een ander punt
+        // aantikt, ziet wel de goede parabool.
+        id: 'top-niet-eerst',
+        f: (v) => !near(v[0], h) && [0, 2, 4].every((i) => near(f(v[i]), v[i + 1])),
+        m: `Je punten liggen op de parabool, maar bij Top staat niet de top. De top is het ${a > 0 ? 'laagste' : 'hoogste'} punt van de parabool. Je eerste tik in het rooster is de top.`,
+      },
+      ...topTraps,
       {
         id: 'dal-berg-omgedraaid',
         f: (v) => near(v[0], h) && near(v[1], k) && (mirrored(v[2], v[3]) || mirrored(v[4], v[5])),

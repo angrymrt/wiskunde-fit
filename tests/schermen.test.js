@@ -180,7 +180,7 @@ test('een rooster heeft geen id, en een oude proeftoets toont nog de getekende l
         [0, 1],
         [2, 5],
       ],
-      { a: 2, b: 1 },
+      { line: { a: 2, b: 1 } },
       true,
     );
     assert.match(
@@ -188,7 +188,32 @@ test('een rooster heeft geen id, en een oude proeftoets toont nog de getekende l
       new RegExp(`class="drawn"[^>]*><line class="l1"[^]*</${tag}></svg>$`),
       tag,
     );
+    // Fout getekend: eerst de goede lijn gestippeld, dan de lijn van de leerling.
+    const wrong = drawnResult(
+      f,
+      [
+        [0, 1],
+        [2, 4],
+      ],
+      { line: { a: 2, b: 1 } },
+      false,
+    );
+    assert.match(wrong, /<line class="l2 d"[^>]*\/><line class="l1"/, tag);
+    assert.match(wrong, /aria-label="Rooster met jouw lijn en de goede lijn"/, tag);
   }
+  // Een parabool: de goede gestippeld, en die van de leerling door drie punten.
+  const wrong = drawnResult(
+    graph({ xr: [-5, 5], yr: [-6, 6], draw: true }),
+    [
+      [0, -2],
+      [1, 0],
+      [2, 6],
+    ],
+    { parabola: { a: 1, b: 0, c: -2 } },
+    false,
+  );
+  assert.match(wrong, /<path class="l2 d"[^>]*\/><path class="l1"/);
+  assert.match(wrong, /aria-label="Rooster met jouw parabool en de goede parabool"/);
 });
 
 test('een widget staat al getekend in de uitleg', async () => {
