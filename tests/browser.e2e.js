@@ -177,6 +177,8 @@ test('de focus blijft op een logische plek', { timeout: 60_000 }, async () => {
 
     // Een nieuw scherm: de focus gaat naar de kop.
     await p.click('a.par[href="/lineaire-grafieken-tekenen"]');
+    // Eerst laadt het onderwerp, dan pas staat de uitleg er.
+    await p.waitForSelector('.topic-body');
     assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
 
     // Van de uitleg naar het oefenscherm en terug: de focus gaat naar de kop.
@@ -915,6 +917,7 @@ test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => 
     const light = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'light' });
     await shot(light, 'overzicht');
     await light.click('a.par[href="/lineaire-grafieken-tekenen"]');
+    await light.waitForSelector('.topic-body');
     await shot(light, 'uitleg', true);
     const dark = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'dark' });
     await dark.click('a.par[href="/gelijkvormige-driehoeken"]');
