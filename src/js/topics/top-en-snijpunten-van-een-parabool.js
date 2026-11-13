@@ -21,6 +21,9 @@ import {
   quadP,
   unknownSteps,
   unknownTraps,
+  drawParabola,
+  parabolaFig,
+  inGrid,
 } from './shared.js';
 import { graph } from '../figures.js';
 import { T } from '../typeset.js';
@@ -530,6 +533,82 @@ function s35sketch() {
   };
 }
 
+// Zelf een parabool tekenen bij a(x − p)² + q, zoals bij een schets in het boek: dal- of
+// bergparabool en de top (p, q). Twee punten even ver links en rechts van de top maken de grafiek
+// af. In het rooster zet de leerling de top en nog twee punten; elk punt op de parabool is goed.
+function s35draw() {
+  let a, A, p, q, s;
+  do {
+    a = pick([-2, -1, -1, 1, 1, 2, Q(1, 2), Q(-1, 2)]);
+    A = qv(a);
+    // Bij a = ½ zijn de punten 2 van de top af, zodat de y een geheel getal is.
+    s = Math.abs(A) < 1 ? 2 : 1;
+    p = pick([-3, -2, -1, 0, 1, 2, 3]);
+    // Een dalparabool onderin en een bergparabool bovenin, zodat je veel van de grafiek ziet.
+    q = A > 0 ? ri(-5, 0) : ri(0, 5);
+  } while (
+    !inGrid(p, q) ||
+    !inGrid(p - s, q + A * s * s) ||
+    !inGrid(p + s, q + A * s * s) ||
+    // Bij p = 0 en q = 0 is het alleen ax², zonder top om af te lezen.
+    (!p && !q)
+  );
+  const n = pick(NAMES),
+    abc = fromVertex(a, p, q),
+    y = (x) => A * (x - p) ** 2 + q,
+    left = [p - s, y(p - s)],
+    right = [p + s, y(p + s)],
+    draw = drawParabola(abc, [p, q], left, right),
+    // De invulling zoals in het boek: f(4) = 2(4 − 3)² + 1 = 3. Een negatief getal staat tussen haakjes.
+    fillIn = (x) => {
+      const inner = p ? `${x}${sg(-p)}` : x < 0 ? `(${x})` : String(x);
+      return `${n}(${x}) = ${coef(a)}${p ? `(${inner})` : inner}^2${q ? sg(q) : ''} = ${d(y(x))}`;
+    },
+    traps = [];
+  if (p)
+    traps.push({
+      id: 'teken-p',
+      f: (v) => near(v[0], -p),
+      m: minus(
+        `Je top ligt aan de verkeerde kant van de y-as. Let op het teken van p: bij (x ${p < 0 ? `+ ${-p}` : `- ${p}`}) is p = ${p}.`,
+      ),
+    });
+  if (p !== q)
+    traps.push({
+      id: 'p-en-q-omgedraaid',
+      f: (v) => near(v[0], q) && near(v[1], p),
+      m: 'De top is (p, q): eerst het getal in de haakjes, dan het getal erachter.',
+    });
+  return {
+    q: T(
+      `Teken de grafiek van ${n}(x) = ${vertexForm(a, p, q)}. Zet de top en nog twee punten van de grafiek in het rooster.`,
+    ),
+    ...draw,
+    hint: T(
+      'De top van a(x - p)^2 + q is (p, q). Kijk naar a: dalparabool of bergparabool? Reken daarna twee punten uit die even ver links en rechts van de top liggen.',
+    ),
+    steps: [
+      `a = ${A < 0 ? '-' : ''}${Math.abs(A) < 1 ? '{1/2}' : Math.abs(A)}, dus a ${A > 0 ? '>' : '<'} 0. De grafiek is een ${A > 0 ? 'dal' : 'berg'}parabool.`,
+      `De top van a(x - p)^2 + q is (p, q). Dus de top is (${p}, ${q}).`,
+      `Twee punten even ver links en rechts van de top: ${fillIn(left[0])} en ${fillIn(right[0])}`,
+      `Zet de top (${p}, ${q}) en de punten (${left[0]}, ${left[1]}) en (${right[0]}, ${right[1]}) in het rooster en teken de ${A > 0 ? 'dal' : 'berg'}parabool erdoor.`,
+      H(parabolaFig(abc, [p, q], [left, right])),
+    ],
+    traps: [...traps, ...draw.traps],
+    // De top ook met x_top = −b/(2a), uit de parabool die de formule zelf geeft.
+    v: () => {
+      const k = fromValues(y),
+        xt = -k[1] / (2 * k[0]);
+      return (
+        near(xt, p) &&
+        near(horner(k, xt), q) &&
+        [left, right].every(([x, w]) => near(horner(k, x), w)) &&
+        sameAbc(k, abc)
+      );
+    },
+  };
+}
+
 // Eigen verhalen over iets dat door de lucht gaat, met x de afstand en f(x) de hoogte in meter.
 // a, h (x_top) en c zijn lijsten waaruit de vraag kiest.
 const FLIGHTS = [
@@ -1032,6 +1111,7 @@ export default {
     [85, 'Snijpunten en top van a(x − d)(x − e)', s34top],
     [86, 'Snijpunten met de assen', s33axes],
     [87, 'Schets bij een formule', s35sketch],
+    [104, 'Een parabool tekenen bij a(x − p)² + q', s35draw],
     [88, 'Maximale hoogte', s32max],
     [89, 'Hoogte en breedte van een boog', s34tunnel],
     [96, 'Hoogte op een afstand bij ax² + bx + c', s32wall],

@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.14.0
+
+### Nieuw
+
+- Je tekent nu zelf een parabool. Je zet de top en nog twee punten in het rooster, door te tikken of door de coördinaten te typen, en je ziet meteen de parabool door je punten. Dat kan bij een formule als y = x² + 6x + 8 (paragraaf 3.1) en bij een formule als y = −(x − 2)² (paragraaf 3.5). Klopt het niet, dan zie je na het nakijken ook de goede parabool.
+
 ## 1.13.1
 
 ### Verbeterd

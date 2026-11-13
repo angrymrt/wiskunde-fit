@@ -1,5 +1,5 @@
 // De proeftoets: samenstellen, afnemen, bewaren en nakijken.
-import { checkAnswer, fillState, matchFields, parseNum } from '../answers.js';
+import { checkAnswer, fillState, isDrawing, matchFields, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
@@ -242,11 +242,12 @@ const rightField = (f) =>
 function answerRows({ q, vals, c }) {
   if (q.mc)
     return [[null, filled(vals[0]) ? q.mc.opts[vals[0]] : typed(''), c.each[0], q.mc.opts[q.mc.a]]];
-  if (q.line)
-    return [0, 1].map((k) => {
+  // Bij een parabool is het eerste punt de top.
+  if (isDrawing(q))
+    return points(q).map((k) => {
       const [x, y] = [vals[2 * k], vals[2 * k + 1]];
       return [
-        `Punt ${k + 1}`,
+        q.parabola && !k ? 'Top' : `Punt ${k + 1}`,
         filled(x) && filled(y)
           ? `<span class="nowrap">(${typed(x)}, ${typed(y)})</span>`
           : typed(''),
@@ -272,32 +273,33 @@ function answersHTML(x) {
   const rows = answerRows(x),
     labels = rows.some(([l]) => l),
     wrong = !x.c.ok;
-  // Bij een tekenvraag is elk punt op de lijn goed, dus het goede antwoord is een voorbeeld.
-  const right = x.q.line ? 'Een goed punt' : 'Goed antwoord';
+  // Bij een tekenvraag is elk punt op de grafiek goed, dus het goede antwoord is een voorbeeld.
+  const right = isDrawing(x.q) ? 'Een goed punt' : 'Goed antwoord';
   const head = `<tr>${labels ? '<th><span class="sr">Deel</span></th>' : ''}<th>Jouw antwoord</th>${wrong ? `<th>${right}</th>` : ''}</tr>`;
   const row = ([l, given, ok, right]) =>
     `<tr class="${ok ? 'ok' : 'no'}">${labels ? (l ? `<th scope="row">${l}</th>` : '<td></td>') : ''}<td>${mark(ok)}${given}</td>${wrong ? `<td>${ok ? '' : right}</td>` : ''}</tr>`;
   return `<div class="scroll"><table class="answers"><thead>${head}</thead><tbody>${rows.map(row).join('')}</tbody></table></div>`;
 }
-// Een tekenvraag toont de lijn die de leerling tekende, en bij een fout ook de goede lijn.
+// De punten van een tekenvraag: twee bij een lijn, drie bij een parabool.
+const points = (q) => (q.parabola ? [0, 1, 2] : [0, 1]);
+// Een tekenvraag toont wat de leerling tekende, en bij een fout ook de goede lijn of parabool.
 function resultFig(x) {
   if (!x.q.fig) return '';
-  if (!x.q.line) return `<div class="figbox">${x.q.fig}</div>`;
-  const [a, b, c, e] = x.q.fields.map((f, i) => parseNum(String(x.vals[i] ?? '')));
-  const fig = drawnResult(
-    x.q.fig,
-    [
-      [a, b],
-      [c, e],
-    ],
-    x.q.line,
-    x.c.ok,
+  if (!isDrawing(x.q)) return `<div class="figbox">${x.q.fig}</div>`;
+  const pts = points(x.q).map((k) =>
+    [2 * k, 2 * k + 1].map((i) => parseNum(String(x.vals[i] ?? ''))),
   );
-  // Zonder twee verschillende punten staat er geen lijn van de leerling, dus ook niet in de legenda.
-  const drawn = [a, b, c, e].every(Number.isFinite) && (a !== c || b !== e);
+  const fig = drawnResult(x.q.fig, pts, x.q, x.c.ok);
+  // Staat er niets van de leerling, dan ook niet in de legenda. Een lijn heeft twee verschillende
+  // punten nodig, een parabool drie punten met elk een andere x.
+  const xs = pts.map(([px]) => px),
+    drawn =
+      pts.every((pt) => pt.every(Number.isFinite)) &&
+      (x.q.parabola ? new Set(xs).size === 3 : pts[0][0] !== pts[1][0] || pts[0][1] !== pts[1][1]),
+    shape = x.q.parabola ? 'parabool' : 'lijn';
   const legend = x.c.ok
     ? ''
-    : `<p class="small legend">${drawn ? '<span><span class="key mine"></span> Jouw lijn, doorgetrokken</span>' : ''}<span><span class="key good"></span> De goede lijn, gestippeld</span></p>`;
+    : `<p class="small legend">${drawn ? `<span><span class="key mine"></span> Jouw ${shape}, doorgetrokken</span>` : ''}<span><span class="key good"></span> De goede ${shape}, gestippeld</span></p>`;
   return `<div class="figbox">${fig}</div>${legend}`;
 }
 function vToetsRes() {

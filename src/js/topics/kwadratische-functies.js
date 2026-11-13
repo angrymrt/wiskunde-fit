@@ -13,6 +13,9 @@ import {
   quadP,
   unknownSteps,
   unknownTraps,
+  drawParabola,
+  parabolaFig,
+  inGrid,
 } from './shared.js';
 import { graph } from '../figures.js';
 import { T, dt } from '../typeset.js';
@@ -485,6 +488,75 @@ function s31pick() {
   };
 }
 
+// Zelf een parabool tekenen, zoals in het boek: f(0) = f(2 · x_top), dus x_top ligt daar precies
+// tussenin. Dan een tabel van zeven punten met x_top in het midden. In het rooster zet de leerling
+// de top en nog twee punten; elk punt op de parabool is goed.
+// Een melding na een valkuil is gewone tekst, dus met een echt minteken.
+const M = (x) => String(x).replace('-', '−');
+function s31draw() {
+  let a, h, k, abc;
+  do {
+    a = pick([-2, -1, -1, 1, 1, 2]);
+    h = nz(-3, 3);
+    // Een dalparabool onderin en een bergparabool bovenin, zodat je veel van de grafiek ziet.
+    k = a > 0 ? ri(-5, 0) : ri(0, 5);
+    abc = [a, -2 * a * h, a * h * h + k];
+  } while (!inGrid(h, k) || !inGrid(h - 1, k + a) || !inGrid(h + 1, k + a) || !distinct(abc, h));
+  const n = pick(NAMES),
+    c = abc[2],
+    xs = [-3, -2, -1, 0, 1, 2, 3].map((i) => h + i),
+    ys = xs.map((x) => value(abc, x)),
+    p = [h - 1, ys[2]],
+    q = [h + 1, ys[4]],
+    draw = drawParabola(abc, [h, k], p, q);
+  return {
+    q: T(
+      `Teken de grafiek van ${n}(x) = ${quad(abc)}. Zet de top en nog twee punten van de grafiek in het rooster.`,
+    ),
+    ...draw,
+    hint: T(
+      `Bereken ${n}(0) en zoek een tweede x met dezelfde functiewaarde. x_top ligt daar precies tussenin. Maak daarna een tabel met x_top in het midden.`,
+    ),
+    steps: [
+      `${n}(0) = ${d(c)} en ${fill(n, abc, 2 * h)}`,
+      `${n}(0) = ${n}(${2 * h}), dus x_top = {0${sg(2 * h)}/2} = ${h}`,
+      `y_top = ${fill(n, abc, h)}, dus de top is (${h}, ${k}).`,
+      'Maak een tabel van zeven punten met x_top in het midden. Gebruik de symmetrie.',
+      H(
+        dt(
+          [
+            ['x', ...xs.map(String)],
+            [`${n}(x)`, ...ys.map(d)],
+          ],
+          `Tabel bij ${n}`,
+        ),
+      ),
+      `Zet de punten in het rooster en teken de ${a > 0 ? 'dalparabool' : 'bergparabool'} erdoor. Bijvoorbeeld de top (${h}, ${k}) en de punten (${p[0]}, ${p[1]}) en (${q[0]}, ${q[1]}).`,
+      H(
+        parabolaFig(
+          abc,
+          [h, k],
+          xs.map((x, i) => [x, ys[i]]),
+        ),
+      ),
+    ],
+    traps: [
+      {
+        id: 'teken-xtop',
+        f: (v) => near(v[0], -h),
+        m: `Je top ligt aan de verkeerde kant van de y-as. ${n}(0) = ${n}(${M(2 * h)}), dus x_top ligt midden tussen 0 en ${M(2 * h)}.`,
+      },
+      ...valueTraps(abc, [[1, h]]),
+      ...draw.traps,
+    ],
+    // De top met de regel x_top = −b/(2a), die later komt, en de voorbeeldpunten in a(x − p)² + q.
+    v: () =>
+      near(-abc[1] / (2 * abc[0]), h) &&
+      near(horner(abc, h), k) &&
+      [p, q].every(([x, y]) => near(a * (x - h) ** 2 + k, y)),
+  };
+}
+
 // Eigen verhalen over iets dat door de lucht gaat. x is de afstand en f(x) de hoogte, allebei in
 // meter. a, b en c zijn lijsten waaruit de vraag kiest. Zonder start is c = 0, en dan past de
 // vraag naar de starthoogte niet.
@@ -742,6 +814,7 @@ export default {
     [69, 'Ligt het punt op de grafiek?', s31point],
     [70, 'Symmetrie en de top', s31sym],
     [71, 'Grafiek bij een formule', s31pick],
+    [103, 'Een parabool tekenen', s31draw],
     [72, 'Hoogte in een verhaal', s32height],
     [73, 'Verder dan een afstand?', s32further],
     [100, 'Onbekend getal met een punt', s31unknown],
