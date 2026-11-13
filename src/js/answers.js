@@ -84,6 +84,19 @@ function checkLine({ a, b }, v) {
     second = on(v[2], v[3]) && !same;
   return [first, first, second, second];
 }
+// Bij een parabool tekenen is de top precies één punt, en zijn twee andere punten op de parabool
+// goed. Die mogen niet gelijk zijn aan elkaar of aan de top. Zie drawParabola in topics/shared.js.
+function checkParabola({ a, b, c }, v) {
+  const h = -b / (2 * a),
+    on = (x, y) => near(a * x * x + b * x + c, y),
+    top = near(v[0], h) && near(v[1], a * h * h + b * h + c),
+    // Een punt op de parabool met x_top is de top zelf.
+    second = on(v[2], v[3]) && !near(v[2], h),
+    third = on(v[4], v[5]) && !near(v[4], h) && !(near(v[4], v[2]) && near(v[5], v[3]));
+  return [top, top, second, second, third, third];
+}
+// Een tekenvraag: een lijn of een parabool in een rooster.
+const isDrawing = (q) => !!(q.line || q.parabola);
 // Velden met dezelfde groep (grp), zoals de twee velden bij x = −2 ∨ x = 9, worden zonder volgorde
 // nagekeken: elk ingevuld getal mag bij een antwoord van de groep horen dat nog niet is gebruikt.
 // Geeft per veld het veld waarvan het antwoord erbij hoort. Van alle manieren om de getallen bij de
@@ -119,12 +132,12 @@ function checkAnswer(q, vals) {
     const hit = vals[0] !== '' && vals[0] != null && +vals[0] === q.mc.a;
     return { each: [hit], ok: hit };
   }
+  const nums = () => q.fields.map((f, i) => parseNum(vals[i] ?? ''));
   const each = q.line
-    ? checkLine(
-        q.line,
-        q.fields.map((f, i) => parseNum(vals[i] ?? '')),
-      )
-    : matchFields(q.fields, vals).map((j, i) => checkField(q.fields[j], vals[i] ?? ''));
+    ? checkLine(q.line, nums())
+    : q.parabola
+      ? checkParabola(q.parabola, nums())
+      : matchFields(q.fields, vals).map((j, i) => checkField(q.fields[j], vals[i] ?? ''));
   return { each, ok: each.every(Boolean) };
 }
 // Of een vraag leeg, half of helemaal is ingevuld. Alleen spaties telt als leeg, en bij een
@@ -152,4 +165,13 @@ function findTrap(q, vals) {
   return null;
 }
 
-export { parseNum, checkField, checkAnswer, matchFields, fillState, findTrap, roundTraps };
+export {
+  parseNum,
+  checkField,
+  checkAnswer,
+  matchFields,
+  fillState,
+  findTrap,
+  roundTraps,
+  isDrawing,
+};

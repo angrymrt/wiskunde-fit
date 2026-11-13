@@ -104,4 +104,6 @@ export default {
   100: 's31unknown',
   101: 's31topUnknown',
   102: 's32unknown',
+  103: 's31draw',
+  104: 's35draw',
 };

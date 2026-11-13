@@ -407,6 +407,67 @@ function drawLine(a, b, p, q, xn = 'x', yn = 'y') {
     ],
   };
 }
+// Een parabool tekenen in hetzelfde rooster: de top en twee andere punten. De top is precies één
+// punt, en elk ander punt op de parabool is goed, dus p en q zijn alleen een voorbeeld. abc zijn de
+// getallen van y = ax² + bx + c; a mag een breuk uit Q zijn. Zie checkParabola in answers.js.
+function drawParabola(abc, top, p, q) {
+  const [a, b, c] = abc.map(qv),
+    f = (x) => a * x * x + b * x + c,
+    [h, k] = top,
+    same = (v, i, j) => near(v[i], v[j]) && near(v[i + 1], v[j + 1]),
+    // Gespiegeld in de horizontale lijn door de top: een bergparabool in plaats van een dal.
+    mirrored = (x, y) => !near(x, h) && near(2 * k - f(x), y);
+  return {
+    fig: graph({
+      xr: DRAW_X,
+      yr: DRAW_Y,
+      u: 28,
+      draw: true,
+      label:
+        'Leeg rooster om de parabool in te tekenen. Je kunt ook de coördinaten in de velden typen.',
+    }),
+    compact: true,
+    fields: [
+      { ...F('Top: x =', h), label: 'Top, x-coördinaat' },
+      { ...F('y =', k), label: 'Top, y-coördinaat' },
+      { ...F('Punt 2: x =', p[0]), label: 'Punt 2, x-coördinaat', br: true },
+      { ...F('y =', p[1]), label: 'Punt 2, y-coördinaat' },
+      { ...F('Punt 3: x =', q[0]), label: 'Punt 3, x-coördinaat', br: true },
+      { ...F('y =', q[1]), label: 'Punt 3, y-coördinaat' },
+    ],
+    // Gegevens en geen functie, want een lopende proeftoets wordt in de browser bewaard.
+    parabola: { a, b, c },
+    traps: [
+      {
+        id: 'zelfde-punt',
+        f: (v) => same(v, 0, 2) || same(v, 0, 4) || same(v, 2, 4),
+        m: 'Je hebt twee keer hetzelfde punt gekozen. Kies naast de top twee andere punten van de parabool.',
+      },
+      {
+        id: 'dal-berg-omgedraaid',
+        f: (v) => near(v[0], h) && near(v[1], k) && (mirrored(v[2], v[3]) || mirrored(v[4], v[5])),
+        m: `De top klopt, maar je parabool is gespiegeld. a is ${a > 0 ? 'positief, dus het is een dalparabool' : 'negatief, dus het is een bergparabool'}.`,
+      },
+      {
+        id: 'een-punt-fout',
+        f: (v) => near(f(v[2]), v[3]) !== near(f(v[4]), v[5]),
+        m: 'Eén van je punten ligt op de parabool, de andere niet. Vul de x-coördinaat in de formule in en reken de y-coördinaat na.',
+      },
+    ],
+  };
+}
+// De grafiek in de uitwerking: de parabool met de top en de punten die je tekent.
+const parabolaFig = (abc, top, pts) =>
+  graph({
+    xr: DRAW_X,
+    yr: DRAW_Y,
+    curves: [{ abc: abc.map(qv) }],
+    pts: [
+      // Zonder naam bij de top: die valt dan niet over de getallen bij de as.
+      { x: top[0], y: top[1] },
+      ...pts.filter(([x, y]) => x !== top[0] && inGrid(x, y)).map(([x, y]) => ({ x, y })),
+    ],
+  });
 
 export {
   LV,
@@ -444,6 +505,8 @@ export {
   nestedPts,
   nestedFig,
   drawLine,
+  drawParabola,
+  parabolaFig,
   inGrid,
   lineTable,
   fillIn,

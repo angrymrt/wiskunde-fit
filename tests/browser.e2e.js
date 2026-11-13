@@ -14,7 +14,7 @@ import { startServer } from '../scripts/server.js';
 import { MAPPINGS } from '../src/js/mappings/index.js';
 import { PAGES } from '../src/js/pages.js';
 import { graph } from '../src/js/figures.js';
-import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
+import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
 import { MC, orFields } from '../src/js/topics/shared.js';
 
 const server = await startServer(fileURLToPath(new URL('../dist', import.meta.url)), 0);
@@ -474,6 +474,64 @@ test('een lijn tekenen werkt met tikken en met typen', { timeout: 60_000 }, asyn
   }
 });
 
+test('een parabool tekenen werkt met tikken en met typen', { timeout: 60_000 }, async () => {
+  const browser = await launch();
+  const slug = 'kwadratische-functies';
+  try {
+    await mkdir(shotDir, { recursive: true });
+    const p = await browser.newPage({ viewport: { width: 390, height: 1400 } });
+    await p.goto(siteUrl);
+    await p.evaluate((s) => wiskundefit.go({ name: 'topic', slug: s, oefen: true }), slug);
+    await p.click('.chip[data-id="103"]');
+    const q = () =>
+      p.evaluate((s) => {
+        const x = wiskundefit.state.prac[s].q;
+        return [x.fields.map((f) => f.a), x.parabola];
+      }, slug);
+    const inputs = () => p.$$eval('#pform .fld input', (els) => els.map((e) => e.value));
+    const tap = async (x, y) => {
+      const box = await (await p.$('svg[data-draw]')).boundingBox();
+      const [x0, , , y1, u, ml, mt, w] = await p.$eval('svg[data-draw]', (s) => [
+        ...s.dataset.draw.split(',').map(Number),
+        s.viewBox.baseVal.width,
+      ]);
+      const k = box.width / w;
+      await p.mouse.click(box.x + (ml + (x - x0) * u) * k, box.y + (mt + (y1 - y) * u) * k);
+    };
+    const [[h, k, x2, y2, x3, y3], { a, b, c }] = await q();
+    const curves = () => p.$$eval('.drawn path', (l) => l.length);
+
+    // De eerste tik is de top. Pas met drie punten staat er een parabool.
+    await tap(h, k);
+    await tap(x2, y2);
+    assert.deepEqual(await inputs(), [h, k, x2, y2, '', ''].map(String));
+    assert.equal(await curves(), 0);
+    await tap(x3, y3);
+    assert.deepEqual(await inputs(), [h, k, x2, y2, x3, y3].map(String));
+    assert.equal(await curves(), 1);
+    await p.screenshot({ path: `${shotDir}parabool-tekenen.png`, fullPage: true });
+
+    // Zijn alle punten bezet, dan blijft de top staan en vervalt het oudste andere punt.
+    const free = [-5, -4, 4, 5].find((x) => x !== x2 && x !== x3 && x !== h);
+    await tap(free, -6);
+    assert.deepEqual(await inputs(), [h, k, x3, y3, free, -6].map(String));
+    // Tikken op een gekozen punt haalt het weg.
+    await tap(free, -6);
+    assert.deepEqual((await inputs()).slice(4), ['', '']);
+    assert.equal(await curves(), 0);
+
+    // Typen tekent ook, en een ander punt op de parabool is goed.
+    const far = h + (h > 0 ? -3 : 3);
+    await p.fill('#pf4', String(far));
+    await p.fill('#pf5', String(a * far * far + b * far + c));
+    assert.equal(await curves(), 1);
+    await p.click('#pform button[type=submit]');
+    assert.match(await p.textContent('.fb'), /Goed gedaan/);
+  } finally {
+    await browser.close();
+  }
+});
+
 test(
   'een groep velden en schetsen als keuzes werken bij oefenen en in de proeftoets',
   {
@@ -710,8 +768,8 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await p.click('[data-act="para"][data-id="2.3"]');
     // Hoofdstuk 3 is deels gedekt: bij de paragraaf staat wat nog ontbreekt.
     assert.match(
-      await p.textContent('label:has([data-act="para"][data-id="3.1"])'),
-      /Zelf een parabool tekenen .* nog niet oefenen/,
+      await p.textContent('label:has([data-act="para"][data-id="3.3"])'),
+      /Pythagoras .* nog niet oefenen/,
     );
     assert.equal(await p.locator('[data-act="chapter"][data-id="4"]').count(), 0);
     assert.match(await p.textContent('.chapter:nth-of-type(4)'), /nog niet oefenen/);
@@ -1753,8 +1811,9 @@ test(
       let p = await context.newPage();
       const path = () => new URL(p.url()).pathname;
       const stored = (key) => p.evaluate((k) => JSON.parse(localStorage.getItem(k)), key);
+      // Alleen de vraagsoorten waarin je een lijn tekent: die hebben twee punten.
       const drawing = TOPICS.flatMap((t) => t.skills)
-        .filter((k) => /tekenen$/.test(k.name))
+        .filter((k) => makeQuestion(k, 1).line)
         .map((k) => k.id);
       const start = async () => {
         await p.evaluate((ids) => {

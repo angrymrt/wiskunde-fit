@@ -81,9 +81,7 @@ export default {
         [
           '3.1',
           'De parabool als grafiek van een kwadratische formule',
-          [66, 67, 68, 69, 70, 71, 83, 100, 101],
-          'deels',
-          'Zelf een parabool tekenen kun je hier nog niet oefenen.',
+          [66, 67, 68, 69, 70, 71, 103, 83, 100, 101],
         ],
         ['3.2', 'Opgaven met een kwadratische formule en de grafiek', [72, 73, 88, 96, 97, 102]],
         [
@@ -94,13 +92,7 @@ export default {
           'Een vergelijking opstellen met de stelling van Pythagoras kun je hier nog niet oefenen.',
         ],
         ['3.4', 'Kwadratische formule met twee factoren tussen haakjes', [85, 89, 93, 94, 98, 99]],
-        [
-          '3.5',
-          'Kwadratische formule waaruit je de top afleest',
-          [84, 87, 90, 91, 92, 95],
-          'deels',
-          'Zelf een schets van een parabool maken kun je hier nog niet oefenen. Je kiest hier de goede schets.',
-        ],
+        ['3.5', 'Kwadratische formule waaruit je de top afleest', [84, 87, 104, 90, 91, 92, 95]],
       ],
     },
     {

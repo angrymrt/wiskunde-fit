@@ -8,7 +8,7 @@ import { TOPICS, makeQuestion } from '../src/js/topics/index.js';
 // Genoeg seeds om elke tak van een generator te raken, en snel genoeg voor npm test.
 const SEEDS = Array.from({ length: 25 }, (_, i) => 1000 + i * 7919);
 
-// Wat de vraag bepaalt: de getallen in de vraag, de antwoorden, de keuzes en de lijn. Andere
+// Wat de vraag bepaalt: de getallen in de vraag, de antwoorden, de keuzes en de lijn of parabool. Andere
 // woorden, een hint of een uitwerking veranderen de vraag niet, en mogen dus zonder nieuwe versie.
 // De figuur telt niet mee, want daarin staat ook de opmaak. Wat erin gegeven is, staat meestal ook
 // in de vraag of het antwoord.
@@ -23,6 +23,8 @@ const answers = (q) => ({
   // Een keuze die een figuur is, zoals een schets, telt net als de figuur van de vraag niet mee.
   mc: q.mc ? { opts: q.mc.opts.map((o) => (/^<svg/.test(o) ? 'figuur' : o)), a: q.mc.a } : null,
   line: q.line ?? null,
+  // Alleen bij een parabool tekenen, zodat de vingerafdruk van de andere vraagsoorten gelijk blijft.
+  ...(q.parabola ? { parabola: q.parabola } : {}),
 });
 // Afgerond op 10 cijfers, zodat een verschil in de laatste bit tussen Node-versies, bijvoorbeeld
 // bij Math.sin, geen vals alarm geeft.
