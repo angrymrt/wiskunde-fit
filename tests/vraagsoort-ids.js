@@ -101,4 +101,7 @@ export default {
   97: 's32fit',
   98: 's34wall',
   99: 's34fit',
+  100: 's31unknown',
+  101: 's31topUnknown',
+  102: 's32unknown',
 };

@@ -95,7 +95,7 @@ test('havo 3 dekt vijftien paragrafen, zonder de voorkennis', () => {
   assert.equal(count('gedekt'), 12);
   assert.equal(count('deels'), 3);
   assert.equal(count('niet'), 31);
-  assert.equal(skillIdsOf(m).length, 94);
+  assert.equal(skillIdsOf(m).length, 97);
   for (const id of [1, 2, 38, 39, 40]) assert.ok(!skillIdsOf(m).includes(id), `voorkennis ${id}`);
 });
 
@@ -132,7 +132,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
   );
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 99);
+  assert.equal(prog.stof.length, 102);
   setStof([]);
 });
 

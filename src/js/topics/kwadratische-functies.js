@@ -1,5 +1,5 @@
 // Onderwerp: Kwadratische functies. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, coin, near, d, rd, sg } from '../math.js';
+import { ri, nz, pick, coin, near, d, rd, sg, isNice } from '../math.js';
 import {
   F,
   H,
@@ -10,6 +10,9 @@ import {
   slips,
   fairSlips as distinct,
   valueTraps,
+  quadP,
+  unknownSteps,
+  unknownTraps,
 } from './shared.js';
 import { graph } from '../figures.js';
 import { T, dt } from '../typeset.js';
@@ -225,6 +228,42 @@ function s31point() {
       },
     ],
     v: () => near(horner(abc, x), y) && near(horner(abc, x), yP) === on,
+  };
+}
+
+// Een onbekend getal p in de formule, en de grafiek gaat door een gegeven punt. p staat op de
+// plek van a, b of c. Vul het punt in en los de vergelijking op.
+function s31unknown() {
+  let abc, k, x, y;
+  do {
+    k = pick([0, 1, 1, 2]);
+    abc = [pick([-3, -2, -1, 1, 2, 3]), k === 1 ? nz(-8, 8) : pick(B), nz(-9, 9)];
+    x = coin() ? -ri(1, 4) : ri(1, 4);
+    y = value(abc, x);
+  } while (Math.abs(y) > 60);
+  const n = pick(NAMES),
+    P = pick(['A', 'B', 'C', 'D']),
+    p = abc[k],
+    f = quadP(abc, k);
+  return {
+    q: T(
+      `Gegeven is de functie ${n}(x) = ${f}. De grafiek van ${n} gaat door het punt ${P}(${x}, ${y}). Bereken p.`,
+    ),
+    fields: [F('p =', p)],
+    hint: T(
+      `${P} ligt op de grafiek, dus ${n}(${x}) = ${y}. Vul x = ${x} in en los de vergelijking met p op.` +
+        (x < 0 ? ` Zet ${x} tussen haakjes bij het kwadraat: (${x})^2.` : ''),
+    ),
+    steps: [
+      `${P}(${x}, ${y}) ligt op de grafiek van ${n}, dus ${n}(${x}) = ${y}.`,
+      ...unknownSteps(abc, k, x, y),
+    ],
+    traps: unknownTraps(abc, k, x, y, 0, P),
+    // Vul p in de formule zoals die in de vraag staat in, en reken de functiewaarde na.
+    v: () => {
+      const g = readQuad(f.replace('p', String(p)));
+      return g[0] !== 0 && near(horner(g, x), y);
+    },
   };
 }
 
@@ -522,8 +561,8 @@ const STORIES = [
     c: [0],
   },
 ];
-const storyText = (s, n, abc) =>
-  `${s.t} Voor de hoogte van ${s.wat} geldt ${n}(x) = ${quad(abc)}. Hierin is x de afstand in meter vanaf ${s.van} en ${n}(x) de hoogte in meter boven ${s.boven}.`;
+const storyText = (s, n, abc, f = quad(abc)) =>
+  `${s.t} Voor de hoogte van ${s.wat} geldt ${n}(x) = ${f}. Hierin is x de afstand in meter vanaf ${s.van} en ${n}(x) de hoogte in meter boven ${s.boven}.`;
 // Waar het voorwerp neerkomt: het rechter snijpunt met de x-as.
 const landing = (abc) => Math.max(...roots(abc));
 
@@ -621,6 +660,71 @@ function s32further() {
   };
 }
 
+// Een onbekend getal b in een verhaal. Je weet waar het voorwerp neerkomt, of hoe hoog het op een
+// afstand is. Bereken eerst p en daarna de hoogte op een andere afstand.
+function s32unknown() {
+  const s = pick(STORIES),
+    n = pick(NAMES),
+    land = !s.c.some((c) => c) && coin();
+  let abc, x, y, e, L;
+  do {
+    abc = [pick(s.a), pick(s.b), pick(s.c)];
+    L = landing(abc);
+    x = land ? L : ri(2, Math.floor(L) - 1);
+    y = land ? 0 : value(abc, x);
+    e = ri(2, Math.floor(L) - 1);
+  } while (
+    Math.floor(L) < 4 ||
+    !isNice(x, 0) ||
+    !isNice(y, 2) ||
+    (!land && y <= 0) ||
+    e === Math.round(x) ||
+    value(abc, e) <= 0
+  );
+  x = Math.round(x);
+  const [a, p, c] = abc,
+    f = quadP(abc, 1),
+    h = value(abc, e),
+    noSq = rd(a * e + p * e + c, 6),
+    traps = unknownTraps(abc, 1, x, y, 0);
+  if (!near(noSq, h))
+    traps.push({
+      id: 'kwadraat-vergeten',
+      f: (v) => near(v[1], noSq),
+      m: 'Vergeet het kwadraat niet. Reken eerst x² uit en vermenigvuldig dat met het getal ervoor.',
+    });
+  return {
+    q: T(
+      `${storyText(s, n, abc, f)} ${
+        land
+          ? `Op ${x} meter vanaf ${s.van} komt ${s.wat} ${s.neer}.`
+          : `Op ${x} meter vanaf ${s.van} is ${s.wat} ${d(y)} meter hoog.`
+      } Bereken p. Hoe hoog is ${s.wat} op ${e} meter vanaf ${s.van}?`,
+    ),
+    fields: [F('p =', p), F(`hoogte bij x = ${e}:`, h, 'meter')],
+    hint: T(
+      land
+        ? `Komt ${s.wat} bij x = ${x} ${s.neer}, dan is de hoogte daar 0. Dus ${n}(${x}) = 0. Los die vergelijking op. Vul daarna p en x = ${e} in.`
+        : `Bij x = ${x} is de hoogte ${d(y)}, dus ${n}(${x}) = ${d(y)}. Los die vergelijking op. Vul daarna p en x = ${e} in.`,
+    ),
+    steps: [
+      land
+        ? `${s.Wat} komt bij x = ${x} ${s.neer}, dus ${n}(${x}) = 0.`
+        : `Bij x = ${x} is de hoogte ${d(y)} meter, dus ${n}(${x}) = ${d(y)}.`,
+      ...unknownSteps(abc, 1, x, y),
+      `Dus ${n}(x) = ${quad(abc)}.`,
+      fill(n, abc, e),
+      `Dus op ${e} meter vanaf ${s.van} is ${s.wat} ${d(h)} meter hoog.`,
+    ],
+    traps,
+    // Vul p in de formule zoals die in de vraag staat in, en reken beide hoogtes na.
+    v: () => {
+      const k = readQuad(f.replace('p', d(p)));
+      return near(horner(k, x), y) && near(horner(k, e), h) && h > 0 && (!land || near(L, x));
+    },
+  };
+}
+
 export default {
   slug: 'kwadratische-functies',
   title: 'Kwadratische functies',
@@ -640,6 +744,8 @@ export default {
     [71, 'Grafiek bij een formule', s31pick],
     [72, 'Hoogte in een verhaal', s32height],
     [73, 'Verder dan een afstand?', s32further],
+    [100, 'Onbekend getal met een punt', s31unknown],
+    [102, 'Onbekend getal in een verhaal', s32unknown],
   ],
   learn: [
     {
@@ -706,6 +812,34 @@ export default {
           'Dit is gelijk aan y_A = 15, dus A ligt op de grafiek van f.',
         ],
       },
+    },
+    {
+      t: 'Een onbekend getal berekenen',
+      p: [
+        T(
+          'Soms staat er een letter in de formule in plaats van een getal, zoals p in f(x) = x^2 + px - 4. Weet je een punt op de grafiek, dan kun je p berekenen.',
+        ),
+      ],
+      how: [
+        T(
+          'Het punt ligt op de grafiek, dus vul de x-coördinaat in en zet de uitkomst gelijk aan de y-coördinaat.',
+        ),
+        'Reken alles uit wat je kunt uitrekenen. Er blijft een vergelijking met p over.',
+        'Los die vergelijking op.',
+      ],
+      ex: {
+        q: T('De grafiek van f(x) = x^2 + px - 4 gaat door het punt A(-2, 6). Bereken p.'),
+        steps: [
+          'A(-2, 6) ligt op de grafiek van f, dus f(-2) = 6.',
+          '(-2)^2 + p*-2 - 4 = 6',
+          '4 - 2p - 4 = 6',
+          '-2p = 6',
+          'p = -3',
+        ],
+      },
+      watch: T(
+        'Een negatief getal kwadrateer je tussen haakjes: (-2)^2 = 4. Breng je een getal naar de andere kant van het isgelijkteken, dan verandert het teken.',
+      ),
     },
     {
       t: 'De top en de symmetrie',
