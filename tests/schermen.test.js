@@ -88,7 +88,7 @@ test('Kies uit je boek toont de boeken die bij de filters passen, met je boek bo
   assert.deepEqual(all.ids, ['gr13-hv1', 'gr13-hv2', 'gr13-havo3']);
   assert.equal(all.status, '3 boeken');
   assert.doesNotMatch(all.html, /Mijn boek/);
-  assert.match(all.html, /15 van de 46 paragrafen kun je hier oefenen, 5 daarvan deels\./);
+  assert.match(all.html, /15 van de 46 paragrafen kun je hier oefenen, 3 daarvan deels\./);
   assert.match(all.html, /12 van de 39 paragrafen kun je hier deels oefenen\./);
   assert.match(all.html, /Deel 1 en deel 2, leerboek of FLEX-boek/);
   // Een boek voor havo/vwo hoort bij havo en bij vwo.

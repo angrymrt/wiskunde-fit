@@ -97,4 +97,8 @@ export default {
   93: 's34ade',
   94: 's34expand',
   95: 's35expand',
+  96: 's32wall',
+  97: 's32fit',
+  98: 's34wall',
+  99: 's34fit',
 };
