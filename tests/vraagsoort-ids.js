@@ -124,4 +124,8 @@ export default {
   120: 's44misleading',
   121: 's44points',
   122: 's44claim',
+  123: 's45rate',
+  124: 's45inter',
+  125: 's45extra',
+  126: 's45year',
 };
