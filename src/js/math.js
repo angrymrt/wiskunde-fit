@@ -88,16 +88,15 @@ const qDiv = (a, b) => {
   return Q(a.n * b.d, a.d * b.n);
 };
 const near = (x, y, t = 1e-7) => Math.abs(x - y) < t;
-// Rondt af op n decimalen, bij een halve stap weg van nul, zoals op school: 3,75 wordt 3,8 en
-// −3,75 wordt −3,8. Een kommagetal als 2,675 staat in de computer net onder de helft, en toFixed
-// maakt daar 2,67 van. Het kleine extraatje zet zo'n getal weer op de helft.
-// Afronden op n decimalen. Met n = 0 op gehelen, en met een negatieve n op tientallen (−1),
-// duizendtallen (−3), miljoenen (−6) of miljarden (−9).
+// Afronden op n decimalen, bij een halve stap weg van nul, zoals op school: 3,75 wordt 3,8 en
+// −3,75 wordt −3,8. Met n = 0 op gehelen, en met een negatieve n op tientallen (−1),
+// duizendtallen (−3), miljoenen (−6) of miljarden (−9). Een kommagetal als 2,675 staat in de
+// computer net onder de helft, en toFixed maakt daar 2,67 van. Eerst op 12 cijfers afronden zet
+// zo'n getal weer op de helft, zonder ruis aan grote getallen toe te voegen.
 const rd = (x, n = 1) => {
-  const r =
-    n < 0
-      ? Math.round((Math.abs(x) * (1 + 1e-12)) / 10 ** -n) * 10 ** -n
-      : Math.round(Math.abs(x) * 10 ** n * (1 + 1e-12)) / 10 ** n;
+  const half = (s) => Math.round(Number(s.toPrecision(12)));
+  const a = Math.abs(x);
+  const r = n < 0 ? half(a / 10 ** -n) * 10 ** -n : half(a * 10 ** n) / 10 ** n;
   return x < 0 && r ? -r : r;
 };
 // Waarop je afrondt, zoals in de vraag: "1 decimaal", "gehelen" of "duizendtallen".
@@ -109,7 +108,8 @@ const ROUND_WORDS = {
   '-6': 'miljoenen',
   '-9': 'miljarden',
 };
-const roundText = (n) => (n === 1 ? '1 decimaal' : n > 1 ? `${n} decimalen` : ROUND_WORDS[n]);
+const roundText = (n) =>
+  n === 1 ? '1 decimaal' : n > 1 ? `${n} decimalen` : ROUND_WORDS[n] || `${10 ** -n}-tallen`;
 const isNice = (x, n = 1) => near(x, rd(x, n), 1e-7);
 const d = (x) => String(Number((+x).toFixed(6))).replace('.', ',');
 const ap = (x, n = 1) => `${isNice(x, n) ? '=' : '≈'} ${d(rd(x, n))}`;

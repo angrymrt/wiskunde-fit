@@ -151,7 +151,7 @@ function assertSound(q) {
   // Bij een tekenvraag verschuift alleen de y van het eerste punt (bij een parabool de top), want twee punten even ver opschuiven kan weer
   // een punt op dezelfde lijn geven.
   const wrong = q.fields.map((f, i) =>
-    f.sel ? f.a : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7),
+    f.sel ? f.a : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7 * 10 ** -(f.round ?? 0)),
   );
   assert.ok(!checkAnswer(q, wrong).ok, `fout antwoord goedgekeurd: ${q.q}`);
   assert.ok(checkAnswer(stored(q), right).ok, `bewaard goed antwoord afgekeurd: ${q.q}`);

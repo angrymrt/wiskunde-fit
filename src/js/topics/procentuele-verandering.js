@@ -239,7 +239,7 @@ function s41change() {
       `Dus de procentuele ${word} is ${pc(A)}%.`,
     ],
     traps: [
-      miss(up ? 'oud-min-nieuw' : 'min-teken', 0, [-A], A, ...PCT, msgSign),
+      miss('min-teken', 0, [-A], A, ...PCT, msgSign),
       miss(
         'gedeeld-door-nieuw',
         0,

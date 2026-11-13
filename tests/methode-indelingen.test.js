@@ -89,7 +89,7 @@ test('een deels gedekte paragraaf zegt wat ontbreekt', () => {
   }
 });
 
-test('havo 3 dekt vijftien paragrafen, zonder de voorkennis', () => {
+test('havo 3 dekt zestien paragrafen en één deels, zonder de voorkennis', () => {
   const m = MAPPING['gr13-havo3'];
   const count = (c) => paragraphsOf(m).filter((p) => p.coverage === c).length;
   assert.equal(count('gedekt'), 16);
