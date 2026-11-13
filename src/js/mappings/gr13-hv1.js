@@ -77,7 +77,7 @@ export default {
         ['4.1', 'Getallen met een komma'],
         ['4.2', 'Werken met de rekenmachine'],
         ['4.3', 'Rekenen bij situaties uit het dagelijks leven'],
-        ['4.4', 'Kennismaken met procenten'],
+        ['4.4', 'Kennismaken met procenten', [105], 'deels'],
         ['4.5', 'Grootheden die samen veranderen'],
       ],
     },

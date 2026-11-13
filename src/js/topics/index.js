@@ -22,10 +22,22 @@ import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
 import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
+import procenten from './procentuele-verandering.js';
+import terugrekenen from './rekenen-met-procenten.js';
 import { newSeed, withSeed } from '../math.js';
 import { roundTraps } from '../answers.js';
 
 const DOMAINS = [
+  {
+    slug: 'getallen-en-rekenen',
+    name: 'Getallen en rekenen',
+    intro:
+      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Hier reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
+    description:
+      'Rekenen met procenten: procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis wiskunde oefenen met uitleg.',
+    color: 'teal',
+    topics: [procenten, terugrekenen],
+  },
   {
     slug: 'rekenen-met-letters',
     name: 'Rekenen met letters',
@@ -84,6 +96,7 @@ const PREREQUISITES = new Map([
   [gelijkvormig, [verhoudingen, pythagoras]],
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],
+  [terugrekenen, [procenten]],
 ]);
 
 const DOMAIN = Object.fromEntries(DOMAINS.map((d) => [d.slug, d]));

@@ -38,7 +38,21 @@ const vt = (top, bot) =>
 // je hem ook met het toetsenbord schuiven. De naam is uniek op het scherm.
 const dt = (rows, label) =>
   `<div class="scroll"${label ? ` role="region" tabindex="0" aria-label="${esc(label).replace(/"/g, '&quot;')}"` : ''}><table class="dt">${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${T(c)}</td>` : `<th>${T(c)}</th>`)).join('')}</tr>`).join('')}</table></div>`;
+// Een pijlschema zoals in het boek: vakken, met tussen elk paar heen een pijl met × en terug een
+// pijl met :, zoals oud → nieuw met × 1,12 en terug : 1,12. factoren staan tussen de vakken, als
+// tekst. Een schermlezer leest de zin uit aria-label.
+function schema(vakken, factoren) {
+  const zin = factoren
+    .map((f, i) => `Van ${vakken[i]} naar ${vakken[i + 1]} keer ${f}, terug gedeeld door ${f}.`)
+    .join(' ');
+  const delen = vakken.map((v, i) =>
+    i
+      ? `<span class="pijlen"><span class="pijl">× ${esc(factoren[i - 1])}</span><span class="pijl terug">: ${esc(factoren[i - 1])}</span></span><span class="vak">${T(v)}</span>`
+      : `<span class="vak">${T(v)}</span>`,
+  );
+  return `<span class="schema" role="img" aria-label="Pijlschema. ${esc(zin).replace(/"/g, '&quot;')}">${delen.join('')}</span>`;
+}
 const stepsHTML = (st) =>
   `<ul class="steps">${st.map((s) => `<li>${typeof s === 'string' ? T(s) : s.h}</li>`).join('')}</ul>`;
 
-export { esc, T, vt, dt, stepsHTML };
+export { esc, T, vt, dt, schema, stepsHTML };

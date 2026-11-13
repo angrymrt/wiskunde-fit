@@ -1,6 +1,6 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
 import { geo, graph } from '../figures.js';
-import { shuffle, Q, qv, isNice, sg, near, fr, d, rd, lin, dlin } from '../math.js';
+import { shuffle, Q, qv, isNice, sg, near, fr, d, rd, lin, dlin, roundText } from '../math.js';
 import { dt } from '../typeset.js';
 
 // Letterparen voor een formule met andere letters dan x en y.
@@ -41,15 +41,16 @@ const flipTrap = (fields, wrong, m = FLIP) => ({
       const f = fields[i];
       if (near(w, f.a, 1e-6) || !Number.isFinite(v[i])) return false;
       // Komt het foute getal niet mooi uit, dan rondt een leerling het zelf af, zoals 4,7 bij 4,666…
-      const tol = f.round ? 0.5 * 10 ** -f.round : isNice(w, 4) ? 0 : 0.051;
+      const tol = f.round != null ? 0.5 * 10 ** -f.round : isNice(w, 4) ? 0 : 0.051;
       return Math.abs(v[i] - w) <= tol + 1e-9;
     }),
   m,
 });
-const needRound = (fs) =>
-  fs.some((f) => f.round)
-    ? ` Rond af op ${fs.find((f) => f.round).round === 1 ? '1 decimaal' : fs.find((f) => f.round).round + ' decimalen'}.`
-    : '';
+// "Rond af op ..." achter de vraag, als een veld moet worden afgerond. Zie roundText in math.js.
+const needRound = (fs) => {
+  const f = fs.find((g) => g.round != null);
+  return f ? ` Rond af op ${roundText(f.round)}.` : '';
+};
 const MC = (opts, a) => {
   const idx = shuffle(opts.map((_, i) => i));
   return { opts: idx.map((i) => opts[i]), a: idx.indexOf(a) };

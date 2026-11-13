@@ -43,7 +43,7 @@ const answerOf = `(q) => {
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {
@@ -326,7 +326,7 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     // Mijn stof: uit welk boek de stof komt, en een half gekozen onderwerp staat half aangevinkt.
     await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-3'));
     assert.deepEqual(await current(), ['Mijn stof true']);
-    assert.equal(await p.locator('.chapter details').count(), 6, 'ingeklapte hoofdstukken');
+    assert.equal(await p.locator('.chapter details').count(), 5, 'ingeklapte hoofdstukken');
     await p.click('[data-act="chapter"][data-id="1"]');
     // De balk onderaan geeft ruimte bij het scrollen, ook in browsers zonder :has().
     const withBar = () =>
@@ -771,8 +771,8 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
       await p.textContent('label:has([data-act="para"][data-id="3.3"])'),
       /Pythagoras .* nog niet oefenen/,
     );
-    assert.equal(await p.locator('[data-act="chapter"][data-id="4"]').count(), 0);
-    assert.match(await p.textContent('.chapter:nth-of-type(4)'), /nog niet oefenen/);
+    assert.equal(await p.locator('[data-act="chapter"][data-id="5"]').count(), 0);
+    assert.match(await p.textContent('.chapter:nth-of-type(5)'), /nog niet oefenen/);
     await fits('methode-indeling');
     await p.screenshot({ path: `${shotDir}methode-indeling.png`, fullPage: true });
 

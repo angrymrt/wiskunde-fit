@@ -100,8 +100,8 @@ export default {
       part: 'deel 1',
       description: 'Procenten en gegevens',
       paragraphs: [
-        ['4.1', 'Toename en afname in procenten'],
-        ['4.2', 'Verschillende berekeningen met procenten'],
+        ['4.1', 'Toename en afname in procenten', [106, 107, 108, 109, 110]],
+        ['4.2', 'Verschillende berekeningen met procenten', [111, 112, 113, 114]],
         ['4.3', 'Gegevens verwerken in tabellen en diagrammen'],
         ['4.4', 'Cijfers en diagrammen die een verkeerd beeld geven'],
         ['4.5', 'Waarden schatten tussen en buiten bekende gegevens'],

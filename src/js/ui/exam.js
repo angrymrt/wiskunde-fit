@@ -238,7 +238,7 @@ const filled = (v) => String(v ?? '').trim();
 const typed = (v) =>
   filled(v) ? esc(filled(v)).replace(/-/g, '−') : '<span class="muted">niet ingevuld</span>';
 const rightField = (f) =>
-  `${f.sel ? esc(f.a) : (f.round ? '≈ ' : '') + T(f.round ? d(rd(f.a, f.round)) : fmtAns(f.a))}${f.post ? ' ' + T(f.post) : ''}`;
+  `${f.sel ? esc(f.a) : (f.round != null ? '≈ ' : '') + T(f.round != null ? d(rd(f.a, f.round)) : fmtAns(f.a))}${f.post ? ' ' + T(f.post) : ''}`;
 function answerRows({ q, vals, c }) {
   if (q.mc)
     return [[null, filled(vals[0]) ? q.mc.opts[vals[0]] : typed(''), c.each[0], q.mc.opts[q.mc.a]]];

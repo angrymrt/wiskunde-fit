@@ -53,6 +53,8 @@
   --forest-soft: #dff3e6;
   --plum: #7b3a96;
   --plum-soft: #f1e4f7;
+  --teal: #00727a;
+  --teal-soft: #d9f1f2;
   --pink: #cf1f68;
   --green: #4e8a12;
   --mark: #ffe75e;
@@ -86,6 +88,8 @@
     --forest-soft: #143524;
     --plum: #d6a3ef;
     --plum-soft: #34203f;
+    --teal: #5fd3d9;
+    --teal-soft: #103a3d;
     --pink: #ff7fb0;
     --green: #a6d96a;
     --mark: #5c4f10;
@@ -115,6 +119,8 @@
   --forest-soft: #143524;
   --plum: #d6a3ef;
   --plum-soft: #34203f;
+  --teal: #5fd3d9;
+  --teal-soft: #103a3d;
   --pink: #ff7fb0;
   --green: #a6d96a;
   --mark: #5c4f10;
@@ -743,6 +749,10 @@ sub {
   --accent: var(--plum);
   --accent-soft: var(--plum-soft);
 }
+.color-teal {
+  --accent: var(--teal);
+  --accent-soft: var(--teal-soft);
+}
 .par {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -810,6 +820,10 @@ sub {
 }
 /* De kop bovenaan in een blok, met een lijn tussen de kop en de rest. Alleen Home heeft een losse
    kop. Een onderwerp en een domein hebben hun eigen kop in het blok. */
+.sheet.shell {
+  min-height: 90vh;
+  align-content: start;
+}
 .sheet-head {
   padding-bottom: 16px;
   border-bottom: 1px solid var(--rule);
@@ -1154,6 +1168,41 @@ sub {
   border: 5px solid transparent;
   border-right: 0;
   border-left: 8px solid currentColor;
+}
+/* Een pijl terug, met de punt links. */
+.pijl.terug {
+  padding: 0 0.2em 1px 0.7em;
+}
+.pijl.terug::after {
+  right: auto;
+  left: -2px;
+  border-right: 8px solid currentColor;
+  border-left: 0;
+}
+/* Een pijlschema zoals in het boek: vakken met heen een pijl met × en terug een pijl met :. */
+.schema {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+  vertical-align: middle;
+  margin: 2px 0;
+}
+.schema .vak {
+  padding: 2px 9px;
+  border: 1.5px solid var(--blue);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.pijlen {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 2px;
+  text-align: center;
+}
+.pijlen .pijl {
+  margin: 0 0.5em 0.35em;
 }
 ol.how {
   margin: 0;
