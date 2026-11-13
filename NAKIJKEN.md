@@ -26,6 +26,7 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - De site heeft geen gemengde opgaven en geen onderzoeken, zoals die aan het eind van een hoofdstuk in het boek staan.
 - Bij ontbinden met de product-som-methode vul je de twee getallen in op de plek van de stippen in (x + …)(x + …). Een negatief getal vul je in als −3. Dat staat dan als (x + −3), en de uitwerking schrijft (x − 3).
 - Bij een vermenigvuldigingsfactor, zoals 0,82, kies je toename of afname uit een lijst en vul je het percentage zonder teken in.
+- Bij de vraag of een bewering over een diagram klopt, reken je eerst iets uit en kies je daarna uit klopt of klopt niet. In het boek leg je dat uit in een zin.
 - Een groot getal mag je typen met een spatie tussen de duizendtallen, zoals 16 100, net als in het boek. Een punt is een komma, dus 16.100 is 16,1.
 - Bij een kwadratische vergelijking mag je de oplossingen in elke volgorde invullen. Een oplossing die een breuk is, mag je invullen als breuk, als gemengd getal of als kommagetal dat goed is afgerond op twee of meer decimalen. Bij 5/3 is 1,67 dus goed, maar 1,66 en 1,7 niet. Een valkuil herkent zo'n afgerond getal ook.
 - Bij de top vul je x_top en y_top in twee velden in. In het boek schrijf je daarna nog "Dus de top is (3, −5)". Die zin staat in de uitwerking.

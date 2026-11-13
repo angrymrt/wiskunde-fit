@@ -591,6 +591,10 @@ const rightTriFig = (a, b, labels = {}, L = 'ABC') => {
 // breedte per staaf of punt, of de straal van de cirkel, en h de hoogte van de as.
 // Een reeks heeft ook een naam in de legenda en bij een lijn een eigen vorm van de punten, zodat je
 // de reeksen niet alleen aan de kleur herkent. De beschrijving noemt alle getallen.
+// Voor misleidende diagrammen: y2 is een tweede verticale as rechts, { yr, ys, yn, unit }, voor de
+// reeksen van een lijndiagram met ax: 2. Met grow is een staaf breder naarmate hij hoger is, zoals
+// een plaatje dat in de hoogte en de breedte groeit. Staan jaartallen zonder at op gelijke afstand
+// terwijl de stappen verschillen, dan zegt de beschrijving dat de punten op gelijke afstand staan.
 const KINDS = {
   staaf: 'Staafdiagram',
   stapel: 'Gestapeld staafdiagram',
@@ -628,6 +632,8 @@ function chart({
   pct = false,
   u = kind === 'cirkel' ? 70 : 48,
   h = 160,
+  y2,
+  grow = false,
   label = KINDS[kind],
 }) {
   const S = series.map((s, i) => ({ ...s, c: s.c || i + 1 })),
@@ -671,22 +677,44 @@ function chart({
     const stack = kind === 'stapel',
       tops = stack
         ? cats.map((_, j) => S.reduce((a, s) => a + s.values[j], 0))
-        : S.flatMap((s) => s.values),
+        : S.filter((s) => !y2 || s.ax !== 2).flatMap((s) => s.values),
       [lo, hi0] = yr || [0],
       step = ys || niceStep((hi0 ?? Math.max(...tops)) - lo),
       hi = hi0 ?? Math.ceil(Math.max(...tops) / step - 1e-9) * step,
       ticks = [];
     for (let k = 0; lo + k * step <= hi + 1e-9; k++) ticks.push(rd(lo + k * step, 6));
-    const axis = [yn, unit && `(${unit})`].filter(Boolean).join(' '),
+    const axisName = (n, un) => [n, un && `(${un})`].filter(Boolean).join(' '),
+      axis = axisName(yn, unit),
       ml = 14 + 7 * Math.max(...ticks.map((t) => num(t).length)),
       mt = top + (axis ? 20 : 0) + (vals ? 14 : 6),
       pw = n * u,
-      Y = (v) => mt + ((hi - Math.min(hi, Math.max(lo, v))) / (hi - lo)) * h,
+      scale = (a, b) => (v) => mt + ((b - Math.min(b, Math.max(a, v))) / (b - a)) * h,
+      Y = scale(lo, hi),
       yB = Y(lo) + (brk ? 18 : 0),
       X = (j) => ml + u / 2 + (at ? ((at[j] - at[0]) / (at[n - 1] - at[0])) * (n - 1) : j) * u,
       legend = S.length > 1 ? (stack ? [...S].reverse() : S) : [],
       lg = yB + (xn ? 42 : 22);
-    W = Math.max(ml + pw + 16, (axis.length + 2) * 7, title.length * 9.5 + 16);
+    // De tweede as rechts, met eigen getallen. Een reeks met ax: 2 hoort daarbij.
+    const R = y2 && {
+      axis: axisName(y2.yn, y2.unit),
+      lo: y2.yr[0],
+      hi: y2.yr[1],
+      step: y2.ys || niceStep(y2.yr[1] - y2.yr[0]),
+      x: ml + pw + 8,
+    };
+    const ticks2 = [];
+    if (R) {
+      for (let k = 0; R.lo + k * R.step <= R.hi + 1e-9; k++) ticks2.push(rd(R.lo + k * R.step, 6));
+      R.Y = scale(R.lo, R.hi);
+    }
+    const YS = (s) => (R && s.ax === 2 ? R.Y : Y),
+      side = (s) => (R ? ` (as ${s.ax === 2 ? 'rechts' : 'links'})` : ''),
+      mr = R ? 14 + 7 * Math.max(...ticks2.map((t) => num(t).length)) : 8;
+    W = Math.max(
+      ml + pw + 8 + mr,
+      (axis.length + 2) * 7 + (R ? (R.axis.length + 2) * 7 : 0),
+      title.length * 9.5 + 16,
+    );
     H = lg + 18 * legend.length + (legend.length ? 6 : 0);
     for (const t of ticks)
       o += `<line class="gl" x1="${ml}" x2="${ml + pw}" y1="${f1(Y(t))}" y2="${f1(Y(t))}"/>${txt(ml - 6, Y(t) + 4, num(t), 'tk', 'end')}`;
@@ -697,13 +725,23 @@ function chart({
     cats.forEach((c, j) => (o += txt(X(j), yB + 17, c)));
     if (xn) o += txt(ml + pw / 2, yB + 37, xn);
     if (axis) o += txt(4, mt - 14, axis, 'tc', 'start');
-    const bw = u * 0.6;
+    if (R) {
+      o += `<path class="ax" d="M${R.x} ${mt - 8}V${f1(yB)}${ticks2.map((t) => `M${R.x} ${f1(R.Y(t))}h4`).join('')}"/>`;
+      for (const t of ticks2) o += txt(R.x + 7, R.Y(t) + 4, num(t), 'tk', 'start');
+      if (R.axis) o += txt(W - 4, mt - 14, R.axis, 'tc', 'end');
+    }
+    // Met grow is de breedste staaf die van het grootste getal.
+    const most = Math.max(...tops),
+      bw = (v) => (grow ? (u * 0.9 * v) / most : u * 0.6);
     if (kind === 'lijn')
       S.forEach((s, i) => {
-        o += `<path class="ln c${s.c}" d="M${s.values.map((v, j) => `${f1(X(j))} ${f1(Y(v))}`).join('L')}"/>`;
+        const Ys = YS(s);
+        o += `<path class="ln c${s.c}" d="M${s.values.map((v, j) => `${f1(X(j))} ${f1(Ys(v))}`).join('L')}"/>`;
         s.values.forEach((v, j) => {
-          o += mark(i, X(j), Y(v), s.c);
-          if (vals) o += txt(X(j), Y(v) - 8, num(v));
+          o += mark(i, X(j), Ys(v), s.c);
+          // Ligt een andere lijn hier hoger, dan staat het getal onder het punt.
+          const under = S.some((t) => t !== s && YS(t)(t.values[j]) < Ys(v));
+          if (vals) o += txt(X(j), Ys(v) + (under ? 18 : -8), num(v));
         });
       });
     else
@@ -713,7 +751,7 @@ function chart({
           const v = s.values[j],
             y0 = base ? Y(base) : yB,
             y1 = Y(base + v);
-          o += `<rect class="st c${s.c}" x="${f1(X(j) - bw / 2)}" y="${f1(y1)}" width="${f1(bw)}" height="${f1(y0 - y1)}"/>`;
+          o += `<rect class="st c${s.c}" x="${f1(X(j) - bw(v) / 2)}" y="${f1(y1)}" width="${f1(bw(v))}" height="${f1(y0 - y1)}"/>`;
           if (vals && (!stack || y0 - y1 >= 16))
             o += txt(X(j), stack ? (y0 + y1) / 2 + 5 : y1 - 5, num(v));
           if (stack) base += v;
@@ -726,14 +764,25 @@ function chart({
         (kind === 'lijn'
           ? `<path class="ln c${s.c}" d="M${ml} ${y}h22"/>${mark(i, ml + 11, y, s.c)}`
           : `<rect class="st c${s.c}" x="${ml + 4}" y="${y - 6}" width="14" height="12"/>`) +
-        txt(ml + 30, y + 5, s.name, 'tc', 'start');
+        txt(ml + 30, y + 5, s.name + side(s), 'tc', 'start');
     });
+    const left = R ? ' links' : '';
     if (xn) out.push(`Langs de horizontale as: ${xn}.`);
-    if (axis) out.push(`Langs de verticale as: ${axis}.`);
+    if (axis) out.push(`Langs de verticale as${left}: ${axis}.`);
+    if (R?.axis) out.push(`Langs de verticale as rechts: ${R.axis}.`);
     out.push(
-      `De verticale as ${brk ? 'begint bij 0, is onderbroken en loopt verder' : 'loopt'} van ${num(lo)} tot ${num(hi)}, in stappen van ${num(step)}.`,
+      `De verticale as${left} ${brk ? 'begint bij 0, is onderbroken en loopt verder' : 'loopt'} van ${num(lo)} tot ${num(hi)}, in stappen van ${num(step)}.`,
     );
+    if (R)
+      out.push(
+        `De verticale as rechts loopt van ${num(R.lo)} tot ${num(R.hi)}, in stappen van ${num(R.step)}.`,
+      );
+    // Jaartallen met verschillende stappen op gelijke afstand: dat moet je ook zonder figuur weten.
+    const gaps = cats.slice(1).map((c, j) => +c - +cats[j]);
+    if (kind === 'lijn' && !at && gaps.every(Number.isFinite) && new Set(gaps).size > 1)
+      out.push('De punten staan op gelijke afstand van elkaar.');
     if (kind === 'staaf') out.push(`De staven: ${list(S[0].values)}.`);
+    if (grow) out.push('De staven zijn niet even breed: hoe hoger de staaf, hoe breder.');
     if (stack) {
       out.push(`Elke staaf bestaat van onder naar boven uit ${and(S.map((s) => s.name))}.`);
       cats.forEach((c, j) =>
@@ -743,7 +792,7 @@ function chart({
     if (kind === 'lijn')
       S.forEach((s, i) =>
         out.push(
-          `${S.length > 1 ? `De lijn van ${s.name}, met ${SHAPES[i % 3]}` : 'De punten van de lijn'}: ${list(s.values)}.`,
+          `${S.length > 1 ? `De lijn van ${s.name}${side(s)}, met ${SHAPES[i % 3]}` : 'De punten van de lijn'}: ${list(s.values)}.`,
         ),
       );
   }

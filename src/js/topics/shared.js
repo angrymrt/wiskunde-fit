@@ -51,6 +51,23 @@ const needRound = (fs) => {
   const f = fs.find((g) => g.round != null);
   return f ? ` Rond af op ${roundText(f.round)}.` : '';
 };
+// Een valkuil voor veld i: de leerling vult een getal uit ws in dat je met een bekende fout krijgt,
+// ook als hij dat zelf afrondt (tol). allow is hoeveel het goede antwoord na afronden mag schelen.
+// Een fout getal dat te dicht bij het goede antwoord of bij 0 ligt, telt niet mee.
+function miss(i, ws, right, tol, allow = 0) {
+  const wrong = ws.filter(
+    (w) =>
+      Number.isFinite(w) && Math.abs(w) > tol + 1e-9 && Math.abs(w - right) > tol + allow + 1e-9,
+  );
+  return wrong.length
+    ? (v) => Number.isFinite(v[i]) && wrong.some((w) => Math.abs(v[i] - w) <= tol + 1e-9)
+    : null;
+}
+// Eén valkuil voor dezelfde fout in een of meer velden.
+function trap(id, m, ...fs) {
+  const ts = fs.filter(Boolean);
+  return ts.length ? { id, f: (v) => ts.some((f) => f(v)), m } : null;
+}
 const MC = (opts, a) => {
   const idx = shuffle(opts.map((_, i) => i));
   return { opts: idx.map((i) => opts[i]), a: idx.indexOf(a) };
@@ -498,6 +515,8 @@ export {
   needRound,
   orFields,
   flipTrap,
+  miss,
+  trap,
   MC,
   plug,
   quad,

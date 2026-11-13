@@ -25,6 +25,7 @@ import lengtes from './lengtes-van-lijnstukken-berekenen.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
+import misleidend from './misleidende-statistiek.js';
 import { newSeed, withSeed } from '../math.js';
 import { roundTraps } from '../answers.js';
 
@@ -83,11 +84,11 @@ const DOMAINS = [
     slug: 'statistiek',
     name: 'Statistiek',
     intro:
-      'Bij statistiek verzamel je gegevens en zet je ze overzichtelijk in een tabel of een diagram. Hier reken je met gegevens uit tabellen, staafdiagrammen en cirkeldiagrammen, en leer je welk diagram bij welke gegevens past.',
+      'Bij statistiek verzamel je gegevens en zet je ze overzichtelijk in een tabel of een diagram. Hier reken je met gegevens uit tabellen, staafdiagrammen en cirkeldiagrammen, leer je welk diagram bij welke gegevens past en herken je misleidende diagrammen.',
     description:
-      'Statistiek: rekenen met tabellen en diagrammen, met het gemiddelde, een aandeel en de procentuele verandering. Gratis wiskunde oefenen met uitleg.',
+      'Statistiek: rekenen met tabellen en diagrammen, misleidende diagrammen herkennen en rekenen met procentpunten. Gratis wiskunde oefenen met uitleg.',
     color: 'berry',
-    topics: [tabellen],
+    topics: [tabellen, misleidend],
   },
 ];
 
@@ -109,6 +110,7 @@ const PREREQUISITES = new Map([
   [lengtes, [pythagoras, gelijkvormig]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
+  [misleidend, [procenten, tabellen]],
 ]);
 
 const DOMAIN = Object.fromEntries(DOMAINS.map((d) => [d.slug, d]));
