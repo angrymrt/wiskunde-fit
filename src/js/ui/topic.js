@@ -1,4 +1,5 @@
 // De schermen van een onderwerp: de uitleg en het oefenen.
+import { isDrawing } from '../answers.js';
 import { prog, skillPct, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { topicOf } from '../stof.js';
@@ -102,7 +103,7 @@ function vPractice(s, title) {
   const share = shareHTML(st.skill, q);
   return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}</span></div>${share.note}</div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
-  <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !q.line && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
+  <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !isDrawing(q) && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
   ${st.hint && !done ? `<div class="hintb"><b>Hint:</b> ${/<span/.test(q.hint) ? q.hint : T(q.hint)}</div>` : ''}
   <div class="row">${done ? `<button class="btn main" type="submit" id="nextq" ${st.msg ? 'aria-describedby="pfb"' : ''}>Volgende vraag</button>` : `<button class="btn main" type="submit">Controleer</button>${st.hint ? '' : `<button class="btn" type="button" data-act="hint">Hint</button>`}<button class="btn quiet" type="button" data-act="show">Toon uitwerking</button>`}${st.status === 'right' && !st.sol ? `<button class="btn quiet" type="button" data-act="showsol">Bekijk uitwerking</button>` : ''}</div></form>

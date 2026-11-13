@@ -4,13 +4,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
 import { flipTrap, orFields, MC } from '../src/js/topics/shared.js';
-import { graph } from '../src/js/figures.js';
+import { drawnHTML, graph } from '../src/js/figures.js';
 import { parseSeed, rd, seedText } from '../src/js/math.js';
 import {
   checkAnswer,
   checkField,
   fillState,
   findTrap,
+  isDrawing,
   matchFields,
   parseNum,
   roundTraps,
@@ -134,7 +135,7 @@ function assertSound(q) {
   // hoogstens vier velden, want het nakijken probeert alle volgordes.
   const groups = q.fields.filter((f) => f.grp != null);
   for (const f of groups) {
-    assert.ok(!f.sel && !q.line, `groep bij een keuzelijst of tekenvraag: ${q.q}`);
+    assert.ok(!f.sel && !isDrawing(q), `groep bij een keuzelijst of tekenvraag: ${q.q}`);
     const size = groups.filter((g) => g.grp === f.grp).length;
     assert.ok(size >= 2 && size <= 4, `groep met ${size} velden: ${q.q}`);
   }
@@ -147,10 +148,10 @@ function assertSound(q) {
     assert.ok(checkAnswer(stored(q), r).ok, `bewaard goed antwoord afgekeurd: ${q.q}`);
     assertNoTrap(q, r);
   }
-  // Bij een tekenvraag verschuift alleen de eerste y, want twee punten even ver opschuiven kan weer
+  // Bij een tekenvraag verschuift alleen de y van het eerste punt (bij een parabool de top), want twee punten even ver opschuiven kan weer
   // een punt op dezelfde lijn geven.
   const wrong = q.fields.map((f, i) =>
-    f.sel ? f.a : typed(q.line ? (i === 1 ? f.a + 7 : f.a) : f.a + 7),
+    f.sel ? f.a : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7),
   );
   assert.ok(!checkAnswer(q, wrong).ok, `fout antwoord goedgekeurd: ${q.q}`);
   assert.ok(checkAnswer(stored(q), right).ok, `bewaard goed antwoord afgekeurd: ${q.q}`);
@@ -314,7 +315,7 @@ test('ontbinden: getallen zonder teken in (x + …) krijgen een melding over het
 });
 
 test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
-  const drawing = TOPICS.flatMap((s) => s.skills).filter((k) => /tekenen$/.test(k.name));
+  const drawing = TOPICS.flatMap((s) => s.skills).filter((k) => makeQuestion(k, 1).line);
   assert.equal(drawing.length, 3);
   for (const skill of drawing) {
     eachQuestion(
@@ -332,6 +333,95 @@ test('bij een lijn tekenen is elk paar punten op de lijn goed', () => {
       },
     );
   }
+});
+
+test('bij een parabool tekenen is de top precies, en elk ander punt op de parabool goed', () => {
+  const drawing = TOPICS.flatMap((s) => s.skills).filter((k) => makeQuestion(k, 1).parabola);
+  assert.equal(drawing.length, 2);
+  for (const skill of drawing) {
+    eachQuestion(
+      TOPICS.find((t) => t.skills.includes(skill)),
+      skill,
+      (q) => {
+        const [h, k, x2, y2, x3, y3] = q.fields.map((f) => f.a);
+        const { a, b, c } = q.parabola,
+          f = (x) => a * x * x + b * x + c,
+          // Twee andere punten op de parabool, verder van de top dan het voorbeeld.
+          far = [h - 3, f(h - 3)],
+          far2 = [h + 4, f(h + 4)];
+        const answer = (...vals) => checkAnswer(q, vals.map(String));
+        assert.ok(answer(h, k, ...far, ...far2).ok, `andere punten afgekeurd: ${q.q}`);
+        assert.ok(answer(h, k, x3, y3, x2, y2).ok, `omgekeerde volgorde afgekeurd: ${q.q}`);
+        // Ook een ander goed antwoord valt in geen enkele valkuil.
+        assertNoTrap(q, [h, k, ...far, ...far2].map(String));
+        assertNoTrap(q, [h, k, x3, y3, x2, y2].map(String));
+        assert.ok(!answer(h, k, x2, y2, x2, y2).ok, `twee keer hetzelfde punt goedgekeurd: ${q.q}`);
+        assert.ok(!answer(h, k, h, k, x2, y2).ok, `de top als ander punt goedgekeurd: ${q.q}`);
+        assert.ok(!answer(...far, h, k, x2, y2).ok, `top op een andere plek goedgekeurd: ${q.q}`);
+        assert.deepEqual(answer(h, k + 1, x2, y2, x3, y3 + 1).each, [
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+        ]);
+        assert.ok(!answer(h, k, x2, y2, '', '').ok, `twee punten goedgekeurd: ${q.q}`);
+        // Gespiegeld in de top: een bergparabool in plaats van een dal, of andersom.
+        assert.equal(
+          findTrap(q, [h, k, x2, 2 * k - y2, x3, 2 * k - y3])?.id,
+          'dal-berg-omgedraaid',
+        );
+        assert.equal(findTrap(q, [h, k, x2, y2, x2, y2])?.id, 'zelfde-punt');
+        assert.equal(findTrap(q, [h, k, x2, y2, x3, y3 + 1])?.id, 'een-punt-fout');
+        assert.equal(findTrap(q, [x2, y2, h, k, x3, y3])?.id, 'top-niet-eerst');
+      },
+    );
+  }
+});
+
+test('een getekende parabool staat door drie punten in het rooster', () => {
+  const data = '-5,5,-6,6,28,30,20';
+  // Drie punten van y = x² − 2: een pad, geen lijn.
+  const curve = drawnHTML(data, [
+    [0, -2],
+    [1, -1],
+    [2, 2],
+  ]);
+  assert.match(curve, /<path class="l1" d="M/);
+  assert.equal((curve.match(/<circle/g) || []).length, 3);
+  // Drie punten op één rechte lijn: dan staat die lijn er.
+  assert.match(
+    drawnHTML(data, [
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ]),
+    /<line class="l1"/,
+  );
+  // Twee punten met dezelfde x, of een punt dat ontbreekt: geen grafiek, wel de punten.
+  const none = drawnHTML(data, [
+    [0, 0],
+    [0, 1],
+    [2, 2],
+  ]);
+  assert.doesNotMatch(none, /<path|<line/);
+  assert.doesNotMatch(
+    drawnHTML(data, [
+      [0, 0],
+      [1, 1],
+      [NaN, 2],
+    ]),
+    /<path|<line/,
+  );
+  // Een lijn met één punt is nog geen lijn.
+  assert.doesNotMatch(
+    drawnHTML(data, [
+      [0, 0],
+      [NaN, NaN],
+    ]),
+    /<line/,
+  );
 });
 
 test('oude voortgang verhuist mee met de nieuwe indeling', () => {

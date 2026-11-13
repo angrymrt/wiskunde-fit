@@ -83,18 +83,19 @@ function s15value() {
 
 ### Velden van een vraag
 
-| Veld      | Verplicht   | Betekenis                                                                                                                             |
-| --------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `q`       | ja          | De vraag als HTML, meestal gemaakt met `T(...)`                                                                                       |
-| `fields`  | of `mc`     | Invoervelden, zie hieronder                                                                                                           |
-| `mc`      | of `fields` | Meerkeuze, gemaakt met `MC([goed, fout, fout], 0)`; de keuzes worden geschud. Een keuze mag ook een figuur zijn, zie hieronder        |
-| `hint`    | ja          | Tekst, wordt automatisch omgezet met `T`                                                                                              |
-| `steps`   | ja          | De uitwerking: tekst voor `T`, of `H(html)` voor kant-en-klare HTML                                                                   |
-| `v`       | aanbevolen  | Controlefunctie, moet `true` geven                                                                                                    |
-| `fig`     | nee         | Figuur als SVG-tekst, uit `graph(...)` of `geo(...)`; `graph` tekent ook parabolen                                                    |
-| `traps`   | nee         | Valkuilen met gerichte feedback: `[{ id: 'naam', f: (waarden) => boolean, m: 'bericht' }]`; de waarden staan in de ingevulde volgorde |
-| `line`    | nee         | De lijn `{ a, b }` bij een tekenvraag: elk paar punten erop is goed                                                                   |
-| `compact` | nee         | Smalle velden, voor een formule of punt op één regel                                                                                  |
+| Veld       | Verplicht   | Betekenis                                                                                                                             |
+| ---------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `q`        | ja          | De vraag als HTML, meestal gemaakt met `T(...)`                                                                                       |
+| `fields`   | of `mc`     | Invoervelden, zie hieronder                                                                                                           |
+| `mc`       | of `fields` | Meerkeuze, gemaakt met `MC([goed, fout, fout], 0)`; de keuzes worden geschud. Een keuze mag ook een figuur zijn, zie hieronder        |
+| `hint`     | ja          | Tekst, wordt automatisch omgezet met `T`                                                                                              |
+| `steps`    | ja          | De uitwerking: tekst voor `T`, of `H(html)` voor kant-en-klare HTML                                                                   |
+| `v`        | aanbevolen  | Controlefunctie, moet `true` geven                                                                                                    |
+| `fig`      | nee         | Figuur als SVG-tekst, uit `graph(...)` of `geo(...)`; `graph` tekent ook parabolen                                                    |
+| `traps`    | nee         | Valkuilen met gerichte feedback: `[{ id: 'naam', f: (waarden) => boolean, m: 'bericht' }]`; de waarden staan in de ingevulde volgorde |
+| `line`     | nee         | De lijn `{ a, b }` bij een tekenvraag: elk paar punten erop is goed                                                                   |
+| `parabola` | nee         | De parabool `{ a, b, c }` bij een tekenvraag: de top precies, en elk ander punt erop is goed                                          |
+| `compact`  | nee         | Smalle velden, voor een formule of punt op één regel                                                                                  |
 
 Een figuur uit `graph(...)`, `geo(...)` of `angleFig(...)` maakt zelf een beschrijving voor een schermlezer, met de gemarkeerde punten, de lengtes, de rechte hoeken en de hoeken met boogjes. Zo is de vraag ook te maken als je de figuur niet ziet. Hebben de punten geen zichtbare naam, geef `geo` dan een eigen `desc`. `npm test` controleert dat alles wat in de figuur geschreven staat ook in de beschrijving staat.
 
@@ -127,6 +128,7 @@ Veldhulpen in `topics/shared.js`:
 - `orFields([-2, 9])` maakt de velden voor `x = −2 ∨ x = 9`. De leerling mag de oplossingen in elke volgorde invullen. Met `orFields([a, b], { n: 2 })` rondt elk veld af zoals bij `RF`, en met `{ xn: 't' }` heet de onbekende `t`. Zet de oplossingen van klein naar groot: zo staan ze in de uitslag als de leerling niets invult.
 - `{ sel: ['<', '>'], a: '<', pre: 'x' }` maakt een keuzelijst.
 - `drawLine(a, b, punt1, punt2)` geeft alles voor een vraag waarin de leerling een lijn tekent: het rooster, de velden, het nakijken en de feedback. Elk paar punten op de lijn is goed. Tikken op het rooster vult dezelfde velden als typen, zodat de vraag ook zonder muis of scherm werkt. Gebruik in de uitwerking `lineTable(...)`: de methode tekent een lijn altijd via een tabel.
+- `drawParabola([a, b, c], top, punt2, punt3, valkuilen)` doet hetzelfde voor een parabool y = ax² + bx + c. De leerling zet de top en nog twee punten in het rooster, en ziet de parabool door die drie punten. De top moet precies kloppen; elk ander punt op de parabool is goed, dus punt2 en punt3 zijn een voorbeeld. Zet de top en de voorbeeldpunten binnen het rooster (`inGrid`). Geef de valkuilen voor de top mee als laatste argument, zodat ze in de goede volgorde staan. Laat in de uitwerking de grafiek zien met `parabolaFig(...)`.
 
 Een veld kan ook `label` krijgen, de naam voor een schermlezer als de tekst ernaast niet genoeg zegt, en `br: true` om op een nieuwe regel te beginnen. Velden met dezelfde `grp`, zoals `grp: 'x'`, vormen een groep die zonder volgorde wordt nagekeken: elk ingevuld getal mag bij een antwoord van de groep horen dat nog niet is gebruikt. Twee keer hetzelfde getal is dus één goed veld en één fout veld, tenzij de antwoorden ook gelijk zijn. Een groep heeft 2 tot 4 velden met getallen, en kan niet bij een keuzelijst of tekenvraag. In de uitslag staat bij een fout veld het antwoord dat nog over is (`matchFields` in `answers.js`). Meestal is `orFields` genoeg.
 

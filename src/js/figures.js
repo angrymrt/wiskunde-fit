@@ -332,40 +332,69 @@ function graph({
     drawData = draw ? ` data-draw="${[...xr, ...yr, u, ml, mt].join(',')}"` : '';
   return `<svg class="fig" role="img" aria-label="${attr(desc)}"${drawData} width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}">${o}${typeof extra === 'function' ? extra(X, Y) : extra}${drawing}</svg>`;
 }
-// Tekent punten en de lijn erdoor in een rooster om zelf in te tekenen. data is de inhoud van
-// data-draw, zodat alles op dezelfde plek komt als in het rooster zelf.
+// Tekent punten in een rooster om zelf in te tekenen, met de lijn door twee punten of de parabool
+// door drie punten. data is de inhoud van data-draw, zodat alles op dezelfde plek komt als in het
+// rooster zelf. Bij drie punten op één rechte lijn is er geen parabool, en staat die lijn er.
 function drawnHTML(data, pts, { cls = 'l1', dots = true } = {}) {
-  const [x0, , , y1, u, ml, mt] = data.split(',').map(Number),
+  const [x0, x1, y0, y1, u, ml, mt] = data.split(',').map(Number),
     X = (x) => ml + (x - x0) * u,
     Y = (y) => mt + (y1 - y) * u,
-    given = pts.filter((p) => p.every(Number.isFinite));
-  let o = '';
-  if (given.length === 2 && (given[0][0] !== given[1][0] || given[0][1] !== given[1][1])) {
+    given = pts.filter((p) => p.every(Number.isFinite)),
     // Ver buiten het rooster doortrekken: de rand van het rooster snijdt de lijn af.
-    const [[a, b], [c, e]] = given,
-      far = 100,
-      dx = c - a,
-      dy = e - b;
-    o += `<line class="${cls}" x1="${X(a - dx * far)}" y1="${Y(b - dy * far)}" x2="${X(a + dx * far)}" y2="${Y(b + dy * far)}"/>`;
+    line = ([a, b], [c, e]) => {
+      const far = 100,
+        dx = c - a,
+        dy = e - b;
+      return `<line class="${cls}" x1="${X(a - dx * far)}" y1="${Y(b - dy * far)}" x2="${X(a + dx * far)}" y2="${Y(b + dy * far)}"/>`;
+    };
+  let o = '';
+  if (
+    pts.length === 2 &&
+    given.length === 2 &&
+    (given[0][0] !== given[1][0] || given[0][1] !== given[1][1])
+  )
+    o += line(given[0], given[1]);
+  if (pts.length === 3 && given.length === 3) {
+    const abc = through(given);
+    if (abc && Math.abs(abc[0]) < 1e-9) o += line(given[0], given[2]);
+    else if (abc)
+      o += `<path class="${cls}" d="${curvePath(abc, { xr: [x0, x1], yr: [y0, y1], xs: 1, ys: 1, X, Y })}"/>`;
   }
   if (dots)
     given.forEach(([x, y]) => (o += `<circle class="dot" cx="${X(x)}" cy="${Y(y)}" r="5"/>`));
   return o;
 }
-// Het rooster van een tekenvraag in de uitslag: de lijn van de leerling, en bij een fout ook de
-// goede lijn y = ax + b. Op dit rooster kun je niet meer tikken. Een proeftoets die nog uit
-// versie 1.6.0 in de browser staat, heeft een <g class="drawn"> in plaats van een svg.
-function drawnResult(fig, pts, line, ok) {
+// [a, b, c] van de parabool y = ax² + bx + c door drie punten, of null als twee punten dezelfde x
+// hebben. a is 0 als de punten op één rechte lijn liggen.
+function through([[p, P], [q, Q], [r, R]]) {
+  if (p === q || p === r || q === r) return null;
+  const k = P / ((p - q) * (p - r)),
+    l = Q / ((q - p) * (q - r)),
+    m = R / ((r - p) * (r - q));
+  return [k + l + m, -(k * (q + r) + l * (p + r) + m * (p + q)), k * q * r + l * p * r + m * p * q];
+}
+// Het rooster van een tekenvraag in de uitslag: wat de leerling tekende, en bij een fout ook de
+// goede lijn y = ax + b of de goede parabool y = ax² + bx + c. Op dit rooster kun je niet meer
+// tikken. Een proeftoets die nog uit versie 1.6.0 in de browser staat, heeft een <g class="drawn">
+// in plaats van een svg.
+function drawnResult(fig, pts, { line, parabola }, ok) {
   const data = fig.match(/ data-draw="([^"]+)"/)[1],
     [x0, x1] = data.split(',').map(Number),
+    // De goede grafiek door twee of drie van zijn punten, zoals de leerling hem ook tekent.
     good = ok
       ? ''
       : drawnHTML(
           data,
-          [x0, x1].map((x) => [x, line.a * x + line.b]),
+          parabola
+            ? [x0, (x0 + x1) / 2, x1].map((x) => [
+                x,
+                parabola.a * x * x + parabola.b * x + parabola.c,
+              ])
+            : [x0, x1].map((x) => [x, line.a * x + line.b]),
           { cls: 'l2 d', dots: false },
         ),
-    label = ok ? 'Rooster met jouw lijn' : 'Rooster met jouw lijn en de goede lijn';
+    shape = parabola ? 'parabool' : 'lijn',
+    label = ok ? `Rooster met jouw ${shape}` : `Rooster met jouw ${shape} en de goede ${shape}`;
   return fig
     .replace(` data-draw="${data}"`, '')
     .replace(/aria-label="[^"]*"/, `aria-label="${label}"`)
