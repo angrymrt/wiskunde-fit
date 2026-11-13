@@ -12,6 +12,10 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 - Je kunt nu ook afronden op gehelen, duizendtallen of miljoenen, en een groot getal typen met spaties, zoals 16 100.
 - Paragraaf 4.3 tot en met 4.5 (tabellen, diagrammen en schatten) komen in een volgende versie.
 
+### Verbeterd
+
+- Op een telefoon springt het oefenscherm niet meer omlaag terwijl het laadt. De voettekst blijft onder in beeld staan tot de vragen er zijn.
+
 ## 1.14.0
 
 ### Nieuw

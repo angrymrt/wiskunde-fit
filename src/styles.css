@@ -820,6 +820,10 @@ sub {
 }
 /* De kop bovenaan in een blok, met een lijn tussen de kop en de rest. Alleen Home heeft een losse
    kop. Een onderwerp en een domein hebben hun eigen kop in het blok. */
+.sheet.shell {
+  min-height: 90vh;
+  align-content: start;
+}
 .sheet-head {
   padding-bottom: 16px;
   border-bottom: 1px solid var(--rule);

@@ -35,7 +35,10 @@ const screenHTML = () =>
   `${topbar()}<main class="screen" id="inhoud">${storageNotice()}${testNotice()}${content(state.view)}</main>${footer()}`;
 // Een schil voor een scherm dat afhangt van wat er in de browser staat, zoals oefenen of Mijn stof:
 // alleen het menu, het kruimelpad, het blok met de kop en de voettekst. main.js vult de rest.
+// Het kruimelpad en het blok staan in dezelfde `screen-grid` als op het echte scherm, en het blok
+// heeft een minimale hoogte, zodat de voettekst niet in beeld staat en wegschuift als de
+// inhoud er is.
 const shellHTML = (heading) =>
-  `${topbar()}<main class="screen" id="inhoud">${crumbs()}<div class="sheet">${pageHead(esc(heading))}<noscript><p>Oefenen, Mijn stof en de proeftoets werken alleen met JavaScript. Zet JavaScript aan in je browser. De uitleg bij een onderwerp kun je ook zonder lezen.</p><div class="row"><a class="btn" href="/">Naar het overzicht</a></div></noscript></div></main>${footer()}`;
+  `${topbar()}<main class="screen" id="inhoud"><div class="screen-grid">${crumbs()}<div class="sheet shell">${pageHead(esc(heading))}<noscript><p>Oefenen, Mijn stof en de proeftoets werken alleen met JavaScript. Zet JavaScript aan in je browser. De uitleg bij een onderwerp kun je ook zonder lezen.</p><div class="row"><a class="btn" href="/">Naar het overzicht</a></div></noscript></div></div></main>${footer()}`;
 
 export { screenHTML, shellHTML };
