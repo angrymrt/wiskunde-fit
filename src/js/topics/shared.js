@@ -302,6 +302,15 @@ const pt = (x, y) =>
 
 // Een bedrag zoals op een prijskaartje: 3 of 2,50.
 const euro = (x) => x.toFixed(Number.isInteger(x) ? 0 : 2).replace('.', ',');
+// Een getal zoals in het boek: met een komma, en vanaf 10 000 een spatie tussen de duizendtallen.
+// Het is een harde spatie, zodat een getal niet over twee regels breekt.
+function group(s) {
+  const [w, f] = s.split(','),
+    neg = w[0] === '-',
+    a = neg ? w.slice(1) : w,
+    g = a.length > 4 ? a.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : a;
+  return `${neg ? '-' : ''}${g}${f ? `,${f}` : ''}`;
+}
 const TRP = [
   [3, 4, 5],
   [6, 8, 10],
@@ -482,6 +491,7 @@ const parabolaFig = (abc, top, pts) =>
 
 export {
   LV,
+  group,
   H,
   F,
   RF,

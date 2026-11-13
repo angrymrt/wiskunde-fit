@@ -1,17 +1,8 @@
 // Onderwerp: Rekenen met procenten. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, pick, coin, near, rd, isNice, d } from '../math.js';
-import { F, RF, H, needRound, euro } from './shared.js';
+import { F, RF, H, needRound, euro, group } from './shared.js';
 import { T, schema } from '../typeset.js';
 
-// Een getal zoals in het boek: met een komma, en vanaf 10 000 een spatie tussen de duizendtallen.
-// Het is een harde spatie, zodat een getal niet over twee regels breekt.
-function group(s) {
-  const [w, f] = s.split(','),
-    neg = w[0] === '-',
-    a = neg ? w.slice(1) : w,
-    g = a.length > 4 ? a.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : a;
-  return `${neg ? '-' : ''}${g}${f ? `,${f}` : ''}`;
-}
 const g = (x) => group(d(x));
 // Geld: op centen, of zonder komma als het een heel bedrag is.
 const eu = (x) => group(euro(rd(x, 2)));

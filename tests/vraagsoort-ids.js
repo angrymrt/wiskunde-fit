@@ -116,4 +116,9 @@ export default {
   112: 's42old',
   113: 's42whole',
   114: 's42mixed',
+  115: 's43missing',
+  116: 's43share',
+  117: 's43bars',
+  118: 's43pie',
+  119: 's43which',
 };

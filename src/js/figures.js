@@ -648,7 +648,7 @@ function chart({
       cy = top + r + 34,
       P = (a, R = r) => [cx + R * Math.sin(a), cy - R * Math.cos(a)];
     W = 2 * r + 220;
-    H = cy + r + 36;
+    H = cy + r + 42;
     let a0 = 0;
     vs.forEach((v, j) => {
       const a1 = a0 + (2 * Math.PI * v) / sum,
@@ -686,7 +686,7 @@ function chart({
       X = (j) => ml + u / 2 + (at ? ((at[j] - at[0]) / (at[n - 1] - at[0])) * (n - 1) : j) * u,
       legend = S.length > 1 ? (stack ? [...S].reverse() : S) : [],
       lg = yB + (xn ? 42 : 22);
-    W = Math.max(ml + pw + 16, (axis.length + 2) * 7, title.length * 8 + 16);
+    W = Math.max(ml + pw + 16, (axis.length + 2) * 7, title.length * 9.5 + 16);
     H = lg + 18 * legend.length + (legend.length ? 6 : 0);
     for (const t of ticks)
       o += `<line class="gl" x1="${ml}" x2="${ml + pw}" y1="${f1(Y(t))}" y2="${f1(Y(t))}"/>${txt(ml - 6, Y(t) + 4, num(t), 'tk', 'end')}`;
