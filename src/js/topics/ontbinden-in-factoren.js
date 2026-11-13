@@ -361,8 +361,8 @@ export default {
             dt(
               [
                 ['product 8', 'som'],
-                ['2 en 4', '6'],
                 ['1 en 8', '9'],
+                ['2 en 4', '6'],
               ],
               'Paren getallen met product 8',
             ),
