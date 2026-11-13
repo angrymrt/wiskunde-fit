@@ -1948,47 +1948,141 @@ test(
 
 // Grenzen voor de grootte, zodat het opvalt als een pagina of de code opeens veel groter wordt. Een
 // oude telefoon met traag internet merkt elke kilobyte. Verstuurd is met brotli, zoals Azure dat
-// doet. In november 2026 was de grootste pagina 3,5 kB, een schil 1,6 kB, de code 62 kB (179 kB
-// zelf) en de CSS 5 kB. Wordt een grens te krap, kijk dan eerst met node scripts/meet.js dist <naam>
-// wat er groeide, en verhoog de grens alleen als dat nodig is. Met Kwadratische functies, het eerste
-// onderwerp van hoofdstuk 3, werd de code 81 kB (229 kB zelf): ongeveer 6 kB per onderwerp. Daarom
-// is de grens voor de code toen verhoogd voor de rest van dat hoofdstuk (#72). Met de aanvullingen
-// van hoofdstuk 3 (#97 en #98) werd het 102 kB (301 kB zelf). De eigenaar verhoogde de grens toen
-// tijdelijk tot 110 kB, alleen voor de rest van hoofdstuk 3. Voor hoofdstuk 4 moet eerst #80 af:
-// de code per domein laden of kleiner maken.
+// doet. In november 2026 was de grootste pagina 3,5 kB, een schil 1,6 kB en de CSS 5 kB. Wordt een
+// grens te krap, kijk dan eerst met node scripts/meet.js dist <naam> wat er groeide, en verhoog de
+// grens alleen als dat nodig is.
+//
+// De code was eerst één bestand, en groeide met elk onderwerp ongeveer 6 kB: met hoofdstuk 3 werd
+// het 102 kB (301 kB zelf). Sinds #80 laadt de browser de generatoren en de uitleg van een
+// onderwerp pas als die nodig zijn. Bij het eerste bezoek laadt Home alleen de schermen, de
+// gedeelde code en de catalogus: in november 2026 47 kB (125 kB zelf). Het grootste onderwerp, Top
+// en snijpunten van een parabool, was 10 kB (27 kB zelf), en het grootste gedeelde bestand 8 kB
+// (17 kB zelf). Een nieuw onderwerp maakt het eerste bezoek dus nauwelijks groter. Wordt een
+// onderwerp te groot, verdeel het dan in twee onderwerpen.
 const LIMITS = {
   page: { sent: 6, why: 'een vooraf gebouwde pagina' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  code: { sent: 110, own: 320, why: 'de code' },
+  start: { sent: 55, own: 150, why: 'de code bij het eerste bezoek' },
+  topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
+  shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
   css: { sent: 8, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
+const kB = (n) => `${n.toFixed(1).replace('.', ',')} kB`;
+const sizes = async (file) => {
+  const body = await readFile(new URL(file, new URL('../dist/', import.meta.url)));
+  const sent = brotliCompressSync(body, { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } });
+  return { own: body.length / 1024, sent: sent.length / 1024 };
+};
+const underLimit = (what, size, limit) => {
+  for (const key of ['sent', 'own']) {
+    if (!limit[key]) continue;
+    assert.ok(
+      size[key] <= limit[key],
+      `${what} is ${kB(size[key])}${key === 'sent' ? ' verstuurd' : ''}, en de grens voor ${limit.why} is ${kB(limit[key])}`,
+    );
+  }
+};
 test('de pagina’s en de code blijven klein', async () => {
   const dist = new URL('../dist/', import.meta.url);
-  const sizes = async (file) => {
-    const body = await readFile(new URL(file, dist));
-    const sent = brotliCompressSync(body, { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } });
-    return { own: body.length / 1024, sent: sent.length / 1024 };
-  };
+  const topics = new Set(TOPICS.map((t) => t.slug));
   const files = PAGES.map((p) => [p.file, p.shell || !p.path ? 'shell' : 'page']);
   for (const name of await readdir(new URL('assets/', dist))) {
-    const kind = { '.js': 'code', '.css': 'css', '.woff2': 'font' }[name.match(/\.\w+$/)?.[0]];
+    const ext = name.match(/\.\w+$/)?.[0];
+    const code = topics.has(name.replace(/-\w+\.js$/, ''))
+      ? 'topic'
+      : /^chunk-/.test(name) && 'shared';
+    const kind = ext === '.js' ? code : { '.css': 'css', '.woff2': 'font' }[ext];
     if (kind) files.push([`assets/${name}`, kind]);
   }
-  assert.ok(
-    files.some(([, kind]) => kind === 'code'),
-    'de code is gevonden',
+  assert.equal(
+    files.filter(([, kind]) => kind === 'topic').length,
+    topics.size,
+    'elk onderwerp heeft een eigen bestand',
   );
-  const kB = (n) => `${n.toFixed(1).replace('.', ',')} kB`;
-  for (const [file, kind] of files) {
-    const size = await sizes(file);
-    const limit = LIMITS[kind];
-    for (const key of ['sent', 'own']) {
-      if (!limit[key]) continue;
-      assert.ok(
-        size[key] <= limit[key],
-        `${file} is ${kB(size[key])}${key === 'sent' ? ' verstuurd' : ''}, en de grens voor ${limit.why} is ${kB(limit[key])}`,
-      );
+  assert.ok(
+    files.some(([, kind]) => kind === 'shared'),
+    'de gedeelde code is gevonden',
+  );
+  for (const [file, kind] of files) underLimit(file, await sizes(file), LIMITS[kind]);
+});
+
+test('een onderwerp dat niet laadt, geeft een melding met opnieuw proberen', async () => {
+  const browser = await launch();
+  try {
+    await mkdir(shotDir, { recursive: true });
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    const file = '**/assets/haakjes-wegwerken-*.js';
+    const practice = { name: 'topic', slug: 'haakjes-wegwerken', oefen: true };
+    await p.goto(siteUrl);
+    await p.waitForFunction(() => window.wiskundefit);
+    // Duurt het laden even, dan zegt het scherm dat.
+    let release;
+    const gate = new Promise((resolve) => (release = resolve));
+    await p.route(file, async (route) => {
+      await gate;
+      await route.continue();
+    });
+    const shown = p.evaluate((v) => wiskundefit.go(v), practice);
+    await p.waitForSelector('[role="status"]:text("Even laden")');
+    release();
+    await shown;
+    assert.ok(await p.$('#pq'), 'na het laden staat de vraag er');
+    await p.unroute(file);
+    // Lukt het niet, dan een melding met een knop, en geen witte pagina.
+    for (const open of ['in de site', 'met een adres']) {
+      const context = await browser.newContext({ viewport: { width: 390, height: 800 } });
+      const q = await context.newPage();
+      await q.route(file, (route) => route.abort());
+      if (open === 'in de site') {
+        await q.goto(siteUrl);
+        await q.waitForFunction(() => window.wiskundefit);
+        await q.evaluate((v) => wiskundefit.go(v), practice);
+      } else await q.goto(at('/haakjes-wegwerken/oefenen'));
+      await q.waitForSelector('#laadfout');
+      assert.equal(await q.evaluate(() => document.activeElement.id), 'laadfout', open);
+      assert.match(await q.textContent('h1'), /Haakjes wegwerken oefenen/, open);
+      assert.ok(await q.$('.crumbs'), `${open}: het kruimelpad staat er`);
+      if (open === 'in de site') await q.screenshot({ path: `${shotDir}laadfout.png` });
+      await q.unroute(file);
+      await q.click('[data-act="opnieuw"]');
+      await q.waitForSelector('#pq');
+      await context.close();
     }
+  } finally {
+    await browser.close();
+  }
+});
+
+test('het eerste bezoek laadt alleen de schermen en de catalogus', async () => {
+  const browser = await launch();
+  try {
+    const p = await browser.newPage();
+    const code = [];
+    p.on('request', (r) => {
+      const { pathname } = new URL(r.url());
+      if (pathname.startsWith('/assets/') && pathname.endsWith('.js')) code.push(pathname.slice(1));
+    });
+    await p.goto(siteUrl, { waitUntil: 'networkidle' });
+    await p.waitForFunction(() => window.wiskundefit);
+    assert.ok(
+      code.some((f) => /^assets\/main-/.test(f)),
+      'main is geladen',
+    );
+    const topics = TOPICS.map((t) => t.slug);
+    assert.deepEqual(
+      code.filter((f) => topics.some((t) => f.startsWith(`assets/${t}-`))),
+      [],
+      'Home laadt geen onderwerp',
+    );
+    const total = { own: 0, sent: 0 };
+    for (const file of new Set(code)) {
+      const size = await sizes(file);
+      total.own += size.own;
+      total.sent += size.sent;
+    }
+    underLimit('De code bij het eerste bezoek', total, LIMITS.start);
+  } finally {
+    await browser.close();
   }
 });
