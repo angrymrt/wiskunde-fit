@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.12.1
+
+### Verbeterd
+
+- Op de beginpagina sluiten de domeinen weer netjes onder elkaar aan. Er staan geen grote lege vlakken meer naast een domein met weinig onderwerpen.
+
 ## 1.12.0
 
 ### Nieuw
