@@ -654,6 +654,54 @@ sub {
   stroke-dasharray: 5 4;
   fill: none;
 }
+/* Diagrammen, zie chart() in figures.js. De kleur van een reeks of sector staat in --c. */
+.fig .c1 {
+  --c: var(--pink);
+}
+.fig .c2 {
+  --c: var(--blue);
+}
+.fig .c3 {
+  --c: var(--green);
+}
+.fig .c4 {
+  --c: var(--orange);
+}
+.fig .c5 {
+  --c: var(--plum);
+}
+.fig .c6 {
+  --c: var(--teal);
+}
+.fig .st {
+  fill: var(--c);
+  fill-opacity: 0.35;
+  stroke: var(--c);
+  stroke-width: 1.5;
+}
+.fig .sec {
+  fill: var(--c);
+  fill-opacity: 0.55;
+  stroke: var(--paper);
+  stroke-width: 2;
+}
+.fig .ln {
+  stroke: var(--c);
+  stroke-width: 2.4;
+  fill: none;
+}
+.fig .mk {
+  fill: var(--c);
+}
+.fig .tc,
+.fig .tt {
+  font-family: var(--body);
+  font-size: 13px;
+}
+.fig .tt {
+  font-size: 15px;
+  font-weight: 700;
+}
 .figbox {
   display: flex;
   justify-content: center;

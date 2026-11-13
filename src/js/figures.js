@@ -1,4 +1,4 @@
-// Tekent figuren als SVG-tekst: grafieken, driehoeken en evenwijdige lijnen.
+// Tekent figuren als SVG-tekst: grafieken, driehoeken, evenwijdige lijnen en diagrammen.
 import { pick, near, d, rd, isNice } from './math.js';
 import { esc } from './typeset.js';
 
@@ -581,5 +581,176 @@ const rightTriFig = (a, b, labels = {}, L = 'ABC') => {
     maxH: 230,
   });
 };
+// Diagrammen met kind: 'staaf', 'stapel' (gestapelde staven), 'cirkel' of 'lijn'. Een reeks is
+// { name, values, c }, met c de kleur zoals bij graph, hier 1 tot 6. cats zijn de namen onder de
+// staven of op de tijdas, of de sectoren van een cirkeldiagram, die zelf hun kleur krijgen. De
+// verticale as loopt over yr in stappen ys, standaard van 0 tot een mooi getal boven het grootste.
+// Begint yr niet bij 0, dan begint de as daar gewoon, of met brk bij 0 met een onderbroken stuk.
+// Met at, zoals jaartallen, staan de punten van een lijndiagram op afstand naar die getallen.
+// vals zet de getallen bij de staven of punten, pct de procenten in een cirkeldiagram. u is de
+// breedte per staaf of punt, of de straal van de cirkel, en h de hoogte van de as.
+// Een reeks heeft ook een naam in de legenda en bij een lijn een eigen vorm van de punten, zodat je
+// de reeksen niet alleen aan de kleur herkent. De beschrijving noemt alle getallen.
+const KINDS = {
+  staaf: 'Staafdiagram',
+  stapel: 'Gestapeld staafdiagram',
+  cirkel: 'Cirkeldiagram',
+  lijn: 'Lijndiagram',
+};
+const SHAPES = ['rondjes', 'vierkantjes', 'driehoekjes'];
+const f1 = (x) => +x.toFixed(1);
+// Een stap van 1, 2, 2,5 of 5 maal een macht van 10, met hoogstens 6 stappen.
+function niceStep(span) {
+  const p = 10 ** Math.floor(Math.log10(span / 6));
+  return [1, 2, 2.5, 5, 10].map((k) => k * p).find((s) => span / s <= 6 + 1e-9);
+}
+const txt = (x, y, s, cls = 'tc', anchor = 'middle') =>
+  `<text class="${cls}" text-anchor="${anchor}" x="${f1(x)}" y="${f1(y)}">${esc(s)}</text>`;
+function mark(i, x, y, c) {
+  const k = `class="mk c${c}"`;
+  if (i % 3 === 0) return `<circle ${k} cx="${f1(x)}" cy="${f1(y)}" r="4"/>`;
+  if (i % 3 === 1) return `<rect ${k} x="${f1(x - 3.5)}" y="${f1(y - 3.5)}" width="7" height="7"/>`;
+  return `<path ${k} d="M${f1(x)} ${f1(y - 5)}l4.5 8h-9z"/>`;
+}
+function chart({
+  kind = 'staaf',
+  title = '',
+  cats = [],
+  series = [],
+  yr,
+  ys,
+  brk = false,
+  at,
+  xn = '',
+  yn = '',
+  unit = '',
+  vals = false,
+  pct = false,
+  u = kind === 'cirkel' ? 70 : 48,
+  h = 160,
+  label = KINDS[kind],
+}) {
+  const S = series.map((s, i) => ({ ...s, c: s.c || i + 1 })),
+    n = cats.length,
+    vu = (v) => num(v) + (unit ? ` ${unit}` : ''),
+    list = (vs, f = vu) => and(cats.map((c, j) => `${c} ${f(vs[j])}`)),
+    out = [`${label.replace(/\.$/, '')}${title ? `: ${title}` : ''}.`];
+  let o = '',
+    W,
+    H;
+  const top = title ? 30 : 8;
+  if (kind === 'cirkel') {
+    const vs = S[0].values,
+      sum = vs.reduce((a, b) => a + b, 0),
+      shown = (v) => (pct ? `${num(rd((100 * v) / sum, 1))}%` : num(v)),
+      r = u,
+      cx = r + 110,
+      cy = top + r + 34,
+      P = (a, R = r) => [cx + R * Math.sin(a), cy - R * Math.cos(a)];
+    W = 2 * r + 220;
+    H = cy + r + 36;
+    let a0 = 0;
+    vs.forEach((v, j) => {
+      const a1 = a0 + (2 * Math.PI * v) / sum,
+        m = (a0 + a1) / 2,
+        [x0, y0] = P(a0),
+        [x1, y1] = P(a1),
+        [lx, ly] = P(m, r + 10),
+        anchor = Math.sin(m) > 0.2 ? 'start' : Math.sin(m) < -0.2 ? 'end' : 'middle',
+        dy = Math.cos(m) > 0.3 ? -14 : Math.cos(m) < -0.3 ? 12 : -2,
+        cls = `sec c${(j % 6) + 1}`;
+      o +=
+        v === sum
+          ? `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${r}"/>`
+          : `<path class="${cls}" d="M${cx} ${cy}L${f1(x0)} ${f1(y0)}A${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${f1(x1)} ${f1(y1)}Z"/>`;
+      o += txt(lx, ly + dy, cats[j], 'tc', anchor) + txt(lx, ly + dy + 15, shown(v), 'tc', anchor);
+      a0 = a1;
+    });
+    out.push(`Met de klok mee vanaf boven: ${list(vs, pct ? shown : vu)}.`);
+  } else {
+    const stack = kind === 'stapel',
+      tops = stack
+        ? cats.map((_, j) => S.reduce((a, s) => a + s.values[j], 0))
+        : S.flatMap((s) => s.values),
+      [lo, hi0] = yr || [0],
+      step = ys || niceStep((hi0 ?? Math.max(...tops)) - lo),
+      hi = hi0 ?? Math.ceil(Math.max(...tops) / step - 1e-9) * step,
+      ticks = [];
+    for (let k = 0; lo + k * step <= hi + 1e-9; k++) ticks.push(rd(lo + k * step, 6));
+    const axis = [yn, unit && `(${unit})`].filter(Boolean).join(' '),
+      ml = 14 + 7 * Math.max(...ticks.map((t) => num(t).length)),
+      mt = top + (axis ? 20 : 0) + (vals ? 14 : 6),
+      pw = n * u,
+      Y = (v) => mt + ((hi - Math.min(hi, Math.max(lo, v))) / (hi - lo)) * h,
+      yB = Y(lo) + (brk ? 18 : 0),
+      X = (j) => ml + u / 2 + (at ? ((at[j] - at[0]) / (at[n - 1] - at[0])) * (n - 1) : j) * u,
+      legend = S.length > 1 ? (stack ? [...S].reverse() : S) : [],
+      lg = yB + (xn ? 42 : 22);
+    W = Math.max(ml + pw + 16, (axis.length + 2) * 7, title.length * 8 + 16);
+    H = lg + 18 * legend.length + (legend.length ? 6 : 0);
+    for (const t of ticks)
+      o += `<line class="gl" x1="${ml}" x2="${ml + pw}" y1="${f1(Y(t))}" y2="${f1(Y(t))}"/>${txt(ml - 6, Y(t) + 4, num(t), 'tk', 'end')}`;
+    // Een onderbroken as begint bij 0 en springt met een zigzag naar het eerste getal.
+    const zig = brk ? `V${f1(Y(lo) + 1)}l5 3l-10 6l10 6l-5 2` : '';
+    o += `<path class="ax" d="M${ml} ${mt - 8}${zig}V${f1(yB)}H${ml + pw + 8}"/>`;
+    if (brk) o += txt(ml - 6, yB + 4, '0', 'tk', 'end');
+    cats.forEach((c, j) => (o += txt(X(j), yB + 17, c)));
+    if (xn) o += txt(ml + pw / 2, yB + 37, xn);
+    if (axis) o += txt(4, mt - 14, axis, 'tc', 'start');
+    const bw = u * 0.6;
+    if (kind === 'lijn')
+      S.forEach((s, i) => {
+        o += `<path class="ln c${s.c}" d="M${s.values.map((v, j) => `${f1(X(j))} ${f1(Y(v))}`).join('L')}"/>`;
+        s.values.forEach((v, j) => {
+          o += mark(i, X(j), Y(v), s.c);
+          if (vals) o += txt(X(j), Y(v) - 8, num(v));
+        });
+      });
+    else
+      cats.forEach((_, j) => {
+        let base = 0;
+        S.forEach((s) => {
+          const v = s.values[j],
+            y0 = base ? Y(base) : yB,
+            y1 = Y(base + v);
+          o += `<rect class="st c${s.c}" x="${f1(X(j) - bw / 2)}" y="${f1(y1)}" width="${f1(bw)}" height="${f1(y0 - y1)}"/>`;
+          if (vals && (!stack || y0 - y1 >= 16))
+            o += txt(X(j), stack ? (y0 + y1) / 2 + 5 : y1 - 5, num(v));
+          if (stack) base += v;
+        });
+      });
+    legend.forEach((s, k) => {
+      const y = lg + 12 + 18 * k,
+        i = S.indexOf(s);
+      o +=
+        (kind === 'lijn'
+          ? `<path class="ln c${s.c}" d="M${ml} ${y}h22"/>${mark(i, ml + 11, y, s.c)}`
+          : `<rect class="st c${s.c}" x="${ml + 4}" y="${y - 6}" width="14" height="12"/>`) +
+        txt(ml + 30, y + 5, s.name, 'tc', 'start');
+    });
+    if (xn) out.push(`Langs de horizontale as: ${xn}.`);
+    if (axis) out.push(`Langs de verticale as: ${axis}.`);
+    out.push(
+      `De verticale as ${brk ? 'begint bij 0, is onderbroken en loopt verder' : 'loopt'} van ${num(lo)} tot ${num(hi)}, in stappen van ${num(step)}.`,
+    );
+    if (kind === 'staaf') out.push(`De staven: ${list(S[0].values)}.`);
+    if (stack) {
+      out.push(`Elke staaf bestaat van onder naar boven uit ${and(S.map((s) => s.name))}.`);
+      cats.forEach((c, j) =>
+        out.push(`${cap(c)}: ${and(S.map((s) => `${s.name} ${vu(s.values[j])}`))}.`),
+      );
+    }
+    if (kind === 'lijn')
+      S.forEach((s, i) =>
+        out.push(
+          `${S.length > 1 ? `De lijn van ${s.name}, met ${SHAPES[i % 3]}` : 'De punten van de lijn'}: ${list(s.values)}.`,
+        ),
+      );
+  }
+  if (title) o = txt(W / 2, 20, title, 'tt') + o;
+  W = Math.ceil(W);
+  H = Math.ceil(H);
+  return `<svg class="fig" role="img" aria-label="${attr(out.join(' '))}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${o}</svg>`;
+}
 
-export { graph, drawnHTML, drawnResult, triFromSides, xf, geo, angleFig, rightTriFig };
+export { graph, drawnHTML, drawnResult, triFromSides, xf, geo, angleFig, rightTriFig, chart };
