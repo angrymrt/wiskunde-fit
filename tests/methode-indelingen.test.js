@@ -92,10 +92,10 @@ test('een deels gedekte paragraaf zegt wat ontbreekt', () => {
 test('havo 3 dekt vijftien paragrafen, zonder de voorkennis', () => {
   const m = MAPPING['gr13-havo3'];
   const count = (c) => paragraphsOf(m).filter((p) => p.coverage === c).length;
-  assert.equal(count('gedekt'), 14);
+  assert.equal(count('gedekt'), 16);
   assert.equal(count('deels'), 1);
-  assert.equal(count('niet'), 31);
-  assert.equal(skillIdsOf(m).length, 99);
+  assert.equal(count('niet'), 29);
+  assert.equal(skillIdsOf(m).length, 108);
   for (const id of [1, 2, 38, 39, 40]) assert.ok(!skillIdsOf(m).includes(id), `voorkennis ${id}`);
 });
 

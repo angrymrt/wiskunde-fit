@@ -74,8 +74,8 @@ export default {
       part: 'deel 1',
       description: 'Procenten en gegevens in beeld',
       paragraphs: [
-        ['4.1', 'Procent erbij en eraf'],
-        ['4.2', 'Veranderingen uitdrukken in procenten'],
+        ['4.1', 'Procent erbij en eraf', [105, 107, 108], 'deels'],
+        ['4.2', 'Veranderingen uitdrukken in procenten', [106], 'deels'],
         ['4.3', 'Soorten diagrammen'],
         ['4.4', 'Histogrammen maken en lezen'],
         ['4.5', 'Gemiddelde, mediaan en modus'],

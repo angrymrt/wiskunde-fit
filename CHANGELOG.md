@@ -2,6 +2,16 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.15.0
+
+### Nieuw
+
+- Nieuw domein **Getallen en rekenen**, met procenten uit hoofdstuk 4 van havo 3.
+- **Procentuele verandering** (4.1): rekenen met procenten, de procentuele toename of afname berekenen, de vermenigvuldigingsfactor, en procent op procent bij meer veranderingen na elkaar.
+- **Rekenen met procenten** (4.2): rekenen met miljoenen en miljarden, terugrekenen naar de oude waarde, van een deel naar het totaal, en opgaven waarin je eerst terugrekent en dan verder rekent. De uitwerking laat het pijlschema zien, zoals in het boek.
+- Je kunt nu ook afronden op gehelen, duizendtallen of miljoenen, en een groot getal typen met spaties, zoals 16 100.
+- Paragraaf 4.3 tot en met 4.5 (tabellen, diagrammen en schatten) komen in een volgende versie.
+
 ## 1.14.0
 
 ### Nieuw
