@@ -142,6 +142,16 @@ function focusOn(selector) {
 // alleen aan wat anders is, zoals de voortgang. Zo blijven de focus, de scrollpositie en de plek
 // van een schermlezer staan, en verspringt er niets.
 let prebuilt = app.firstElementChild !== null;
+// Het onderwerp van de vooraf gebouwde uitleg waarmee de pagina opende, als dat zo is.
+const opened = prebuilt ? viewFor(location.pathname, '') : {};
+const prebuiltTopic = opened.name === 'topic' && !opened.oefen ? opened.slug : null;
+// Een gebied dat een schermlezer voorleest als er tekst in komt, zoals "Even laden…". Het staat er
+// al voordat de tekst verschijnt, anders lezen niet alle schermlezers het voor.
+const melding = document.createElement('p');
+melding.className = 'sr';
+melding.id = 'laadmelding';
+melding.setAttribute('aria-live', 'polite');
+document.body.append(melding);
 // Toont het scherm bij state. Heeft het scherm een onderwerp nodig dat nog niet geladen is, dan
 // laadt render() dat eerst en geeft het een Promise die klaar is als het scherm er staat. Duurt het
 // laden langer, dan toont het scherm dat het laadt, en lukt het niet, dan een melding met een knop
@@ -149,9 +159,10 @@ let prebuilt = app.firstElementChild !== null;
 let renders = 0;
 function render(focus) {
   const nr = ++renders;
+  // Een oude melding, zoals een fout bij een ander onderwerp, hoort niet bij deze render.
+  state.laden = null;
   const missing = nogTeLaden();
   if (!missing.length) {
-    state.laden = null;
     if (followSoort) {
       followSoort = false;
       applySoort(TOPIC[state.view.slug], state.view.soort, state.view.seed);
@@ -159,7 +170,12 @@ function render(focus) {
     return paint(focus);
   }
   // Een vooraf gebouwde uitleg is al helemaal te lezen. Die blijft staan tot het onderwerp er is.
-  const quiet = prebuilt && state.view.name === 'topic' && !state.view.oefen;
+  // Dat geldt alleen voor dat onderwerp: wie naar een ander gaat, ziet dat het laadt.
+  const quiet =
+    prebuilt &&
+    state.view.name === 'topic' &&
+    !state.view.oefen &&
+    state.view.slug === prebuiltTopic;
   const slow = setTimeout(() => {
     if (nr !== renders || quiet) return;
     state.laden = 'bezig';
@@ -186,6 +202,7 @@ function paint(focus) {
   if (prebuilt) Idiomorph.morph(app, screenHTML(), { morphStyle: 'innerHTML' });
   else app.innerHTML = screenHTML();
   prebuilt = false;
+  melding.textContent = state.laden === 'bezig' ? 'Even laden…' : '';
   opslag.gemeld = opslag.voortgang || opslag.toets;
   document.documentElement.classList.toggle('met-stof-bar', !!app.querySelector('.stof-bar'));
   document.title = titleFor(state.view);
