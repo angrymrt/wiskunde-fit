@@ -7,6 +7,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { TARGETS } from '../scripts/browsers.js';
+import { catalogusPlugin } from '../scripts/catalogus.js';
 
 const root = new URL('../', import.meta.url);
 
@@ -37,18 +38,23 @@ const CSS = [
   [/@layer\b/, '@layer'],
 ];
 
+// Zoals de build: de code in meer bestanden, met een bestand per onderwerp. De test kijkt in alle
+// bestanden samen.
 const bundle = async (entry) => {
   const out = await build({
     absWorkingDir: fileURLToPath(root),
     entryPoints: [entry],
     bundle: true,
     write: false,
-    format: 'iife',
+    format: 'esm',
+    splitting: true,
+    outdir: 'niet-geschreven',
+    plugins: [catalogusPlugin()],
     target: TARGETS,
     loader: { '.woff2': 'empty', '.svg': 'empty' },
     logLevel: 'silent',
   });
-  return out.outputFiles[0].text;
+  return out.outputFiles.map((f) => f.text).join('\n');
 };
 const found = (code, list) =>
   list
