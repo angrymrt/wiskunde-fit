@@ -107,6 +107,15 @@ Drie dingen lijken op elkaar, maar zijn iets anders.
 | Controle    | Een test die rekent of het antwoord van een generator klopt met de vraag.        | `v`          |
 | Nakijkronde | Een docent leest de stof na op uitleg en aanpak. Zie [NAKIJKEN.md](NAKIJKEN.md). |              |
 
+## Het werk aan de site
+
+Op het [projectbord](https://github.com/users/angrymrt/projects/1) heeft elk issue een fase. Twee fases lopen altijd door en lijken op elkaar.
+
+| Begrip          | Betekenis                                                                                                                                                              | Niet gebruiken     |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Onderhoud       | Werk aan de code van de site zelf: een fout herstellen, de site sneller of kleiner maken, code opruimen.                                                               |                    |
+| Ontwikkelproces | Hoe we de site bouwen: de agents en hun opdrachten, de review van een pull request, de testopzet, het online zetten, het meten van tokens en de regels in `AGENTS.md`. | werkwijze, harness |
+
 ## Voor de leerling
 
 Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat dus ook, zolang de betekenis hierboven klopt.

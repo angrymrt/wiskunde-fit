@@ -203,7 +203,7 @@ Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarme
 
 Leg feedback, gevonden fouten, ideeën en open vragen vast als issue op GitHub, zodat ze niet verloren gaan in een gesprek. Zet één onderwerp in één issue en schrijf erbij wat er moet gebeuren en waarom. Zet `Fixes #12` in de commit die het punt oplost, dan sluit het issue vanzelf.
 
-Elk nieuw issue komt op het [projectbord](https://github.com/users/angrymrt/projects/1) met een Fase. Staat het punt er niet op, dan zet je het erop. Merken leerlingen er nu iets van, geef het dan Prioriteit Hoog. Een nieuw besluit komt als opmerking in het besluit-issue van het thema, of als nieuw issue met het label `besluit`. Besluiten zijn [issues met het label `besluit`](https://github.com/angrymrt/wiskunde-fit/issues?q=label%3Abesluit), met de reden erbij.
+Elk nieuw issue komt op het [projectbord](https://github.com/users/angrymrt/projects/1) met een Fase. Staat het punt er niet op, dan zet je het erop. Werk aan de code van de site zelf krijgt de Fase Onderhoud, en werk aan hoe we de site bouwen de Fase Ontwikkelproces (zie [BEGRIPPEN.md](BEGRIPPEN.md)). Merken leerlingen er nu iets van, geef het dan Prioriteit Hoog. Een nieuw besluit komt als opmerking in het besluit-issue van het thema, of als nieuw issue met het label `besluit`. Besluiten zijn [issues met het label `besluit`](https://github.com/angrymrt/wiskunde-fit/issues?q=label%3Abesluit), met de reden erbij.
 
 De repository is openbaar, en dus de issues ook. Zet er geen namen of andere gegevens van leerlingen, docenten of ouders in, en geen materiaal uit een boek.
 
@@ -213,7 +213,7 @@ Push nooit rechtstreeks naar `main`. Zet elke wijziging op een eigen branch en o
 
 Laat elke pull request reviewen door een agent die op de achtergrond draait, met het model Sonnet. Kies de effort die bij de pull request past:
 
-- **low:** alleen documentatie, tests of de werkwijze.
+- **low:** alleen documentatie, tests of het ontwikkelproces.
 - **medium:** schermen, opmaak of teksten, zonder wijziging in de stof of in wat de browser bewaart.
 - **high:** de stof, de antwoordcontrole, de voortgang en de proeftoets in de browser, de anonieme tellen, de build, de regels voor Azure, en elke grote wijziging die veel bestanden raakt.
 
@@ -240,7 +240,7 @@ Merken leerlingen iets van je wijziging, doe dan dit in dezelfde pull request:
 2. Zet bovenaan in `CHANGELOG.md` een kop met het nieuwe nummer, bijvoorbeeld `## 1.1.0`, met de notities eronder. `npm test` faalt als de bovenste kop niet gelijk is aan de versie, en dan gaat er ook niets online.
 3. Commit, push de branch en open een pull request, zoals hierboven.
 
-Wijzigingen in tests, documentatie of de werkwijze houden dezelfde versie en krijgen dus geen release. Meerdere kleine pull requests mogen samen één versie worden: verhoog de versie dan bij de laatste.
+Wijzigingen in tests, documentatie of het ontwikkelproces houden dezelfde versie en krijgen dus geen release. Meerdere kleine pull requests mogen samen één versie worden: verhoog de versie dan bij de laatste.
 
 - **Patch** (`1.0.1`): een herstelde fout of een kleine verbetering.
 - **Minor** (`1.1.0`): nieuwe stof of een nieuwe functie.
