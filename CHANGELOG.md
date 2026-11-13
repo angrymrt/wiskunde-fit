@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.13.1
+
+### Verbeterd
+
+- De site start sneller, vooral op een oude telefoon of met traag internet. Bij je eerste bezoek laadt de site nog maar ongeveer de helft van wat eerst nodig was. De vragen en de uitleg van een onderwerp komen pas als je dat onderwerp opent. Lukt dat laden niet, dan zie je een melding met een knop om het opnieuw te proberen.
+
 ## 1.13.0
 
 ### Nieuw
