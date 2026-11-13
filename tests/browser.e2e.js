@@ -722,6 +722,8 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await fits('mijn stof');
     await p.screenshot({ path: `${shotDir}mijn-stof.png`, fullPage: true });
     await p.click('a[href="/mijn-stof/oefenen"]');
+    // De vraag staat er pas als de onderwerpen van de stofkeuze geladen zijn.
+    await p.waitForSelector('#pform');
     const chosen = await stof();
     for (let i = 0; i < 12; i++) {
       const id = await p.evaluate(() => wiskundefit.state.prac['mijn-stof'].skill.id);
@@ -1506,7 +1508,7 @@ test('zonder stofkeuze gaat mijn stof oefenen naar het kiezen van stof', async (
     // Met een stofkeuze werkt het adres wel, en een half gemaakte vraag overleeft de terugknop.
     await p.click('[data-act="stofall"]');
     await p.click('a[href="/mijn-stof/oefenen"]');
-    assert.ok(await p.$('#pform'));
+    assert.ok(await p.waitForSelector('#pform'));
     const question = await p.textContent('#pq');
     await p.goBack();
     await p.click('a[href="/mijn-stof/oefenen"]');
