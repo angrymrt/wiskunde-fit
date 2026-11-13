@@ -60,6 +60,8 @@ function tel({ sessie, hoofd, pad }) {
   t.hoofd = hoofd;
   t.rol = hoofd ? 'orkestratie' : null;
   t.issue = null;
+  // Per stap het tijdstip en het gewicht, om de orkestratie in de tijd te kunnen verdelen.
+  t.beurten = [];
   for (const regel of readFileSync(pad, 'utf8').split('\n')) {
     if (!regel) continue;
     let j;
@@ -91,10 +93,24 @@ function tel({ sessie, hoofd, pad }) {
     t.cacheWrite += m.usage.cache_creation_input_tokens ?? 0;
     t.cacheRead += m.usage.cache_read_input_tokens ?? 0;
     t.output += m.usage.output_tokens ?? 0;
+    const stap = {
+      input: m.usage.input_tokens ?? 0,
+      cacheWrite: m.usage.cache_creation_input_tokens ?? 0,
+      cacheRead: m.usage.cache_read_input_tokens ?? 0,
+      output: m.usage.output_tokens ?? 0,
+    };
+    t.beurten.push({ tijd: Date.parse(j.timestamp), gewogen: gewicht(stap, t.model) });
   }
-  const factor = Object.entries(MODEL).find(([k]) => t.model.includes(k))?.[1] ?? 1;
-  t.gewogen = factor * Object.entries(GEWICHT).reduce((s, [k, w]) => s + t[k] * w, 0);
+  t.gewogen = t.beurten.reduce((s, b) => s + b.gewogen, 0);
+  const tijden = t.beurten.map((b) => b.tijd).filter((x) => !Number.isNaN(x));
+  t.van = Math.min(...tijden);
+  t.tot = Math.max(...tijden);
   return t;
+}
+
+function gewicht(stap, model) {
+  const factor = Object.entries(MODEL).find(([k]) => model.includes(k))?.[1] ?? 1;
+  return factor * Object.entries(GEWICHT).reduce((s, [k, w]) => s + stap[k] * w, 0);
 }
 
 const rijen = sessies
@@ -135,15 +151,28 @@ for (const sessie of sessies) {
     if (AGENTROL(t)) voeg(t.issue, t.rol, t.gewogen);
     else los.push(t);
   }
-  // De orkestratie naar verhouding over de issues van deze sessie.
-  const metIssue = hier.filter(AGENTROL);
-  const somAgents = metIssue.reduce((s, t) => s + t.gewogen, 0);
+  // De orkestratie in de tijd: een stap van de hoofdsessie telt voor de issues waarvan de agents op
+  // dat moment bezig waren, van de start van hun eerste agent tot het einde van hun laatste. Vallen
+  // er meer issues samen, dan naar verhouding van wat hun agents kostten. Een stap daarbuiten, zoals
+  // werk aan het bord of aan een andere pull request, telt voor geen enkel issue.
+  const issues = new Map();
+  for (const t of hier.filter(AGENTROL)) {
+    const i = issues.get(t.issue) ?? { van: t.van, tot: t.tot, kost: 0 };
+    issues.set(t.issue, {
+      van: Math.min(i.van, t.van),
+      tot: Math.max(i.tot, t.tot),
+      kost: i.kost + t.gewogen,
+    });
+  }
   for (const hoofd of hier.filter((t) => t.hoofd)) {
-    if (!somAgents) {
-      los.push(hoofd);
-      continue;
+    let zonder = 0;
+    for (const b of hoofd.beurten) {
+      const bezig = [...issues].filter(([, i]) => b.tijd >= i.van && b.tijd <= i.tot);
+      const som = bezig.reduce((s, [, i]) => s + i.kost, 0);
+      if (!som) zonder += b.gewogen;
+      for (const [issue, i] of bezig) voeg(issue, 'orkestratie', (b.gewogen * i.kost) / som);
     }
-    for (const t of metIssue) voeg(t.issue, 'orkestratie', (hoofd.gewogen * t.gewogen) / somAgents);
+    if (zonder) los.push({ naam: 'hoofdsessie buiten de agents met een issue', gewogen: zonder });
   }
 }
 

@@ -171,7 +171,7 @@ Een hoofdstuk is veel werk: hoofdstuk 3 werden 30 vraagsoorten in vier pull requ
 4. **Bouwen: één agent per onderwerp.** Laat elk onderwerp bouwen door een eigen agent met Opus, want het bedenken van de sommen en de controle vragen het meeste denkwerk. Geef de agent alleen wat hij nodig heeft: het issue, `werkwijze.md`, een bestaand onderwerp als voorbeeld en de vrije nummers. Laat hem `npm test` draaien en alleen de fouten bekijken. Nieuwe techniek die meer onderwerpen nodig hebben, zoals een nieuw soort figuur, bouwt een eigen agent eerst.
 5. **Review.** Laat elke laag reviewen zoals bij elke pull request. Verwerk de bevindingen met een nieuwe, kleine agent die alleen de opmerkingen en de bestanden krijgt waar ze over gaan. Stuur ze niet terug naar de agent die de laag bouwde, want die heeft dan al een grote context.
 6. **Afronden met Sonnet.** De methode-indeling, de versie, de `CHANGELOG.md` en de aantallen in README en `index.html` zijn mechanisch werk. Laat een agent met Sonnet dat doen in de laatste laag.
-7. **Meten.** Zet bovenaan de opdracht van elke agent de regels `Issue: #97` en `Rol: bouw` of `Rol: review`. Tel na de release de tokens met `node scripts/tokens.js --per-issue --bord <sessie.jsonl>`. Dat zet per issue de velden Orkestratie, Bouw en Review op het projectbord. Het werk van de hoofdsessie telt als orkestratie en wordt verdeeld over de issues. Zet de tabel per agent (`node scripts/tokens.js <sessie.jsonl>`) als opmerking bij het issue van het hoofdstuk. Zo vergelijk je issues en hoofdstukken met elkaar.
+7. **Meten.** Zet bovenaan de opdracht van elke agent de regels `Issue: #97` en `Rol: bouw` of `Rol: review`. Tel na de release de tokens met `node scripts/tokens.js --per-issue --bord <sessie.jsonl>`. Dat zet per issue de velden Orkestratie, Bouw en Review op het projectbord. Het werk van de hoofdsessie telt als orkestratie, voor de issues waarvan de agents op dat moment bezig waren. Werk daarbuiten, zoals aan het bord, telt voor geen issue. Zet de tabel per agent (`node scripts/tokens.js <sessie.jsonl>`) als opmerking bij het issue van het hoofdstuk. Zo vergelijk je issues en hoofdstukken met elkaar.
 
 Draai niet meer dan twee agents en één browsertest tegelijk, anders raakt het geheugen van de computer op.
 
@@ -204,7 +204,7 @@ De repository is openbaar, en dus de issues ook. Zet er geen namen of andere geg
 
 ## Een pull request maken
 
-Push nooit rechtstreeks naar `main`. Zet elke wijziging op een eigen branch en open een pull request naar `main`. Die komt dan ook op een eigen preview-adres, zie [README.md](README.md).
+Push nooit rechtstreeks naar `main`. Zet elke wijziging op een eigen branch en open een pull request naar `main`. Die komt dan ook op een eigen preview-adres, zie [README.md](README.md). GitHub dwingt dit af met de ruleset "main beschermen": samenvoegen kan alleen via een pull request waarvan de check `deploy` slaagt. Een pull request van de workflow Tellen samenvatten of uit een fork krijgt die check niet. Die voegt de eigenaar samen door de regels te omzeilen, wat alleen via een pull request kan.
 
 Laat elke pull request reviewen door een agent die op de achtergrond draait, met het model Sonnet. Kies de effort die bij de pull request past:
 
