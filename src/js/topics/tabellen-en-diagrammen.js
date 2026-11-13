@@ -1,6 +1,6 @@
 // Onderwerp: Tabellen en diagrammen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, pick, coin, shuffle, near, rd, isNice, d, roundText } from '../math.js';
-import { F, RF, H, MC, euro, group } from './shared.js';
+import { F, RF, H, MC, euro, group, miss, trap } from './shared.js';
 import { T, tabel } from '../typeset.js';
 import { chart } from '../figures.js';
 
@@ -16,23 +16,6 @@ const eq = (x) => `${isNice(x, 1) ? '=' : '≈'} ${pc(x)}`;
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 const ROUND_PCT = ' Rond de percentages af op 1 decimaal.';
 
-// Een valkuil voor veld i: de leerling vult een getal uit ws in dat je met een bekende fout krijgt,
-// ook als hij dat zelf afrondt (tol). allow is hoeveel het goede antwoord na afronden mag schelen.
-// Een fout getal dat te dicht bij het goede antwoord of bij 0 ligt, telt niet mee.
-function miss(i, ws, right, tol, allow = 0) {
-  const wrong = ws.filter(
-    (w) =>
-      Number.isFinite(w) && Math.abs(w) > tol + 1e-9 && Math.abs(w - right) > tol + allow + 1e-9,
-  );
-  return wrong.length
-    ? (v) => Number.isFinite(v[i]) && wrong.some((w) => Math.abs(v[i] - w) <= tol + 1e-9)
-    : null;
-}
-// Eén valkuil voor dezelfde fout in een of meer velden.
-function trap(id, m, ...fs) {
-  const ts = fs.filter(Boolean);
-  return ts.length ? { id, f: (v) => ts.some((f) => f(v)), m } : null;
-}
 // Afronden op 1 decimaal: een fout percentage mag de leerling ook zelf hebben afgerond.
 const PCT = [0.05, 0.05];
 

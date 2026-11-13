@@ -887,6 +887,56 @@ test('een diagram tekent de getallen en noemt ze in de beschrijving', () => {
   assert.match(figs[4], /<rect class="mk c3"/);
 });
 
+test('een misleidend diagram: twee assen, brede staven en jaren op gelijke afstand', () => {
+  const desc = (fig) => fig.match(/aria-label="([^"]*)"/)[1];
+  // Twee verticale assen: elke lijn gebruikt de schaal van zijn eigen as.
+  const two = chart({
+    kind: 'lijn',
+    cats: ['2020', '2021', '2022'],
+    series: [
+      { name: 'appels', values: [10, 20, 40] },
+      { name: 'peren', values: [100, 150, 120], ax: 2 },
+    ],
+    yr: [0, 40],
+    yn: 'appels',
+    y2: { yr: [0, 200], yn: 'peren' },
+    vals: true,
+  });
+  assertDescribed(two, 'twee assen');
+  assert.match(
+    desc(two),
+    /Langs de verticale as links: appels\. Langs de verticale as rechts: peren\./,
+  );
+  assert.match(desc(two), /De verticale as rechts loopt van 0 tot 200, in stappen van 50\./);
+  assert.match(desc(two), /De lijn van peren \(as rechts\), met vierkantjes: 2020 100/);
+  const ya = [...two.matchAll(/<circle class="mk c1" cx="[\d.]+" cy="([\d.]+)"/g)].map(
+    (m) => +m[1],
+  );
+  const yp = [...two.matchAll(/<rect class="mk c2" x="[\d.]+" y="([\d.]+)"/g)].map(
+    (m) => +m[1] + 3.5,
+  );
+  assert.ok(near(ya[1], yp[0], 0.2), 'appels 20 van 40 en peren 100 van 200 staan even hoog');
+  // Met grow is een staaf die twee keer zo hoog is ook twee keer zo breed.
+  const wide = chart({
+    kind: 'staaf',
+    cats: ['2023', '2024'],
+    series: [{ name: 'ijs', values: [20, 40] }],
+    grow: true,
+  });
+  const ws = [...wide.matchAll(/<rect class="st c1"[^>]*width="([\d.]+)"/g)].map((m) => +m[1]);
+  assert.ok(near(ws[1] / ws[0], 2, 0.02), String(ws));
+  assert.match(desc(wide), /De staven zijn niet even breed/);
+  // Jaren met verschillende stappen op gelijke afstand: dat staat in de beschrijving.
+  const line = {
+    kind: 'lijn',
+    cats: ['2000', '2010', '2011'],
+    series: [{ name: 'leden', values: [5, 9, 10] }],
+  };
+  assert.match(desc(chart(line)), /De punten staan op gelijke afstand van elkaar\./);
+  assert.doesNotMatch(desc(chart({ ...line, at: [2000, 2010, 2011] })), /gelijke afstand/);
+  assert.doesNotMatch(desc(chart({ ...line, cats: ['2000', '2001', '2002'] })), /gelijke afstand/);
+});
+
 test('een schets kan een keuze zijn bij meerkeuze', () => {
   const sketch = (abc) =>
     graph({ xr: [-4, 4], yr: [-4, 4], u: 16, sketch: true, curves: [{ abc }] });

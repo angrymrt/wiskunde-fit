@@ -121,4 +121,7 @@ export default {
   117: 's43bars',
   118: 's43pie',
   119: 's43which',
+  120: 's44misleading',
+  121: 's44points',
+  122: 's44claim',
 };
