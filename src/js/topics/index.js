@@ -1,4 +1,9 @@
 // Alle onderwerpen per domein, op volgorde. Een nieuw onderwerp voeg je hier toe.
+//
+// In Node is van elk onderwerp alles meteen beschikbaar. In de browser staat bij het eerste bezoek
+// van elk onderwerp alleen de catalogus: de naam, het adres, de intro en de namen van de
+// vraagsoorten. De build zet die op de plek van de imports hieronder (zie scripts/catalogus.js).
+// De generatoren en de uitleg komen pas met laadOnderwerpen().
 import rekenen from './rekenen-met-een-formule.js';
 import lijnen from './lineaire-grafieken-tekenen.js';
 import opstellen from './lineaire-formule-opstellen.js';
@@ -94,13 +99,47 @@ for (const domain of DOMAINS) {
   });
 }
 
+// Of alles van een onderwerp er is, zoals de generatoren en de uitleg. In Node altijd. In de
+// browser heeft een onderwerp dat nog niet geladen is een functie laad (zie scripts/catalogus.js).
+const geladen = (t) => !t.laad;
+// Vult een onderwerp uit de catalogus aan met wat er na het laden bij komt.
+function aanvullen(t, { default: full }) {
+  t.skills.forEach((k, i) => {
+    const [id, , gen] = full.skills[i] || [];
+    if (id !== k.id) throw new Error(`${t.slug}: de catalogus past niet bij het onderwerp.`);
+    k.gen = gen;
+  });
+  for (const [key, value] of Object.entries(full)) if (!(key in t)) t[key] = value;
+  delete t.laad;
+}
+// Laadt de onderwerpen die nog niet geladen zijn, allemaal tegelijk. Een mislukte download mag je
+// opnieuw proberen.
+const loading = new Map();
+function laadOnderwerpen(topics) {
+  return Promise.all(
+    topics
+      .filter((t) => !geladen(t))
+      .map((t) => {
+        if (!loading.has(t)) {
+          const load = t.laad().then((m) => {
+            if (!geladen(t)) aanvullen(t, m);
+          });
+          loading.set(t, load);
+          load.catch(() => {}).then(() => loading.delete(t));
+        }
+        return loading.get(t);
+      }),
+  );
+}
+
 // Maakt een vraag van een vraagsoort met een seed, en bewaart die seed in de vraag. Zo is elke
 // vraag precies te herhalen, bijvoorbeeld bij een foutmelding.
 // Een vraag met afronden krijgt na zijn eigen valkuilen ook die voor afronden.
 function makeQuestion(skill, seed = newSeed()) {
+  if (!skill.gen) throw new Error(`Vraagsoort ${skill.id} is nog niet geladen.`);
   const q = withSeed(seed, skill.gen);
   const traps = [...(q.traps ?? []), ...roundTraps(q.fields)];
   return { ...q, ...(traps.length ? { traps } : {}), seed };
 }
 
-export { DOMAINS, DOMAIN, TOPICS, TOPIC, makeQuestion };
+export { DOMAINS, DOMAIN, TOPICS, TOPIC, makeQuestion, geladen, laadOnderwerpen };

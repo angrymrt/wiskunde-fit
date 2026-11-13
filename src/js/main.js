@@ -2,7 +2,7 @@
 import { Idiomorph } from 'idiomorph';
 import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
-import { TOPICS, TOPIC } from './topics/index.js';
+import { TOPICS, TOPIC, laadOnderwerpen } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { STORE, load, opslag, prog, rec, resetProgress, update } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
@@ -23,6 +23,7 @@ import {
 } from './ui/exam.js';
 import { newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
+import { nogTeLaden } from './ui/laden.js';
 import { readVals, unreadable, empty } from './ui/question-form.js';
 import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';
@@ -67,13 +68,16 @@ function leave() {
   if (state.test) pauseClock(state.test);
   stopTimer();
 }
+// Een nieuw scherm voor oefenen volgt ?soort= en ?seed= uit het adres, zodra het onderwerp geladen
+// is. Zie render().
+let followSoort = false;
 function show(v, focus) {
   state.view = v;
   state.confirmReset = false;
   state.stopped = false;
   state.shared = null;
-  if (v.oefen) applySoort(TOPIC[v.slug], v.soort, v.seed);
-  render(focus);
+  followSoort = !!v.oefen;
+  return render(focus);
 }
 // De browser zet de scrollpositie niet goed terug, want het scherm bestaat dan nog niet. Daarom
 // staat die bij elke stap in de geschiedenis.
@@ -97,7 +101,7 @@ const go = (v, hash = '') => {
   if (path === here() && !hash) history.replaceState(null, '', path);
   else history.pushState(null, '', path + hash);
   window.scrollTo(0, 0);
-  show(v, hash ? `${hash} h2, h2${hash}` : 'h1');
+  return show(v, hash ? `${hash} h2, h2${hash}` : 'h1');
 };
 // Toont het scherm dat bij het adres hoort: bij het openen en bij de terugknop.
 function arrive(focus) {
@@ -113,8 +117,10 @@ function arrive(focus) {
   const v = found.name === 'stofoefen' && !prog.stof ? { name: 'stof' } : found;
   const path = pathFor(v);
   if (path !== here()) history.replaceState(history.state, '', path + location.hash);
-  show(v, focus);
-  restoreScroll(opening);
+  const shown = show(v, focus);
+  // Moet het scherm eerst laden, dan pas daarna, want eerder is het scherm er nog niet.
+  if (shown) shown.then(() => restoreScroll(opening));
+  else restoreScroll(opening);
 }
 // Geeft een selector voor het element met de focus, om dat na het vervangen terug te vinden.
 function focusedSelector() {
@@ -136,10 +142,46 @@ function focusOn(selector) {
 // alleen aan wat anders is, zoals de voortgang. Zo blijven de focus, de scrollpositie en de plek
 // van een schermlezer staan, en verspringt er niets.
 let prebuilt = app.firstElementChild !== null;
+// Toont het scherm bij state. Heeft het scherm een onderwerp nodig dat nog niet geladen is, dan
+// laadt render() dat eerst en geeft het een Promise die klaar is als het scherm er staat. Duurt het
+// laden langer, dan toont het scherm dat het laadt, en lukt het niet, dan een melding met een knop
+// om het opnieuw te proberen. Een nieuwere render() gaat altijd voor.
+let renders = 0;
+function render(focus) {
+  const nr = ++renders;
+  const missing = nogTeLaden();
+  if (!missing.length) {
+    state.laden = null;
+    if (followSoort) {
+      followSoort = false;
+      applySoort(TOPIC[state.view.slug], state.view.soort, state.view.seed);
+    }
+    return paint(focus);
+  }
+  // Een vooraf gebouwde uitleg is al helemaal te lezen. Die blijft staan tot het onderwerp er is.
+  const quiet = prebuilt && state.view.name === 'topic' && !state.view.oefen;
+  const slow = setTimeout(() => {
+    if (nr !== renders || quiet) return;
+    state.laden = 'bezig';
+    paint(focus);
+  }, 300);
+  return laadOnderwerpen(missing).then(
+    () => {
+      clearTimeout(slow);
+      if (nr === renders) return render(focus);
+    },
+    () => {
+      clearTimeout(slow);
+      if (nr !== renders || quiet) return;
+      state.laden = 'fout';
+      paint('#laadfout');
+    },
+  );
+}
 // render() vervangt het hele scherm en daarmee het element met de focus. Zonder dit begint wie
 // het toetsenbord of een schermlezer gebruikt na elke klik weer bovenaan de pagina.
 // Geef een selector mee om de focus ergens anders te zetten dan waar die stond.
-function render(focus) {
+function paint(focus) {
   const target = focus || focusedSelector();
   if (prebuilt) Idiomorph.morph(app, screenHTML(), { morphStyle: 'innerHTML' });
   else app.innerHTML = screenHTML();
@@ -228,6 +270,13 @@ app.addEventListener('click', (e) => {
   b.focus();
   const a = b.dataset.act,
     id = b.dataset.id;
+  // Na een mislukte download. Opnieuw laden, want een browser kan onthouden dat een bestand niet
+  // te laden was. Een lopende proeftoets blijft bewaard.
+  if (a === 'opnieuw') {
+    keepTyped();
+    location.reload();
+    return;
+  }
   if (a === 'thema') {
     setTheme(state.dark ? 'light' : 'dark');
     keepTyped();
@@ -384,6 +433,8 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'start') {
+    // Een ander tabblad kan de stofkeuze net hebben veranderd. Dan eerst die onderwerpen laden.
+    if (nogTeLaden().length) return render();
     // De id onderscheidt deze proeftoets van een die een ander tabblad begint. Zie storeTest().
     const id = Date.now();
     state.test = { id, items: buildTest(prog.stof, state.len), i: 0, spent: 0, since: null };

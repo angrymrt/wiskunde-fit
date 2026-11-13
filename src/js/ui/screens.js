@@ -6,6 +6,7 @@ import { vContact, vOver, vPrivacy } from './about.js';
 import { vCijfers } from './cijfers.js';
 import { vToetsRes, vToetsRun, vToetsSetup } from './exam.js';
 import { vDomain, vHome } from './home.js';
+import { vLaden } from './laden.js';
 import { esc } from '../typeset.js';
 import { crumbs, footer, pageHead, storageNotice, testNotice, topbar, vMissing } from './layout.js';
 import { state } from './state.js';
@@ -13,6 +14,7 @@ import { vMapping, vPick, vStof, vStofPractice } from './stof.js';
 import { vTopic } from './topic.js';
 
 function content(v) {
+  if (state.laden) return vLaden();
   if (v.name === 'home') return vHome();
   if (v.name === 'domain') return vDomain(DOMAIN[v.slug]);
   if (v.name === 'topic') return vTopic(TOPIC[v.slug]);
