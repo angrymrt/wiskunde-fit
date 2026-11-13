@@ -1952,11 +1952,14 @@ test(
 // zelf) en de CSS 5 kB. Wordt een grens te krap, kijk dan eerst met node scripts/meet.js dist <naam>
 // wat er groeide, en verhoog de grens alleen als dat nodig is. Met Kwadratische functies, het eerste
 // onderwerp van hoofdstuk 3, werd de code 81 kB (229 kB zelf): ongeveer 6 kB per onderwerp. Daarom
-// is de grens voor de code toen verhoogd voor de rest van dat hoofdstuk (#72).
+// is de grens voor de code toen verhoogd voor de rest van dat hoofdstuk (#72). Met de aanvullingen
+// van hoofdstuk 3 (#97 en #98) werd het 102 kB (301 kB zelf). De eigenaar verhoogde de grens toen
+// tijdelijk tot 110 kB, alleen voor de rest van hoofdstuk 3. Voor hoofdstuk 4 moet eerst #80 af:
+// de code per domein laden of kleiner maken.
 const LIMITS = {
   page: { sent: 6, why: 'een vooraf gebouwde pagina' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  code: { sent: 100, own: 290, why: 'de code' },
+  code: { sent: 110, own: 320, why: 'de code' },
   css: { sent: 8, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
