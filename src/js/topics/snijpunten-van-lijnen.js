@@ -105,7 +105,7 @@ export default {
   intro:
     'Twee lijnen kunnen elkaar snijden, en een lijn snijdt ook de assen. Hier leer je uitrekenen waar dat gebeurt. Zo kun je ook bepalen wanneer twee hoeveelheden even groot zijn.',
   description:
-    'Bereken het snijpunt van twee lijnen en de snijpunten met de x-as en de y-as. Gratis uitleg en oefenvragen met uitwerkingen.',
+    'Snijpunt berekenen oefenen: waar twee lijnen elkaar snijden en waar een lijn de x-as en y-as snijdt. Havo 3, gratis met uitleg en uitwerkingen.',
   videos: {
     menno: [
       ['Snijpunten met de x-as en de y-as', 'tdHnhUP7sgQ'],

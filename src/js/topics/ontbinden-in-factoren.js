@@ -293,7 +293,7 @@ export default {
   intro:
     'Ontbinden in factoren is een som schrijven als een product, zoals x^2 + 5x = x(x + 5). Het is het omgekeerde van haakjes wegwerken. Hier leer je x buiten haakjes halen en de product-som-methode.',
   description:
-    'Oefen ontbinden in factoren: x buiten haakjes halen en x² + bx + c ontbinden met de product-som-methode. Gratis, met uitleg en uitwerkingen.',
+    'Ontbinden in factoren oefenen: x buiten haakjes halen en de product-som-methode bij x² + bx + c. Havo 3, gratis met uitleg, hints en uitwerkingen.',
   videos: {
     menno: [['Ontbinden in factoren', 'WG3moj6vfS8']],
   },

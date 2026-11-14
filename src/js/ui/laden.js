@@ -1,7 +1,7 @@
 // Welke onderwerpen een scherm nodig heeft, en wat het scherm toont zolang die laden of als dat niet
 // lukt. In de browser laden de generatoren en de uitleg van een onderwerp pas als die nodig zijn
 // (zie laadOnderwerpen in topics/index.js). render() in main.js laadt eerst, en tekent daarna.
-import { titleFor } from '../routes.js';
+import { nameOf, titleFor } from '../routes.js';
 import { chosenTopics } from '../stof.js';
 import { TOPIC, geladen } from '../topics/index.js';
 import { esc } from '../typeset.js';
@@ -26,7 +26,13 @@ const nogTeLaden = () => nodig().filter((t) => !geladen(t));
 // melding met een knop om het opnieuw te proberen. Een schermlezer hoort "Even laden…" uit
 // #laadmelding, dat main.js maakt en vult. De foutmelding krijgt de focus.
 function vLaden() {
-  const heading = esc(titleFor(state.view).replace(/ \| Wiskundefit$/, ''));
+  // De kop is de naam, zonder wat de titel erbij zegt voor zoekmachines.
+  const v = state.view;
+  const naam =
+    v.name === 'topic' || v.name === 'domain'
+      ? `${nameOf(v)}${v.oefen ? ' oefenen' : ''}`
+      : titleFor(v).replace(/ \| Wiskundefit$/, '');
+  const heading = esc(naam);
   const body =
     state.laden === 'fout'
       ? `<p class="fb bad" id="laadfout" tabindex="-1">Dit deel van de site kon niet worden geladen. Misschien is je internet even weg. Controleer je verbinding en probeer het opnieuw.</p><div class="row"><button class="btn main" type="button" data-act="opnieuw">Probeer opnieuw</button></div>`

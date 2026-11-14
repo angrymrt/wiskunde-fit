@@ -567,7 +567,7 @@ export default {
   intro:
     'Uit een tabel of een lijndiagram kun je een waarde schatten die er niet in staat. Hier bereken je de gemiddelde verandering per jaar, schat je een waarde tussen twee waarnemingen of erbuiten, en zoek je bij welk jaar een waarde hoort.',
   description:
-    'Interpoleren en extrapoleren: bereken de gemiddelde verandering per jaar en schat waarden uit een tabel of lijndiagram. Gratis oefenen met uitleg.',
+    'Interpoleren en extrapoleren oefenen: waarden schatten uit een tabel of lijndiagram. Havo 3, gratis met uitleg, hints en uitwerkingen.',
   videos: {
     menno: [['Interpoleren en extrapoleren', 'EI8vAZMrIBA']],
   },

@@ -59,7 +59,7 @@ export default {
   intro:
     'Bij een formule als y = ax + b hoort een rechte lijn. Hier leer je wat a en b over die lijn zeggen en hoe je de lijn tekent met een tabel.',
   description:
-    'Leer wat a en b betekenen in y = ax + b en teken zelf een lineaire grafiek met een tabel. Gratis oefenen met uitleg, hints en uitwerkingen.',
+    'Lineaire grafiek tekenen oefenen: wat a en b zeggen in y = ax + b en een lijn tekenen met een tabel. Havo 3, gratis met uitleg en uitwerkingen.',
   videos: {
     menno: [['De grafiek van een lineaire formule', '67AA66Z_hIw']],
     bob: [['De grafiek van een lineaire formule', 'ZS_74Ceblcc']],

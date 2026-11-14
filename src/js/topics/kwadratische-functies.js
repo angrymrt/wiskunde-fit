@@ -802,7 +802,7 @@ export default {
   intro:
     'Een functie als f(x) = ax^2 + bx + c heet een kwadratische functie. De grafiek is een parabool. Hier leer je functiewaarden berekenen, de symmetrie van een parabool gebruiken en rekenen aan de baan van een bal.',
   description:
-    'Oefen kwadratische functies: functiewaarden berekenen, a, b en c aflezen, dalparabool of bergparabool, symmetrie en de baan van een bal. Met uitleg.',
+    'Kwadratische functies oefenen: functiewaarden, a, b en c aflezen, dal- of bergparabool, symmetrie en de baan van een bal. Havo 3, gratis met uitleg.',
   videos: {
     menno: [['Functiewaarden berekenen', 'fiS4kcrhq5g']],
   },

@@ -203,7 +203,7 @@ export default {
   intro:
     'Haakjes wegwerken is het omgekeerde van ontbinden in factoren. Hier leer je een formule als a(x - d)(x - e) of a(x - p)^2 + q schrijven als ax^2 + bx + c, en de getallen a, d en e aflezen.',
   description:
-    'Oefen haakjes wegwerken: schrijf a(x − d)(x − e) en a(x − p)² + q als ax² + bx + c, en lees a, d en e af. Gratis, met uitleg en uitwerkingen.',
+    'Haakjes wegwerken oefenen: a(x − d)(x − e) en a(x − p)² + q schrijven als ax² + bx + c. Havo 3, gratis met uitleg, hints en uitwerkingen.',
   videos: {
     menno: [['De functie f(x) = a(x − d)(x − e)', 'N38oiZcNq3Q']],
   },

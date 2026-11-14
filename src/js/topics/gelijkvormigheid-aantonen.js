@@ -400,7 +400,7 @@ export default {
   intro:
     'Voordat je met gelijkvormigheid mag rekenen, moet je laten zien dat de driehoeken gelijkvormig zijn. Hier leer je dat met twee paar gelijke hoeken, en hoe je het opschrijft.',
   description:
-    'Toon aan dat twee driehoeken gelijkvormig zijn met F-hoeken, Z-hoeken en overstaande hoeken, en schrijf het goed op. Gratis oefenen.',
+    'Gelijkvormigheid aantonen oefenen met F-hoeken, Z-hoeken en overstaande hoeken, en het goed opschrijven. Havo 3, gratis met uitleg en hints.',
   videos: {
     menno: [
       ['Gelijkvormige driehoeken aantonen', 'v82_TCJTSks'],

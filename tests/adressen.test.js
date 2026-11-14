@@ -178,7 +178,7 @@ test('elk domein heeft een eigen adres', () => {
     const view = { name: 'domain', slug: d.slug };
     assert.equal(pathFor(view), `/${d.slug}`);
     assert.deepEqual(open(`/${d.slug}`), view);
-    assert.equal(titleFor(view), `${d.name} | Wiskundefit`);
+    assert.equal(titleFor(view), `${d.name} oefenen | Wiskundefit`);
     assert.equal(open(`/${d.slug}/oefenen`).name, 'missing');
   }
 });

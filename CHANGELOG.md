@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.16.2
+
+### Verbeterd
+
+- De pagina's zijn beter te vinden in zoekmachines. De titels en beschrijvingen zeggen nu dat je er kunt oefenen, en met wat.
+
 ## 1.16.1
 
 ### Hersteld

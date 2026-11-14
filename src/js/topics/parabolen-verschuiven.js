@@ -289,7 +289,7 @@ export default {
   intro:
     'Schuif je een parabool omhoog, omlaag, naar links of naar rechts, dan verandert de formule op een vaste manier. Hier leer je de formule van een verschoven parabool opstellen, en uit twee formules aflezen hoe een grafiek is verschoven.',
   description:
-    'Oefen parabolen verschuiven: de formule a(x − p)² + q na een verschuiving, a, p en q aflezen, en zien hoe een grafiek is verschoven. Met uitleg.',
+    'Parabolen verschuiven oefenen: de formule na een verschuiving opstellen en a, p en q aflezen uit a(x − p)² + q. Havo 3, gratis met uitleg en hints.',
   videos: {
     menno: [
       ['Verticaal verschuiven', 'tTxbZ4qK8BY'],

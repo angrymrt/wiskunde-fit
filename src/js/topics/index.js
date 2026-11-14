@@ -37,7 +37,7 @@ const DOMAINS = [
     intro:
       'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Hier reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
     description:
-      'Rekenen met procenten: procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis wiskunde oefenen met uitleg.',
+      'Procenten oefenen: procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis met uitleg, hints en uitwerkingen.',
     color: 'teal',
     topics: [procenten, terugrekenen],
   },
@@ -47,7 +47,7 @@ const DOMAINS = [
     intro:
       'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen. Ook leer je het omgekeerde: haakjes wegwerken.',
     description:
-      'Rekenen met letters: ontbinden in factoren met x buiten haakjes en de product-som-methode, en haakjes wegwerken. Gratis wiskunde oefenen met uitleg.',
+      'Rekenen met letters oefenen: ontbinden in factoren, de product-som-methode en haakjes wegwerken. Gratis met uitleg, hints en uitwerkingen.',
     color: 'plum',
     topics: [ontbinden, haakjes],
   },
@@ -57,7 +57,7 @@ const DOMAINS = [
     intro:
       'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden, en werk je met parabolen: de top, de snijpunten met de assen en verschuiven.',
     description:
-      'Rekenen met formules, lineaire grafieken, snijpunten van lijnen, kwadratische functies, de top van een parabool en verschuiven. Gratis oefenen met uitleg.',
+      'Formules en grafieken oefenen: lineaire formules, snijpunten, de top van een parabool en verschuiven. Gratis met uitleg, hints en uitwerkingen.',
     color: 'blue',
     topics: [rekenen, lijnen, opstellen, snijpunten, kwadratisch, topSnijpunten, verschuiven],
   },
@@ -67,7 +67,7 @@ const DOMAINS = [
     intro:
       'Bij een vergelijking zoek je wanneer twee kanten even groot zijn. Bij een ongelijkheid zoek je wanneer de ene kant groter of kleiner is dan de andere. Hier leer je ze oplossen, ook als er twee variabelen of een kwadraat in staan.',
     description:
-      'Lineaire vergelijkingen en ongelijkheden oplossen, ook met haakjes, breuken en twee variabelen, en kwadratische vergelijkingen. Gratis oefenen met uitleg.',
+      'Vergelijkingen en ongelijkheden oplossen oefenen, ook met haakjes, twee variabelen en kwadraten. Gratis met uitleg, hints en uitwerkingen.',
     color: 'forest',
     topics: [vergelijkingen, ongelijkheden, tweeVariabelen, kwVergelijkingen],
   },
@@ -77,7 +77,7 @@ const DOMAINS = [
     intro:
       'Meetkunde gaat over figuren, lengtes en hoeken. Hier bereken je zijden met de stelling van Pythagoras en met verhoudingstabellen, en leer je wanneer twee driehoeken gelijkvormig zijn.',
     description:
-      'Stelling van Pythagoras, verhoudingstabellen en gelijkvormige driehoeken: bereken zijden en lengtes. Gratis wiskunde oefenen met uitleg.',
+      'Meetkunde oefenen: stelling van Pythagoras, verhoudingstabellen en gelijkvormige driehoeken. Gratis met uitleg, hints en uitwerkingen.',
     color: 'orange',
     topics: [pythagoras, verhoudingen, gelijkvormig, aantonen, lengtes],
   },
@@ -87,7 +87,7 @@ const DOMAINS = [
     intro:
       'Bij statistiek verzamel je gegevens en zet je ze overzichtelijk in een tabel of een diagram. Hier reken je met gegevens uit tabellen, staafdiagrammen en cirkeldiagrammen, leer je welk diagram bij welke gegevens past en herken je misleidende diagrammen. Ook schat je waarden tussen en buiten de waarnemingen: interpoleren en extrapoleren.',
     description:
-      'Statistiek: rekenen met tabellen en diagrammen, misleidende diagrammen herkennen, procentpunten, interpoleren en extrapoleren. Gratis oefenen met uitleg.',
+      'Statistiek oefenen: tabellen en diagrammen, misleidende diagrammen, procentpunten, interpoleren en extrapoleren. Gratis met uitleg en hints.',
     color: 'berry',
     topics: [tabellen, misleidend, interpoleren],
   },

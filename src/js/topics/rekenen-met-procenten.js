@@ -994,7 +994,7 @@ export default {
   intro:
     'Met procenten kun je ook terugrekenen. Hier reken je met grote getallen als miljoen en miljard, bereken je het oude getal als je het nieuwe weet, en het totaal als je weet hoe groot een deel is.',
   description:
-    'Reken met miljoen en miljard, reken terug naar de oude prijs of het oude aantal en bereken het totaal uit een deel. Gratis oefenen met uitwerkingen.',
+    'Terugrekenen met procenten oefenen: het oude getal en het totaal berekenen, en rekenen met miljoen en miljard. Havo 3, gratis met uitleg en hints.',
   videos: {
     menno: [
       ['Rekenen met grote getallen', 'kcf-xP_3JeQ'],

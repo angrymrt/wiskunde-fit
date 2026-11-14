@@ -340,7 +340,7 @@ export default {
   intro:
     'Is de ene driehoek een vergroting of verkleining van de andere, dan heten ze gelijkvormig. Hier leer je hoe je daarmee de lengte van een zijde berekent die niet gegeven is.',
   description:
-    'Bereken zijden van gelijkvormige driehoeken met de vergrotingsfactor en een verhoudingstabel. Gratis uitleg en oefenvragen met uitwerkingen.',
+    'Gelijkvormige driehoeken oefenen: zijden berekenen met de vergrotingsfactor en een verhoudingstabel. Havo 3, gratis met uitleg en uitwerkingen.',
   videos: {
     menno: [
       ['Gelijkvormigheid', 'cVu2DqhSueY'],

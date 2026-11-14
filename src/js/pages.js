@@ -20,8 +20,8 @@ function mappingDescription(m) {
 // De beschrijving voor zoekmachines en linkvoorbeelden: hoogstens ongeveer 155 tekens, want Google
 // kapt de rest af. Een onderwerp en een domein hebben er een in de gegevens (description).
 const DESCRIPTIONS = {
-  home: 'Gratis wiskunde oefenen voor je toets in havo 3: uitleg, hints en steeds nieuwe vragen over formules, vergelijkingen en meetkunde. Zonder account.',
-  kies: 'Kies je wiskundeboek, zoals Getal & Ruimte, en zie per paragraaf wat je gratis kunt oefenen, met uitleg, hints en steeds nieuwe vragen.',
+  home: 'Wiskunde oefenen voor havo 3: formules, vergelijkingen, parabolen, procenten en meetkunde. Gratis, met uitleg, hints en uitwerkingen. Zonder account.',
+  kies: 'Kies je wiskundeboek en zie per paragraaf wat je gratis kunt oefenen, met uitleg, hints en steeds nieuwe vragen. Zonder account.',
   over: 'Wiskundefit is een gratis oefensite voor wiskunde, zonder band met een uitgever. Lees wie de site maakt en hoe we de uitleg en vragen maken.',
   privacy:
     'Wiskundefit werkt zonder account, cookies of reclame. Je voortgang blijft in je eigen browser. Lees wat de site bewaart en wat we anoniem tellen.',
