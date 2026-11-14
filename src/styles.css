@@ -1284,6 +1284,23 @@ sub {
 .vdomein .ctopic summary > span:first-child::before {
   text-indent: 0;
 }
+.vtotaal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--blue);
+  border-radius: 6px;
+  background: var(--blue-soft);
+  font-size: 1.1rem;
+}
+.vtotaal b {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
 .vdomein .ctopic:last-child {
   border-bottom: 0;
 }

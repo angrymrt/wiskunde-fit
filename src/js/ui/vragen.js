@@ -127,7 +127,8 @@ function vVragen() {
   <div class="block"><h2 class="h3">Hoeveel vragen zijn er?</h2>
   <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Staat er <b>≈</b> voor, dan is het aantal te groot om na te tellen en hebben we het geschat.</p>
   <div class="row"><button class="btn quiet" type="button" data-act="vragenopen" data-id="open">Alles openen</button><button class="btn quiet" type="button" data-act="vragenopen" data-id="dicht">Alles sluiten</button></div>
-  ${perOnderwerp(tellen)}</div>
+  ${perOnderwerp(tellen)}
+  <p class="vtotaal"><span>Samen</span><span><b>${kort(skills, tellen)}</b> verschillende vragen</span></p></div>
   <div class="block"><h2 class="h3">Open en eerlijk</h2>
   <p>De code van de generatoren staat op <a href="${REPO}" target="_blank" rel="noopener">GitHub</a>, dus je kunt nakijken hoe elke vraag wordt gemaakt. De generatoren, de tests en deze pagina zijn gemaakt met hulp van AI (Claude van Anthropic). Dat staat ook op de pagina <a href="${to('over')}">Over</a>. Klopt een vraag niet? Gebruik de knop <b>Meld een probleem</b> bij de vraag.</p></div></div>`;
 }
