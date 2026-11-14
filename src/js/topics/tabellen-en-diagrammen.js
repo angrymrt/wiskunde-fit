@@ -752,7 +752,8 @@ function s43pie() {
       const N = ri(lo, hi) * 10;
       return { j, N };
     },
-    ({ j, N }) => j !== i && Number.isInteger((pX * N) / 100) && Number.isInteger((ps[j] * N) / 100),
+    ({ j, N }) =>
+      j !== i && Number.isInteger((pX * N) / 100) && Number.isInteger((ps[j] * N) / 100),
   );
   const x = (pX * N) / 100,
     y = (ps[j] * N) / 100;

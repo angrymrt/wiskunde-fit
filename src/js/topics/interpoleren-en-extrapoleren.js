@@ -399,7 +399,30 @@ function s45extra() {
           base = back ? va : vb,
           Y0 = back ? Ya : Yb,
           ans = base + sgn * m * r;
-        return { D, c, ys, vs, n, k, back, a, b, Ya, Yb, va, vb, gap, diff, r, m, Y, sgn, base, Y0, ans };
+        return {
+          D,
+          c,
+          ys,
+          vs,
+          n,
+          k,
+          back,
+          a,
+          b,
+          Ya,
+          Yb,
+          va,
+          vb,
+          gap,
+          diff,
+          r,
+          m,
+          Y,
+          sgn,
+          base,
+          Y0,
+          ans,
+        };
       },
       ({ c, k, m, r, ans }) => !(!real(c, ans) || Math.abs(m * r) < 2 * 10 ** -k || half(ans, k)),
     );
