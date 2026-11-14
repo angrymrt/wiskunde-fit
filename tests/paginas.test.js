@@ -89,3 +89,12 @@ test('een oud adres wordt doorverwezen naar het nieuwe, ook bij oefenen', () => 
     assert.ok(paths.has(to), `${to} bestaat niet`);
   }
 });
+
+test('CSS en code worden als UTF-8 gestuurd, zodat › en ← nooit als Windows-1252 worden gelezen (#46)', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const config = JSON.parse(
+    await readFile(new URL('../staticwebapp.config.json', import.meta.url), 'utf8'),
+  );
+  assert.match(config.mimeTypes['.css'], /charset=utf-8/);
+  assert.match(config.mimeTypes['.js'], /charset=utf-8/);
+});

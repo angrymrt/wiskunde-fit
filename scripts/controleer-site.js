@@ -115,7 +115,7 @@ async function check(site, { wait = 0 } = {}) {
   const empty = await tel(new URL(site).origin);
   expect(empty === 400, `/api/tel gaf ${empty} voor een leeg bericht in plaats van 400`);
 
-  // De code, de CSS, de lettertypes en het logo mag de browser een jaar bewaren.
+  // De code, de CSS, de lettertypes en het logo mag de browser een jaar bewaren. CSS en code zijn UTF-8.
   for (const name of await readdir(new URL('assets/', dist))) {
     const res = await get(`/assets/${name}`);
     expect(res.status === 200, `/assets/${name} gaf ${res.status}`);
@@ -123,6 +123,13 @@ async function check(site, { wait = 0 } = {}) {
       /immutable/.test(res.headers.get('cache-control')),
       `/assets/${name} heeft cache-control ${res.headers.get('cache-control')}`,
     );
+    // De CSS bevat tekens zoals › en ←. Zonder charset leest een browser die soms als Windows-1252 (#46).
+    if (/\.(css|js)$/.test(name)) {
+      expect(
+        /charset=utf-8/i.test(res.headers.get('content-type')),
+        `/assets/${name} heeft content-type ${res.headers.get('content-type')} zonder charset=utf-8`,
+      );
+    }
     await res.arrayBuffer();
   }
   return failures;
