@@ -124,12 +124,12 @@ function s13brackets() {
   );
 }
 function s13expand() {
-  const t = nz(-6, 6),
-    p = pick([-7, -6, -5, -4, -3, -2, 2, 3, 4, 5]),
-    q = nz(-8, 8),
-    A = t + p,
+  const [t, p, q] = until(
+    () => [nz(-6, 6), pick([-7, -6, -5, -4, -3, -2, 2, 3, 4, 5]), nz(-8, 8)],
+    ([t, p]) => t + p !== 0,
+  );
+  const A = t + p,
     B = p * q;
-  if (A === 0) return s13expand();
   return {
     q: T(
       `Werk de haakjes weg en herleid: ${lin(t, 0)} ${p < 0 ? '-' : '+'} ${Math.abs(p)}(x${sg(q)})`,
