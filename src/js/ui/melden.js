@@ -7,8 +7,8 @@ import { SITE } from '../routes.js';
 import { MAIL } from './about.js';
 import { REPO, VERSION } from './layout.js';
 
-// De keuzes. De tekst moet precies gelijk zijn aan een optie in .github/ISSUE_TEMPLATE/vraagmelding.yml,
-// anders vult GitHub de keuze niet in. `npm test` controleert dat.
+// De keuzes. De tekst komt als gewone tekst in het veld `wat` van .github/ISSUE_TEMPLATE/vraagmelding.yml.
+// Dat is bewust een tekstveld: GitHub vult een keuzelijst niet in via de link.
 const WAT = [
   ['antwoord-fout', 'Het antwoord dat de site goed vindt, klopt niet'],
   ['antwoord-goed', 'Mijn antwoord is goed, maar de site zegt fout'],
