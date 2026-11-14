@@ -1,16 +1,18 @@
 // Onderwerp: Lineaire grafieken tekenen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, Q, qv, near, lin } from '../math.js';
+import { ri, nz, pick, Q, qv, near, lin, until } from '../math.js';
 import { drawLine, inGrid, lineTable, fillIn, H, LV } from './shared.js';
 import { T, dt } from '../typeset.js';
 
 function s11draw() {
-  let b, run, rise, a;
-  do {
-    b = ri(-4, 4);
-    run = pick([1, 1, 2, 3]);
-    rise = nz(-4, 4);
-    a = Q(rise, run);
-  } while (!inGrid(a.d, b + a.n));
+  const [b, run, rise, a] = until(
+    () => {
+      const b = ri(-4, 4);
+      const run = pick([1, 1, 2, 3]);
+      const rise = nz(-4, 4);
+      return [b, run, rise, Q(rise, run)];
+    },
+    ([b, , , a]) => inGrid(a.d, b + a.n),
+  );
   const l = pick('klmn'),
     p = [0, b],
     q = [a.d, b + a.n];
@@ -28,11 +30,10 @@ function s11draw() {
 }
 // Een grafiek tekenen met andere letters: de letter achter a staat op de horizontale as.
 function s12draw() {
-  let b, a;
-  do {
-    b = ri(-4, 4);
-    a = Q(nz(-4, 4), pick([1, 1, 2, 3, 4]));
-  } while (!inGrid(a.d, b + a.n));
+  const [b, a] = until(
+    () => [ri(-4, 4), Q(nz(-4, 4), pick([1, 1, 2, 3, 4]))],
+    ([b, a]) => inGrid(a.d, b + a.n),
+  );
   const [y, x] = pick(LV),
     p = [0, b],
     q = [a.d, b + a.n];
