@@ -39,7 +39,11 @@ export const mediaan = (lijst) => {
 const meet = (adres) => {
   const map = mkdtempSync(join(tmpdir(), 'lighthouse-'));
   const uit = join(map, 'rapport.json');
-  const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  // Op Windows is npx een .cmd en dus een shell nodig. Zet een argument met een spatie dan tussen
+  // aanhalingstekens, anders valt het uiteen.
+  const win = process.platform === 'win32';
+  const npx = win ? 'npx.cmd' : 'npx';
+  const arg = (a) => (win && /\s/.test(a) ? `"${a}"` : a);
   const r = spawnSync(
     npx,
     [
@@ -51,14 +55,18 @@ const meet = (adres) => {
       '--quiet',
       '--only-categories=performance,accessibility,best-practices',
       '--chrome-flags=--headless=new --no-sandbox',
-    ],
-    { encoding: 'utf8', shell: process.platform === 'win32' },
+    ].map(arg),
+    { encoding: 'utf8', shell: win, timeout: 180000 },
   );
   try {
     if (r.status !== 0) throw new Error(`Lighthouse faalde voor ${adres}: ${r.stderr || r.error}`);
     const rapport = JSON.parse(readFileSync(uit, 'utf8'));
     const waarden = {};
-    for (const [id] of CATEGORIEEN) waarden[id] = Math.round(rapport.categories[id].score * 100);
+    for (const [id] of CATEGORIEEN) {
+      const score = rapport.categories[id].score;
+      if (score === null) throw new Error(`Lighthouse gaf geen score voor ${id} bij ${adres}`);
+      waarden[id] = Math.round(score * 100);
+    }
     for (const [id] of METINGEN) waarden[id] = rapport.audits[id].numericValue;
     return waarden;
   } finally {
@@ -68,11 +76,27 @@ const meet = (adres) => {
 
 // De middelste van alle metingen, per waarde.
 export const meetMediaan = (adres, runs, meetFn = meet) => {
-  const alle = Array.from({ length: runs }, () => meetFn(adres));
+  // Een mislukte meting slaan we over, zolang er minstens één lukt.
+  const alle = [];
+  let fout;
+  for (let i = 0; i < runs; i++) {
+    try {
+      alle.push(meetFn(adres));
+    } catch (e) {
+      fout = e;
+      console.error(e.message);
+    }
+  }
+  if (!alle.length) throw fout;
   return Object.fromEntries(Object.keys(alle[0]).map((k) => [k, mediaan(alle.map((m) => m[k]))]));
 };
 
-const fmt = (x, dec) => x.toFixed(dec).replace('.', ',');
+// Een getal met komma en een teken bij een verschil, en nooit -0,0.
+const fmt = (x, dec, teken = false) => {
+  const t = x.toFixed(dec);
+  const nul = Number(t) === 0;
+  return `${teken && !nul && x > 0 ? '+' : ''}${(nul ? t.replace('-', '') : t).replace('.', ',')}`;
+};
 
 // De tabel voor één pagina. live en preview komen uit meetMediaan.
 export const tabel = (pagina, live, preview) => {
@@ -91,9 +115,7 @@ export const tabel = (pagina, live, preview) => {
     const a = om(live[id]);
     const b = om(preview[id]);
     const v = b - a;
-    regels.push(
-      `| ${naam} | ${fmt(a, dec)} | ${fmt(b, dec)} | ${v > 0 ? '+' : ''}${fmt(v, dec)} |`,
-    );
+    regels.push(`| ${naam} | ${fmt(a, dec)} | ${fmt(b, dec)} | ${fmt(v, dec, true)} |`);
   }
   return regels.join('\n');
 };

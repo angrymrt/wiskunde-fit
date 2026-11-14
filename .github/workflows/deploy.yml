@@ -98,12 +98,15 @@ jobs:
           node-version: 22
       - name: Bepaal of Lighthouse nodig is
         id: selectie
-        run: node scripts/browsertest-selectie.js "origin/${{ github.base_ref }}" | tee -a "$GITHUB_STEP_SUMMARY"
+        env:
+          BASIS: ${{ github.base_ref }}
+        run: node scripts/browsertest-selectie.js "origin/$BASIS" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Lighthouse
         if: steps.selectie.outputs.soort == 'alles'
         env:
           LIGHTHOUSE_UIT: ${{ runner.temp }}/lighthouse.md
-        run: node scripts/lighthouse.js "${{ needs.deploy.outputs.url }}"
+          PREVIEW: ${{ needs.deploy.outputs.url }}
+        run: node scripts/lighthouse.js "$PREVIEW"
       - name: Zet de scores bij de pull request
         if: steps.selectie.outputs.soort == 'alles'
         env:
@@ -112,7 +115,7 @@ jobs:
         run: |
           cat "$RUNNER_TEMP/lighthouse.md" >> "$GITHUB_STEP_SUMMARY"
           id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
-            --jq '[.[] | select(.body | startswith("<!-- lighthouse -->"))] | last | .id // empty')
+            --jq '[.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- lighthouse -->")))] | last | .id // empty' | tail -n 1)
           if [ -n "$id" ]; then
             gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@"$RUNNER_TEMP/lighthouse.md"
           else
