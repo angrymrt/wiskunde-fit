@@ -1,5 +1,5 @@
 // Onderwerp: Haakjes wegwerken. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { nz, pick, coin, near, sg, Q, qv, qAdd, qMul, fr, dlin } from '../math.js';
+import { nz, pick, coin, near, sg, Q, qv, qAdd, qMul, fr, dlin, until } from '../math.js';
 import { F, quad, coef, vertexForm, factorForm } from './shared.js';
 import { T } from '../typeset.js';
 
@@ -34,11 +34,10 @@ const rootText = (t, name) =>
 // Twee verschillende getallen voor d en e. Met zero is een van de twee soms 0, zoals in 3x(x − 5).
 // De factor x staat dan vooraan, dus d = 0.
 function roots(zero) {
-  let r, s;
-  do {
-    r = zero && coin() && coin() ? 0 : nz(-9, 9);
-    s = nz(-9, 9);
-  } while (r === s);
+  const [r, s] = until(
+    () => [zero && coin() && coin() ? 0 : nz(-9, 9), nz(-9, 9)],
+    ([r, s]) => r !== s,
+  );
   return r && coin() ? [s, r] : [r, s];
 }
 

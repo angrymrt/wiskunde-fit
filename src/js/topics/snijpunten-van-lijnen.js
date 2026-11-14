@@ -1,5 +1,5 @@
 // Onderwerp: Snijpunten van lijnen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, coin, Q, qv, near, d, fr, lin, dlin, sg } from '../math.js';
+import { ri, nz, pick, coin, Q, qv, near, d, fr, lin, dlin, sg, until } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
 
@@ -44,15 +44,16 @@ function s14axes() {
 }
 function s14cut() {
   const slopes = [-3, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 3];
-  let a, c, x, y, b, e;
-  do {
-    a = pick(slopes);
-    c = pick(slopes);
-    x = nz(-6, 6);
-    y = ri(-12, 12) / 2;
-    b = y - a * x;
-    e = y - c * x;
-  } while (a === c || !b || !e || Math.abs(b) > 15 || Math.abs(e) > 15);
+  const [a, c, x, y, b, e] = until(
+    () => {
+      const a = pick(slopes);
+      const c = pick(slopes);
+      const x = nz(-6, 6);
+      const y = ri(-12, 12) / 2;
+      return [a, c, x, y, y - a * x, y - c * x];
+    },
+    ([a, c, , , b, e]) => !(a === c || !b || !e || Math.abs(b) > 15 || Math.abs(e) > 15),
+  );
   const [l1, l2] = pick([
     ['l', 'm'],
     ['k', 'l'],

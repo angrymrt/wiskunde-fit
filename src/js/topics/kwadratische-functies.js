@@ -1,5 +1,5 @@
 // Onderwerp: Kwadratische functies. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, coin, near, d, rd, sg, isNice } from '../math.js';
+import { ri, nz, pick, coin, near, d, rd, sg, isNice, until } from '../math.js';
 import {
   F,
   H,
@@ -53,14 +53,15 @@ function fillHint(a, x) {
 }
 
 function s31value() {
-  let abc, x;
-  do {
-    const a = pick([-3, -2, -1, -1, 1, 1, 2, 3]),
-      b = coin() && coin() ? 0 : pick(B),
-      c = b && coin() && coin() ? 0 : nz(-9, 9);
-    abc = [a, b, c];
-    x = coin() || coin() ? -ri(1, 5) : ri(1, 5);
-  } while (!distinct(abc, x) || Math.abs(value(abc, x)) > 99);
+  const [abc, x] = until(
+    () => {
+      const a = pick([-3, -2, -1, -1, 1, 1, 2, 3]),
+        b = coin() && coin() ? 0 : pick(B),
+        c = b && coin() && coin() ? 0 : nz(-9, 9);
+      return [[a, b, c], coin() || coin() ? -ri(1, 5) : ri(1, 5)];
+    },
+    ([abc, x]) => distinct(abc, x) && Math.abs(value(abc, x)) <= 99,
+  );
   const n = pick(NAMES),
     y = value(abc, x);
   return {
@@ -187,13 +188,14 @@ function s31dalberg() {
 }
 
 function s31point() {
-  let abc, x;
-  do {
-    const a = pick([-3, -2, -1, 1, 2, 3]),
-      b = coin() && coin() ? 0 : pick(B);
-    abc = [a, b, nz(-9, 9)];
-    x = coin() || coin() ? -ri(1, 4) : ri(1, 4);
-  } while (!distinct(abc, x) || Math.abs(value(abc, x)) > 60);
+  const [abc, x] = until(
+    () => {
+      const a = pick([-3, -2, -1, 1, 2, 3]),
+        b = coin() && coin() ? 0 : pick(B);
+      return [[a, b, nz(-9, 9)], coin() || coin() ? -ri(1, 4) : ri(1, 4)];
+    },
+    ([abc, x]) => distinct(abc, x) && Math.abs(value(abc, x)) <= 60,
+  );
   const n = pick(NAMES),
     P = pick(['A', 'B', 'C', 'P']),
     y = value(abc, x),
@@ -237,13 +239,15 @@ function s31point() {
 // Een onbekend getal p in de formule, en de grafiek gaat door een gegeven punt. p staat op de
 // plek van a, b of c. Vul het punt in en los de vergelijking op.
 function s31unknown() {
-  let abc, k, x, y;
-  do {
-    k = pick([0, 1, 1, 2]);
-    abc = [pick([-3, -2, -1, 1, 2, 3]), k === 1 ? nz(-8, 8) : pick(B), nz(-9, 9)];
-    x = coin() ? -ri(1, 4) : ri(1, 4);
-    y = value(abc, x);
-  } while (Math.abs(y) > 60);
+  const [k, abc, x, y] = until(
+    () => {
+      const k = pick([0, 1, 1, 2]);
+      const abc = [pick([-3, -2, -1, 1, 2, 3]), k === 1 ? nz(-8, 8) : pick(B), nz(-9, 9)];
+      const x = coin() ? -ri(1, 4) : ri(1, 4);
+      return [k, abc, x, value(abc, x)];
+    },
+    ([, , , y]) => Math.abs(y) <= 60,
+  );
   const n = pick(NAMES),
     P = pick(['A', 'B', 'C', 'D']),
     p = abc[k],
@@ -272,22 +276,21 @@ function s31unknown() {
 
 // x_top uit twee gelijke functiewaarden: f(p) = f(q) geeft x_top = (p + q)/2.
 function symPair() {
-  let abc, p, q, h2;
-  do {
-    const a = pick([-2, -1, 1, 2]);
-    h2 = ri(-3, 7); // twee keer x_top, zodat x_top ook 1,5 kan zijn
-    const k2 = pick(h2 % 2 ? [1, 3, 5] : [2, 4, 6]);
-    p = (h2 - k2) / 2;
-    q = (h2 + k2) / 2;
-    abc = [a, -a * h2, nz(-9, 9)];
-  } while (
-    h2 === 0 ||
-    Math.abs(abc[1]) === 1 ||
-    p < -4 ||
-    q > 7 ||
-    Math.abs(value(abc, p)) > 40 ||
-    !distinct(abc, p) ||
-    !distinct(abc, q)
+  const [abc, p, q, h2] = until(
+    () => {
+      const a = pick([-2, -1, 1, 2]);
+      const h2 = ri(-3, 7); // twee keer x_top, zodat x_top ook 1,5 kan zijn
+      const k2 = pick(h2 % 2 ? [1, 3, 5] : [2, 4, 6]);
+      return [[a, -a * h2, nz(-9, 9)], (h2 - k2) / 2, (h2 + k2) / 2, h2];
+    },
+    ([abc, p, q, h2]) =>
+      h2 !== 0 &&
+      Math.abs(abc[1]) !== 1 &&
+      p >= -4 &&
+      q <= 7 &&
+      Math.abs(value(abc, p)) <= 40 &&
+      distinct(abc, p) &&
+      distinct(abc, q),
   );
   const n = pick(NAMES),
     fp = value(abc, p),
@@ -330,14 +333,14 @@ function symPair() {
 }
 // Een tabel met zeven punten en x_top in het midden. Twee gelijke waarden verraden de top.
 function symTable() {
-  let abc, h;
-  do {
-    const a = pick([-2, -1, 1, 2]);
-    h = ri(-2, 3);
-    abc = [a, -2 * a * h, nz(-8, 8)];
-  } while (
-    [-3, -2, -1, 0, 1, 2, 3].some((i) => Math.abs(value(abc, h + i)) > 20) ||
-    !distinct(abc, h)
+  const [abc, h] = until(
+    () => {
+      const a = pick([-2, -1, 1, 2]);
+      const h = ri(-2, 3);
+      return [[a, -2 * a * h, nz(-8, 8)], h];
+    },
+    ([abc, h]) =>
+      [-3, -2, -1, 0, 1, 2, 3].every((i) => Math.abs(value(abc, h + i)) <= 20) && distinct(abc, h),
   );
   const n = pick(NAMES),
     // De naam van de tabel voor een schermlezer, uniek genoeg voor een proeftoets met meer vragen.
@@ -417,19 +420,22 @@ const inView = (abc) => {
   return Math.abs(xt) <= 4 && Math.abs(yt) <= 6 && Math.abs(abc[2]) <= 6;
 };
 function s31pick() {
-  let abc, wrong;
-  do {
-    const a = pick([-2, -1, -1, 1, 1, 2]),
-      h = pick([-2, -1, 1, 2]),
-      c = a * h * h + ri(-5, 5);
-    abc = [a, -2 * a * h, c];
-    // Elke andere grafiek heeft één ander getal: a, b of c.
-    wrong = [
-      [-a, abc[1], c],
-      [a, -abc[1], c],
-      [a, abc[1], c + pick([-3, -2, 2, 3])],
-    ];
-  } while (![abc, ...wrong].every(inView) || checkX(abc) === undefined);
+  const [abc, wrong] = until(
+    () => {
+      const a = pick([-2, -1, -1, 1, 1, 2]),
+        h = pick([-2, -1, 1, 2]),
+        c = a * h * h + ri(-5, 5);
+      const abc = [a, -2 * a * h, c];
+      // Elke andere grafiek heeft één ander getal: a, b of c.
+      const wrong = [
+        [-a, abc[1], c],
+        [a, -abc[1], c],
+        [a, abc[1], c + pick([-3, -2, 2, 3])],
+      ];
+      return [abc, wrong];
+    },
+    ([abc, wrong]) => [abc, ...wrong].every(inView) && checkX(abc) !== undefined,
+  );
   const n = pick(NAMES),
     [a, , c] = abc,
     figs = [abc, ...wrong].map(pickFig),
@@ -494,14 +500,17 @@ function s31pick() {
 // Een melding na een valkuil is gewone tekst, dus met een echt minteken.
 const M = (x) => String(x).replace('-', '−');
 function s31draw() {
-  let a, h, k, abc;
-  do {
-    a = pick([-2, -1, -1, 1, 1, 2]);
-    h = nz(-3, 3);
-    // Een dalparabool onderin en een bergparabool bovenin, zodat je veel van de grafiek ziet.
-    k = a > 0 ? ri(-5, 0) : ri(0, 5);
-    abc = [a, -2 * a * h, a * h * h + k];
-  } while (!inGrid(h, k) || !inGrid(h - 1, k + a) || !inGrid(h + 1, k + a) || !distinct(abc, h));
+  const [a, h, k, abc] = until(
+    () => {
+      const a = pick([-2, -1, -1, 1, 1, 2]);
+      const h = nz(-3, 3);
+      // Een dalparabool onderin en een bergparabool bovenin, zodat je veel van de grafiek ziet.
+      const k = a > 0 ? ri(-5, 0) : ri(0, 5);
+      return [a, h, k, [a, -2 * a * h, a * h * h + k]];
+    },
+    ([a, h, k, abc]) =>
+      inGrid(h, k) && inGrid(h - 1, k + a) && inGrid(h + 1, k + a) && distinct(abc, h),
+  );
   const n = pick(NAMES),
     c = abc[2],
     xs = [-3, -2, -1, 0, 1, 2, 3].map((i) => h + i),
@@ -640,12 +649,14 @@ const landing = (abc) => Math.max(...roots(abc));
 function s32height() {
   const s = pick(STORIES.filter((x) => x.start)),
     n = pick(NAMES);
-  let abc, x;
-  do {
-    abc = [pick(s.a), pick(s.b), pick(s.c)];
-    const far = Math.floor(landing(abc));
-    x = far >= 4 ? ri(2, far - 1) : 0;
-  } while (!x || near(value(abc, x), abc[2]));
+  const [abc, x] = until(
+    () => {
+      const abc = [pick(s.a), pick(s.b), pick(s.c)];
+      const far = Math.floor(landing(abc));
+      return [abc, far >= 4 ? ri(2, far - 1) : 0];
+    },
+    ([abc, x]) => x && !near(value(abc, x), abc[2]),
+  );
   const [a, b, c] = abc,
     y = value(abc, x);
   return {
@@ -678,14 +689,16 @@ function s32further() {
   const s = pick(STORIES),
     n = pick(NAMES),
     far = coin();
-  let abc, e, y;
-  do {
-    abc = [pick(s.a), pick(s.b), pick(s.c)];
-    const L = landing(abc);
-    // Komt het verder, dan ligt e net voor het neerkomen. Anders net erna.
-    e = far ? Math.floor(L) - ri(0, 1) : Math.ceil(L) + ri(0, 1);
-    y = value(abc, e);
-  } while (Math.abs(y) < 0.05 || e < 3 || e < -abc[1] / (2 * abc[0]) + 1);
+  const [abc, e, y] = until(
+    () => {
+      const abc = [pick(s.a), pick(s.b), pick(s.c)];
+      const L = landing(abc);
+      // Komt het verder, dan ligt e net voor het neerkomen. Anders net erna.
+      const e = far ? Math.floor(L) - ri(0, 1) : Math.ceil(L) + ri(0, 1);
+      return [abc, e, value(abc, e)];
+    },
+    ([abc, e, y]) => !(Math.abs(y) < 0.05 || e < 3 || e < -abc[1] / (2 * abc[0]) + 1),
+  );
   const [a, b, c] = abc,
     yes = `verder dan ${e} meter`,
     no = `niet verder dan ${e} meter`,
@@ -737,20 +750,24 @@ function s32unknown() {
   const s = pick(STORIES),
     n = pick(NAMES),
     land = !s.c.some((c) => c) && coin();
-  let abc, x, y, e, L;
-  do {
-    abc = [pick(s.a), pick(s.b), pick(s.c)];
-    L = landing(abc);
-    x = land ? L : ri(2, Math.floor(L) - 1);
-    y = land ? 0 : value(abc, x);
-    e = ri(2, Math.floor(L) - 1);
-  } while (
-    Math.floor(L) < 4 ||
-    !isNice(x, 0) ||
-    !isNice(y, 2) ||
-    (!land && y <= 0) ||
-    e === Math.round(x) ||
-    value(abc, e) <= 0
+  let [abc, x, y, e, L] = until(
+    () => {
+      const abc = [pick(s.a), pick(s.b), pick(s.c)];
+      const L = landing(abc);
+      const x = land ? L : ri(2, Math.floor(L) - 1);
+      const y = land ? 0 : value(abc, x);
+      const e = ri(2, Math.floor(L) - 1);
+      return [abc, x, y, e, L];
+    },
+    ([abc, x, y, e, L]) =>
+      !(
+        Math.floor(L) < 4 ||
+        !isNice(x, 0) ||
+        !isNice(y, 2) ||
+        (!land && y <= 0) ||
+        e === Math.round(x) ||
+        value(abc, e) <= 0
+      ),
   );
   x = Math.round(x);
   const [a, p, c] = abc,
