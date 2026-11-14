@@ -1,5 +1,5 @@
 // Onderwerp: Procentuele verandering. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, pick, coin, near, rd, isNice, d } from '../math.js';
+import { ri, pick, coin, near, rd, isNice, d, until } from '../math.js';
 import { F, RF, needRound, euro } from './shared.js';
 import { T } from '../typeset.js';
 
@@ -84,19 +84,21 @@ const PARTS = [
 // Een procent van een getal: 18,4% van 650 is 0,184 · 650.
 function partOf() {
   const bare = coin();
-  let p, t, ans, c;
-  for (;;) {
-    c = pick(PARTS);
-    if (bare) {
-      p = pick([2.5, 4.5, 6.4, 7.2, 0.8, 12.5, 16.8, 18.5, 23, 35, 62.5, 84]);
-      t = pick([ri(12, 99) * 10, ri(100, 999)]);
-    } else {
-      p = pick([4, 5, 8, 12, 15, 18, 24, 25, 35, 40, 45, 55, 64, 72, 85]);
-      t = ri(c.t[0], c.t[1]) * 10;
-    }
-    ans = rd((p * t) / 100, 6);
-    if (bare || Number.isInteger(ans)) break;
-  }
+  const [p, t, ans, c] = until(
+    () => {
+      const c = pick(PARTS);
+      let p, t;
+      if (bare) {
+        p = pick([2.5, 4.5, 6.4, 7.2, 0.8, 12.5, 16.8, 18.5, 23, 35, 62.5, 84]);
+        t = pick([ri(12, 99) * 10, ri(100, 999)]);
+      } else {
+        p = pick([4, 5, 8, 12, 15, 18, 24, 25, 35, 40, 45, 55, 64, 72, 85]);
+        t = ri(c.t[0], c.t[1]) * 10;
+      }
+      return [p, t, rd((p * t) / 100, 6), c];
+    },
+    ([, , ans]) => bare || Number.isInteger(ans),
+  );
   const fields = [F(bare ? `${d(p)}% van ${t} is` : 'Dat zijn', ans, bare ? '' : c.unit)];
   return {
     q: T(bare ? `Bereken ${d(p)}% van ${t}.` : `${c.whole(t)} ${c.part(p)} ${c.askN}`),
@@ -123,20 +125,23 @@ function partOf() {
 // Hoeveel procent een deel is: 87 van 540 is 87/540 · 100%.
 function shareOf() {
   const bare = coin();
-  let x, t, c;
-  for (;;) {
-    c = pick(PARTS);
-    if (bare) {
-      t = ri(150, 990);
-      x = coin()
-        ? ri(Math.ceil(t * 0.04), Math.floor(t * 0.9))
-        : ri(Math.ceil(t * 0.4), Math.floor(t * 9)) / 10;
-    } else {
-      t = ri(c.t[0], c.t[1]) * 10 + ri(0, 9);
-      x = ri(Math.ceil(t * 0.04), Math.floor(t * 0.9));
-    }
-    if ((x / t) * 100 >= 3 && !isNice((x / t) * 100, 0)) break;
-  }
+  const [x, t, c] = until(
+    () => {
+      const c = pick(PARTS);
+      let x, t;
+      if (bare) {
+        t = ri(150, 990);
+        x = coin()
+          ? ri(Math.ceil(t * 0.04), Math.floor(t * 0.9))
+          : ri(Math.ceil(t * 0.4), Math.floor(t * 9)) / 10;
+      } else {
+        t = ri(c.t[0], c.t[1]) * 10 + ri(0, 9);
+        x = ri(Math.ceil(t * 0.04), Math.floor(t * 0.9));
+      }
+      return [x, t, c];
+    },
+    ([x, t]) => (x / t) * 100 >= 3 && !isNice((x / t) * 100, 0),
+  );
   const pct = (x / t) * 100,
     fields = [RF('Dat is', pct, 1, '%')];
   return {
@@ -202,26 +207,31 @@ const CHANGES = [
 // De procentuele verandering, met de antwoordzin bij een afname.
 function s41change() {
   const up = coin();
-  let o, n, story, show;
-  for (;;) {
-    const q = ri(3, 38) + (coin() ? 0 : ri(1, 9) / 10),
-      f = 1 + (up ? q : -q) / 100;
-    if (coin()) {
-      const [name, short, lo, hi] = pick(ITEMS);
-      o = price(lo, hi);
-      n = rd(Math.floor(o * f) + pick([0, 0.5, 0.95, 0.99]), 2);
-      story = `${name} kostte eerst ${euro(o)} euro. Nu kost ${short} ${euro(n)} euro.`;
-      show = euro;
-    } else {
-      const [lo, hi, t] = pick(CHANGES);
-      o = ri(lo, hi);
-      n = Math.round(o * f);
-      story = t(o, n);
-      show = String;
-    }
-    const pct = ((n - o) / o) * 100;
-    if (n !== o && up === n > o && Math.abs(pct) >= 2 && n < 10000) break;
-  }
+  const [o, n, story, show] = until(
+    () => {
+      const q = ri(3, 38) + (coin() ? 0 : ri(1, 9) / 10),
+        f = 1 + (up ? q : -q) / 100;
+      let o, n, story, show;
+      if (coin()) {
+        const [name, short, lo, hi] = pick(ITEMS);
+        o = price(lo, hi);
+        n = rd(Math.floor(o * f) + pick([0, 0.5, 0.95, 0.99]), 2);
+        story = `${name} kostte eerst ${euro(o)} euro. Nu kost ${short} ${euro(n)} euro.`;
+        show = euro;
+      } else {
+        const [lo, hi, t] = pick(CHANGES);
+        o = ri(lo, hi);
+        n = Math.round(o * f);
+        story = t(o, n);
+        show = String;
+      }
+      return [o, n, story, show];
+    },
+    ([o, n]) => {
+      const pct = ((n - o) / o) * 100;
+      return n !== o && up === n > o && Math.abs(pct) >= 2 && n < 10000;
+    },
+  );
   const pct = ((n - o) / o) * 100,
     A = Math.abs(pct),
     word = up ? 'toename' : 'afname',
@@ -473,10 +483,13 @@ function s41new() {
     tol = EUR;
   } else {
     const ctx = pick(COUNT_NEW);
-    do {
-      o = ri(ctx.r[0], ctx.r[1]) * 10;
-      x = o * f;
-    } while (!isNice(x, 0));
+    [o, x] = until(
+      () => {
+        const o = ri(ctx.r[0], ctx.r[1]) * 10;
+        return [o, o * f];
+      },
+      ([, x]) => isNice(x, 0),
+    );
     x = Math.round(x);
     fields = [F(ctx.pre, x, ctx.unit)];
     q = ctx.t(o, p, up);
@@ -544,13 +557,17 @@ const CHAIN_SUBJ = [
 // Procent op procent: de veranderingen samen geven één vermenigvuldigingsfactor.
 function s41chain() {
   let ch, fx, A;
-  for (;;) {
-    ch = chainOf(coin() ? 2 : 3, CHAIN_PCTS);
-    fx = product(ch);
-    A = Math.abs(fx - 1) * 100;
-    const sum = ch.reduce((s, c) => s + signed(c), 0);
-    if (A >= 1 && Math.abs(Math.abs(sum) - A) > 0.2) break;
-  }
+  [ch, fx, A] = until(
+    () => {
+      const ch = chainOf(coin() ? 2 : 3, CHAIN_PCTS);
+      const fx = product(ch);
+      return [ch, fx, Math.abs(fx - 1) * 100];
+    },
+    ([ch, , A]) => {
+      const sum = ch.reduce((s, c) => s + signed(c), 0);
+      return A >= 1 && Math.abs(Math.abs(sum) - A) > 0.2;
+    },
+  );
   const up = fx > 1,
     a = up ? 'toename' : 'afname',
     sum = ch.reduce((s, c) => s + signed(c), 0),
@@ -648,17 +665,21 @@ function s41chainNew() {
   let ch, fx, o, x, q, fields, steps, tol;
   if (money) {
     const [name, short, lo, hi] = pick(ITEMS);
-    for (;;) {
-      ch = chainOf(coin() ? 2 : 3, CHAIN_PCTS);
-      fx = product(ch);
-      o = price(lo, hi);
-      x = o * fx;
-      // Wie na elke stap op centen afrondt, komt op hetzelfde bedrag uit. Anders zijn er twee
-      // antwoorden te verdedigen.
-      let y = o;
-      for (const c of ch) y = rd(y * fac(c), 2);
-      if (near(y, rd(x, 2), 1e-9) && Math.abs(fx - 1) >= 0.01 && !isNice(fx, 2)) break;
-    }
+    [ch, fx, o, x] = until(
+      () => {
+        const ch = chainOf(coin() ? 2 : 3, CHAIN_PCTS);
+        const fx = product(ch);
+        const o = price(lo, hi);
+        return [ch, fx, o, o * fx];
+      },
+      ([ch, fx, o, x]) => {
+        // Wie na elke stap op centen afrondt, komt op hetzelfde bedrag uit. Anders zijn er twee
+        // antwoorden te verdedigen.
+        let y = o;
+        for (const c of ch) y = rd(y * fac(c), 2);
+        return near(y, rd(x, 2), 1e-9) && Math.abs(fx - 1) >= 0.01 && !isNice(fx, 2);
+      },
+    );
     const yl = y0 + ch.length - 1;
     fields = [RF(`prijs eind ${yl} =`, x, 2, 'euro')];
     q = `Begin ${y0} kostte ${name.toLowerCase()} ${euro(o)} euro. De prijs ${chainText(ch, 'prijs', y0)}. Bereken de prijs eind ${yl}.${centen(fields)}`;
@@ -671,20 +692,26 @@ function s41chainNew() {
     tol = EUR;
   } else {
     const ctx = pick(CHAIN_COUNTS);
-    for (;;) {
-      ch = chainOf(coin() ? 2 : 3, CHAIN_INTS);
-      fx = product(ch);
-      // Na elke verandering is het aantal een geheel getal.
-      o = ri(ctx.r[0], ctx.r[1]) * 100;
-      let y = o,
-        whole = true;
-      for (const c of ch) {
-        y = (y * (100 + signed(c))) / 100;
-        whole = whole && Number.isInteger(y);
-      }
-      x = y;
-      if (whole && x < 10000 && Math.abs(fx - 1) >= 0.01 && !isNice(fx, 2)) break;
-    }
+    [ch, fx, o, x] = until(
+      () => {
+        const ch = chainOf(coin() ? 2 : 3, CHAIN_INTS);
+        const fx = product(ch);
+        // Na elke verandering is het aantal een geheel getal.
+        const o = ri(ctx.r[0], ctx.r[1]) * 100;
+        let y = o;
+        for (const c of ch) y = (y * (100 + signed(c))) / 100;
+        return [ch, fx, o, y];
+      },
+      ([ch, fx, o, x]) => {
+        let y = o,
+          whole = true;
+        for (const c of ch) {
+          y = (y * (100 + signed(c))) / 100;
+          whole = whole && Number.isInteger(y);
+        }
+        return whole && x < 10000 && Math.abs(fx - 1) >= 0.01 && !isNice(fx, 2);
+      },
+    );
     const yl = y0 + ch.length - 1;
     fields = [F(`Eind ${yl}`, x, ctx.unit)];
     q = `${ctx.t(o, y0)} ${chainText(ch, 'aantal', y0)}. ${ctx.ask(yl)}`;
