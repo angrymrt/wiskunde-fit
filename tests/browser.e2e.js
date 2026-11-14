@@ -1006,14 +1006,18 @@ test('elk adres opent rechtstreeks het juiste scherm, ook na herladen', async ()
       ['/over', /Over Wiskundefit/, /^Over Wiskundefit$/],
       ['/privacy', /Privacy/, /^Privacy \|/],
       ['/contact', /Contact/, /^Contact \|/],
-      ...DOMAINS.map((d) => [`/${d.slug}`, new RegExp(d.name), new RegExp(`^${d.name} \\|`)]),
+      ...DOMAINS.map((d) => [
+        `/${d.slug}`,
+        new RegExp(d.name),
+        new RegExp(`^${d.name} oefenen \\|`),
+      ]),
       ...MAPPINGS.map((m) => [
         `/methode-indeling/${m.slug}`,
         new RegExp(`${m.level} ${m.year}`),
         new RegExp(`${m.level} ${m.year} \\|`),
       ]),
       ...TOPICS.flatMap((t) => [
-        [`/${t.slug}`, new RegExp(t.title), new RegExp(`^${t.title} \\|`)],
+        [`/${t.slug}`, new RegExp(t.title), new RegExp(`^${t.title} oefenen met uitleg \\|`)],
         [`/${t.slug}/oefenen`, new RegExp(`${t.title} oefenen`), new RegExp(`^${t.title} oefenen`)],
       ]),
     ];

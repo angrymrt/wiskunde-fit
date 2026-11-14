@@ -344,7 +344,7 @@ export default {
   intro:
     'Bij een ongelijkheid zoek je niet één getal, maar alle x waarvoor iets groter of kleiner is. Hier leer je dat oplossen, met en zonder grafieken.',
   description:
-    'Lineaire ongelijkheden oplossen oefenen, met en zonder grafiek, en leren wanneer het teken omklapt. Havo 3, gratis met uitleg en uitwerkingen.',
+    'Lineaire ongelijkheden oplossen oefenen: met en zonder grafiek, en wanneer het teken omklapt. Havo 3, gratis met uitleg en uitwerkingen.',
   videos: {
     menno: [
       ['Lineaire ongelijkheden oplossen met grafieken', '016gEKebUGM'],
