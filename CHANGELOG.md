@@ -15,6 +15,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 ### Verbeterd
 
 - Elk diagram heeft een beschrijving voor een schermlezer, met de waarden van de staven, sectoren of punten.
+- Het contactadres is nu contact@wiskundefit.nl.
 
 ## 1.15.0
 
