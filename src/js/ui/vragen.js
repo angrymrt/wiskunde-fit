@@ -81,7 +81,7 @@ function vVragen() {
   <div class="block"><h2 class="h3">Eerst even wat statistieken</h2>
   <p>Op Wiskundefit.nl kun je:</p>
   <div class="vstats">
-  <div class="tile vtile-main"><span class="tile-value">${totaal(skills, tellen)}</span><span class="tile-label">verschillende vragen oefenen</span></div>
+  <div class="tile vtile-main">${schatting(skills, tellen) ? '<span class="small muted">ongeveer</span>' : ''}<span class="tile-value">${schatting(skills, tellen) ? groot(som(skills, tellen)) : getal(som(skills, tellen))}</span><span class="tile-label">verschillende vragen oefenen</span></div>
   <div class="tile"><span class="small muted">verdeeld over</span><span class="tile-value">${skills.length}</span><span class="tile-label">soorten vragen</span></div>
   <div class="tile"><span class="small muted">in</span><span class="tile-value">${DOMAINS.length} domeinen</span><span class="tile-label">en ${TOPICS.length} onderwerpen</span></div>
   </div></div>
