@@ -2,6 +2,8 @@
 // Gebruikt Edge; een andere browser kies je met de omgevingsvariabele BROWSER, bijvoorbeeld chrome of webkit.
 // Standaard krijgt elke soort vraag 1 ronde; met de omgevingsvariabele ROUNDS kies je er meer.
 // Schermafbeeldingen om zelf na te kijken komen in test-results/.
+// De lange test, die alle onderwerpen doorloopt, beperk je met ONDERWERPEN=a,b (adressen van
+// onderwerpen) of met METHODE=gr13-havo3 en eventueel HOOFDSTUK=4. Met SNEL=1 slaat hij over.
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir, readdir, readFile } from 'node:fs/promises';
@@ -10,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { brotliCompressSync, constants } from 'node:zlib';
 import { chromium, webkit } from 'playwright-core';
 import { check } from '../scripts/controleer-site.js';
+import { onderwerpenVan } from '../scripts/browsertest-selectie.js';
 import { startServer } from '../scripts/server.js';
 import { MAPPINGS } from '../src/js/mappings/index.js';
 import { PAGES } from '../src/js/pages.js';
@@ -26,6 +29,12 @@ const siteUrl = `http://127.0.0.1:${server.address().port}/`;
 const at = (address) => new URL(address, siteUrl).href;
 const shotDir = fileURLToPath(new URL('../test-results/', import.meta.url));
 const rounds = Number(process.env.ROUNDS) || 1;
+// Welke onderwerpen de lange test doorloopt: alle, tenzij je er een keuze voor maakt.
+const gekozen = process.env.ONDERWERPEN
+  ? process.env.ONDERWERPEN.split(',')
+  : process.env.METHODE
+    ? await onderwerpenVan(process.env.METHODE, process.env.HOOFDSTUK)
+    : null;
 // WebKit is de motor van Safari. Installeer die eenmalig met: npx playwright-core install webkit
 const launch = () =>
   process.env.BROWSER === 'webkit'
@@ -93,7 +102,10 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
         }
       };
       await check('overzicht');
-      const ids = await p.evaluate(() => wiskundefit.TOPICS.map((s) => s.slug));
+      const all = await p.evaluate(() => wiskundefit.TOPICS.map((s) => s.slug));
+      const unknown = (gekozen ?? []).filter((id) => !all.includes(id));
+      assert.deepEqual(unknown, [], 'onbekende onderwerpen in ONDERWERPEN of METHODE');
+      const ids = all.filter((id) => !gekozen || gekozen.includes(id));
       for (const id of ids) {
         await p.evaluate((i) => wiskundefit.go({ name: 'topic', slug: i }), id);
         for (const b of await p.$$('[data-act="exnext"]')) {
@@ -828,167 +840,185 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
   }
 });
 
-test('de hele site werkt op telefoonformaat', { timeout: 600_000 }, async () => {
-  await mkdir(shotDir, { recursive: true });
-  const browser = await launch();
-  const errors = [];
-  const open = async (options) => {
-    const context = await browser.newContext(options);
-    const page = await context.newPage();
-    page.on('pageerror', (e) => errors.push(e.message));
-    page.on('console', (m) => {
-      if (m.type() === 'error' && !/fonts\.g|ERR_/.test(m.text())) errors.push(m.text());
-    });
-    await page.goto(siteUrl);
-    await page.waitForTimeout(400);
-    return page;
-  };
-
-  try {
-    const p = await open({ viewport: { width: 390, height: 800 } });
-    const overflowing = new Set();
-    const checkOverflow = async (where) => {
-      const wide = await p.evaluate(
-        () => document.documentElement.scrollWidth > window.innerWidth + 1,
-      );
-      if (wide) overflowing.add(where);
+test(
+  'de hele site werkt op telefoonformaat',
+  { timeout: 600_000, skip: process.env.SNEL ? 'SNEL=1' : false },
+  async () => {
+    await mkdir(shotDir, { recursive: true });
+    const browser = await launch();
+    const errors = [];
+    const open = async (options) => {
+      const context = await browser.newContext(options);
+      const page = await context.newPage();
+      page.on('pageerror', (e) => errors.push(e.message));
+      page.on('console', (m) => {
+        if (m.type() === 'error' && !/fonts\.g|ERR_/.test(m.text())) errors.push(m.text());
+      });
+      await page.goto(siteUrl);
+      await page.waitForTimeout(400);
+      return page;
     };
-    const failures = [];
-    let answered = 0;
 
-    const ids = await p.evaluate(() => wiskundefit.TOPICS.map((s) => s.slug));
-    for (const id of ids) {
-      await p.evaluate(() => wiskundefit.go({ name: 'home' }));
-      await checkOverflow('overzicht');
-      await p.click(`a.par[href="/${id}"]`);
-      // De uitleg staat er pas als het onderwerp geladen is.
-      await p.waitForSelector('.topic-body');
-      await checkOverflow(`${id} uitleg`);
-      for (const b of await p.$$('[data-act="exnext"]')) {
-        while (await b.isVisible()) await b.click();
-      }
-      await checkOverflow(`${id} voorbeelden open`);
-      if (/&(lt|gt|amp);/.test(await p.textContent('main'))) {
-        failures.push(`${id}: dubbel omgezette tekens in de uitleg`);
-      }
-      for (const r of await p.$$('input[type=range]')) {
-        await r.evaluate((el) => {
-          el.value = el.max;
-          el.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-      }
-      await checkOverflow(`${id} schuifjes op maximum`);
-      // Elke video staat er één keer, en de link bovenaan gaat naar de video's.
-      const videos = await p.evaluate((i) => {
-        const v = wiskundefit.TOPIC[i].videos;
-        return Object.values(v).flat().length;
-      }, id);
-      assert.equal(await p.locator('.vid-links a').count(), videos, `${id}: video's`);
-      assert.ok(await p.$('a[href="#videos"]'), `${id}: link naar de video's`);
-      assert.ok(await p.$('h2#videos'), `${id}: kop van de video's`);
-      await p.click('a.btn[href$="/oefenen"]');
+    try {
+      const p = await open({ viewport: { width: 390, height: 800 } });
+      const overflowing = new Set();
+      const checkOverflow = async (where) => {
+        const wide = await p.evaluate(
+          () => document.documentElement.scrollWidth > window.innerWidth + 1,
+        );
+        if (wide) overflowing.add(where);
+      };
+      const failures = [];
+      let answered = 0;
 
-      const skills = await p.evaluate((i) => wiskundefit.TOPIC[i].skills.map((k) => k.id), id);
-      for (const skill of skills) {
-        for (let round = 0; round < rounds; round++) {
-          await p.click(`.chip[data-id="${skill}"]`);
-          await checkOverflow(`${skill} vraag`);
-          const a = await p.evaluate(
-            `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(id)}].q)`,
-          );
+      const all = await p.evaluate(() => wiskundefit.TOPICS.map((s) => s.slug));
+      const ids = all.filter((id) => !gekozen || gekozen.includes(id));
+      for (const id of ids) {
+        await p.evaluate(() => wiskundefit.go({ name: 'home' }));
+        await checkOverflow('overzicht');
+        await p.click(`a.par[href="/${id}"]`);
+        // De uitleg staat er pas als het onderwerp geladen is.
+        await p.waitForSelector('.topic-body');
+        await checkOverflow(`${id} uitleg`);
+        for (const b of await p.$$('[data-act="exnext"]')) {
+          while (await b.isVisible()) await b.click();
+        }
+        await checkOverflow(`${id} voorbeelden open`);
+        if (/&(lt|gt|amp);/.test(await p.textContent('main'))) {
+          failures.push(`${id}: dubbel omgezette tekens in de uitleg`);
+        }
+        for (const r of await p.$$('input[type=range]')) {
+          await r.evaluate((el) => {
+            el.value = el.max;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+        }
+        await checkOverflow(`${id} schuifjes op maximum`);
+        // Elke video staat er één keer, en de link bovenaan gaat naar de video's.
+        const videos = await p.evaluate((i) => {
+          const v = wiskundefit.TOPIC[i].videos;
+          return Object.values(v).flat().length;
+        }, id);
+        assert.equal(await p.locator('.vid-links a').count(), videos, `${id}: video's`);
+        assert.ok(await p.$('a[href="#videos"]'), `${id}: link naar de video's`);
+        assert.ok(await p.$('h2#videos'), `${id}: kop van de video's`);
+        await p.click('a.btn[href$="/oefenen"]');
 
-          // Eerst een fout antwoord: dat mag niet goed worden gerekend.
-          if (a.mc !== null) await p.check(`#pm${a.mc === 0 ? 1 : 0}`);
-          else await fill(p, 'p', a.vals, '999');
-          await p.click('#pform button[type=submit]');
-          if (/Goed gedaan/.test(await p.textContent('.fb'))) {
-            failures.push(`${skill}: fout goedgekeurd`);
+        const skills = await p.evaluate((i) => wiskundefit.TOPIC[i].skills.map((k) => k.id), id);
+        for (const skill of skills) {
+          for (let round = 0; round < rounds; round++) {
+            await p.click(`.chip[data-id="${skill}"]`);
+            await checkOverflow(`${skill} vraag`);
+            const a = await p.evaluate(
+              `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(id)}].q)`,
+            );
+
+            // Eerst een fout antwoord: dat mag niet goed worden gerekend.
+            if (a.mc !== null) await p.check(`#pm${a.mc === 0 ? 1 : 0}`);
+            else await fill(p, 'p', a.vals, '999');
+            await p.click('#pform button[type=submit]');
+            if (/Goed gedaan/.test(await p.textContent('.fb'))) {
+              failures.push(`${skill}: fout goedgekeurd`);
+            }
+
+            // Daarna het goede antwoord.
+            if (a.mc !== null) await p.check(`#pm${a.mc}`);
+            else await fill(p, 'p', a.vals);
+            await p.click('#pform button[type=submit]');
+            if (/Goed gedaan/.test(await p.textContent('.fb'))) answered++;
+            else failures.push(`${skill}: goed antwoord afgekeurd (${JSON.stringify(a.vals)})`);
+
+            await p.click('[data-act="showsol"]');
+            await checkOverflow(`${skill} uitwerking`);
+            await p.click('#nextq');
           }
-
-          // Daarna het goede antwoord.
-          if (a.mc !== null) await p.check(`#pm${a.mc}`);
-          else await fill(p, 'p', a.vals);
-          await p.click('#pform button[type=submit]');
-          if (/Goed gedaan/.test(await p.textContent('.fb'))) answered++;
-          else failures.push(`${skill}: goed antwoord afgekeurd (${JSON.stringify(a.vals)})`);
-
-          await p.click('[data-act="showsol"]');
-          await checkOverflow(`${skill} uitwerking`);
-          await p.click('#nextq');
         }
       }
-    }
-    assert.deepEqual(failures, []);
-    assert.ok(answered > 0);
+      assert.deepEqual(failures, []);
+      assert.ok(answered > 0);
 
-    // Proeftoets met alles goed.
-    await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
-    await p.click('[data-act="stofall"]');
-    await p.click('[data-act="len"][data-id="10"]');
-    await p.click('[data-act="start"]');
-    for (let i = 0; i < 10; i++) {
-      const a = await p.evaluate(
-        `(${answerOf})(wiskundefit.state.test.items[wiskundefit.state.test.i].q)`,
+      // Proeftoets met alles goed.
+      await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+      await p.click('[data-act="stofall"]');
+      await p.click('[data-act="len"][data-id="10"]');
+      await p.click('[data-act="start"]');
+      for (let i = 0; i < 10; i++) {
+        const a = await p.evaluate(
+          `(${answerOf})(wiskundefit.state.test.items[wiskundefit.state.test.i].q)`,
+        );
+        if (a.mc !== null) await p.check(`#tm${a.mc}`);
+        else await fill(p, 't', a.vals);
+        if (i < 9) await p.click('#tform button[type=submit]');
+      }
+      await p.click('[data-act="tfin"]');
+      const full = await p.evaluate(() => [
+        wiskundefit.state.result.score,
+        wiskundefit.state.result.max,
+      ]);
+      assert.equal(full[0], full[1], 'proeftoets met alles goed');
+      await checkOverflow('resultaat proeftoets');
+
+      // Lege proeftoets: eerst een waarschuwing, daarna nul punten.
+      await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
+      await p.click('[data-act="stofclear"]');
+      await p.click('[data-act="topicpick"][data-id="stelling-van-pythagoras"]');
+      await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+      await p.click('[data-act="len"][data-id="10"]');
+      await p.click('[data-act="start"]');
+      await p.click('[data-act="tfin"]');
+      assert.match(await p.textContent('.fb'), /nog 10 vragen open/);
+      await p.click('[data-act="tfin"]');
+      const blank = await p.evaluate(() => ({
+        score: wiskundefit.state.result.score,
+        onlyChosen: wiskundefit.state.result.items.every(
+          (x) => x.topic.slug === 'stelling-van-pythagoras',
+        ),
+      }));
+      assert.deepEqual(blank, { score: 0, onlyChosen: true });
+
+      // Voortgang blijft bewaard na herladen.
+      await p.reload();
+      await p.waitForTimeout(200);
+      // Bij een keuze van onderwerpen telt de voortgang van die onderwerpen, bij alles het totaal.
+      const kept = await p.evaluate(() => Object.keys(wiskundefit.prog.skills));
+      const wanted = await p.evaluate(
+        (ids) =>
+          wiskundefit.TOPICS.filter((s) => ids.includes(s.slug)).flatMap((s) =>
+            s.skills.map((k) => String(k.id)),
+          ),
+        ids,
       );
-      if (a.mc !== null) await p.check(`#tm${a.mc}`);
-      else await fill(p, 't', a.vals);
-      if (i < 9) await p.click('#tform button[type=submit]');
+      if (gekozen)
+        assert.deepEqual(
+          wanted.filter((k) => !kept.includes(k)),
+          [],
+          'voortgang na herladen',
+        );
+      else assert.equal(kept.length, wanted.length, 'voortgang na herladen');
+
+      assert.deepEqual([...overflowing], [], 'schermen die breder zijn dan de telefoon');
+
+      // Schermafbeeldingen om zelf na te kijken.
+      const shot = (page, name, fullPage = false) =>
+        page.screenshot({ path: `${shotDir}${name}.png`, fullPage });
+      const light = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'light' });
+      await shot(light, 'overzicht');
+      await light.click('a.par[href="/lineaire-grafieken-tekenen"]');
+      await light.waitForSelector('.topic-body');
+      await shot(light, 'uitleg', true);
+      const dark = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'dark' });
+      await dark.click('a.par[href="/gelijkvormige-driehoeken"]');
+      await dark.click('a.btn[href$="/oefenen"]');
+      await dark.click('[data-act="show"]');
+      await shot(dark, 'oefenen-donker', true);
+      await shot(await open({ viewport: { width: 390, height: 800 } }), 'telefoon', true);
+
+      assert.deepEqual(errors, [], 'fouten in de browserconsole');
+    } finally {
+      await browser.close();
     }
-    await p.click('[data-act="tfin"]');
-    const full = await p.evaluate(() => [
-      wiskundefit.state.result.score,
-      wiskundefit.state.result.max,
-    ]);
-    assert.equal(full[0], full[1], 'proeftoets met alles goed');
-    await checkOverflow('resultaat proeftoets');
-
-    // Lege proeftoets: eerst een waarschuwing, daarna nul punten.
-    await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
-    await p.click('[data-act="stofclear"]');
-    await p.click('[data-act="topicpick"][data-id="stelling-van-pythagoras"]');
-    await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
-    await p.click('[data-act="len"][data-id="10"]');
-    await p.click('[data-act="start"]');
-    await p.click('[data-act="tfin"]');
-    assert.match(await p.textContent('.fb'), /nog 10 vragen open/);
-    await p.click('[data-act="tfin"]');
-    const blank = await p.evaluate(() => ({
-      score: wiskundefit.state.result.score,
-      onlyChosen: wiskundefit.state.result.items.every(
-        (x) => x.topic.slug === 'stelling-van-pythagoras',
-      ),
-    }));
-    assert.deepEqual(blank, { score: 0, onlyChosen: true });
-
-    // Voortgang blijft bewaard na herladen.
-    await p.reload();
-    await p.waitForTimeout(200);
-    const kept = await p.evaluate(() => Object.keys(wiskundefit.prog.skills).length);
-    const total = await p.evaluate(() => wiskundefit.TOPICS.flatMap((s) => s.skills).length);
-    assert.equal(kept, total, 'voortgang na herladen');
-
-    assert.deepEqual([...overflowing], [], 'schermen die breder zijn dan de telefoon');
-
-    // Schermafbeeldingen om zelf na te kijken.
-    const shot = (page, name, fullPage = false) =>
-      page.screenshot({ path: `${shotDir}${name}.png`, fullPage });
-    const light = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'light' });
-    await shot(light, 'overzicht');
-    await light.click('a.par[href="/lineaire-grafieken-tekenen"]');
-    await light.waitForSelector('.topic-body');
-    await shot(light, 'uitleg', true);
-    const dark = await open({ viewport: { width: 1100, height: 860 }, colorScheme: 'dark' });
-    await dark.click('a.par[href="/gelijkvormige-driehoeken"]');
-    await dark.click('a.btn[href$="/oefenen"]');
-    await dark.click('[data-act="show"]');
-    await shot(dark, 'oefenen-donker', true);
-    await shot(await open({ viewport: { width: 390, height: 800 } }), 'telefoon', true);
-
-    assert.deepEqual(errors, [], 'fouten in de browserconsole');
-  } finally {
-    await browser.close();
-  }
-});
+  },
+);
 
 test('elk adres opent rechtstreeks het juiste scherm, ook na herladen', async () => {
   const browser = await launch();

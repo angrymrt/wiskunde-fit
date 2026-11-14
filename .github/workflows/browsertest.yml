@@ -1,0 +1,47 @@
+# Draait de browsertest bij een pull request, maar alleen als de wijziging iets raakt wat een leerling
+# ziet. Welke test er nodig is, bepaalt scripts/browsertest-selectie.js. Alleen documentatie of tests
+# zonder browser: er draait niets. Alleen de stof van onderwerpen: de snelle set en de lange test voor
+# die onderwerpen. Schermen, opmaak, figuren, antwoorden of de build: alles.
+# Deze check is voorlopig informatief en niet verplicht voor een merge.
+name: Browsertest
+
+on:
+  pull_request:
+
+concurrency:
+  group: browsertest-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  browsertest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Bepaal welke browsertest nodig is
+        id: selectie
+        run: node scripts/browsertest-selectie.js "origin/${{ github.base_ref }}" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Browsertest
+        if: steps.selectie.outputs.soort != 'geen'
+        env:
+          BROWSER: chrome
+          SNEL: ${{ steps.selectie.outputs.soort == 'snel' && '1' || '' }}
+          ONDERWERPEN: ${{ steps.selectie.outputs.soort == 'onderwerpen' && steps.selectie.outputs.onderwerpen || '' }}
+        run: npm run test:browser
+      - name: Schermafbeeldingen bewaren
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7
