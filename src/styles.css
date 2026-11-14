@@ -533,7 +533,9 @@ sub {
 .dt th {
   background: var(--blue-soft);
 }
+/* Links, zodat je de titel ook ziet als de tabel op een telefoon opzij schuift. */
 .dt caption {
+  text-align: left;
   padding-bottom: 4px;
   font-weight: 600;
 }
@@ -1297,6 +1299,12 @@ ol.how {
   display: grid;
   gap: 9px;
 }
+/* Zonder min-width: 0 groeit een voorbeeld mee met een brede tabel in de opgave. Dan schuift de
+   tabel zelf (.scroll) en niet de hele pagina. */
+.ex,
+.ex > * {
+  min-width: 0;
+}
 .ex .lab {
   font-size: 0.8rem;
   letter-spacing: 0.06em;
@@ -1387,10 +1395,17 @@ ol.how {
   gap: 12px 18px;
   align-items: center;
 }
-.fld {
+/* Past een veld met de tekst ervoor en de eenheid erachter niet op een smal scherm, zoals
+   Toename: … procentpunt, dan komt het veld met de eenheid onder de tekst. */
+.fld,
+.fin {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+}
+.fld {
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 .fld input,
 .fld select {
