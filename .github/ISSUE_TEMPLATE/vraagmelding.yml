@@ -24,7 +24,7 @@ body:
     id: wat
     attributes:
       label: Wat is er aan de hand?
-      description: Dit is al ingevuld vanuit de site.
+      description: Als je via de site kwam, staat dit al ingevuld.
   - type: textarea
     id: toelichting
     attributes:
