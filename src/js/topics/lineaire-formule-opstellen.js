@@ -1,16 +1,14 @@
 // Onderwerp: Lineaire formule opstellen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { graph } from '../figures.js';
-import { ri, nz, pick, coin, gcd, Q, qv, qSub, qMul, near, fr, lin } from '../math.js';
+import { ri, nz, pick, coin, until, gcd, Q, qv, qSub, qMul, near, fr, lin } from '../math.js';
 import { F, plug, LV } from './shared.js';
 import { T, dt } from '../typeset.js';
 
 function s11read() {
-  let b, run, rise;
-  do {
-    b = ri(-3, 4);
-    run = pick([1, 1, 2, 2, 3, 4]);
-    rise = nz(-4, 4);
-  } while (b + rise < -5 || b + rise > 6 || (gcd(rise, run) > 1 && run > 2));
+  const [b, run, rise] = until(
+    () => [ri(-3, 4), pick([1, 1, 2, 2, 3, 4]), nz(-4, 4)],
+    ([b, run, rise]) => !(b + rise < -5 || b + rise > 6 || (gcd(rise, run) > 1 && run > 2)),
+  );
   const a = Q(rise, run),
     l = pick('klmn');
   return {
@@ -49,12 +47,13 @@ function s11read() {
 function s11two() {
   const px = nz(-6, 6),
     py = ri(-8, 8);
-  let run, rise, qx;
-  do {
-    run = pick([1, 2, 3, 4, 5, 6]);
-    rise = nz(-12, 12);
-    qx = px + run;
-  } while (qx === 0);
+  const [run, rise, qx] = until(
+    () => {
+      const run = pick([1, 2, 3, 4, 5, 6]);
+      return [run, nz(-12, 12), px + run];
+    },
+    ([, , qx]) => qx !== 0,
+  );
   const a = Q(rise, run),
     qy = py + rise,
     b = qSub(py, qMul(a, px)),
@@ -215,12 +214,10 @@ function s11special() {
 function s12scale() {
   const xs = pick([25, 50, 100, 250]),
     ys = pick([10, 20, 50, 100, 500]);
-  let b0, r0, c0;
-  do {
-    b0 = ri(0, 3);
-    r0 = ri(2, 5);
-    c0 = nz(-3, 3);
-  } while (b0 + c0 < 0 || b0 + c0 > 6);
+  const [b0, r0, c0] = until(
+    () => [ri(0, 3), ri(2, 5), nz(-3, 3)],
+    ([b0, , c0]) => !(b0 + c0 < 0 || b0 + c0 > 6),
+  );
   const b = b0 * ys,
     run = r0 * xs,
     rise = c0 * ys,
