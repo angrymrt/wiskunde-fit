@@ -136,9 +136,7 @@ function s16draw() {
           ? `x = 0 geeft y = ${y}.`
           : `x = 0 geeft ${lin(B, 0, 'y')} = ${C}, dus y = ${y}.`;
       if (y === 0)
-        return A === 1
-          ? `y = 0 geeft x = ${x}.`
-          : `y = 0 geeft ${lin(A, 0)} = ${C}, dus x = ${x}.`;
+        return A === 1 ? `y = 0 geeft x = ${x}.` : `y = 0 geeft ${lin(A, 0)} = ${C}, dus x = ${x}.`;
       return `x = ${x} geeft ${A * x} ${B < 0 ? '-' : '+'} ${lin(Math.abs(B), 0, 'y')} = ${C}, dus y = ${y}.`;
     };
   return {

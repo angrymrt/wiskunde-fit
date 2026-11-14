@@ -152,7 +152,12 @@ function s21tab3() {
 // Een tabel met drie kolommen waarin een kolom een vergelijking geeft. Je splitst de tabel in twee stukken.
 function s21split() {
   const [a, c, m, s] = until(
-    () => [pick([3, 4, 5, 6, 7, 8, 9, 10]), pick([2, 3, 4, 5, 6, 8, 12]), pick([6, 9, 10, 12, 14, 15, 18, 21, 24]), nz(-20, 30)],
+    () => [
+      pick([3, 4, 5, 6, 7, 8, 9, 10]),
+      pick([2, 3, 4, 5, 6, 8, 12]),
+      pick([6, 9, 10, 12, 14, 15, 18, 21, 24]),
+      nz(-20, 30),
+    ],
     ([a, c, , s]) => {
       if (a === c) return false;
       const y = (c * s) / (a - c);
