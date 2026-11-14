@@ -411,8 +411,8 @@ function s44points() {
   };
 }
 
-// Eigen staaf- en lijndiagrammen voor een bewering. De as begint bij een van de getallen in lo,
-// in stappen van s, en loopt 5 stappen omhoog. what is wat er geteld wordt.
+// Eigen staaf- en lijndiagrammen voor een bewering. Een as die niet bij 0 begint, begint meestal bij
+// een van de getallen in lo, in stappen van s. Een as vanaf 0 loopt tot ongeveer lo + 5 stappen. what is wat er geteld wordt.
 const CLAIMS = [
   {
     title: 'Bezoekers van het museum',
@@ -434,43 +434,63 @@ const CLAIMS = [
 
 function s44claim() {
   const c = pick(CLAIMS),
-    zero = ri(0, 3) === 0,
-    lo = zero ? 0 : pick(c.lo),
+    zero = ri(0, 2) === 0,
+    ok = coin(),
     cats = years(5),
-    times = coin();
-  // De bewering komt uit de hoogte: B lijkt N keer zo hoog als A, of meer dan twee keer zo hoog.
-  const N = pick([2, 3, 4, 5]),
-    top = pick(c.lo) + 5 * c.s,
-    others = () =>
-      cats.map(() => (zero ? ri(Math.ceil(top / 6), top) : lo + ri(1, 10) * (c.s / 2)));
-  let A, B, iA, iB, values;
+    times = coin(),
+    top = pick(c.lo) + 5 * c.s;
+  // Of de bewering klopt, hangt af van de getallen, niet van de as. Bij times zegt de bewering dat
+  // B N keer zoveel is als A, en die klopt als B precies N keer A is. Anders zegt de bewering dat
+  // het aantal van A naar B meer dan verdubbeld is, en die klopt als B meer dan 2 keer A is.
+  let N, A, B, iA, iB, values, lo, k;
   for (;;) {
-    values = others();
+    N = pick(!zero && ok ? [2, 3] : [2, 3, 4, 5]);
     iA = times ? ri(0, 3) : 0;
     iB = times ? ri(iA + 1, 4) : 4;
-    if (times) {
-      const m = zero
-        ? ri(Math.ceil(top / 12), Math.floor(top / N))
-        : ri(Math.ceil(c.s / 2), Math.floor((5 * c.s) / N));
-      A = lo + m;
-      B = lo + N * m;
+    if (zero) {
+      // De hoogte past bij de getallen. Klopt de bewering niet, dan overdrijft die.
+      lo = 0;
+      if (times) {
+        const r = ok ? N : pick([N - 1, N - 0.5].filter((x) => x >= 1.5));
+        A = 2 * ri(Math.ceil(top / 24), Math.floor(top / (2 * r)));
+        B = A * r;
+      } else {
+        A = ri(Math.ceil(top / 10), Math.floor(top / 3));
+        B = Math.round((A * (ok ? ri(22, 35) : ri(13, 19))) / 10);
+      }
+      values = cats.map(() => ri(Math.ceil(top / 6), top));
     } else {
-      const m = zero
-        ? ri(Math.ceil(top / 10), Math.floor(top / 3))
-        : ri(Math.ceil(c.s / 2), 2 * c.s);
-      A = lo + m;
-      B = zero ? Math.round(A * (ri(22, 35) / 10)) : lo + Math.round(m * (ri(22, 35) / 10));
+      if (ok) {
+        // De as begint net onder A. B lijkt dan veel groter dan A, maar de bewering klopt.
+        lo = c.s * ri(1, 3);
+        A = lo + ri(Math.ceil(c.s / 2), c.s);
+        B = times ? N * A : Math.round((A * ri(22, 30)) / 10);
+      } else {
+        // In het diagram lijkt B N keer zo hoog of meer dan twee keer zo hoog, maar dat is het niet.
+        lo = pick(c.lo);
+        const m = times
+          ? ri(Math.ceil(c.s / 2), Math.floor((5 * c.s) / N))
+          : ri(Math.ceil(c.s / 2), 2 * c.s);
+        A = lo + m;
+        B = lo + (times ? N * m : Math.round((m * ri(22, 35)) / 10));
+      }
+      k = Math.max(5, Math.ceil((Math.max(A, B) - lo) / c.s));
+      values = cats.map(() => lo + Math.round((ri(1, 2 * k) * c.s) / 2));
     }
     values[iA] = A;
     values[iB] = B;
-    if ((times || (B - lo) / (A - lo) > 2) && B <= (zero ? Infinity : lo + 5 * c.s)) break;
+    const real = B / A,
+      claim = times ? N : 2,
+      // Klopt de bewering niet, dan ligt de echte verhouding er duidelijk naast.
+      clear = ok ? !times || real === N : Math.abs(real - claim) > 0.05;
+    if (B > A && clear && ok === (times ? real === N : real > 2) && (zero || k <= 8)) break;
   }
   const p = {
       kind: times ? 'staaf' : 'lijn',
       title: c.title,
       cats,
       series: [{ name: c.what, values }],
-      ...(zero ? {} : { yr: [lo, lo + 5 * c.s], ys: c.s }),
+      ...(zero ? {} : { yr: [lo, lo + k * c.s], ys: c.s }),
       yn: c.what,
       unit: c.unit,
       xn: 'jaar',
@@ -478,8 +498,9 @@ function s44claim() {
     },
     ratio = B / A,
     pct = ((B - A) / A) * 100,
+    // Wat je krijgt als je de hoogte in het diagram vergelijkt in plaats van de getallen.
+    looksRatio = (B - lo) / (A - lo),
     looks = ((B - A) / (A - lo)) * 100,
-    ok = times ? near(ratio, N, 1e-9) : B > 2 * A,
     answer = ok ? 'klopt' : 'klopt niet',
     num = times
       ? RF(`${cats[iB]} is`, ratio, 2, `keer zoveel als ${cats[iA]}`)
@@ -500,36 +521,38 @@ function s44claim() {
     ask = times
       ? `Bereken hoeveel keer zoveel ${c.what} er in ${cats[iB]} echt waren. Klopt de bewering?`
       : `Bereken de procentuele toename van ${cats[iA]} tot ${cats[iB]}. Klopt de bewering?`,
-    axisStep = zero
-      ? 'De verticale as begint bij 0, dus de hoogte past bij de getallen.'
-      : `De verticale as begint bij ${g(lo)} en niet bij 0. Daardoor lijkt het verschil groter dan het is.`;
-  const steps = times
-    ? [
-        `{${g(B)}/${g(A)}} ${eq(ratio, 2)}`,
-        `Er waren dus ${g(rd(ratio, 2))} keer zoveel ${c.what}.`,
-        axisStep,
-        `Dus de bewering ${answer}.`,
-      ]
-    : [
-        `{${g(B)} - ${g(A)}/${g(A)}}*100% ${eq(pct)}%`,
-        `Verdubbelen is een toename van 100%. ${ok ? 'De toename is meer' : 'De toename is minder'}.`,
-        axisStep,
-        `Dus de bewering ${answer}.`,
-      ];
+    marks = times ? 'de staven' : 'de punten',
+    axisStep = `De verticale as begint bij ${g(lo)} en niet bij 0. Daarom kun je de hoogte van ${marks} niet vergelijken, en reken je met de getallen.`,
+    rule = times
+      ? `${cap(WORD[N])} keer zoveel betekent dat het getal van ${cats[iB]} precies ${WORD[N]} keer zo groot is als dat van ${cats[iA]}.`
+      : 'Meer dan verdubbeld betekent een toename van meer dan 100%.';
+  const steps = [
+    ...(times
+      ? [
+          `{${g(B)}/${g(A)}} ${eq(ratio, 2)}`,
+          ok
+            ? `Er waren dus precies ${WORD[N]} keer zoveel ${c.what}, zoals de bewering zegt.`
+            : `Er waren dus ${g(rd(ratio, 2))} keer zoveel ${c.what}, en niet ${WORD[N]} keer.`,
+        ]
+      : [
+          `{${g(B)} - ${g(A)}/${g(A)}}*100% ${eq(pct)}%`,
+          `Verdubbelen is een toename van 100%. ${ok ? 'De toename is meer' : 'De toename is minder'}.`,
+        ]),
+    ...(zero ? [] : [axisStep]),
+    `Dus de bewering ${answer}.`,
+  ];
   return {
     q: T(`Iemand zegt over het diagram: ${claim}`) + '<br>' + T(`${ask}${needRound([num])}`),
     fig: chart(p),
     fields,
-    hint: zero
-      ? 'Lees de getallen af bij het diagram en reken met die getallen.'
-      : 'Kijk bij welk getal de verticale as begint. Reken met de getallen, niet met de hoogte van de staven of punten.',
+    hint: `${times ? `Deel het getal van ${cats[iB]} door het getal van ${cats[iA]}` : `Bereken de procentuele toename met de getallen van ${cats[iA]} en ${cats[iB]}`}. Reken met de getallen, niet met de hoogte van ${marks}. Vergelijk je uitkomst daarna met de bewering.`,
     steps,
     traps: [
       !zero &&
         trap(
           'as-niet-bij-0-vergeten',
           `Je hebt de hoogte in het diagram vergeleken. De verticale as begint bij ${g(lo)}, niet bij 0. Reken met de getallen zelf.`,
-          times ? miss(0, [N], ratio, 0.005) : miss(0, [looks], pct, ...PCT),
+          times ? miss(0, [looksRatio], ratio, 0.005) : miss(0, [looks], pct, ...PCT),
         ),
       times &&
         trap(
@@ -555,24 +578,24 @@ function s44claim() {
           'Dit is het verschil. Deel dat nog door oud en vermenigvuldig met 100% om de procentuele toename te krijgen.',
           miss(0, [B - A], pct, 1e-6, PCT[1]),
         ),
-      {
+      // De beslissing volgt uit de berekening. Deze twee vangen alleen een verkeerde keuze.
+      !ok && {
         id: 'bewering-klopt-niet',
-        f: (v) => v[1] === 'klopt' && !ok,
-        m: zero
-          ? 'Kijk nog eens naar je berekening. Die laat zien dat de bewering te veel zegt.'
-          : 'Het lijkt zo als je naar de hoogte kijkt, maar de verticale as begint niet bij 0. Je berekening laat zien dat de bewering niet klopt.',
+        f: (v) => v[1] === 'klopt',
+        m: `Vergelijk je uitkomst met de bewering. ${rule}${zero ? '' : ` Kijk niet naar de hoogte van ${marks}, want de verticale as begint niet bij 0.`}`,
       },
-      {
+      ok && {
         id: 'bewering-klopt-wel',
-        f: (v) => v[1] === 'klopt niet' && ok,
-        m: 'De verticale as begint hier bij 0, dus de hoogte in het diagram past bij de getallen. Kijk nog eens naar je berekening.',
+        f: (v) => v[1] === 'klopt niet',
+        m: `Vergelijk je uitkomst met de bewering. ${rule}${zero ? '' : ` Het diagram overdrijft wel, want de verticale as begint niet bij 0. Maar de bewering gaat over de getallen.`}`,
       },
     ].filter(Boolean),
-    // Reken terug: van A naar B met de verhouding of het percentage, en kijk of de bewering past.
+    // Reken terug van A naar B met de verhouding of het percentage, kijk op een andere manier of de
+    // bewering past, en of alle getallen boven het begin van de as liggen.
     v: () =>
       (times ? near(ratio * A, B, 1e-9) : near(A * (1 + pct / 100), B, 1e-9)) &&
-      (times ? B - lo === N * (A - lo) : (B - lo) / (A - lo) > 2) &&
-      ok === (times ? B - N * A === 0 : B / A > 2),
+      ok === (times ? B - N * A === 0 : B - A > A) &&
+      values.every((x) => x > lo && (zero || x <= lo + k * c.s)),
   };
 }
 
