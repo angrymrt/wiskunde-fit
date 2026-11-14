@@ -1188,6 +1188,58 @@ sub {
 .ctable td {
   font-variant-numeric: tabular-nums;
 }
+/* Zo maken we de vragen: drie getallen bovenaan, en de domeinen als kaarten in hun eigen kleur. */
+.vstats {
+  display: grid;
+  gap: 10px;
+}
+.vtile-main .tile-value {
+  font-size: 2.4rem;
+}
+.vdomein {
+  min-width: 0;
+  margin-bottom: 14px;
+  break-inside: avoid;
+  padding: 0 14px 6px;
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--accent);
+  border-radius: 6px;
+}
+.vkop {
+  margin: 0;
+  padding: 10px 0 4px;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--accent);
+}
+/* De naam breekt zo nodig af, het aantal blijft rechts staan en breekt niet af. */
+.vkop,
+.vdomein .ctopic summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+.vkop > span:last-child,
+.vdomein .ctopic summary > span:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+.vdomein .ctopic:last-child {
+  border-bottom: 0;
+}
+@media (min-width: 640px) {
+  .vstats {
+    grid-template-columns: 1.6fr 1fr 1fr;
+  }
+}
+@media (min-width: 820px) {
+  .vdomeinen {
+    columns: 2;
+    column-gap: 14px;
+  }
+}
 .ctopic > p {
   margin: 6px 0 10px;
 }
