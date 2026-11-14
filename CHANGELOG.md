@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.16.1
+
+### Hersteld
+
+- Het teken tussen de delen van het kruimelpad kon na een tijdje in een tabblad veranderen in rare tekens. Dat gebeurt niet meer.
+
 ## 1.16.0
 
 ### Nieuw
