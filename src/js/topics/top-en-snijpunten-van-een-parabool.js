@@ -1,5 +1,21 @@
 // Onderwerp: Top en snijpunten van een parabool. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, coin, near, d, rd, sg, Q, qv, qMul, fr, isNice, dlin, until } from '../math.js';
+import {
+  ri,
+  nz,
+  pick,
+  coin,
+  near,
+  d,
+  rd,
+  sg,
+  Q,
+  qv,
+  qMul,
+  fr,
+  isNice,
+  dlin,
+  until,
+} from '../math.js';
 import {
   F,
   RF,
