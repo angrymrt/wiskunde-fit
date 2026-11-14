@@ -16,7 +16,6 @@ import { fileURLToPath } from 'node:url';
 const GENEGEERD = [
   /\.md$/,
   /^naslag\//,
-  /^data\//,
   /^\.vscode\//,
   /^\.serena\//,
   /^\.claude\//,
@@ -24,7 +23,7 @@ const GENEGEERD = [
   /^\.github\/workflows\/(tellen|browsertest)\.yml$/,
   /^\.github\/(ISSUE_TEMPLATE|CODEOWNERS)/,
   /^tests\/(?!browser\.e2e\.js)/,
-  /^scripts\/(tokens|vingerafdrukken|catalogus|azure-)/,
+  /^scripts\/(tokens|vingerafdrukken|azure-)/,
   /^api\//,
   /^\.prettier/,
 ];
@@ -64,7 +63,9 @@ async function onderwerpenVan(methode, hoofdstuk) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const base = process.argv[2] ?? 'origin/main';
-  const files = execFileSync('git', ['diff', '--name-only', `${base}...HEAD`], { encoding: 'utf8' })
+  const files = execFileSync('git', ['diff', '--name-only', '--diff-filter=d', `${base}...HEAD`], {
+    encoding: 'utf8',
+  })
     .split('\n')
     .filter(Boolean);
   const { soort, onderwerpen } = selectie(files, slugUitBestand);
