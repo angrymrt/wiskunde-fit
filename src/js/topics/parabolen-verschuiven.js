@@ -1,5 +1,5 @@
 // Onderwerp: Parabolen verschuiven. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { nz, pick, coin, near, d, sg, Q, qv, fr, dlin } from '../math.js';
+import { nz, pick, coin, near, d, sg, Q, qv, fr, dlin, until } from '../math.js';
 import { F, H, coef, vertexForm } from './shared.js';
 import { graph } from '../figures.js';
 import { T, esc } from '../typeset.js';
@@ -111,15 +111,19 @@ function s35shift() {
   const a = pick([...A_FORM, 0.5, 0.3, -0.2]),
     base = pick(['ax2', 'ax2q', 'apq', 'apq']),
     kind = pick(['h', 'v', 'hv', 'hv']);
-  let p, q, h, v;
-  do {
-    p = base === 'apq' ? nz(-5, 5) : 0;
-    q = base === 'ax2' ? 0 : nz(-9, 9);
-    h = kind === 'v' ? 0 : nz(-8, 8);
-    v = kind === 'h' ? 0 : nz(-9, 9);
+  const [p, q, h, v] = until(
+    () => {
+      const p = base === 'apq' ? nz(-5, 5) : 0;
+      const q = base === 'ax2' ? 0 : nz(-9, 9);
+      const h = kind === 'v' ? 0 : nz(-8, 8);
+      const v = kind === 'h' ? 0 : nz(-9, 9);
+      return [p, q, h, v];
+    },
     // Valt een getal na de verschuiving weg, dan klopt de vorm van de velden niet meer. Zo'n
     // verschuiving komt dus niet voor.
-  } while ((h && p + h === 0) || (v && q + v === 0) || Math.abs(p + h) > 9 || Math.abs(q + v) > 15);
+    ([p, q, h, v]) =>
+      !((h && p + h === 0) || (v && q + v === 0) || Math.abs(p + h) > 9 || Math.abs(q + v) > 15),
+  );
   const P = p + h,
     R = q + v,
     fn = vertexForm(a, p, q),
@@ -212,13 +216,16 @@ function s35shift() {
 
 function s35howshift() {
   const a = pick(A_FORM);
-  let p, q, h, v;
-  do {
-    p = coin() ? 0 : nz(-5, 5);
-    q = coin() && coin() ? 0 : nz(-9, 9);
-    h = nz(-7, 7);
-    v = nz(-9, 9);
-  } while (Math.abs(p + h) > 8 || Math.abs(q + v) > 12);
+  const [p, q, h, v] = until(
+    () => {
+      const p = coin() ? 0 : nz(-5, 5);
+      const q = coin() && coin() ? 0 : nz(-9, 9);
+      const h = nz(-7, 7);
+      const v = nz(-9, 9);
+      return [p, q, h, v];
+    },
+    ([p, q, h, v]) => Math.abs(p + h) <= 8 && Math.abs(q + v) <= 12,
+  );
   const P = p + h,
     R = q + v,
     LR = ['naar links', 'naar rechts'],
