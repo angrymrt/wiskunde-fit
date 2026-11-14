@@ -1,6 +1,6 @@
 // data/vragen-tellen.json hoort bij de generatoren. Verandert een generator zo dat het aantal
 // verschillende vragen anders kan zijn, dan faalt deze test tot npm run vragen-tellen is gedraaid
-// (#22). Dat duurt een paar minuten en telt alles opnieuw.
+// (#22). Alles tellen duurt ongeveer 15 minuten; met nummers erachter telt het alleen die soorten.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

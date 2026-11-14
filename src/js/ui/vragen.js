@@ -1,8 +1,7 @@
 // De pagina Zo maken we de vragen: hoe de site vragen maakt en nakijkt, en hoeveel verschillende
 // vragen elke soort vraag kan maken. Zie #22.
 //
-// De aantallen komen uit data/vragen-tellen.json. Zolang daar `voorbeeld: true` staat, zijn het
-// voorbeeldcijfers om de pagina te ontwerpen, en dat zegt de pagina er ook bij.
+// De aantallen komen uit data/vragen-tellen.json, dat npm run vragen-tellen maakt.
 //
 // Op de site heet een vraagsoort "soort vraag". Zie BEGRIPPEN.md.
 import TELLEN from '../../../data/vragen-tellen.json' with { type: 'json' };
@@ -53,10 +52,12 @@ const aantal = (s) =>
 // Een groot getal in woorden: "140 miljoen" of "3,8 miljard", en daarboven "8,5 × 10²⁴".
 const groot = (n) => {
   if (n >= GROTE_MACHT) return wetenschappelijk(n);
+  if (n < 1e6) return getal(rond(n));
   const [deel, woord] = n >= 1e9 ? [1e9, 'miljard'] : [1e6, 'miljoen'];
-  return n >= 1e6
-    ? `${Number((n / deel).toPrecision(2)).toLocaleString('nl-NL')} ${woord}`
-    : getal(rond(n));
+  const m = Number((n / deel).toPrecision(2));
+  // Vlak onder een grens rondt het af naar 1.000 miljoen: dan is het de volgende eenheid.
+  if (m >= 1000) return woord === 'miljoen' ? groot(1e9) : wetenschappelijk(n);
+  return `${m.toLocaleString('nl-NL')} ${woord}`;
 };
 
 const practice = (skill, topic) =>
@@ -129,11 +130,8 @@ function uitschrijving(skills, tellen) {
 function vVragen() {
   const tellen = TELLEN;
   const skills = TOPICS.flatMap((t) => t.skills);
-  const voorbeeld = tellen.voorbeeld
-    ? '<p class="notice"><b>Dit zijn voorbeeldcijfers</b>, om de pagina te ontwerpen. De echte aantallen komen later.</p>'
-    : '';
   const lead = `<p class="lead">Elke vraag op Wiskundefit is gemaakt door een computerprogramma, en elk antwoord wordt op een tweede manier nagerekend. Hier lees je hoe dat werkt en hoeveel verschillende vragen er zijn.</p>`;
-  return `${crumbs()}<div class="sheet">${pageHead('Zo maken we de vragen', lead)}${voorbeeld}
+  return `${crumbs()}<div class="sheet">${pageHead('Zo maken we de vragen', lead)}
   <div class="block"><h2 class="h3">Eerst even wat statistieken</h2>
   <p>Op Wiskundefit.nl kun je:</p>
   <div class="vstats">
@@ -160,7 +158,7 @@ function vVragen() {
   <p>Bij elke vraag rekent de computer het antwoord nog een keer na, op een andere manier dan de generator zelf. Komt daar iets anders uit, dan slaat de test alarm.</p>
   <p>Bij elke wijziging maken de tests duizenden vragen en controleren die allemaal. Elke vraag hoort bij een seed, een getal dat de vraag vastlegt. Met dezelfde seed krijg je precies dezelfde vraag, dus een fout is altijd te herhalen.</p></div>
   <div class="block"><h2 class="h3">Hoeveel vragen zijn er?</h2>
-  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Staat er <b>≈</b> voor, dan is het aantal te groot om na te tellen en hebben we het geschat. Een getal als 2,3 × 10<sup>21</sup> lees je als 2,3 keer 10<sup>21</sup>, en 10<sup>21</sup> is een 1 met 21 nullen. Bij vragen met een tabel kiest de generator zoveel getallen dat het aantal zo groot wordt.</p>
+  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Staat er <b>≈</b> voor, dan is het aantal te groot om na te tellen en hebben we het geschat. Een getal als 2,3 × 10<sup>21</sup> lees je als 2,3 keer 10<sup>21</sup>, en 10<sup>21</sup> is een 1 met 21 nullen. Dat gebeurt bij soorten waarbij de generator veel getallen kiest, zoals bij een tabel of een diagram: elke andere keuze geeft een andere vraag.</p>
   <div class="row"><button class="btn quiet" type="button" data-act="vragenopen" data-id="open">Alles openen</button><button class="btn quiet" type="button" data-act="vragenopen" data-id="dicht">Alles sluiten</button></div>
   ${perOnderwerp(tellen)}
   <p class="vtotaal"><span>Samen</span><span><b>${kort(skills, tellen)}</b> verschillende vragen</span></p></div>

@@ -95,12 +95,30 @@ const json = (x) => `${JSON.stringify(x, null, 2).replace(/("aantal": [\d.]+)e\+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const start = Date.now();
   const ids = process.argv.slice(2).map(Number);
+  const bekend = TOPICS.flatMap((t) => t.skills).map((k) => k.id);
+  const onbekend = ids.filter((id) => !bekend.includes(id));
+  if (onbekend.length) {
+    console.error(
+      `Geen soort vraag met nummer ${onbekend.join(', ')}. Gebruik: npm run vragen-tellen [-- nummers]`,
+    );
+    process.exit(1);
+  }
   const bestand = new URL('../data/vragen-tellen.json', import.meta.url);
   const oud = ids.length ? JSON.parse(await readFile(bestand, 'utf8')).soorten : {};
   const uit = telAlles(ids, oud);
   await writeFile(bestand, json(uit));
   // De controlesommen staan bij de tests: de pagina heeft ze niet nodig, en elke byte telt daar.
-  await writeFile(CONTROLES, json(controles()));
+  // Met nummers vervangen we alleen de controlesommen van die soorten. Een soort die ook veranderd
+  // is maar niet is meegegeven, houdt dan haar oude som en laat de test falen.
+  const nieuw = controles();
+  const oudeSommen = ids.length ? JSON.parse(await readFile(CONTROLES, 'utf8')) : {};
+  const sommen = Object.fromEntries(
+    Object.entries(nieuw).map(([id, som]) => [
+      id,
+      !ids.length || ids.includes(Number(id)) || !(id in oudeSommen) ? som : oudeSommen[id],
+    ]),
+  );
+  await writeFile(CONTROLES, json(sommen));
   const n = Object.values(uit.soorten);
   console.log(
     `${n.length} soorten: ${n.filter((s) => s.exact).length} exact, ${n.filter((s) => !s.exact).length} geschat, ${Math.round((Date.now() - start) / 1000)} s`,
