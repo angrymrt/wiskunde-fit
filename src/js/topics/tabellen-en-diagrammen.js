@@ -1,5 +1,5 @@
 // Onderwerp: Tabellen en diagrammen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, pick, coin, shuffle, near, rd, isNice, d, roundText } from '../math.js';
+import { ri, pick, coin, shuffle, near, rd, isNice, d, roundText, until } from '../math.js';
 import { F, RF, H, MC, euro, group, miss, trap } from './shared.js';
 import { T, tabel } from '../typeset.js';
 import { chart } from '../figures.js';
@@ -133,20 +133,24 @@ function s43missing() {
     y0 = ri(2008, 2024 - 2 * dy);
   const rows = shuffle(['avg', 'tot', 'cnt']).map((kind, j) => {
     const y = y0 + j * dy;
-    for (;;) {
-      const n = c.n(),
-        m = c.m();
-      if (kind !== 'avg') {
-        const t = rd(n * m, 6);
-        if (c.money || Number.isInteger(t)) return { kind, y, n, m, t };
-        continue;
-      }
-      // Het totaal komt niet precies uit, zodat de leerling het gemiddelde moet afronden.
-      const t = c.money
-        ? rd(n * m + ri(-400, 400) + ri(1, 99) / 100, 2)
-        : Math.round(n * m) + ri(1, n - 1);
-      if (!isNice(t / n, c.k)) return { kind, y, n, m: t / n, t };
-    }
+    return until(
+      () => {
+        const n = c.n(),
+          m = c.m();
+        if (kind !== 'avg') {
+          const t = rd(n * m, 6);
+          if (c.money || Number.isInteger(t)) return { kind, y, n, m, t };
+          return null;
+        }
+        // Het totaal komt niet precies uit, zodat de leerling het gemiddelde moet afronden.
+        const t = c.money
+          ? rd(n * m + ri(-400, 400) + ri(1, 99) / 100, 2)
+          : Math.round(n * m) + ri(1, n - 1);
+        if (!isNice(t / n, c.k)) return { kind, y, n, m: t / n, t };
+        return null;
+      },
+      (r) => r !== null,
+    );
   });
   const showT = (x) => (c.money ? eu(x) : g(x)),
     showM = (x) => fx(x, c.k),
@@ -282,19 +286,23 @@ function s43share() {
     mode = pick(['een', 'een', 'twee', 'alles']),
     sr = ri(0, 1),
     si = ri(0, c.cats.length - 1);
-  let vals, S, o, n, share;
-  for (;;) {
-    vals = [0, 1].map(() => c.cats.map((k) => ri(k[3][0], k[3][1])));
-    S =
-      mode === 'alles'
-        ? c.cats.map((_, i) => i)
-        : shuffle(c.cats.map((_, i) => i)).slice(0, mode === 'twee' ? 2 : 1);
-    o = sum(S.map((i) => vals[0][i]));
-    n = sum(S.map((i) => vals[1][i]));
-    share = (vals[sr][si] / sum(vals[sr])) * 100;
-    const p = (Math.abs(n - o) / o) * 100;
-    if (p >= 2 && p <= 80 && share >= 3) break;
-  }
+  const { vals, S, o, n, share } = until(
+    () => {
+      const vals = [0, 1].map(() => c.cats.map((k) => ri(k[3][0], k[3][1])));
+      const S =
+        mode === 'alles'
+          ? c.cats.map((_, i) => i)
+          : shuffle(c.cats.map((_, i) => i)).slice(0, mode === 'twee' ? 2 : 1);
+      const o = sum(S.map((i) => vals[0][i]));
+      const n = sum(S.map((i) => vals[1][i]));
+      const share = (vals[sr][si] / sum(vals[sr])) * 100;
+      return { vals, S, o, n, share };
+    },
+    ({ o, n, share }) => {
+      const p = (Math.abs(n - o) / o) * 100;
+      return p >= 2 && p <= 80 && share >= 3;
+    },
+  );
   if (mode === 'twee') S.sort((a, b) => a - b);
   const [r0, r1] = rowNames,
     totals = vals.map(sum),
@@ -475,12 +483,13 @@ function barData(c) {
 }
 // Een gestapeld staafdiagram, met elk deel groot genoeg voor zijn getal.
 function stackData(c) {
-  let vs;
-  for (;;) {
-    vs = c.names.map((_, s) => c.cats.map(() => ri(c.r[s][0], c.r[s][1])));
-    const most = Math.max(...c.cats.map((_, j) => vs[0][j] + vs[1][j]));
-    if (vs.flat().every((v) => v >= 0.17 * most)) break;
-  }
+  const vs = until(
+    () => c.names.map((_, s) => c.cats.map(() => ri(c.r[s][0], c.r[s][1]))),
+    (vs) => {
+      const most = Math.max(...c.cats.map((_, j) => vs[0][j] + vs[1][j]));
+      return vs.flat().every((v) => v >= 0.17 * most);
+    },
+  );
   return {
     vs,
     fig: (label) =>
@@ -501,13 +510,14 @@ function stackData(c) {
 // Rekenen met een staafdiagram: alles bij elkaar, en de procentuele verandering.
 function barQuestion() {
   const c = pick(BARS);
-  let data, a, b;
-  for (;;) {
-    data = barData(c);
-    [a, b] = coin() ? [0, 4] : shuffle([0, 1, 2, 3, 4]).slice(0, 2).sort();
-    const p = (Math.abs(data.values[b] - data.values[a]) / data.values[a]) * 100;
-    if (p >= 2) break;
-  }
+  const { data, a, b } = until(
+    () => {
+      const data = barData(c);
+      const [a, b] = coin() ? [0, 4] : shuffle([0, 1, 2, 3, 4]).slice(0, 2).sort();
+      return { data, a, b };
+    },
+    ({ data, a, b }) => (Math.abs(data.values[b] - data.values[a]) / data.values[a]) * 100 >= 2,
+  );
   const { cats, values } = data,
     total = sum(values),
     o = values[a],
@@ -667,11 +677,14 @@ const PIES = [
 ];
 // Hele procenten die samen 100 zijn, elk groot genoeg voor een sector met een naam.
 function pieParts(k) {
-  for (;;) {
-    const ps = Array.from({ length: k - 1 }, () => ri(6, 45));
-    const last = 100 - sum(ps);
-    if (last >= 6 && last <= 50) return [...ps, last];
-  }
+  const ps = until(
+    () => Array.from({ length: k - 1 }, () => ri(6, 45)),
+    (ps) => {
+      const last = 100 - sum(ps);
+      return last >= 6 && last <= 50;
+    },
+  );
+  return [...ps, 100 - sum(ps)];
 }
 function pieData(c) {
   const k = Math.min(c.cats.length, pick([3, 4, 4, 5])),
@@ -702,11 +715,11 @@ function s43pie() {
     lo = Math.ceil(c.N[0] / 10),
     hi = Math.floor(c.N[1] / 10);
   if (coin()) {
-    let N, x;
-    do {
-      N = ri(lo, hi) * 10;
-      x = (pX * N) / 100;
-    } while (!Number.isInteger(x));
+    const N = until(
+      () => ri(lo, hi) * 10,
+      (N) => Number.isInteger((pX * N) / 100),
+    );
+    const x = (pX * N) / 100;
     return {
       q: T(`${c.whole(N)} ${c.ask(cats[i][1])}`),
       fig: fig(),
@@ -733,13 +746,16 @@ function s43pie() {
       v: () => near((x / N) * 100, pX, 1e-9),
     };
   }
-  let j, N, x, y;
-  do {
-    j = ri(0, cats.length - 1);
-    N = ri(lo, hi) * 10;
-    x = (pX * N) / 100;
+  const { j, N } = until(
+    () => {
+      const j = ri(0, cats.length - 1);
+      const N = ri(lo, hi) * 10;
+      return { j, N };
+    },
+    ({ j, N }) => j !== i && Number.isInteger((pX * N) / 100) && Number.isInteger((ps[j] * N) / 100),
+  );
+  const x = (pX * N) / 100,
     y = (ps[j] * N) / 100;
-  } while (j === i || !Number.isInteger(x) || !Number.isInteger(y));
   const pY = ps[j],
     fields = [F('Totaal:', N, unitPost), F(`${cap(cats[j][0])}:`, y, unitPost)];
   fields[1].br = true;

@@ -1,5 +1,5 @@
 // Onderwerp: Kwadratische vergelijkingen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { nz, pick, coin, gcd, Q, qv, qSub, qMul, qDiv, near, lin } from '../math.js';
+import { nz, pick, coin, gcd, Q, qv, qSub, qMul, qDiv, near, lin, until } from '../math.js';
 import {
   orFields,
   quad,
@@ -20,12 +20,14 @@ const minus = (s) => s.replace(/-/g, '−');
 // Twee verschillende oplossingen, niet tegengesteld, zodat de term met x niet wegvalt. Met zero mag
 // er een 0 bij zijn.
 function roots(max = 60, zero = false) {
-  let p, q;
-  do {
-    p = zero && coin() && coin() ? 0 : nz(-9, 9);
-    q = nz(-9, 9);
-  } while (p === q || p === -q || Math.abs(p * q) > max);
-  return [p, q];
+  return until(
+    () => {
+      const p = zero && coin() && coin() ? 0 : nz(-9, 9);
+      const q = nz(-9, 9);
+      return [p, q];
+    },
+    ([p, q]) => !(p === q || p === -q || Math.abs(p * q) > max),
+  );
 }
 // x² + bx + c met deze oplossingen, als breuken, en de factoren [m, n] voor mx + n.
 const normal = ([p, q]) => [1, -(p + q), p * q].map((x) => Q(x));
@@ -180,18 +182,18 @@ function split(LR, kind) {
 }
 const equals = (L, R, v) => `${quad(L, undefined, v)} = ${quad(R, undefined, v) || 0}`;
 
-function s33move() {
+// Geeft null als de getallen niet mooi uitkomen, en dan kiest s33move opnieuw.
+function s33moveTry() {
   const v = letter();
   if (coin() && coin()) {
     // ax² = bx, of ax² + kx = mx. Dan is x = 0 een oplossing.
-    let a, b;
-    do {
-      a = pick([1, 1, 2, 3, 4, 5]);
-      b = nz(-12, 12);
-    } while (gcd(a, b) !== 1);
+    const [a, b] = until(
+      () => [pick([1, 1, 2, 3, 4, 5]), nz(-12, 12)],
+      ([a, b]) => gcd(a, b) === 1,
+    );
     // Soms staat er links ook een term met x, zoals a² − a = 2a.
     const k = coin() ? 0 : nz(-6, 6);
-    if (k + b === 0) return s33move();
+    if (k + b === 0) return null;
     const L = [a, k, 0].map((x) => Q(x)),
       R = [0, k + b, 0].map((x) => Q(x));
     return solve({
@@ -220,6 +222,11 @@ function s33move() {
     hint: T('Maak eerst het rechterlid 0. Ontbind daarna het linkerlid in factoren.'),
   });
 }
+const s33move = () =>
+  until(
+    s33moveTry,
+    (q) => q !== null,
+  );
 
 // Eén poging voor een vergelijking met haakjes van deze soort. Geeft null als de getallen niet
 // mooi uitkomen, en dan probeert s33brackets het opnieuw met dezelfde soort.
@@ -350,10 +357,10 @@ function bracketTry(kind, v) {
 function s33brackets() {
   const v = letter(),
     kind = pick(['xk=n', 'xk=n', 'xk=mx', 'xk=0', 'rs=0', 'rs=n', 'x2=m']);
-  let q;
-  do q = bracketTry(kind, v);
-  while (!q);
-  return q;
+  return until(
+    () => bracketTry(kind, v),
+    (q) => q,
+  );
 }
 
 // Het getal voor x², als het geen 1 is: delen door een geheel getal, of vermenigvuldigen bij een
@@ -363,19 +370,20 @@ function s33scale() {
   const v = letter(),
     s = pick(SCALES),
     k = Array.isArray(s) ? Q(s[0], s[1]) : Q(s);
-  let rs, N;
-  do {
-    rs = roots(40);
-    N = normal(rs);
-  } while (
+  const { rs, N } = until(
+    () => {
+      const rs = roots(40);
+      return { rs, N: normal(rs) };
+    },
     // Bij een breuk komen de andere getallen mooi uit, en bij delen worden ze niet te groot.
-    N.some((c, i) => (i && qMul(c, k).d !== 1) || Math.abs(qv(c) * qv(k)) > 60)
+    ({ N }) => !N.some((c, i) => (i && qMul(c, k).d !== 1) || Math.abs(qv(c) * qv(k)) > 60),
   );
   const LR = N.map((c) => qMul(c, k)),
     kind = coin() ? null : pick(['cx', 'c', 'bc', 'mix']);
-  let L, R;
-  do [L, R] = kind ? split(LR, kind) : [LR, Z];
-  while ([...L, ...R].some((c) => Math.abs(qv(c)) > 60));
+  const [L, R] = until(
+    () => (kind ? split(LR, kind) : [LR, Z]),
+    ([L, R]) => ![...L, ...R].some((c) => Math.abs(qv(c)) > 60),
+  );
   // Alleen de term met x² gedeeld of vermenigvuldigd.
   const half = intRoots([1, qv(LR[1]), qv(LR[2])]);
   return solve({
@@ -404,12 +412,15 @@ const NAMES = ['f', 'g', 'h'];
 function s33value() {
   const n = pick(NAMES),
     a = pick([1, 1, 1, -1, 2, -2]);
-  let rs, f, c;
-  do {
-    rs = roots(40, coin());
-    c = nz(-12, 12);
-    f = normal(rs).map((t, i) => Q(qv(t) * a + (i === 2 ? c : 0)));
-  } while (Math.abs(qv(f[2])) > 40 || Math.abs(qv(f[1])) > 20);
+  const { rs, f, c } = until(
+    () => {
+      const rs = roots(40, coin());
+      const c = nz(-12, 12);
+      const f = normal(rs).map((t, i) => Q(qv(t) * a + (i === 2 ? c : 0)));
+      return { rs, f, c };
+    },
+    ({ f }) => !(Math.abs(qv(f[2])) > 40 || Math.abs(qv(f[1])) > 20),
+  );
   const R = [0, 0, c].map((t) => Q(t)),
     q = solve({
       v: 'x',
