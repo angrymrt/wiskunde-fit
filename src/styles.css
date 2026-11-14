@@ -1226,6 +1226,14 @@ sub {
   text-align: right;
   white-space: nowrap;
 }
+/* Breekt een naam af, dan begint de tweede regel onder de tekst en niet onder het pijltje. */
+.vdomein .ctopic summary > span:first-child {
+  padding-left: 1.1em;
+  text-indent: -1.1em;
+}
+.vdomein .ctopic summary > span:first-child::before {
+  text-indent: 0;
+}
 .vdomein .ctopic:last-child {
   border-bottom: 0;
 }
