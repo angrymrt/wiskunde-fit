@@ -20,15 +20,11 @@ body:
     id: versie
     attributes:
       label: Versie van de site
-  - type: dropdown
+  - type: input
     id: wat
     attributes:
       label: Wat is er aan de hand?
-      options:
-        - Het antwoord dat de site goed vindt, klopt niet
-        - Mijn antwoord is goed, maar de site zegt fout
-        - De uitleg of hint klopt niet of is onduidelijk
-        - Iets anders
+      description: Dit is al ingevuld vanuit de site.
   - type: textarea
     id: toelichting
     attributes:

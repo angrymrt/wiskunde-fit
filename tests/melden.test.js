@@ -54,13 +54,16 @@ test('de melding bevat alleen de vraag, de vraagsoort, de versie en wat de leerl
   assert.match(new URL(mailLink(kaal)).searchParams.get('body'), /Toelichting: \(geen\)/);
 });
 
-test('de keuzes passen bij het formulier op GitHub', async () => {
+test('de velden van de link passen bij het formulier op GitHub', async () => {
   const { WAT } = await import(new URL('melden.js', ui));
   const yml = await readFile(
     new URL('../.github/ISSUE_TEMPLATE/vraagmelding.yml', import.meta.url),
     'utf8',
   );
-  for (const [, tekst] of WAT) assert.ok(yml.includes(`- ${tekst}\n`), tekst);
+  // GitHub vult een keuzelijst niet in via de link, een tekstveld wel. Dus geen dropdown.
+  assert.doesNotMatch(yml, /type: dropdown/);
+  assert.match(yml, /type: input\n {4}id: wat\n/);
+  assert.equal(WAT.length, 4);
   for (const id of ['vraag', 'soort', 'versie', 'wat', 'toelichting']) {
     assert.ok(yml.includes(`id: ${id}\n`), id);
   }

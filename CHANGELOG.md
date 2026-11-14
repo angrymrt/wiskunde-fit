@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.17.1
+
+### Hersteld
+
+- Meld je een probleem via GitHub, dan stond bij "Wat is er aan de hand?" niets ingevuld. Nu staat daar wat je koos.
+
 ## 1.17.0
 
 ### Nieuw
