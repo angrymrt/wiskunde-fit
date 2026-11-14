@@ -3,6 +3,9 @@ import { FILTERS, MAPPING, MAPPINGS } from './mappings/index.js';
 import { parseSeed, seedText } from './math.js';
 import { DOMAIN, TOPIC } from './topics/index.js';
 
+// Het adres van de site, voor links die buiten de site worden gebruikt, zoals de sitemap en een melding.
+const SITE = 'https://wiskundefit.nl';
+
 const SCREENS = {
   home: { path: '/', title: 'Wiskundefit: oefenen voor je wiskundetoets' },
   kies: { path: '/methode-indeling', title: 'Kies uit je boek' },
@@ -136,4 +139,4 @@ function crumbsFor(v) {
   return [...up, { text: nameOf(v) }];
 }
 
-export { pathFor, to, viewFor, titleFor, nameOf, sectionFor, crumbsFor };
+export { SITE, pathFor, to, viewFor, titleFor, nameOf, sectionFor, crumbsFor };

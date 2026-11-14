@@ -8,7 +8,7 @@ import { pathFor, to } from '../routes.js';
 import { bookPath, chosenTopics, topicOf } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
-import { fieldsHTML, readVals, shareHTML } from './question-form.js';
+import { fieldsHTML, meldHTML, readVals, shareHTML } from './question-form.js';
 import { state } from './state.js';
 
 // Een lopende proeftoets en de laatste uitslag blijven in de browser bewaard, los van de voortgang.
@@ -319,8 +319,9 @@ function vToetsRes() {
   const domain = ({ dm, rows }) =>
     `<section class="res-domain color-${dm.color}"><h3 class="res-domain-head">${dm.name}</h3><ul class="res-topics">${rows.map(topic).join('')}</ul></section>`;
   const question = (x, i) => {
-    const share = shareHTML(x.skill, x.q);
-    return `<div class="resq"><div class="q-head"><div class="row" style="justify-content:space-between"><h3 class="plain-h">Vraag ${i + 1}</h3><span class="row"><span class="tag ${x.c.ok ? 'good' : 'bad'}">${x.c.ok ? 'Goed' : x.got ? `${x.got} van ${x.max} goed` : 'Fout'}</span>${share.button}</span></div>${share.note}</div><div>${x.q.q}</div>${resultFig(x)}${answersHTML(x)}<details><summary>Uitwerking</summary>${stepsHTML(x.q.steps)}</details></div>`;
+    const share = shareHTML(x.skill, x.q),
+      meld = meldHTML(x.skill, x.q);
+    return `<div class="resq"><div class="q-head"><div class="row" style="justify-content:space-between"><h3 class="plain-h">Vraag ${i + 1}</h3><span class="row"><span class="tag ${x.c.ok ? 'good' : 'bad'}">${x.c.ok ? 'Goed' : x.got ? `${x.got} van ${x.max} goed` : 'Fout'}</span>${share.button}${meld.button}</span></div>${share.note}</div><div>${x.q.q}</div>${resultFig(x)}${answersHTML(x)}<details><summary>Uitwerking</summary>${stepsHTML(x.q.steps)}</details>${meld.panel}</div>`;
   };
   return `${crumbs()}<div class="sheet res-head">${pageHead('Je resultaat')}
   <div class="res-score"><div class="score">${t.score}/${t.max}</div><div><p><b>Ongeveer een ${d(rd(gradeOf(t), 1))}</b></p><p class="small muted">In ${fmtT(t.time)} minuten. Cijfer = 1 + 9 × punten / maximum. Je docent kan anders normeren.</p></div></div>

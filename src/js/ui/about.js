@@ -38,13 +38,17 @@ function vPrivacy() {
   <p>Kies je met de knop bovenaan een licht of donker scherm dat anders is dan op je apparaat, dan onthoudt deze browser dat ook. Kies je weer hetzelfde als je apparaat, dan wordt die keuze gewist.</p></div>
   <div class="block"><h2 class="h3">Waar de site staat</h2>
   <p>De site staat bij Microsoft Azure. Zoals bij elke website krijgt die server je IP-adres, anders kan hij de pagina niet naar je sturen. Dat geldt ook als de site een tel stuurt. Microsoft kan zulke technische gegevens gebruiken om de dienst te laten werken en te beveiligen. Wij hebben geen logboeken aangezet, bewaren je IP-adres niet en krijgen het dus niet te zien.</p></div>
+  <div class="block"><h2 class="h3">Als je een probleem meldt</h2>
+  <p>Bij elke vraag kun je met <b>Meld een probleem</b> laten weten dat er iets niet klopt. Je kiest wat er aan de hand is en kunt er iets bij schrijven. Daarna verstuur je dat zelf, via GitHub of via e-mail. De site zelf stuurt niets. Het paneel bouwt alleen een link of een e-mail die jij nog moet versturen.</p>
+  <p>In die melding staan een link naar de vraag (de soort vraag en het nummer van de variant), de versie van de site, je keuze en wat je zelf schrijft. Je antwoorden en je voortgang staan er niet in, en ook niets over je toestel. Schrijf geen naam of andere gegevens van jezelf in het tekstvak.</p>
+  <p>Meld je via GitHub, dan is je melding een openbaar issue met je GitHub-gebruikersnaam erbij. Daarvoor heb je een account nodig, en daar gelden de regels van GitHub. Meld je via e-mail, dan zien alleen wij je bericht en je e-mailadres, zoals bij elke mail aan ons.</p></div>
   <div class="block"><h2 class="h3">Video's</h2>
   <p>De video's zijn van andere makers en staan niet op onze site. Klik je op een video, dan ga je naar YouTube. Daar gelden de regels van YouTube.</p></div>
   <div class="block"><h2 class="h3">Als je ons mailt</h2>
   <p>Dan zien we je e-mailadres en je bericht. We gebruiken die alleen om je te antwoorden. Wil je dat we je bericht verwijderen, mail dan naar ${mail}.</p></div>
   <div class="block"><h2 class="h3">Als dit verandert</h2>
   <p>Gaan we iets anders tellen of bewaren, dan passen we deze tekst eerst aan.</p>
-  <p class="small muted">Bijgewerkt op 9 november 2026.</p></div></div>`;
+  <p class="small muted">Bijgewerkt op 14 november 2026.</p></div></div>`;
 }
 
 function vContact() {
@@ -52,7 +56,8 @@ function vContact() {
   <div class="block"><h2 class="h3">Een vraag of idee</h2>
   <p>Heb je een vraag, een idee of iets wat beter kan? Mail naar ${mail}. Iedereen mag mailen, of je nu leerling, ouder of docent bent.</p></div>
   <div class="block"><h2 class="h3">Een fout gevonden</h2>
-  <p>Zie je een fout in een vraag, een uitwerking of de uitleg? ${repo('Maak een issue aan op GitHub', '/issues/new')}, zodat iedereen kan zien dat we ermee bezig zijn. Zo'n issue is openbaar, met je accountnaam erbij, dus zet er geen namen of andere gegevens van leerlingen in. Heb je geen GitHub-account, mail de fout dan gerust.</p></div>
+  <p>Zie je een fout in een vraag, een uitwerking of de uitleg? Gebruik dan de knop <b>Meld een probleem</b> bij de vraag. Die zet de vraag er al bij, en je kiest zelf of je het via GitHub of via e-mail verstuurt. Bij GitHub heb je een account nodig en is je melding openbaar, met je accountnaam erbij. Zet er geen namen of andere gegevens van leerlingen in. Liever zonder account? Meld het dan via e-mail, of mail naar ${mail}.</p>
+  <p>Een fout die niet bij één vraag hoort, of een idee? ${repo('Maak een issue aan op GitHub', '/issues/new')} of mail ons.</p></div>
   <div class="block"><h2 class="h3">Help ons de site te testen</h2>
   <p>Zie je slecht of niet, en gebruik je een schermlezer, vergroting of hoog contrast? Dan zoeken we jou. We willen weten of je met jouw hulpmiddelen goed kunt oefenen, en waar je vastloopt. Je hoeft niets van websites te weten. Mail naar ${mail} als je wilt helpen.</p>
   <p>We hebben de site ook nog niet op een echte iPhone getest, alleen met de motor van Safari op een computer. Werkt er op jouw iPhone iets niet goed? Laat het ons dan weten.</p></div>
@@ -60,4 +65,4 @@ function vContact() {
   <p>We gebruiken je e-mailadres alleen om je te antwoorden. Lees meer over <a href="${to('privacy')}">privacy</a>.</p></div></div>`;
 }
 
-export { vOver, vPrivacy, vContact };
+export { MAIL, vOver, vPrivacy, vContact };

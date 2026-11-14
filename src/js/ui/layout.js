@@ -70,4 +70,4 @@ const storageNotice = () =>
 const vMissing = () =>
   `${crumbs()}<div class="sheet">${pageHead('Deze pagina bestaat niet')}<p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
 
-export { REPO, topbar, footer, crumbs, pageHead, testNotice, storageNotice, vMissing };
+export { REPO, VERSION, topbar, footer, crumbs, pageHead, testNotice, storageNotice, vMissing };

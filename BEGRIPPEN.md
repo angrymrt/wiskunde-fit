@@ -131,4 +131,5 @@ Een leerling zegt "mijn boek", niet "mijn methode en editie". Op de site mag dat
 | Vraagsoort               | "Soort vraag", of de naam van de vraagsoort                           |
 | Uitslag                  | "Je resultaat"                                                        |
 | Valkuil                  | "Veelgemaakte fout"                                                   |
+| Probleemmelding          | "Meld een probleem", de knop bij een vraag (`ui/melden.js`)           |
 | Generator, seed, dekking | Niet noemen. Zeg bij dekking: "Dit kun je hier nog niet oefenen."     |

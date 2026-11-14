@@ -5,10 +5,8 @@
 // voettekst, want de inhoud hangt af van wat er in de browser staat. Zoekmachines nemen een schil
 // niet op.
 import { MAPPINGS } from './mappings/index.js';
-import { pathFor, titleFor } from './routes.js';
+import { pathFor, SITE, titleFor } from './routes.js';
 import { DOMAINS, TOPICS } from './topics/index.js';
-
-const SITE = 'https://wiskundefit.nl';
 
 const mappingName = (m) => `${m.method}, ${m.edition}e editie, ${m.level} ${m.year}`;
 function mappingDescription(m) {

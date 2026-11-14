@@ -9,6 +9,8 @@ const state = {
   filtersOpen: false,
   // De vraag die je net deelde: { path, url, copied }. Daar staat dan de melding bij.
   shared: null,
+  // Het paneel om een probleem te melden, als dat open staat: { path, wat, tekst }. Zie ui/melden.js.
+  melden: null,
   // Of de site nu donker is, door het apparaat of door de knop in de kop. Zie main.js.
   dark: false,
   test: null,
