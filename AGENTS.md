@@ -37,6 +37,8 @@ Draai `npm test` na elke wijziging in de stof. Draai `npm run test:browser` na w
 
 Meet na wijzigingen in de schermen, de opmaak of de build ook met Lighthouse, op de preview en op de site die nu online staat, voor Home en het oefenscherm van een onderwerp, zoals `/top-en-snijpunten-van-een-parabool/oefenen`: `npx -y lighthouse@13.6.0 <adres> --chrome-flags="--headless=new"`. Zet daarvoor `CHROME_PATH` op Edge of Chrome. Lighthouse meet als een telefoon. SEO is op een preview en een oefenscherm lager, omdat die niet in zoekmachines horen (`noindex`); dat is goed.
 
+Bij een pull request draait de workflow Browsertest. Die bepaalt met `scripts/browsertest-selectie.js` wat nodig is: bij alleen documentatie of tests zonder browser draait er niets, bij alleen de stof van onderwerpen de snelle set en de lange test voor die onderwerpen, en bij schermen, opmaak, figuren, antwoordcontrole of de build alles. De check is voorlopig informatief en niet verplicht. Lokaal beperk je de lange test met `ONDERWERPEN=a,b`, of met `METHODE=gr13-havo3` en eventueel `HOOFDSTUK=4`, en met `SNEL=1` sla je hem over. Bij een nieuw hoofdstuk is `METHODE=... HOOFDSTUK=...` genoeg tijdens het bouwen; draai voor de merge één keer alles.
+
 De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor kleine wijzigingen. Draai bij grote wijzigingen, zoals in de schermen, de antwoordcontrole of de build, ook `ROUNDS=4 npm run test:browser` (in PowerShell: `$env:ROUNDS=4; npm run test:browser`). Dat duurt ongeveer 6 minuten. Voeg een gerichte test toe als je een bepaald randgeval wilt vastleggen.
 
 ## Regels

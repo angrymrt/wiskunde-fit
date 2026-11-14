@@ -242,6 +242,12 @@ De werkwijze is vergeleken met de theorie en de voorbeelden uit het boek. De sit
 
 Dit is een persoonlijk project en heeft geen band met Noordhoff of _Getal & Ruimte_. De video's zijn van de YouTube-kanalen Math with Menno en Wiskunde met Bob Pruiksma.
 
+## Getest met
+
+This project is tested with BrowserStack.
+
+We gebruiken BrowserStack om de site op een echte iPhone in Safari te proberen.
+
 ## Licentie
 
 De code en de zelf geschreven stof vallen onder de [MIT-licentie](LICENSE). Die geldt niet voor het materiaal van de uitgever of voor de video's waarnaar de site linkt. De lettertypes in `src/fonts/` vallen onder de SIL Open Font License; de teksten staan in die map.
