@@ -35,7 +35,7 @@ npm run format        # Prettier
 
 Draai `npm test` na elke wijziging in de stof. Draai `npm run test:browser` na wijzigingen in `ui/`, `main.js`, `styles.css` of de build. Bekijk daarna de schermafbeeldingen in `test-results/`, want de test ziet niet of een figuur er goed uitziet. Een andere browser kies je met de omgevingsvariabele `BROWSER`, bijvoorbeeld `chrome`, of `webkit` voor de motor van Safari. Die installeer je eenmalig met `npx playwright-core install webkit`. Dit vervangt geen test op een echte iPhone.
 
-Meet na wijzigingen in de schermen, de opmaak of de build ook met Lighthouse, op de preview en op de site die nu online staat, voor Home en het oefenscherm van een onderwerp, zoals `/top-en-snijpunten-van-een-parabool/oefenen`: `npx -y lighthouse@13.6.0 <adres> --chrome-flags="--headless=new"`. Zet daarvoor `CHROME_PATH` op Edge of Chrome. Lighthouse meet als een telefoon. SEO is op een preview en een oefenscherm lager, omdat die niet in zoekmachines horen (`noindex`); dat is goed.
+Bij een pull request die schermen, opmaak, figuren, antwoordcontrole of de build raakt, meet de workflow Online zetten ook met Lighthouse, voor Home en het oefenscherm van `/top-en-snijpunten-van-een-parabool/oefenen`, op de preview en op de site die nu online staat. De scores komen als opmerking bij de pull request (`scripts/lighthouse.js`). Dat is informatief en niet verplicht. Een score die lager is dan op de site die nu online staat, verdient een verklaring. SEO telt niet mee: die is op een preview en een oefenscherm lager, omdat die niet in zoekmachines horen (`noindex`). Zelf meten kan met `node scripts/lighthouse.js <preview>`. Zet `CHROME_PATH` op Edge of Chrome, en `RUNS=1` voor een snelle meting (in PowerShell: `$env:RUNS=1`). Of met `npx -y lighthouse@13.6.0 <adres> --chrome-flags="--headless=new"`.
 
 Bij een pull request draait de workflow Browsertest. Die bepaalt met `scripts/browsertest-selectie.js` wat nodig is: bij alleen documentatie of tests zonder browser draait er niets, bij alleen de stof van onderwerpen de snelle set en de lange test voor die onderwerpen, en bij schermen, opmaak, figuren, antwoordcontrole of de build alles. De check is voorlopig informatief en niet verplicht. Lokaal beperk je de lange test met `ONDERWERPEN=a,b`, of met `METHODE=gr13-havo3` en eventueel `HOOFDSTUK=4`, en met `SNEL=1` sla je hem over. Bij een nieuw hoofdstuk is `METHODE=... HOOFDSTUK=...` genoeg tijdens het bouwen; draai voor de merge één keer alles.
 
@@ -191,7 +191,7 @@ Controleer voor de release van een hoofdstuk:
 - Nieuwe invoerkeuzes, zoals een teken in een keuzelijst, staan in `NAKIJKEN.md`.
 - `npm test` en `npm run test:browser` slagen, en je hebt de schermafbeeldingen van nieuwe figuren bekeken.
 - De code blijft onder de grens voor de grootte ([#80](https://github.com/angrymrt/wiskunde-fit/issues/80)).
-- Lighthouse op de preview, voor Home en een oefenscherm: geen score lager dan op de site die nu online staat, behalve SEO.
+- De Lighthouse-opmerking bij de pull request van het hoofdstuk: geen score lager dan op de site die nu online staat, behalve SEO.
 
 ## Zo werken de schermen
 

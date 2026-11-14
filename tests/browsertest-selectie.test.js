@@ -17,6 +17,7 @@ test('alleen documentatie, gegevens of tests zonder browser vragen geen browsert
     'tests/generators.test.js',
     'tests/vingerafdrukken.json',
     'scripts/tokens.js',
+    'scripts/lighthouse.js',
     '.github/workflows/tellen.yml',
     'api/tel.js',
   ]) {
