@@ -48,6 +48,7 @@ test('de melding bevat alleen de vraag, de vraagsoort, de versie en wat de leerl
   assert.match(mail.searchParams.get('subject'), /^Probleem bij vraag: /);
   assert.match(mail.searchParams.get('body'), /Vraag: https:\/\/wiskundefit\.nl\//);
   assert.match(mail.searchParams.get('body'), /Toelichting: Ik kom op 3x uit\./);
+  assert.match(mailLink(m), /%0D%0AVersie/, 'mailto gebruikt CRLF als regeleinde');
   // Zonder toelichting staat er dat, zodat de mail niet leeg lijkt.
   const kaal = melding({ soort: skill, path, wat: 'uitleg', tekst: '' });
   assert.match(new URL(mailLink(kaal)).searchParams.get('body'), /Toelichting: \(geen\)/);
@@ -82,6 +83,7 @@ test('het paneel staat er alleen bij de vraag die je meldt, en de knoppen wachte
   assert.deepEqual(meldHTML(skill, old), { button: '', panel: '' });
   try {
     state.melden = {
+      open: true,
       path: `/${topic.slug}/oefenen?soort=${skill.id}&seed=k3x9q`,
       wat: '',
       tekst: '',
@@ -94,14 +96,22 @@ test('het paneel staat er alleen bij de vraag die je meldt, en de knoppen wachte
     assert.doesNotMatch(zonder, /href="https:\/\/github\.com/);
     assert.match(zonder, /Kies eerst wat er aan de hand is/);
     state.melden.wat = 'uitleg';
-    state.melden.tekst = 'Dit <b>klopt</b> niet';
+    state.melden.tekst = 'Dit <b>klopt</b> "niet" & zo';
     const gekozen = meldHTML(skill, q).panel;
     assert.match(gekozen, /value="uitleg" checked/);
     assert.match(gekozen, /href="https:\/\/github\.com\/angrymrt\/wiskunde-fit\/issues\/new\?/);
     assert.match(gekozen, /href="mailto:contact@wiskundefit\.nl\?/);
     assert.doesNotMatch(gekozen, /disabled/);
     assert.doesNotMatch(gekozen, /<b>klopt/, 'wat je typt wordt niet als HTML gezet');
+    assert.match(gekozen, /Dit &lt;b&gt;klopt&lt;\/b&gt; "niet" &amp; zo<\/textarea>/);
+    for (const [, href] of gekozen.matchAll(/href="([^"]*)"/g)) {
+      assert.doesNotMatch(href, /["<>' ]/, 'een link bevat geen losse tekens uit de tekst');
+    }
+    // Gesloten, maar niet vergeten: het concept blijft tot een ander scherm.
+    state.melden.open = false;
+    assert.equal(meldHTML(skill, q).panel, '');
     // Het paneel hoort bij één vraag: bij een andere vraag staat het er niet.
+    state.melden.open = true;
     assert.equal(meldHTML(skill, makeQuestion(skill, 1)).panel, '');
   } finally {
     state.melden = null;
