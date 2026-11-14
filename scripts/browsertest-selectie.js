@@ -23,7 +23,7 @@ const GENEGEERD = [
   /^\.github\/workflows\/(tellen|browsertest)\.yml$/,
   /^\.github\/(ISSUE_TEMPLATE|CODEOWNERS)/,
   /^tests\/(?!browser\.e2e\.js)/,
-  /^scripts\/(tokens|vingerafdrukken|azure-)/,
+  /^scripts\/(tokens|vingerafdrukken|lighthouse|azure-)/,
   /^api\//,
   /^\.prettier/,
 ];
