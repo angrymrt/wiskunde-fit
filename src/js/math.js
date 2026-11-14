@@ -48,6 +48,10 @@ const until = (maak, klopt) => {
   }
 };
 
+// Is alleKeuzes of schatKeuzes bezig? Dan telt een andere volgorde van meerkeuzeantwoorden niet als
+// een andere vraag, dus MC schudt dan niet.
+const tellen = () => telt;
+
 // Vervangt choose zolang make loopt, net als withSeed het toeval vervangt. Een keuze die until
 // afkeurt, gooit dan Afgekeurd.
 function withChoices(kies, make) {
@@ -93,6 +97,32 @@ function alleKeuzes(make, op, { maxPaden = 1e6, maxKeuzes = 200 } = {}) {
     if (!pad.length) return paden;
     pad[pad.length - 1].k++;
   }
+}
+
+// Schat het aantal paden van make als alleKeuzes er te veel vindt. Elke ronde loopt één willekeurig
+// pad: het aantal paden is dan het product van alle n op dat pad, of 0 als until het pad afkeurt.
+// Het gemiddelde van de rondes is een zuivere schatting (de methode van Knuth). Meer paden kunnen
+// wel dezelfde vraag geven, dus dit is een bovengrens voor het aantal verschillende vragen. De seed
+// ligt vast, dus elke keer komt hetzelfde uit.
+function schatKeuzes(make, { rondes = 20000, seed = 1, maxKeuzes = 200 } = {}) {
+  const rnd = mulberry32(seed);
+  let som = 0;
+  for (let r = 0; r < rondes; r++) {
+    let i = 0;
+    let gewicht = 1;
+    const kies = (n) => {
+      if (i++ >= maxKeuzes) throw new Afgekeurd();
+      gewicht *= n;
+      return Math.floor(rnd() * n);
+    };
+    try {
+      withChoices(kies, make);
+      som += gewicht;
+    } catch (e) {
+      if (!(e instanceof Afgekeurd)) throw e;
+    }
+  }
+  return som / rondes;
 }
 
 const ri = (a, b) => a + choose(b - a + 1);
@@ -215,6 +245,8 @@ export {
   parseSeed,
   withChoices,
   alleKeuzes,
+  schatKeuzes,
+  tellen,
   until,
   Afgekeurd,
   ri,

@@ -1,6 +1,20 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
 import { geo, graph } from '../figures.js';
-import { shuffle, Q, qv, isNice, sg, near, fr, d, rd, lin, dlin, roundText } from '../math.js';
+import {
+  shuffle,
+  tellen,
+  Q,
+  qv,
+  isNice,
+  sg,
+  near,
+  fr,
+  d,
+  rd,
+  lin,
+  dlin,
+  roundText,
+} from '../math.js';
 import { dt } from '../typeset.js';
 
 // Letterparen voor een formule met andere letters dan x en y.
@@ -69,7 +83,7 @@ function trap(id, m, ...fs) {
   return ts.length ? { id, f: (v) => ts.some((f) => f(v)), m } : null;
 }
 const MC = (opts, a) => {
-  const idx = shuffle(opts.map((_, i) => i));
+  const idx = tellen() ? opts.map((_, i) => i) : shuffle(opts.map((_, i) => i));
   return { opts: idx.map((i) => opts[i]), a: idx.indexOf(a) };
 };
 const plug = (a, x, b) => `${a}*${x}${sg(b)}`;
