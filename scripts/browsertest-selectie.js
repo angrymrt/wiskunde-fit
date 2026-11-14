@@ -3,7 +3,7 @@
 //   node scripts/browsertest-selectie.js origin/main    zegt wat deze branch nodig heeft
 //
 // Gebruikt door de workflow Browsertest. Een wijziging aan alleen documentatie, tests zonder
-// browser, gegevens of het ontwikkelproces raakt wat een leerling ziet niet: dan draait er niets.
+// browser, het ontwikkelproces raakt wat een leerling ziet niet: dan draait er niets.
 // Raakt een wijziging alleen de stof van een of meer onderwerpen, dan draait de snelle set en de
 // lange test alleen voor die onderwerpen. Raakt ze schermen, opmaak, figuren, antwoordcontrole of
 // de build, dan draait alles. Lokaal kies je zelf met ONDERWERPEN= of METHODE= (zie
