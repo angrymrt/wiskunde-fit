@@ -18,15 +18,46 @@ function rond(n) {
   const grootte = 10 ** Math.max(0, String(Math.round(n)).length - 2);
   return Math.round(n / grootte) * grootte;
 }
+// n op twee cijfers als m × 10^e, met m van 1 tot 10.
+function macht(n) {
+  let e = Math.floor(Math.log10(n));
+  let m = Number((n / 10 ** e).toPrecision(2));
+  if (m >= 10) {
+    m /= 10;
+    e++;
+  }
+  return { m, e };
+}
+// "8,5 × 10²⁴". Een schermlezer leest het teken ² niet goed voor, dus daar staat het in woorden.
+function wetenschappelijk(n) {
+  const { m, e } = macht(n);
+  const mantisse = m.toLocaleString('nl-NL');
+  return `<span aria-hidden="true">${mantisse} × 10<sup>${e}</sup></span><span class="sr">${mantisse} keer 10 tot de macht ${e}</span>`;
+}
+// Het hele getal, op twee cijfers: 8.500.000.000.000.000.000.000.000. Zonder BigInt, want zo groot
+// kan een getal in JavaScript niet precies.
+function uitgeschreven(n) {
+  const { m, e } = macht(n);
+  return `${Math.round(m * 10)}${'0'.repeat(e - 1)}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+// Vanaf 10^12 is een getal in woorden niet meer te lezen, en dan schrijven we m × 10^e.
+const GROTE_MACHT = 1e12;
 // "5.776" bij een exact aantal, en bij een schatting "≈ 120.000". Een schermlezer leest het teken
 // niet goed voor, dus daar staat "ongeveer".
 const aantal = (s) =>
   s.exact
     ? getal(s.aantal)
-    : `<span aria-hidden="true">≈ </span><span class="sr">ongeveer </span>${getal(rond(s.aantal))}`;
-// Een groot getal in woorden: "140 miljoen". Daaronder noemen we het hele getal.
-const groot = (n) =>
-  n >= 1e6 ? `${Number((n / 1e6).toPrecision(2)).toLocaleString('nl-NL')} miljoen` : getal(rond(n));
+    : `<span aria-hidden="true">≈ </span><span class="sr">ongeveer </span>${
+        s.aantal >= GROTE_MACHT ? wetenschappelijk(s.aantal) : getal(rond(s.aantal))
+      }`;
+// Een groot getal in woorden: "140 miljoen" of "3,8 miljard", en daarboven "8,5 × 10²⁴".
+const groot = (n) => {
+  if (n >= GROTE_MACHT) return wetenschappelijk(n);
+  const [deel, woord] = n >= 1e9 ? [1e9, 'miljard'] : [1e6, 'miljoen'];
+  return n >= 1e6
+    ? `${Number((n / deel).toPrecision(2)).toLocaleString('nl-NL')} ${woord}`
+    : getal(rond(n));
+};
 
 const practice = (skill, topic) =>
   pathFor({ name: 'topic', slug: topic.slug, oefen: true, soort: skill.id });
@@ -39,9 +70,6 @@ const kort = (skills, tellen) =>
   schatting(skills, tellen)
     ? `<span aria-hidden="true">≈ </span><span class="sr">ongeveer </span>${groot(som(skills, tellen))}`
     : getal(som(skills, tellen));
-
-const totaal = (skills, tellen) =>
-  schatting(skills, tellen) ? `ongeveer ${groot(som(skills, tellen))}` : getal(som(skills, tellen));
 
 function perOnderwerp(tellen) {
   const topic = (t) => {
@@ -91,6 +119,13 @@ function raster() {
   </svg><figcaption class="small muted">Elk vakje is één vraag. Het oranje vakje hoort bij één keuze voor de eerste zijde en één voor de tweede.</figcaption></figure>`;
 }
 
+// Is het totaal zo groot dat het als m × 10^e staat, dan schrijven we het ook één keer helemaal uit.
+function uitschrijving(skills, tellen) {
+  const n = som(skills, tellen);
+  if (n < GROTE_MACHT) return '';
+  return `<p class="vuit"><span class="small muted">Dat is dus ongeveer:</span><b>${uitgeschreven(n)}</b></p>`;
+}
+
 function vVragen() {
   const tellen = TELLEN;
   const skills = TOPICS.flatMap((t) => t.skills);
@@ -105,7 +140,7 @@ function vVragen() {
   <div class="tile vtile-main">${schatting(skills, tellen) ? '<span class="small muted">ongeveer</span>' : ''}<span class="tile-value">${schatting(skills, tellen) ? groot(som(skills, tellen)) : getal(som(skills, tellen))}</span><span class="tile-label">verschillende vragen oefenen</span></div>
   <div class="tile"><span class="small muted">verdeeld over</span><span class="tile-value">${skills.length} soorten vragen</span><span class="tile-label">om uit te kiezen</span></div>
   <div class="tile"><span class="small muted">in</span><span class="tile-value">${DOMAINS.length} domeinen</span><span class="tile-label">en ${TOPICS.length} onderwerpen</span></div>
-  </div></div>
+  </div>${uitschrijving(skills, tellen)}</div>
   <div class="block"><h2 class="h3">Elke soort vraag heeft een generator</h2>
   <p>Een generator is een klein programma dat vragen van één soort maakt, met steeds andere getallen. Het bedenkt eerst het antwoord en maakt daar de vraag bij. Zo komen de getallen altijd mooi uit en krijg je geen antwoord als 3,7182818.</p>
   <p>Daarom kun je een soort vraag zo vaak oefenen als je wilt: er komt steeds een nieuwe vraag.</p></div>
@@ -125,7 +160,7 @@ function vVragen() {
   <p>Bij elke vraag rekent de computer het antwoord nog een keer na, op een andere manier dan de generator zelf. Komt daar iets anders uit, dan slaat de test alarm.</p>
   <p>Bij elke wijziging maken de tests duizenden vragen en controleren die allemaal. Elke vraag hoort bij een seed, een getal dat de vraag vastlegt. Met dezelfde seed krijg je precies dezelfde vraag, dus een fout is altijd te herhalen.</p></div>
   <div class="block"><h2 class="h3">Hoeveel vragen zijn er?</h2>
-  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Staat er <b>≈</b> voor, dan is het aantal te groot om na te tellen en hebben we het geschat.</p>
+  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Staat er <b>≈</b> voor, dan is het aantal te groot om na te tellen en hebben we het geschat. Een getal als 2,3 × 10<sup>21</sup> lees je als 2,3 keer 10<sup>21</sup>, en 10<sup>21</sup> is een 1 met 21 nullen. Bij vragen met een tabel kiest de generator zoveel getallen dat het aantal zo groot wordt.</p>
   <div class="row"><button class="btn quiet" type="button" data-act="vragenopen" data-id="open">Alles openen</button><button class="btn quiet" type="button" data-act="vragenopen" data-id="dicht">Alles sluiten</button></div>
   ${perOnderwerp(tellen)}
   <p class="vtotaal"><span>Samen</span><span><b>${kort(skills, tellen)}</b> verschillende vragen</span></p></div>

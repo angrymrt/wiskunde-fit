@@ -2167,11 +2167,14 @@ test(
 // gedeelde code en de catalogus: in november 2026 47 kB (125 kB zelf). Het grootste onderwerp, Top
 // en snijpunten van een parabool, was 10 kB (27 kB zelf), en het grootste gedeelde bestand 8 kB
 // (17 kB zelf). Een nieuw onderwerp maakt het eerste bezoek dus nauwelijks groter. Wordt een
-// onderwerp te groot, verdeel het dan in twee onderwerpen.
+// onderwerp te groot, verdeel het dan in twee onderwerpen. De pagina Zo maken we de vragen (#22)
+// maakte het eerste bezoek 3,5 kB groter (12 kB zelf), door de tekst en de aantallen per soort vraag:
+// het eerste bezoek was 54 kB en mag nu 60 kB zijn. Ook de pagina zelf is 7,5 kB, want alle 126
+// soorten staan erin.
 const LIMITS = {
-  page: { sent: 6, why: 'een vooraf gebouwde pagina' },
+  page: { sent: 8, why: 'een vooraf gebouwde pagina' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 55, own: 150, why: 'de code bij het eerste bezoek' },
+  start: { sent: 60, own: 165, why: 'de code bij het eerste bezoek' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
   css: { sent: 8, why: 'de CSS' },

@@ -3,10 +3,12 @@
 // (#22). Dat duurt een paar minuten en telt alles opnieuw.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import TELLEN from '../data/vragen-tellen.json' with { type: 'json' };
 import { TOPICS } from '../src/js/topics/index.js';
-import { controles, sleutel, tel } from '../scripts/vragen-tellen.js';
+import { CONTROLES, controles, sleutel, tel } from '../scripts/vragen-tellen.js';
 
+const OPGESLAGEN = JSON.parse(readFileSync(CONTROLES, 'utf8'));
 const skills = TOPICS.flatMap((t) => t.skills);
 
 test('elke soort vraag heeft een aantal, en een soort die stopte niet meer', () => {
@@ -21,7 +23,7 @@ test('elke soort vraag heeft een aantal, en een soort die stopte niet meer', () 
 
 test('de aantallen kloppen nog met de generatoren (draai npm run vragen-tellen)', () => {
   const nu = controles(skills);
-  const oud = skills.filter((k) => TELLEN.soorten[k.id]?.controle !== nu[k.id]);
+  const oud = skills.filter((k) => OPGESLAGEN[k.id] !== nu[k.id]);
   assert.deepEqual(
     oud.map((k) => k.id),
     [],

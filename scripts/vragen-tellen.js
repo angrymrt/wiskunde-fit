@@ -7,13 +7,14 @@
 // tellen de verschillende vragen: dezelfde vraag via twee keuzes telt één keer. Zijn het er te veel
 // om na te lopen, dan schatten we het aantal met schatKeuzes en staat er exact: false.
 import { createHash } from 'node:crypto';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { alleKeuzes, schatKeuzes, withSeed } from '../src/js/math.js';
 import { fingerprints } from '../tests/vingerafdruk.js';
 import { TOPICS } from '../src/js/topics/index.js';
 
 // Boven dit aantal paden lopen we niet alles na, maar schatten we het aantal.
+export const CONTROLES = new URL('../tests/vragen-tellen-controles.json', import.meta.url);
 const MAX_PADEN = 100000;
 
 // Wat de vraag bepaalt, net als in tests/vingerafdruk.js, maar met de keuzes van meerkeuze op
@@ -76,20 +77,30 @@ export function controles(skills = TOPICS.flatMap((t) => t.skills)) {
   );
 }
 
-export function telAlles() {
-  const controle = controles();
+// Zonder nummers telt dit alles opnieuw. Met nummers telt het alleen die soorten en blijft de rest
+// uit het bestand staan.
+export function telAlles(ids = [], oud = {}) {
   const soorten = {};
-  for (const skill of TOPICS.flatMap((t) => t.skills))
-    soorten[skill.id] = { ...tel(skill), controle: controle[skill.id] };
+  for (const skill of TOPICS.flatMap((t) => t.skills)) {
+    const behouden = ids.length && !ids.includes(skill.id) && oud[skill.id];
+    soorten[skill.id] = behouden ? oud[skill.id] : tel(skill);
+  }
   return { soorten };
 }
 
+// Zonder plusteken bij een grote exponent, zoals Prettier het schrijft.
+const json = (x) => `${JSON.stringify(x, null, 2).replace(/("aantal": [\d.]+)e\+(\d+)/g, '$1e$2')}
+`;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const start = Date.now();
-  const uit = telAlles();
+  const ids = process.argv.slice(2).map(Number);
   const bestand = new URL('../data/vragen-tellen.json', import.meta.url);
-  // Zonder plusteken bij een grote exponent, zoals Prettier het schrijft.
-  await writeFile(bestand, `${JSON.stringify(uit, null, 2).replace(/e\+/g, 'e')}\n`);
+  const oud = ids.length ? JSON.parse(await readFile(bestand, 'utf8')).soorten : {};
+  const uit = telAlles(ids, oud);
+  await writeFile(bestand, json(uit));
+  // De controlesommen staan bij de tests: de pagina heeft ze niet nodig, en elke byte telt daar.
+  await writeFile(CONTROLES, json(controles()));
   const n = Object.values(uit.soorten);
   console.log(
     `${n.length} soorten: ${n.filter((s) => s.exact).length} exact, ${n.filter((s) => !s.exact).length} geschat, ${Math.round((Date.now() - start) / 1000)} s`,

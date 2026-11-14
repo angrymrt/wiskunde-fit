@@ -2,633 +2,507 @@
   "soorten": {
     "1": {
       "aantal": 4368,
-      "exact": true,
-      "controle": "6WKJsvKy"
+      "exact": true
     },
     "2": {
       "aantal": 1260,
-      "exact": true,
-      "controle": "+CFzh50N"
+      "exact": true
     },
     "3": {
       "aantal": 548963,
-      "exact": false,
-      "controle": "Ewvf+UyN"
+      "exact": false
     },
     "4": {
       "aantal": 33696,
-      "exact": true,
-      "controle": "rSU4iAYb"
+      "exact": true
     },
     "5": {
       "aantal": 760,
-      "exact": true,
-      "controle": "LQyghhzx"
+      "exact": true
     },
     "6": {
       "aantal": 106982,
-      "exact": false,
-      "controle": "dQsk96Xn"
+      "exact": false
     },
     "7": {
       "aantal": 85607,
-      "exact": false,
-      "controle": "WBZYtDqf"
+      "exact": false
     },
     "8": {
       "aantal": 600,
-      "exact": true,
-      "controle": "pJkmG6bD"
+      "exact": true
     },
     "9": {
       "aantal": 57600,
-      "exact": true,
-      "controle": "iiaCit1Q"
+      "exact": true
     },
     "10": {
       "aantal": 1632,
-      "exact": true,
-      "controle": "TSZlpyt4"
+      "exact": true
     },
     "11": {
       "aantal": 136883,
-      "exact": false,
-      "controle": "FgRBgP/6"
+      "exact": false
     },
     "12": {
       "aantal": 8640,
-      "exact": true,
-      "controle": "M9wtslfZ"
+      "exact": true
     },
     "13": {
       "aantal": 110,
-      "exact": true,
-      "controle": "u43+mQRu"
+      "exact": true
     },
     "14": {
       "aantal": 60,
-      "exact": true,
-      "controle": "c8U2u56+"
+      "exact": true
     },
     "15": {
       "aantal": 675,
-      "exact": true,
-      "controle": "9dFtxvMa"
+      "exact": true
     },
     "16": {
       "aantal": 1104,
-      "exact": true,
-      "controle": "hz1UnmUu"
+      "exact": true
     },
     "17": {
       "aantal": 132370,
-      "exact": false,
-      "controle": "kzBwWKYp"
+      "exact": false
     },
     "18": {
       "aantal": 1776,
-      "exact": true,
-      "controle": "AGMd1IsU"
+      "exact": true
     },
     "19": {
       "aantal": 65690,
-      "exact": false,
-      "controle": "ydOb48ou"
+      "exact": false
     },
     "20": {
       "aantal": 10,
-      "exact": true,
-      "controle": "Pqppvps4"
+      "exact": true
     },
     "21": {
       "aantal": 36165,
-      "exact": false,
-      "controle": "1zS9nUXb"
+      "exact": false
     },
     "22": {
       "aantal": 1740,
-      "exact": true,
-      "controle": "qPiwKrnh"
+      "exact": true
     },
     "23": {
       "aantal": 5056,
-      "exact": true,
-      "controle": "AcezYdsx"
+      "exact": true
     },
     "24": {
       "aantal": 67452,
-      "exact": true,
-      "controle": "HfdhOVH/"
+      "exact": true
     },
     "25": {
       "aantal": 750,
-      "exact": true,
-      "controle": "vwcaG5u5"
+      "exact": true
     },
     "26": {
       "aantal": 184279,
-      "exact": false,
-      "controle": "FFwxGtKf"
+      "exact": false
     },
     "27": {
       "aantal": 30576,
-      "exact": true,
-      "controle": "BCb7wOxz"
+      "exact": true
     },
     "28": {
       "aantal": 486,
-      "exact": true,
-      "controle": "dWco6mcr"
+      "exact": true
     },
     "29": {
       "aantal": 312,
-      "exact": true,
-      "controle": "qLcR437K"
+      "exact": true
     },
     "30": {
       "aantal": 3784,
-      "exact": true,
-      "controle": "WtTh69e5"
+      "exact": true
     },
     "31": {
       "aantal": 880,
-      "exact": true,
-      "controle": "J5R06XYX"
+      "exact": true
     },
     "32": {
       "aantal": 10080,
-      "exact": true,
-      "controle": "uF1y0Ug5"
+      "exact": true
     },
     "33": {
       "aantal": 1998,
-      "exact": true,
-      "controle": "EUtOsY1g"
+      "exact": true
     },
     "34": {
       "aantal": 140,
-      "exact": true,
-      "controle": "4GYgJ/fp"
+      "exact": true
     },
     "35": {
       "aantal": 58320,
-      "exact": true,
-      "controle": "nxiZJh4y"
+      "exact": true
     },
     "36": {
       "aantal": 1270,
-      "exact": true,
-      "controle": "Zs1DmrcE"
+      "exact": true
     },
     "37": {
       "aantal": 600,
-      "exact": true,
-      "controle": "BPxn4ION"
+      "exact": true
     },
     "38": {
       "aantal": 5776,
-      "exact": true,
-      "controle": "OAT5nhPY"
+      "exact": true
     },
     "39": {
       "aantal": 2196,
-      "exact": true,
-      "controle": "fgoo73gg"
+      "exact": true
     },
     "40": {
       "aantal": 39442,
-      "exact": true,
-      "controle": "4LkUsSBx"
+      "exact": true
     },
     "41": {
       "aantal": 3760,
-      "exact": true,
-      "controle": "Cgdn4hnR"
+      "exact": true
     },
     "42": {
       "aantal": 6207,
-      "exact": true,
-      "controle": "kPDDcJ+L"
+      "exact": true
     },
     "43": {
       "aantal": 4536,
-      "exact": true,
-      "controle": "MP5jBX1G"
+      "exact": true
     },
     "44": {
       "aantal": 287,
-      "exact": true,
-      "controle": "mWnArvsu"
+      "exact": true
     },
     "45": {
       "aantal": 900,
-      "exact": true,
-      "controle": "dUA3DRt1"
+      "exact": true
     },
     "46": {
       "aantal": 9765,
-      "exact": true,
-      "controle": "xuUKDm2n"
+      "exact": true
     },
     "47": {
       "aantal": 288,
-      "exact": true,
-      "controle": "NwzPQHvJ"
+      "exact": true
     },
     "48": {
       "aantal": 8084,
-      "exact": false,
-      "controle": "npSDFAiz"
+      "exact": false
     },
     "49": {
       "aantal": 30,
-      "exact": true,
-      "controle": "SdWgDRPh"
+      "exact": true
     },
     "50": {
       "aantal": 155372,
-      "exact": false,
-      "controle": "w/3jKFy1"
+      "exact": false
     },
     "51": {
       "aantal": 35,
-      "exact": true,
-      "controle": "dPGWBddB"
+      "exact": true
     },
     "52": {
       "aantal": 73,
-      "exact": true,
-      "controle": "VH6IoP4b"
+      "exact": true
     },
     "53": {
       "aantal": 56,
-      "exact": true,
-      "controle": "izWikeIR"
+      "exact": true
     },
     "54": {
       "aantal": 3,
-      "exact": true,
-      "controle": "td1ZdSY6"
+      "exact": true
     },
     "55": {
       "aantal": 180,
-      "exact": true,
-      "controle": "OKQrUHFD"
+      "exact": true
     },
     "56": {
       "aantal": 270,
-      "exact": true,
-      "controle": "Bv5VIXKH"
+      "exact": true
     },
     "57": {
       "aantal": 8,
-      "exact": true,
-      "controle": "w/uGvSbW"
+      "exact": true
     },
     "58": {
       "aantal": 152,
-      "exact": true,
-      "controle": "yABEY/h0"
+      "exact": true
     },
     "59": {
       "aantal": 171,
-      "exact": true,
-      "controle": "DvqKCNjm"
+      "exact": true
     },
     "60": {
       "aantal": 400,
-      "exact": true,
-      "controle": "F6NBJ9ml"
+      "exact": true
     },
     "61": {
       "aantal": 276,
-      "exact": true,
-      "controle": "zn5wCQCv"
+      "exact": true
     },
     "62": {
       "aantal": 23,
-      "exact": true,
-      "controle": "j8qI7zmo"
+      "exact": true
     },
     "63": {
       "aantal": 33,
-      "exact": true,
-      "controle": "rGLE9sHS"
+      "exact": true
     },
     "64": {
       "aantal": 72,
-      "exact": true,
-      "controle": "XfpGEImQ"
+      "exact": true
     },
     "65": {
       "aantal": 138,
-      "exact": true,
-      "controle": "PU3uQ111"
+      "exact": true
     },
     "66": {
       "aantal": 14368,
-      "exact": false,
-      "controle": "zxmc4SZJ"
+      "exact": false
     },
     "67": {
       "aantal": 9963,
-      "exact": false,
-      "controle": "Tzt8jRg5"
+      "exact": false
     },
     "68": {
       "aantal": 17176,
-      "exact": false,
-      "controle": "oLkpOrxa"
+      "exact": false
     },
     "69": {
       "aantal": 195453,
-      "exact": false,
-      "controle": "p7UZAc/v"
+      "exact": false
     },
     "70": {
       "aantal": 5592,
-      "exact": true,
-      "controle": "fZ1QFR/5"
+      "exact": true
     },
     "71": {
       "aantal": 900,
-      "exact": true,
-      "controle": "pt7yiSsg"
+      "exact": true
     },
     "72": {
       "aantal": 2544,
-      "exact": true,
-      "controle": "k+z8hWlg"
+      "exact": true
     },
     "73": {
       "aantal": 1602,
-      "exact": true,
-      "controle": "v72nJ45M"
+      "exact": true
     },
     "74": {
       "aantal": 368,
-      "exact": true,
-      "controle": "CVVWvAw1"
+      "exact": true
     },
     "75": {
       "aantal": 1152,
-      "exact": true,
-      "controle": "/Rro40Iv"
+      "exact": true
     },
     "76": {
       "aantal": 3360,
-      "exact": true,
-      "controle": "LpUL7Zwl"
+      "exact": true
     },
     "77": {
       "aantal": 1280,
-      "exact": true,
-      "controle": "1/+L90MH"
+      "exact": true
     },
     "78": {
       "aantal": 544,
-      "exact": true,
-      "controle": "ZVH2kBi4"
+      "exact": true
     },
     "79": {
       "aantal": 1612,
-      "exact": false,
-      "controle": "iAoVgd1c"
+      "exact": false
     },
     "80": {
       "aantal": 513,
-      "exact": false,
-      "controle": "XFzkh/YA"
+      "exact": false
     },
     "81": {
       "aantal": 1859,
-      "exact": false,
-      "controle": "+WSYZozO"
+      "exact": false
     },
     "82": {
       "aantal": 25766,
-      "exact": false,
-      "controle": "+xe+aiuB"
+      "exact": false
     },
     "83": {
       "aantal": 10533,
-      "exact": true,
-      "controle": "Cb9ruNOc"
+      "exact": true
     },
     "84": {
       "aantal": 5904,
-      "exact": true,
-      "controle": "oBMHRE8H"
+      "exact": true
     },
     "85": {
       "aantal": 1080,
-      "exact": true,
-      "controle": "BCYbLJqF"
+      "exact": true
     },
     "86": {
       "aantal": 1746,
-      "exact": true,
-      "controle": "vKKa8hFe"
+      "exact": true
     },
     "87": {
       "aantal": 648,
-      "exact": true,
-      "controle": "bL8unkAe"
+      "exact": true
     },
     "88": {
       "aantal": 324,
-      "exact": true,
-      "controle": "Je4+EhLx"
+      "exact": true
     },
     "89": {
       "aantal": 3501,
-      "exact": true,
-      "controle": "5K0ajN9u"
+      "exact": true
     },
     "90": {
       "aantal": 6816,
-      "exact": true,
-      "controle": "rDdS/9gG"
+      "exact": true
     },
     "91": {
       "aantal": 17743,
-      "exact": false,
-      "controle": "1rrxXvMt"
+      "exact": false
     },
     "92": {
       "aantal": 52113,
-      "exact": false,
-      "controle": "wV+hXBsK"
+      "exact": false
     },
     "93": {
       "aantal": 10692,
-      "exact": true,
-      "controle": "JFYbGDW3"
+      "exact": true
     },
     "94": {
       "aantal": 10692,
-      "exact": true,
-      "controle": "CqSflYis"
+      "exact": true
     },
     "95": {
       "aantal": 7524,
-      "exact": true,
-      "controle": "Wx6i3m3o"
+      "exact": true
     },
     "96": {
       "aantal": 69138,
-      "exact": true,
-      "controle": "PlR0s+/r"
+      "exact": true
     },
     "97": {
       "aantal": 24291,
-      "exact": false,
-      "controle": "yfryHGfG"
+      "exact": false
     },
     "98": {
       "aantal": 51408,
-      "exact": true,
-      "controle": "CREKgv0+"
+      "exact": true
     },
     "99": {
       "aantal": 10176,
-      "exact": true,
-      "controle": "UP9WTQxm"
+      "exact": true
     },
     "100": {
       "aantal": 405354,
-      "exact": false,
-      "controle": "7USG2+sa"
+      "exact": false
     },
     "101": {
       "aantal": 4128,
-      "exact": true,
-      "controle": "HlUHjVJD"
+      "exact": true
     },
     "102": {
       "aantal": 38091,
-      "exact": true,
-      "controle": "xbwuGx3g"
+      "exact": true
     },
     "103": {
       "aantal": 360,
-      "exact": true,
-      "controle": "BzuNnuL0"
+      "exact": true
     },
     "104": {
       "aantal": 738,
-      "exact": true,
-      "controle": "x8qkQFNQ"
+      "exact": true
     },
     "105": {
       "aantal": 23529,
-      "exact": false,
-      "controle": "0a4DVe3f"
+      "exact": false
     },
     "106": {
       "aantal": 572105,
-      "exact": false,
-      "controle": "kWbWxq6g"
+      "exact": false
     },
     "107": {
       "aantal": 253,
-      "exact": true,
-      "controle": "gwXH97ic"
+      "exact": true
     },
     "108": {
       "aantal": 8251,
-      "exact": false,
-      "controle": "GLq7hSm4"
+      "exact": false
     },
     "109": {
       "aantal": 119230,
-      "exact": false,
-      "controle": "X5gsi2RO"
+      "exact": false
     },
     "110": {
       "aantal": 163402,
-      "exact": false,
-      "controle": "pX858ZlG"
+      "exact": false
     },
     "111": {
       "aantal": 63466,
-      "exact": false,
-      "controle": "umwtw7R+"
+      "exact": false
     },
     "112": {
       "aantal": 4787,
-      "exact": false,
-      "controle": "uStStV1s"
+      "exact": false
     },
     "113": {
       "aantal": 18099,
-      "exact": false,
-      "controle": "7UN8q17e"
+      "exact": false
     },
     "114": {
       "aantal": 2531,
-      "exact": false,
-      "controle": "6neuH52T"
+      "exact": false
     },
     "115": {
       "aantal": 2.2610422528479068e21,
-      "exact": false,
-      "controle": "UoqW021N"
+      "exact": false
     },
     "116": {
       "aantal": 8.54146725418501e24,
-      "exact": false,
-      "controle": "NzLAZlJM"
+      "exact": false
     },
     "117": {
       "aantal": 247677399,
-      "exact": false,
-      "controle": "m8A/EDY6"
+      "exact": false
     },
     "118": {
       "aantal": 7535066,
-      "exact": false,
-      "controle": "3uLY6k3n"
+      "exact": false
     },
     "119": {
       "aantal": 24,
-      "exact": false,
-      "controle": "Q3JSMDZy"
+      "exact": false
     },
     "120": {
       "aantal": 216529,
-      "exact": false,
-      "controle": "c4iFueIh"
+      "exact": false
     },
     "121": {
       "aantal": 948146,
-      "exact": false,
-      "controle": "xhQnW6K7"
+      "exact": false
     },
     "122": {
       "aantal": 33126211,
-      "exact": false,
-      "controle": "AoUKKi+R"
+      "exact": false
     },
     "123": {
       "aantal": 14529923183575910000,
-      "exact": false,
-      "controle": "2POFGmu3"
+      "exact": false
     },
     "124": {
       "aantal": 1142854286,
-      "exact": false,
-      "controle": "U9HVXgmi"
+      "exact": false
     },
     "125": {
       "aantal": 1777773333,
-      "exact": false,
-      "controle": "tyYAkxdx"
+      "exact": false
     },
     "126": {
       "aantal": 559439161,
-      "exact": false,
-      "controle": "/Z9u7zx1"
+      "exact": false
     }
   }
 }

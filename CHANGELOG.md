@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.18.0
+
+### Nieuw
+
+- De pagina **Zo maken we de vragen**. Daar lees je hoe de site vragen maakt en nakijkt, met een voorbeeld, en hoeveel verschillende vragen elke soort vraag kan maken. Je vindt de pagina via **Over**.
+
 ## 1.17.1
 
 ### Hersteld
