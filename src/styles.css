@@ -1193,6 +1193,11 @@ sub {
   display: grid;
   gap: 10px;
 }
+/* De drie getallen vallen op met de zachte blauwe kleur, die er in de donkere modus al een heeft. */
+.vstats .tile {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+}
 .vtile-main .tile-value {
   font-size: 2.4rem;
 }
@@ -1237,9 +1242,10 @@ sub {
 .vdomein .ctopic:last-child {
   border-bottom: 0;
 }
-@media (min-width: 640px) {
+/* De drie getallen staan naast elkaar als er genoeg ruimte is, elk zo breed als het getal vraagt. */
+@media (min-width: 820px) {
   .vstats {
-    grid-template-columns: 1.6fr 1fr 1fr;
+    grid-template-columns: auto auto auto;
   }
 }
 @media (min-width: 820px) {
