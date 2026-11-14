@@ -957,6 +957,12 @@ test(
       ]);
       assert.equal(full[0], full[1], 'proeftoets met alles goed');
       await checkOverflow('resultaat proeftoets');
+      // Bij elke vraag in het resultaat staat de knop om een probleem te melden.
+      assert.equal(await p.$$eval('.resq [data-act="meld"]', (e) => e.length), 10);
+      await p.click('.resq:nth-child(2) [data-act="meld"]');
+      await p.waitForSelector('.melden');
+      assert.equal(await p.$$eval('.melden', (e) => e.length), 1);
+      await p.keyboard.press('Escape');
 
       // Lege proeftoets: eerst een waarschuwing, daarna nul punten.
       await p.evaluate(() => wiskundefit.go({ name: 'stof' }));
@@ -1669,8 +1675,21 @@ test('een probleem melden opent een paneel met links naar GitHub en e-mail', asy
           'Tab blijft in het paneel',
         );
       }
+      for (let i = 0; i < 12; i++) {
+        await p.keyboard.press('Shift+Tab');
+        assert.ok(
+          await p.evaluate(() => !!document.activeElement.closest('.melden')),
+          'Shift+Tab blijft in het paneel',
+        );
+      }
       await p.click('.melden-sluit');
       assert.equal(await p.$('.melden'), null);
+      // Wat je typte blijft bewaard als je het paneel weer opent bij dezelfde vraag.
+      await p.click('[data-act="meld"]');
+      await p.waitForSelector('.melden');
+      assert.equal(await p.inputValue('#meldtekst'), 'Ik kom op 3x uit.');
+      assert.equal(await p.$$eval('input[name="meldwat"]:checked', (e) => e.length), 1);
+      await p.keyboard.press('Escape');
       await p.close();
     }
     assert.deepEqual(errors, [], 'fouten in de browserconsole');

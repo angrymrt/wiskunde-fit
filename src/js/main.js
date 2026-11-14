@@ -269,7 +269,7 @@ app.addEventListener('input', showDrawn);
 // Het paneel om een probleem te melden: wat de leerling kiest of typt staat in state.melden, en de
 // links naar GitHub en e-mail volgen dat. Zie ui/melden.js.
 app.addEventListener('input', (e) => {
-  if (!state.melden) return;
+  if (!state.melden?.open) return;
   if (e.target.name === 'meldwat') state.melden.wat = e.target.value;
   else if (e.target.id === 'meldtekst') state.melden.tekst = e.target.value;
   else return;
@@ -283,11 +283,11 @@ app.addEventListener('input', (e) => {
   if (m && gh) {
     gh.href = githubLink(m);
     voet.querySelector('#meldmail').href = mailLink(m);
-  } else voet.innerHTML = meldVoetHTML(m);
+  } else if (!!m !== !!gh) voet.innerHTML = meldVoetHTML(m);
 });
 // De focus blijft in het paneel zolang het open staat, en Escape sluit het.
 document.addEventListener('keydown', (e) => {
-  const panel = state.melden && app.querySelector('.melden');
+  const panel = state.melden?.open && app.querySelector('.melden');
   if (!panel) return;
   if (e.key === 'Escape') {
     e.preventDefault();
@@ -312,8 +312,10 @@ document.addEventListener('keydown', (e) => {
   }
 });
 function closeMelden() {
+  // Wat de leerling koos of typte blijft bewaard tot een ander scherm, voor als de kier per ongeluk
+  // werd aangeraakt.
   const path = state.melden?.path;
-  state.melden = null;
+  if (state.melden) state.melden.open = false;
   keepTyped();
   render(path === undefined ? undefined : `[data-act="meld"][data-id="${CSS.escape(path)}"]`);
 }
@@ -378,12 +380,17 @@ app.addEventListener('click', (e) => {
   if (a === 'meld') {
     keepTyped();
     const soort = Number(new URL(id, location.href).searchParams.get('soort'));
-    state.melden = {
-      path: id,
-      soort: topicOf(soort).skills.find((k) => k.id === soort),
-      wat: '',
-      tekst: '',
-    };
+    // Bij dezelfde vraag gaat het concept verder waar het ophield.
+    if (state.melden?.path === id) state.melden.open = true;
+    else {
+      state.melden = {
+        path: id,
+        open: true,
+        soort: topicOf(soort).skills.find((k) => k.id === soort),
+        wat: '',
+        tekst: '',
+      };
+    }
     render('#meldkop');
     return;
   }

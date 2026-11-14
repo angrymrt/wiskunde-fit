@@ -48,7 +48,7 @@ function mailLink(m) {
     '',
     `Toelichting: ${m.toelichting || '(geen)'}`,
   ];
-  return `mailto:${MAIL}?subject=${q(m.titel)}&body=${q(regels.join('\n'))}`;
+  return `mailto:${MAIL}?subject=${q(m.titel)}&body=${q(regels.join('\r\n'))}`;
 }
 
 export { WAT, MAX_TEKST, melding, githubLink, mailLink };

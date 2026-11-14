@@ -113,7 +113,7 @@ function meldHTML(skill, q) {
     seed: q.seed,
   });
   const button = `<button class="btn quiet share" type="button" data-act="meld" data-id="${esc(path)}" aria-haspopup="dialog">${FLAG_ICON}Meld een probleem</button>`;
-  const open = state.melden?.path === path ? state.melden : null;
+  const open = state.melden?.open && state.melden.path === path ? state.melden : null;
   if (!open) return { button, panel: '' };
   const m = melding({ soort: skill, path, wat: open.wat, tekst: open.tekst });
   const radios = WAT.map(
