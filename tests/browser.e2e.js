@@ -1964,6 +1964,8 @@ test(
 
       // Een onderwerp uit de uitslag oefenen, en terug: de uitslag staat er nog.
       await p.click('.res-topics a');
+      // Het onderwerp laadt pas als het nodig is, en op een trage computer duurt dat even.
+      await p.waitForSelector('#pform');
       assert.ok(await p.$('#pform'));
       await p.goBack();
       assert.match(await p.textContent('.score'), /40\/40/);
