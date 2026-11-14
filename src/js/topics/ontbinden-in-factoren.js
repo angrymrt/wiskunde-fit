@@ -1,5 +1,5 @@
 // Onderwerp: Ontbinden in factoren. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { nz, pick, coin, gcd, near } from '../math.js';
+import { nz, pick, coin, gcd, near, until } from '../math.js';
 import { F, H, MC, quad, factors, setTrap } from './shared.js';
 import { T, dt } from '../typeset.js';
 
@@ -9,12 +9,10 @@ const letter = () => (coin() || coin() ? 'x' : pick(['a', 'p', 't']));
 // Twee verschillende getallen p en q, niet 0 en niet tegengesteld, zodat x² + bx + c met b = p + q
 // en c = pq echt drie termen heeft: (x + p)(x + q).
 function pair(max = 48) {
-  let p, q;
-  do {
-    p = nz(-10, 10);
-    q = nz(-10, 10);
-  } while (p === q || p === -q || Math.abs(p * q) > max);
-  return [p, q];
+  return until(
+    () => [nz(-10, 10), nz(-10, 10)],
+    ([p, q]) => !(p === q || p === -q || Math.abs(p * q) > max),
+  );
 }
 // Zoekt de twee gehele getallen met product c en som b door alles te proberen. Voor de controle v:
 // zo volgt het antwoord uit de vraag en niet uit hoe de vraag is gemaakt.
@@ -117,10 +115,10 @@ function s33common() {
   const v = letter(),
     // Meestal x² + bx, soms ax² + bx met a en b zonder gemeenschappelijke factor.
     a = coin() ? 1 : pick([2, 3, 4, 5, 6]);
-  let b;
-  do {
-    b = coin() && a > 1 ? pick([-1, 1]) : nz(-12, 12);
-  } while (gcd(a, b) !== 1 && a > 1);
+  const b = until(
+    () => (coin() && a > 1 ? pick([-1, 1]) : nz(-12, 12)),
+    (b) => !(gcd(a, b) !== 1 && a > 1),
+  );
   const poly = quad([a, b, 0], undefined, v),
     fields =
       a === 1
@@ -170,9 +168,10 @@ function s33common() {
 }
 
 function s33pair() {
-  let p, q;
-  do [p, q] = pair();
-  while (!pairOk(p, q));
+  const [p, q] = until(
+    () => pair(),
+    ([p, q]) => pairOk(p, q),
+  );
   const v = letter(),
     b = p + q,
     c = p * q;
@@ -195,17 +194,19 @@ function s33pair() {
 }
 
 function s33pick() {
-  let p, q, other;
-  do {
-    [p, q] = pair();
-    // Een ander paar met hetzelfde product, voor een keuze waarbij alleen de som niet klopt.
-    const c = p * q,
-      list = [];
-    for (let k = 1; k <= Math.abs(c); k++)
-      if (c % k === 0 && k !== Math.abs(p) && k !== Math.abs(q) && k * k !== Math.abs(c))
-        list.push([Math.sign(p) * k, c / (Math.sign(p) * k)]);
-    other = list.length && coin() ? pick(list) : null;
-  } while (!pairOk(p, q));
+  const [p, q, other] = until(
+    () => {
+      const [p, q] = pair();
+      // Een ander paar met hetzelfde product, voor een keuze waarbij alleen de som niet klopt.
+      const c = p * q,
+        list = [];
+      for (let k = 1; k <= Math.abs(c); k++)
+        if (c % k === 0 && k !== Math.abs(p) && k !== Math.abs(q) && k * k !== Math.abs(c))
+          list.push([Math.sign(p) * k, c / (Math.sign(p) * k)]);
+      return [p, q, list.length && coin() ? pick(list) : null];
+    },
+    ([p, q]) => pairOk(p, q),
+  );
   const v = letter(),
     b = p + q,
     c = p * q,
@@ -262,9 +263,10 @@ function s33pick() {
 }
 
 function s33factor() {
-  let p, q;
-  do [p, q] = pair(60);
-  while (!pairOk(p, q));
+  const [p, q] = until(
+    () => pair(60),
+    ([p, q]) => pairOk(p, q),
+  );
   const v = letter(),
     b = p + q,
     c = p * q;
