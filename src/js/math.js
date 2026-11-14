@@ -30,8 +30,7 @@ function parseSeed(text) {
 
 // Elke keuze van een generator gaat via choose(n): een geheel getal van 0 tot en met n - 1. ri, pick,
 // coin en shuffle zijn er gewoon mee gemaakt. Zo kan alleKeuzes elke keuze een voor een doorlopen
-// en tellen hoeveel verschillende vragen een generator kan maken, zonder dat een seed iets anders
-// geeft. Zie #22.
+// en tellen hoeveel keuzes een generator kan maken, zonder dat een seed iets anders geeft. Zie #22.
 let choose = (n) => Math.floor(random() * n);
 
 // Een keuze die niet mooi uitkomt, kies je opnieuw met until(maak, klopt): maak geeft een
@@ -63,13 +62,17 @@ function withChoices(kies, make) {
 }
 
 // Loopt alle keuzes van make een voor een door en roept op voor elke uitkomst. Geeft het aantal
-// paden terug, of null als er meer dan maxPaden zijn: dan is het te veel om na te lopen. Een pad
-// met meer dan maxKeuzes keuzes is een generator die steeds opnieuw begint, en telt niet mee.
+// paden terug dat een vraag geeft, of null als er meer dan maxPaden zijn bezocht, ook de afgekeurde:
+// dan is het te veel om na te lopen. Twee paden kunnen dezelfde vraag geven, bijvoorbeeld bij pick
+// uit een lijst met dubbele waarden, dus dit is een bovengrens voor het aantal verschillende
+// vragen. Een pad met meer dan maxKeuzes keuzes is een generator die steeds opnieuw begint, en telt
+// niet mee.
 // Het eerste pad kiest overal 0. Daarna gaat de laatste keuze die nog kan een omhoog, en begint
 // alles daarna weer bij 0.
 function alleKeuzes(make, op, { maxPaden = 1e6, maxKeuzes = 200 } = {}) {
   const pad = [];
   let paden = 0;
+  let bezocht = 0;
   for (;;) {
     let i = 0;
     const kies = (n) => {
@@ -77,13 +80,14 @@ function alleKeuzes(make, op, { maxPaden = 1e6, maxKeuzes = 200 } = {}) {
       if (i === pad.length) pad.push({ k: 0, n });
       return pad[i++].k;
     };
+    bezocht++;
     try {
       op(withChoices(kies, make));
       paden++;
     } catch (e) {
       if (!(e instanceof Afgekeurd)) throw e;
     }
-    if (paden > maxPaden) return null;
+    if (bezocht > maxPaden) return null;
     pad.length = i;
     while (pad.length && pad[pad.length - 1].k + 1 >= pad[pad.length - 1].n) pad.pop();
     if (!pad.length) return paden;

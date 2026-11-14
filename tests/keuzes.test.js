@@ -49,7 +49,9 @@ test('een generator die steeds opnieuw begint, telt niet mee en blijft niet hang
     const x = ri(1, 3);
     return x === 3 ? kies() : x;
   };
-  const { uitkomsten } = alle(kies, { maxKeuzes: 20 });
+  const { paden, uitkomsten } = alle(kies, { maxKeuzes: 20 });
+  // Op elke diepte tot maxKeuzes zijn er twee uitkomsten, en daarna wordt het pad afgekeurd.
+  assert.equal(paden, 40);
   assert.deepEqual([...new Set(uitkomsten)].sort(), [1, 2]);
 });
 
@@ -81,4 +83,98 @@ test('until geeft zonder tellen hetzelfde toeval als een gewone lus', () => {
     );
     assert.equal(metUntil, lus);
   }
+});
+
+test('until laat de toevalsgenerator in dezelfde stand achter als een gewone lus', () => {
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const lus = withSeed(seed, () => {
+      let x;
+      do {
+        x = ri(1, 6);
+      } while (x % 3 !== 0);
+      return ri(1, 1000);
+    });
+    const metUntil = withSeed(seed, () => {
+      until(
+        () => ri(1, 6),
+        (x) => x % 3 === 0,
+      );
+      return ri(1, 1000);
+    });
+    assert.equal(metUntil, lus);
+  }
+});
+
+test('maxPaden: precies zoveel paden geeft het aantal, één minder geeft null', () => {
+  const make = () => ri(1, 10);
+  assert.equal(
+    alleKeuzes(make, () => {}, { maxPaden: 10 }),
+    10,
+  );
+  assert.equal(
+    alleKeuzes(make, () => {}, { maxPaden: 9 }),
+    null,
+  );
+});
+
+test('maxPaden telt ook de paden die until afkeurt', () => {
+  const nooit = () =>
+    until(
+      () => ri(1, 100),
+      () => false,
+    );
+  assert.equal(
+    alleKeuzes(nooit, () => {}, { maxPaden: 50 }),
+    null,
+  );
+});
+
+test('een keuze uit één of nul mogelijkheden geeft één pad', () => {
+  assert.deepEqual(
+    alle(() => ri(5, 5)),
+    { paden: 1, uitkomsten: [5] },
+  );
+  assert.equal(
+    alleKeuzes(
+      () => pick([]),
+      () => {},
+    ),
+    1,
+  );
+});
+
+test('alleKeuzes in alleKeuzes telt elk apart', () => {
+  const buiten = alle(() => {
+    const binnen = alleKeuzes(
+      () => ri(1, 3),
+      () => {},
+    );
+    return binnen + ri(1, 2);
+  });
+  assert.equal(buiten.paden, 2);
+  assert.deepEqual(buiten.uitkomsten, [4, 5]);
+});
+
+test('na een fout in make is het toeval weer gewoon', () => {
+  assert.throws(
+    () =>
+      alleKeuzes(
+        () => {
+          ri(1, 3);
+          throw new Error('kapot');
+        },
+        () => {},
+      ),
+    /kapot/,
+  );
+  // Zonder tellen kiest until weer opnieuw in plaats van een pad af te keuren.
+  assert.equal(
+    withSeed(1, () =>
+      until(
+        () => ri(1, 6),
+        (x) => x === 6,
+      ),
+    ),
+    6,
+  );
 });
