@@ -481,8 +481,8 @@
       "controle": "PlR0s+/r"
     },
     "97": {
-      "aantal": 39846,
-      "exact": true,
+      "aantal": 24291,
+      "exact": false,
       "controle": "yfryHGfG"
     },
     "98": {
@@ -536,8 +536,8 @@
       "controle": "gwXH97ic"
     },
     "108": {
-      "aantal": 90196,
-      "exact": true,
+      "aantal": 8251,
+      "exact": false,
       "controle": "GLq7hSm4"
     },
     "109": {
@@ -571,12 +571,12 @@
       "controle": "6neuH52T"
     },
     "115": {
-      "aantal": 2.2610422528479068e21,
+      "aantal": 2.2610422528479068e+21,
       "exact": false,
       "controle": "UoqW021N"
     },
     "116": {
-      "aantal": 8.54146725418501e24,
+      "aantal": 8.54146725418501e+24,
       "exact": false,
       "controle": "NzLAZlJM"
     },
