@@ -88,7 +88,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const start = Date.now();
   const uit = telAlles();
   const bestand = new URL('../data/vragen-tellen.json', import.meta.url);
-  await writeFile(bestand, `${JSON.stringify(uit, null, 2)}\n`);
+  // Zonder plusteken bij een grote exponent, zoals Prettier het schrijft.
+  await writeFile(bestand, `${JSON.stringify(uit, null, 2).replace(/e\+/g, 'e')}\n`);
   const n = Object.values(uit.soorten);
   console.log(
     `${n.length} soorten: ${n.filter((s) => s.exact).length} exact, ${n.filter((s) => !s.exact).length} geschat, ${Math.round((Date.now() - start) / 1000)} s`,
