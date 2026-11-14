@@ -1,5 +1,5 @@
 // Onderwerp: Vergelijkingen met twee variabelen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, coin, gcd, Q, qv, near, fr, lin, d, dlin } from '../math.js';
+import { ri, nz, pick, coin, until, gcd, Q, qv, near, fr, lin, d, dlin } from '../math.js';
 import { F, MC, drawLine, inGrid, lineTable, euro } from './shared.js';
 import { T } from '../typeset.js';
 
@@ -110,51 +110,53 @@ function s16ax() {
   };
 }
 function s16draw() {
-  for (let i = 0; i < 200; i++) {
-    const A = pick([1, 2, 3, 4, 5]),
-      B = pick([-4, -3, -2, -1, 1, 2, 3, 4]);
-    if (gcd(A, Math.abs(B)) > 1) continue;
-    const C = A * ri(-5, 5) + B * ri(-6, 6),
-      pts = [];
-    for (let x = -5; x <= 5; x++) {
-      const y = (C - A * x) / B + 0;
-      if (Number.isInteger(y) && inGrid(x, y)) pts.push([x, y]);
-    }
-    if (pts.length < 2) continue;
-    // Het liefst x = 0 en y = 0, want dan rekent het het makkelijkst.
-    const onY = pts.find((p) => p[0] === 0),
-      onX = pts.find((p) => p[1] === 0),
-      p = onY || pts[0],
-      q = onX && onX !== p ? onX : pts[pts.length - 1] !== p ? pts[pts.length - 1] : pts[0],
-      line = (x, y) => {
-        if (x === 0)
-          return B === 1
-            ? `x = 0 geeft y = ${y}.`
-            : `x = 0 geeft ${lin(B, 0, 'y')} = ${C}, dus y = ${y}.`;
-        if (y === 0)
-          return A === 1
-            ? `y = 0 geeft x = ${x}.`
-            : `y = 0 geeft ${lin(A, 0)} = ${C}, dus x = ${x}.`;
-        return `x = ${x} geeft ${A * x} ${B < 0 ? '-' : '+'} ${lin(Math.abs(B), 0, 'y')} = ${C}, dus y = ${y}.`;
-      };
-    return {
-      q: T(
-        `Teken de lijn l: ${lin2(A, B)} = ${C}. Tik in het rooster twee punten van de lijn aan, of vul de coördinaten in.`,
-      ),
-      ...drawLine(-A / B, C / B, p, q),
-      hint: 'Maak een tabel met twee punten. Vaak is rekenen met x = 0 en y = 0 het makkelijkst. Komt er geen geheel getal uit of valt het punt buiten het rooster, kies dan een andere x.',
-      steps: [
-        ...(C === 0
-          ? ['x = 0 en y = 0 geven allebei het punt (0, 0). Je hebt dus nog een ander punt nodig.']
-          : []),
-        line(...p),
-        line(...q),
-        ...lineTable(p, q, { a: -A / B, b: C / B, name: 'l' }),
-      ],
-      v: () => [p, q].every(([x, y]) => A * x + B * y === C) && (p[0] !== q[0] || p[1] !== q[1]),
+  const { A, B, C, pts } = until(
+    () => {
+      const A = pick([1, 2, 3, 4, 5]),
+        B = pick([-4, -3, -2, -1, 1, 2, 3, 4]);
+      if (gcd(A, Math.abs(B)) > 1) return null;
+      const C = A * ri(-5, 5) + B * ri(-6, 6),
+        pts = [];
+      for (let x = -5; x <= 5; x++) {
+        const y = (C - A * x) / B + 0;
+        if (Number.isInteger(y) && inGrid(x, y)) pts.push([x, y]);
+      }
+      return { A, B, C, pts };
+    },
+    (r) => r !== null && r.pts.length >= 2,
+  );
+  // Het liefst x = 0 en y = 0, want dan rekent het het makkelijkst.
+  const onY = pts.find((p) => p[0] === 0),
+    onX = pts.find((p) => p[1] === 0),
+    p = onY || pts[0],
+    q = onX && onX !== p ? onX : pts[pts.length - 1] !== p ? pts[pts.length - 1] : pts[0],
+    line = (x, y) => {
+      if (x === 0)
+        return B === 1
+          ? `x = 0 geeft y = ${y}.`
+          : `x = 0 geeft ${lin(B, 0, 'y')} = ${C}, dus y = ${y}.`;
+      if (y === 0)
+        return A === 1
+          ? `y = 0 geeft x = ${x}.`
+          : `y = 0 geeft ${lin(A, 0)} = ${C}, dus x = ${x}.`;
+      return `x = ${x} geeft ${A * x} ${B < 0 ? '-' : '+'} ${lin(Math.abs(B), 0, 'y')} = ${C}, dus y = ${y}.`;
     };
-  }
-  return s16pair();
+  return {
+    q: T(
+      `Teken de lijn l: ${lin2(A, B)} = ${C}. Tik in het rooster twee punten van de lijn aan, of vul de coördinaten in.`,
+    ),
+    ...drawLine(-A / B, C / B, p, q),
+    hint: 'Maak een tabel met twee punten. Vaak is rekenen met x = 0 en y = 0 het makkelijkst. Komt er geen geheel getal uit of valt het punt buiten het rooster, kies dan een andere x.',
+    steps: [
+      ...(C === 0
+        ? ['x = 0 en y = 0 geven allebei het punt (0, 0). Je hebt dus nog een ander punt nodig.']
+        : []),
+      line(...p),
+      line(...q),
+      ...lineTable(p, q, { a: -A / B, b: C / B, name: 'l' }),
+    ],
+    v: () => [p, q].every(([x, y]) => A * x + B * y === C) && (p[0] !== q[0] || p[1] !== q[1]),
+  };
 }
 // Elk verhaal levert de getallen van px + qy = r. Bij punten kan q negatief zijn.
 const STORIES = [
