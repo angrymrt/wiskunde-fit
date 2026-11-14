@@ -6,7 +6,7 @@ import { TOPICS, TOPIC, laadOnderwerpen } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { STORE, load, opslag, prog, rec, resetProgress, update } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
-import { ALL_IDS, setStof, stofTopic, toggleStof } from './stof.js';
+import { ALL_IDS, setStof, stofTopic, toggleStof, topicOf } from './stof.js';
 import {
   TEST_KEY,
   RESULT_KEY,
@@ -24,7 +24,8 @@ import {
 import { newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
 import { nogTeLaden } from './ui/laden.js';
-import { readVals, unreadable, empty } from './ui/question-form.js';
+import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
+import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
 import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';
 import { runClock, sent, telPoging, telToets, telValkuil } from './ui/tellen.js';
@@ -76,6 +77,7 @@ function show(v, focus) {
   state.confirmReset = false;
   state.stopped = false;
   state.shared = null;
+  state.melden = null;
   followSoort = !!v.oefen;
   return render(focus);
 }
@@ -204,6 +206,8 @@ function paint(focus) {
   prebuilt = false;
   melding.textContent = state.laden === 'bezig' ? 'Even laden…' : '';
   opslag.gemeld = opslag.voortgang || opslag.toets;
+  // Zolang het paneel open staat, scrolt de pagina eronder niet mee.
+  document.documentElement.classList.toggle('melden-open', !!app.querySelector('.melden'));
   document.documentElement.classList.toggle('met-stof-bar', !!app.querySelector('.stof-bar'));
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
@@ -262,6 +266,57 @@ function watchPracticeBar() {
   barWatch.observe(button);
 }
 app.addEventListener('input', showDrawn);
+// Het paneel om een probleem te melden: wat de leerling kiest of typt staat in state.melden, en de
+// links naar GitHub en e-mail volgen dat. Zie ui/melden.js.
+app.addEventListener('input', (e) => {
+  if (!state.melden) return;
+  if (e.target.name === 'meldwat') state.melden.wat = e.target.value;
+  else if (e.target.id === 'meldtekst') state.melden.tekst = e.target.value;
+  else return;
+  // Zonder render(): die zou het paneel opnieuw laten inschuiven en de cursor in het tekstvak
+  // naar het begin zetten. Alleen de teller en onderaan de links veranderen.
+  const { soort, path, wat, tekst } = state.melden;
+  app.querySelector('#meldn').textContent = tekst.length;
+  const m = maakMelding({ soort, path, wat, tekst });
+  const voet = app.querySelector('.melden-voet');
+  const gh = voet.querySelector('#meldgh');
+  if (m && gh) {
+    gh.href = githubLink(m);
+    voet.querySelector('#meldmail').href = mailLink(m);
+  } else voet.innerHTML = meldVoetHTML(m);
+});
+// De focus blijft in het paneel zolang het open staat, en Escape sluit het.
+document.addEventListener('keydown', (e) => {
+  const panel = state.melden && app.querySelector('.melden');
+  if (!panel) return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeMelden();
+    return;
+  }
+  if (e.key !== 'Tab') return;
+  const items = [
+    ...panel.querySelectorAll('button:not([disabled]), a[href], input, textarea, summary'),
+  ];
+  const first = items[0],
+    last = items[items.length - 1];
+  if (!panel.contains(document.activeElement)) {
+    first.focus();
+    e.preventDefault();
+  } else if (e.shiftKey && document.activeElement === first) {
+    last.focus();
+    e.preventDefault();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    first.focus();
+    e.preventDefault();
+  }
+});
+function closeMelden() {
+  const path = state.melden?.path;
+  state.melden = null;
+  keepTyped();
+  render(path === undefined ? undefined : `[data-act="meld"][data-id="${CSS.escape(path)}"]`);
+}
 app.addEventListener('click', (e) => {
   const grid = e.target.closest('svg[data-draw]');
   if (grid) return tapGrid(grid, e);
@@ -318,6 +373,22 @@ app.addEventListener('click', (e) => {
     // Een ander filter is geen nieuw scherm, dus de terugknop slaat dat over.
     history.replaceState(history.state, '', pathFor(state.view));
     render(a === 'boekfilterclear' ? '.found-count [role="status"]' : undefined);
+    return;
+  }
+  if (a === 'meld') {
+    keepTyped();
+    const soort = Number(new URL(id, location.href).searchParams.get('soort'));
+    state.melden = {
+      path: id,
+      soort: topicOf(soort).skills.find((k) => k.id === soort),
+      wat: '',
+      tekst: '',
+    };
+    render('#meldkop');
+    return;
+  }
+  if (a === 'meldsluit') {
+    closeMelden();
     return;
   }
   if (a === 'share') {

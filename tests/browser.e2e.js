@@ -1592,6 +1592,93 @@ test('soort in het adres kiest de vraagsoort', async () => {
   }
 });
 
+test('een probleem melden opent een paneel met links naar GitHub en e-mail', async () => {
+  const browser = await launch();
+  try {
+    const errors = [];
+    const { slug, skills } = TOPICS[0];
+    const link = `/${slug}/oefenen?soort=${skills[0].id}&seed=k3x9q`;
+    for (const [naam, viewport] of [
+      ['telefoon', { width: 390, height: 800 }],
+      ['computer', { width: 1200, height: 800 }],
+    ]) {
+      const p = await browser.newPage({ viewport });
+      p.on('pageerror', (e) => errors.push(e.message));
+      await p.goto(at(link));
+      const typed = await p.$('input#pf0');
+      if (typed) await typed.fill('12');
+      await p.screenshot({ path: `${shotDir}melden-${naam}-knop.png` });
+      await p.click('[data-act="meld"]');
+      await p.waitForSelector('.melden');
+      // Het paneel schuift in. Meet pas als dat klaar is.
+      const klaar = () =>
+        p.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+      await klaar();
+      assert.equal(await p.evaluate(() => document.activeElement.id), 'meldkop');
+      // Er is niets voorgekozen, en de knoppen wachten tot je kiest.
+      assert.equal(await p.$$eval('input[name="meldwat"]:checked', (e) => e.length), 0);
+      assert.equal(await p.$$eval('.melden-voet button:disabled', (e) => e.length), 2);
+      await p.screenshot({ path: `${shotDir}melden-${naam}-leeg.png` });
+      await p.click('.melden-wat label:nth-of-type(2)');
+      await p.click('#meldtekst');
+      await p.keyboard.type('Ik kom op 3x uit.');
+      // Typen en kiezen laat het paneel niet opnieuw inschuiven en de cursor blijft achteraan.
+      assert.equal(await p.evaluate(() => document.getAnimations().length), 0);
+      assert.equal(await p.evaluate(() => document.getElementById('meldtekst').selectionStart), 17);
+      const gh = new URL(await p.getAttribute('#meldgh', 'href'));
+      assert.equal(gh.searchParams.get('template'), 'vraagmelding.yml');
+      assert.equal(gh.searchParams.get('toelichting'), 'Ik kom op 3x uit.');
+      assert.equal(
+        gh.searchParams.get('vraag'),
+        at(link).replace(/^http:\/\/[^/]+/, 'https://wiskundefit.nl'),
+      );
+      assert.match(await p.getAttribute('#meldmail', 'href'), /^mailto:contact@wiskundefit\.nl\?/);
+      // Het typen ging door de render heen: de focus en de tekst staan er nog.
+      assert.equal(await p.evaluate(() => document.activeElement.id), 'meldtekst');
+      assert.equal(await p.inputValue('#meldtekst'), 'Ik kom op 3x uit.');
+      assert.equal(
+        await p.evaluate(() => getComputedStyle(document.documentElement).overflow),
+        'hidden',
+      );
+      await p.screenshot({ path: `${shotDir}melden-${naam}.png` });
+      // De breedte van de kier links van het paneel.
+      const kier = await p.$eval('.melden', (e) => e.getBoundingClientRect().left);
+      if (naam === 'telefoon') assert.equal(Math.round(kier), 44, 'een smalle kier links');
+      else assert.equal(Math.round(kier), viewport.width - 520, 'op een computer 520px breed');
+      // Escape sluit het paneel en de focus gaat terug naar de knop. Wat je typte blijft staan.
+      await p.keyboard.press('Escape');
+      assert.equal(await p.$('.melden'), null);
+      assert.equal(await p.evaluate(() => document.activeElement.dataset.act), 'meld');
+      if (typed) assert.equal(await p.inputValue('input#pf0'), '12', 'wat je typte blijft staan');
+      // Een klik in de kier sluit het ook, en daarna kun je weer scrollen.
+      await p.click('[data-act="meld"]');
+      await p.waitForSelector('.melden');
+      await p.mouse.click(5, viewport.height / 2);
+      assert.equal(await p.$('.melden'), null);
+      assert.equal(
+        await p.evaluate(() => getComputedStyle(document.documentElement).overflow),
+        'visible',
+      );
+      // Ook de knop > sluit het paneel, en de Tab blijft binnen het paneel.
+      await p.click('[data-act="meld"]');
+      await p.waitForSelector('.melden');
+      for (let i = 0; i < 12; i++) {
+        await p.keyboard.press('Tab');
+        assert.ok(
+          await p.evaluate(() => !!document.activeElement.closest('.melden')),
+          'Tab blijft in het paneel',
+        );
+      }
+      await p.click('.melden-sluit');
+      assert.equal(await p.$('.melden'), null);
+      await p.close();
+    }
+    assert.deepEqual(errors, [], 'fouten in de browserconsole');
+  } finally {
+    await browser.close();
+  }
+});
+
 test('zonder stofkeuze gaat mijn stof oefenen naar het kiezen van stof', async () => {
   const browser = await launch();
   try {

@@ -6,7 +6,7 @@ import { topicOf } from '../stof.js';
 import { makeQuestion } from '../topics/index.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
-import { fieldsHTML, shareHTML } from './question-form.js';
+import { fieldsHTML, meldHTML, shareHTML } from './question-form.js';
 import { state } from './state.js';
 import { widgetHTML } from './widgets.js';
 
@@ -100,14 +100,15 @@ function vPractice(s, title) {
   const chips = s.mixed
     ? `<p class="small">Uitleg bij deze vraag: ${topicLink(topicOf(st.skill.id))}</p>`
     : `<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${s.skills.map((k) => `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`).join('')}</div>`;
-  const share = shareHTML(st.skill, q);
-  return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}</span></div>${share.note}</div>
+  const share = shareHTML(st.skill, q),
+    meld = meldHTML(st.skill, q);
+  return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}${meld.button}</span></div>${share.note}</div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !isDrawing(q) && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
   ${st.hint && !done ? `<div class="hintb"><b>Hint:</b> ${/<span/.test(q.hint) ? q.hint : T(q.hint)}</div>` : ''}
   <div class="row">${done ? `<button class="btn main" type="submit" id="nextq" ${st.msg ? 'aria-describedby="pfb"' : ''}>Volgende vraag</button>` : `<button class="btn main" type="submit">Controleer</button>${st.hint ? '' : `<button class="btn" type="button" data-act="hint">Hint</button>`}<button class="btn quiet" type="button" data-act="show">Toon uitwerking</button>`}${st.status === 'right' && !st.sol ? `<button class="btn quiet" type="button" data-act="showsol">Bekijk uitwerking</button>` : ''}</div></form>
-  ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div></div>`;
+  ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div>${meld.panel}</div>`;
 }
 // Kwam je via "Uitleg bij deze vraag" uit Mijn stof oefenen, dan kun je daar weer verder.
 function backToRound(s) {

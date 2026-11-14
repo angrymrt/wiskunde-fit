@@ -3,6 +3,7 @@ import { parseNum } from '../answers.js';
 import { pathFor } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T } from '../typeset.js';
+import { githubLink, mailLink, MAX_TEKST, melding, WAT } from './melden.js';
 import { app, state } from './state.js';
 
 function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
@@ -79,4 +80,61 @@ function shareHTML(skill, q) {
   };
 }
 
-export { fieldsHTML, readVals, unreadable, empty, shareHTML };
+// De knop om een probleem bij een vraag te melden, en het paneel dat daarvan van rechts opent. De
+// leerling kiest wat er aan de hand is en verstuurt het dan zelf, zie melden.js. Het paneel staat
+// los van de vraag, want een vraag die net verschijnt beweegt even en dan klopt een vaste plek
+// niet meer. Een vraag uit een oude proeftoets heeft geen seed, en daar valt dus niets te melden.
+const FLAG_ICON =
+  '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3.5 14V2.5h8l-1.6 3 1.6 3h-8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+// Onder in het paneel: wat er nog mist, en de twee manieren om te versturen. Zolang er niets gekozen
+// is, zijn het knoppen die niets doen. Daarna zijn het links met alles al ingevuld.
+function meldVoetHTML(m) {
+  const gh = m
+    ? `<a class="btn main" id="meldgh" href="${esc(githubLink(m))}" target="_blank" rel="noopener">Via GitHub</a>`
+    : '<button class="btn main" type="button" disabled>Via GitHub</button>';
+  const mail = m
+    ? `<a class="btn" id="meldmail" href="${esc(mailLink(m))}">Via e-mail</a>`
+    : '<button class="btn" type="button" disabled>Via e-mail</button>';
+  return `<p class="small melden-hulp" role="status">${m ? '' : 'Kies eerst wat er aan de hand is. Dan kun je het versturen.'}</p>
+      <p class="small melden-via"><b>Melden via:</b></p>
+      <div class="melden-kies">
+        <div class="melden-kanaal">${gh}<p class="small muted">Je hebt een GitHub-account nodig. Je gebruikersnaam staat openbaar bij de melding.</p></div>
+        <div class="melden-kanaal">${mail}<p class="small muted">Opent je mailprogramma. Alleen wij zien je mailadres.</p></div>
+      </div>`;
+}
+function meldHTML(skill, q) {
+  const topic = topicOf(skill.id);
+  if (q.seed === undefined || !topic) return { button: '', panel: '' };
+  const path = pathFor({
+    name: 'topic',
+    slug: topic.slug,
+    oefen: true,
+    soort: skill.id,
+    seed: q.seed,
+  });
+  const button = `<button class="btn quiet share" type="button" data-act="meld" data-id="${esc(path)}" aria-haspopup="dialog">${FLAG_ICON}Meld een probleem</button>`;
+  const open = state.melden?.path === path ? state.melden : null;
+  if (!open) return { button, panel: '' };
+  const m = melding({ soort: skill, path, wat: open.wat, tekst: open.tekst });
+  const radios = WAT.map(
+    ([id, tekst]) =>
+      `<label class="opt"><input type="radio" name="meldwat" id="meldwat-${id}" value="${id}" ${open.wat === id ? 'checked' : ''}><span>${esc(tekst)}</span></label>`,
+  ).join('');
+  const panel = `<div class="melden-back"><button class="melden-gap" type="button" data-act="meldsluit" tabindex="-1" aria-label="Paneel sluiten"></button>
+  <section class="melden" id="melden" role="dialog" aria-modal="true" aria-labelledby="meldkop">
+    <div class="melden-kop"><h2 class="h3" id="meldkop">Een probleem melden bij deze vraag</h2><button class="btn quiet melden-sluit" type="button" data-act="meldsluit" aria-label="Paneel sluiten">›</button></div>
+    <div class="melden-romp">
+      <p class="small muted">Zie je iets wat niet klopt, of snap je iets niet? Dan kijken wij ernaar.</p>
+      <fieldset class="melden-wat"><legend>Wat is er aan de hand? <span class="muted">(kies er één)</span></legend>${radios}</fieldset>
+      <p class="melden-label"><label for="meldtekst"><b>Wil je er iets bij schrijven?</b> <span class="muted">(niet verplicht)</span></label></p>
+      <textarea id="meldtekst" maxlength="${MAX_TEKST}" placeholder="Bijvoorbeeld: welk antwoord je verwachtte, of wat je niet snapt.">${esc(open.tekst)}</textarea>
+      <p class="small muted melden-count"><span id="meldn">${open.tekst.length}</span> van ${MAX_TEKST} tekens</p>
+      <p class="small"><b>Schrijf geen naam of andere gegevens van jezelf.</b> Wat je schrijft, kan openbaar worden.</p>
+      <details class="small"><summary>Wat gaat er mee?</summary><p>Alleen een link naar deze vraag (de soort vraag en het nummer van de variant), de versie van de site en wat je zelf hebt gekozen en geschreven. Je antwoorden, je voortgang en gegevens van je toestel gaan niet mee.</p></details>
+    </div>
+    <div class="melden-voet">${meldVoetHTML(m)}</div>
+  </section></div>`;
+  return { button, panel };
+}
+
+export { fieldsHTML, readVals, unreadable, empty, shareHTML, meldHTML, meldVoetHTML };

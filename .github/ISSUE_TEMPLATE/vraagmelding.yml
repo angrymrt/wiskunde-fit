@@ -1,0 +1,36 @@
+name: Probleem bij een vraag
+description: Een melding van een leerling over een vraag, vanuit de knop "Meld een probleem" op de site.
+title: 'Probleem bij vraag'
+labels: ['vraagmelding']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dit issue is openbaar, met je accountnaam erbij. Schrijf hieronder geen naam of andere gegevens van jezelf, en geen materiaal uit een boek.
+  - type: input
+    id: vraag
+    attributes:
+      label: Link naar de vraag
+      description: Die link opent precies deze vraag.
+  - type: input
+    id: soort
+    attributes:
+      label: Vraagsoort
+  - type: input
+    id: versie
+    attributes:
+      label: Versie van de site
+  - type: dropdown
+    id: wat
+    attributes:
+      label: Wat is er aan de hand?
+      options:
+        - Het antwoord dat de site goed vindt, klopt niet
+        - Mijn antwoord is goed, maar de site zegt fout
+        - De uitleg of hint klopt niet of is onduidelijk
+        - Iets anders
+  - type: textarea
+    id: toelichting
+    attributes:
+      label: Toelichting
+      description: Wat zie je, en wat had je verwacht? Niet verplicht.

@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.17.0
+
+### Nieuw
+
+- Bij elke vraag staat nu de knop **Meld een probleem**, ook bij de vragen in het resultaat van een proeftoets. Er schuift een paneel van rechts in. Daar kies je wat er aan de hand is en kun je er iets bij schrijven. Daarna verstuur je het zelf, via GitHub of via e-mail. Je antwoorden en je voortgang gaan niet mee. Bij GitHub heb je een account nodig en is je melding openbaar.
+
 ## 1.16.2
 
 ### Verbeterd

@@ -41,6 +41,7 @@
 :root {
   --paper: #f3f7fb;
   --sheet: #ffffff;
+  --scrim: rgba(10, 18, 35, 0.45);
   --ink: #13233f;
   --muted: #4f607f;
   --grid: #d9e7f2;
@@ -78,6 +79,7 @@
   :root:not([data-theme='light']) {
     --paper: #0d1626;
     --sheet: #16233a;
+    --scrim: rgba(0, 0, 0, 0.6);
     --ink: #e9eff9;
     --muted: #a6b5cf;
     --grid: #1c2a42;
@@ -111,6 +113,7 @@
 :root[data-theme='dark'] {
   --paper: #0d1626;
   --sheet: #16233a;
+  --scrim: rgba(0, 0, 0, 0.6);
   --ink: #e9eff9;
   --muted: #a6b5cf;
   --grid: #1c2a42;
@@ -1612,6 +1615,147 @@ ol.how {
   border-radius: 4px;
   background: var(--sheet);
   color: var(--ink);
+}
+
+/* Het paneel om een probleem te melden. Het komt van rechts, over de volle hoogte. Links blijft een
+   kier om op te klikken, om het paneel te sluiten. */
+html.melden-open,
+html.melden-open body {
+  overflow: hidden;
+}
+.melden-back {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--scrim);
+}
+.melden-gap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.melden {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(520px, calc(100vw - 44px));
+  display: flex;
+  flex-direction: column;
+  background: var(--sheet);
+  border-left: 1px solid var(--rule);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.3);
+}
+.melden-kop {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--rule);
+}
+.melden-kop h2 {
+  margin: 0;
+  flex: 1;
+}
+.melden-sluit {
+  flex: none;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.melden-romp {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 4px 16px 16px;
+}
+.melden-wat {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+.melden-wat legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-weight: 700;
+}
+.melden-label {
+  margin: 14px 0 4px;
+}
+.melden textarea {
+  width: 100%;
+  min-height: 84px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+}
+.melden-count {
+  margin: 4px 0 8px;
+  text-align: right;
+}
+.melden-voet {
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--rule);
+  background: var(--sheet);
+}
+/* De melding staat er altijd, ook leeg, zodat een schermlezer hem voorleest zodra er iets in komt. */
+.melden-hulp {
+  margin: 0;
+}
+.melden-hulp:not(:empty) {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.melden-via {
+  margin: 0 0 8px;
+}
+.melden-kies {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.melden-kanaal {
+  display: grid;
+  gap: 6px;
+}
+.melden-kanaal p {
+  margin: 0;
+}
+.melden-kanaal .btn {
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
+.melden-kanaal .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .melden {
+    animation: melden-in 0.24s ease-out;
+  }
+  @keyframes melden-in {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
 }
 /* Alleen voor een schermlezer. */
 .sr {
