@@ -5,10 +5,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import TELLEN from '../data/vragen-tellen.json' with { type: 'json' };
+import { coin, ri } from '../src/js/math.js';
 import { TOPICS } from '../src/js/topics/index.js';
-import { CONTROLES, controles, sleutel, tel } from '../scripts/vragen-tellen.js';
+import { STEMPELS, schat, stempels, sleutel, tel } from '../scripts/vragen-tellen.js';
 
-const OPGESLAGEN = JSON.parse(readFileSync(CONTROLES, 'utf8'));
+const OPGESLAGEN = JSON.parse(readFileSync(STEMPELS, 'utf8'));
 const skills = TOPICS.flatMap((t) => t.skills);
 
 test('elke soort vraag heeft een aantal, en een soort die stopte niet meer', () => {
@@ -22,7 +23,7 @@ test('elke soort vraag heeft een aantal, en een soort die stopte niet meer', () 
 });
 
 test('de aantallen kloppen nog met de generatoren (draai npm run vragen-tellen)', () => {
-  const nu = controles(skills);
+  const nu = stempels(skills);
   const oud = skills.filter((k) => OPGESLAGEN[k.id] !== nu[k.id]);
   assert.deepEqual(
     oud.map((k) => k.id),
@@ -49,4 +50,15 @@ test('twee antwoordvolgordes van meerkeuze zijn dezelfde vraag', () => {
   const c = { q: 'x', mc: { opts: ['1', '2', '3'], a: 1 } };
   assert.equal(sleutel(a), sleutel(b));
   assert.notEqual(sleutel(a), sleutel(c));
+});
+
+test('schat komt in de buurt bij een scheve verdeling', () => {
+  // Vier vragen komen samen de helft van de keren voor, en 5.000 andere zijn even waarschijnlijk.
+  // Uit het aantal gelijke paren alleen volgt dan ongeveer 16, maar het echte aantal is 5.004.
+  const gen = () => {
+    const x = coin() ? ri(0, 3) : ri(1000, 5999);
+    return { q: `vraag ${x}` };
+  };
+  const aantal = schat(gen, 60000);
+  assert.ok(aantal > 4000 && aantal < 7000, `geschat ${aantal}`);
 });

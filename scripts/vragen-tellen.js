@@ -1,4 +1,4 @@
-// Telt per soort vraag hoeveel verschillende vragen de generator kan maken, en schrijft dat naar
+// Telt per vraagsoort hoeveel verschillende vragen de generator kan maken, en schrijft dat naar
 // data/vragen-tellen.json voor de pagina Zo maken we de vragen (#22).
 //
 //   npm run vragen-tellen
@@ -13,13 +13,14 @@ import { alleKeuzes, schatKeuzes, withSeed } from '../src/js/math.js';
 import { fingerprints } from '../tests/vingerafdruk.js';
 import { TOPICS } from '../src/js/topics/index.js';
 
-// Boven dit aantal paden lopen we niet alles na, maar schatten we het aantal.
-export const CONTROLES = new URL('../tests/vragen-tellen-controles.json', import.meta.url);
-const MAX_PADEN = 100000;
+// Boven dit aantal bezochte paden lopen we niet alles na, maar schatten we het aantal.
+export const STEMPELS = new URL('../tests/vragen-tellen-stempels.json', import.meta.url);
+const MAX_PADEN = 2000000;
 
 // Wat de vraag bepaalt, net als in tests/vingerafdruk.js, maar met de keuzes van meerkeuze op
-// volgorde: een andere volgorde is niet een andere vraag. Een figuur telt mee, want een keuze die
-// een figuur is, verschilt daarin.
+// volgorde: een andere volgorde is niet een andere vraag. Anders dan de vingerafdruk telt de hele
+// figuur mee, ook de opmaak, want een andere figuur is een andere vraag voor de leerling. Wat een
+// veld alleen anders opmaakt (label, br, compact) staat al in de vraag of het antwoord.
 export const sleutel = (q) =>
   JSON.stringify([
     q.q,
@@ -32,42 +33,59 @@ export const sleutel = (q) =>
 
 const hash = (t) => createHash('sha1').update(t).digest('base64').slice(0, 16);
 
-// Te veel om na te lopen: trek N vragen met seeds, zoals een leerling ze krijgt, en tel hoe vaak er
-// twee gelijk zijn. Bij D verschillende vragen zijn dat ongeveer N²/(2D) paren. Zo komen we ook
-// terecht bij een generator waar veel keuzes dezelfde vraag geven. Zijn er te weinig paren, dan is
-// de ruimte te groot om zo te meten en nemen we het aantal paden van schatKeuzes: dat telt vragen
-// die twee keuzes gemeen hebben dubbel, dus het is een bovengrens.
-const TREKKINGEN = 400000;
-const MIN_PAREN = 30;
-function schat(skill) {
+// Te veel om na te lopen: trek N vragen met seeds, zoals een leerling ze krijgt, en kijk hoe vaak
+// dezelfde vraag terugkomt. Niet elke vraag is even waarschijnlijk (een paar vragen komen veel
+// vaker voor), dus uit het aantal gelijke paren alleen volgt een veel te laag aantal. Daarom
+// gebruiken we Chao1, een schatting uit het aantal vragen dat één keer (f1) en twee keer (f2) is
+// getrokken: S + f1(f1 − 1) / (2(f2 + 1)), waarbij S het aantal verschillende vragen in de trekking
+// is. Die komt bij een scheve verdeling meestal wat te laag uit, dus het echte aantal is eerder
+// hoger dan lager.
+// Zijn er bijna geen herhalingen, dan zegt de trekking niets over de grootte. Dan nemen we het
+// aantal paden van schatKeuzes (een bovengrens, want twee paden kunnen dezelfde vraag geven), maar
+// alleen als de trekking daarmee klopt: bij zoveel paden zijn er ongeveer N² / (2 · paden)
+// herhalingen te verwachten. Zijn het er veel meer, dan geven veel paden dezelfde vraag en nemen we
+// Chao1.
+export const TREKKINGEN = 400000;
+export function schat(gen, trekkingen = TREKKINGEN) {
   const telling = new Map();
-  for (let i = 0; i < TREKKINGEN; i++) {
-    const k = hash(sleutel(withSeed(((i * 2654435761) % 4294967296) >>> 0, skill.gen)));
+  for (let i = 0; i < trekkingen; i++) {
+    const k = hash(sleutel(withSeed(((i * 2654435761) % 4294967296) >>> 0, gen)));
     telling.set(k, (telling.get(k) ?? 0) + 1);
   }
+  let f1 = 0;
+  let f2 = 0;
   let paren = 0;
-  for (const c of telling.values()) paren += (c * (c - 1)) / 2;
-  if (paren >= MIN_PAREN) return Math.round((TREKKINGEN * (TREKKINGEN - 1)) / 2 / paren);
-  return Math.round(schatKeuzes(skill.gen));
+  for (const c of telling.values()) {
+    if (c === 1) f1++;
+    if (c === 2) f2++;
+    paren += (c * (c - 1)) / 2;
+  }
+  const paden = schatKeuzes(gen);
+  const verwacht = (trekkingen * (trekkingen - 1)) / 2 / paden;
+  if (paren <= 2 * verwacht + 5) return Math.round(paden);
+  const chao1 = telling.size + (f1 * (f1 - 1)) / (2 * (f2 + 1));
+  return Math.round(Math.min(chao1, paden));
 }
 
 export function tel(skill) {
   // Eerst een snelle schatting van het aantal paden, zodat we geen tijd verliezen aan een
-  // generator met miljoenen paden.
-  if (schatKeuzes(skill.gen, { rondes: 1000, seed: 7 }) > 3 * MAX_PADEN)
-    return { aantal: schat(skill), exact: false };
+  // generator met honderden miljoenen paden.
+  if (schatKeuzes(skill.gen, { rondes: 3000, seed: 7 }) > 30 * MAX_PADEN)
+    return { aantal: schat(skill.gen), exact: false };
   const gezien = new Set();
   const paden = alleKeuzes(skill.gen, (q) => gezien.add(hash(sleutel(q))), {
     maxPaden: MAX_PADEN,
   });
   if (paden !== null) return { aantal: gezien.size, exact: true };
-  return { aantal: schat(skill), exact: false };
+  return { aantal: schat(skill.gen), exact: false };
 }
 
-// Een korte controlesom per soort vraag, snel te berekenen: de vingerafdruk van de vragen bij vaste
+// Een korte stempel per vraagsoort, snel te berekenen: de vingerafdruk van de vragen bij vaste
 // seeds en het aantal paden van een korte schatting. Verandert een generator zo dat het aantal
-// vragen anders kan zijn, dan verandert die, en faalt de test tot npm run vragen-tellen is gedraaid.
-export function controles(skills = TOPICS.flatMap((t) => t.skills)) {
+// vragen anders kan zijn, dan verandert die meestal, en faalt de test tot npm run vragen-tellen is
+// gedraaid. Niet elke wijziging valt op, bijvoorbeeld een dubbele waarde in een lijst of een tak die
+// zelden voorkomt. Draai bij twijfel opnieuw met het nummer van de vraagsoort.
+export function stempels(skills = TOPICS.flatMap((t) => t.skills)) {
   const afdruk = fingerprints();
   return Object.fromEntries(
     skills.map((skill) => [
@@ -99,7 +117,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const onbekend = ids.filter((id) => !bekend.includes(id));
   if (onbekend.length) {
     console.error(
-      `Geen soort vraag met nummer ${onbekend.join(', ')}. Gebruik: npm run vragen-tellen [-- nummers]`,
+      `Geen vraagsoort met nummer ${onbekend.join(', ')}. Gebruik: npm run vragen-tellen [-- nummers]`,
     );
     process.exit(1);
   }
@@ -107,18 +125,18 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const oud = ids.length ? JSON.parse(await readFile(bestand, 'utf8')).soorten : {};
   const uit = telAlles(ids, oud);
   await writeFile(bestand, json(uit));
-  // De controlesommen staan bij de tests: de pagina heeft ze niet nodig, en elke byte telt daar.
-  // Met nummers vervangen we alleen de controlesommen van die soorten. Een soort die ook veranderd
+  // De stempels staan bij de tests: de pagina heeft ze niet nodig, en elke byte telt daar.
+  // Met nummers vervangen we alleen de stempels van die soorten. Een soort die ook veranderd
   // is maar niet is meegegeven, houdt dan haar oude som en laat de test falen.
-  const nieuw = controles();
-  const oudeSommen = ids.length ? JSON.parse(await readFile(CONTROLES, 'utf8')) : {};
+  const nieuw = stempels();
+  const oudeSommen = ids.length ? JSON.parse(await readFile(STEMPELS, 'utf8')) : {};
   const sommen = Object.fromEntries(
     Object.entries(nieuw).map(([id, som]) => [
       id,
       !ids.length || ids.includes(Number(id)) || !(id in oudeSommen) ? som : oudeSommen[id],
     ]),
   );
-  await writeFile(CONTROLES, json(sommen));
+  await writeFile(STEMPELS, json(sommen));
   const n = Object.values(uit.soorten);
   console.log(
     `${n.length} soorten: ${n.filter((s) => s.exact).length} exact, ${n.filter((s) => !s.exact).length} geschat, ${Math.round((Date.now() - start) / 1000)} s`,

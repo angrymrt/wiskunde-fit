@@ -102,7 +102,8 @@ function alleKeuzes(make, op, { maxPaden = 1e6, maxKeuzes = 200 } = {}) {
 // Schat het aantal paden van make als alleKeuzes er te veel vindt. Elke ronde loopt één willekeurig
 // pad: het aantal paden is dan het product van alle n op dat pad, of 0 als until het pad afkeurt.
 // Het gemiddelde van de rondes is een zuivere schatting (de methode van Knuth). Meer paden kunnen
-// wel dezelfde vraag geven, dus dit is een bovengrens voor het aantal verschillende vragen. De seed
+// wel dezelfde vraag geven, dus dit is een bovengrens voor het aantal verschillende vragen, behalve
+// dat een steekproef bij een zware staart meestal te laag uitkomt. De seed
 // ligt vast, dus elke keer komt hetzelfde uit.
 function schatKeuzes(make, { rondes = 20000, seed = 1, maxKeuzes = 200 } = {}) {
   const rnd = mulberry32(seed);
