@@ -57,7 +57,7 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 
 ## Een vraag toevoegen
 
-1. Schrijf in het juiste bestand in `src/js/topics/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen. Haal al het toeval uit `ri`, `nz`, `pick`, `coin` en `shuffle` in `math.js`, nooit uit `Math.random`. Dan maakt dezelfde seed steeds dezelfde vraag, en `npm test` controleert dat. Faalt een vraag in de test, dan staat de link naar precies die vraag in de melding.
+1. Schrijf in het juiste bestand in `src/js/topics/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen. Haal al het toeval uit `ri`, `nz`, `pick`, `coin` en `shuffle` in `math.js`, nooit uit `Math.random`. Kies je opnieuw als de getallen niet mooi uitkomen, gebruik dan `until(maak, klopt)` uit `math.js` en schrijf geen eigen lus (`do … while`, `for (;;)`) of aanroep van de generator zelf. `maak` doet de keuzes van één ronde en geeft de uitkomst, en `klopt` bevat geen toeval. Zo kan het tellen van de verschillende vragen een afgekeurde keuze overslaan. Dan maakt dezelfde seed steeds dezelfde vraag, en `npm test` controleert dat. Faalt een vraag in de test, dan staat de link naar precies die vraag in de melding.
 2. Zet de functie in de lijst `skills` onderaan het bestand, met het eerstvolgende vrije nummer: `[66, 'Naam van de vraagsoort', mijnFunctie]`.
 3. Zet hetzelfde nummer in `tests/vraagsoort-ids.js`: `66: 'mijnFunctie'`.
 4. Draai `npm test`. De test vindt de nieuwe vraag vanzelf en zegt welk nummer vrij is.
