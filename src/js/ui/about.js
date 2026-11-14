@@ -2,7 +2,7 @@
 import { to } from '../routes.js';
 import { crumbs, pageHead, REPO } from './layout.js';
 
-const MAIL = 'wiskundefit@rubenvanderhoop.nl';
+const MAIL = 'contact@wiskundefit.nl';
 
 const mail = `<a class="mail" href="mailto:${MAIL}">${MAIL}</a>`;
 const repo = (text, path = '') =>
