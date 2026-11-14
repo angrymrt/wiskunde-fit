@@ -28,7 +28,8 @@ const half = (x, k) => near((Math.abs(x) * 10 ** k) % 1, 0.5, 1e-6);
 // Eigen gegevens over een paar jaar. the is waar het over gaat, row de naam in de tabel, post het
 // woord achter een getal, zu het woord achter een getal na the. k is het aantal decimalen in de tabel.
 // v0 is het bereik van de eerste waarde, s het bereik van de verandering per jaar en min hoe groot
-// die verandering minstens is.
+// die verandering minstens is. Elke waarde, ook een schatting, blijft binnen real, zodat het verhaal
+// echt kan: geen 11 uur schermtijd per dag.
 const DATA = [
   {
     title: 'Inwoners van de stad',
@@ -42,6 +43,7 @@ const DATA = [
     v0: [40, 70],
     s: [-0.4, 1.5],
     min: 0.1,
+    real: [25, 110],
   },
   {
     title: 'Leden van de atletiekclub',
@@ -55,6 +57,7 @@ const DATA = [
     v0: [150, 350],
     s: [-10, 25],
     min: 2,
+    real: [100, 700],
   },
   {
     title: 'Afval per inwoner',
@@ -68,6 +71,7 @@ const DATA = [
     v0: [470, 560],
     s: [-9, 3],
     min: 1,
+    real: [380, 600],
   },
   {
     title: 'Prijs van een bioscoopkaartje',
@@ -81,6 +85,7 @@ const DATA = [
     v0: [6.5, 9],
     s: [0.08, 0.4],
     min: 0.05,
+    real: [5, 14],
   },
   {
     title: 'Bezoekers van het museum',
@@ -94,6 +99,7 @@ const DATA = [
     v0: [80, 160],
     s: [-4, 6],
     min: 0.5,
+    real: [50, 250],
   },
   {
     title: 'Schermtijd van jongeren per dag',
@@ -107,6 +113,7 @@ const DATA = [
     v0: [2, 3.5],
     s: [0.05, 0.3],
     min: 0.05,
+    real: [1, 6],
   },
   {
     title: 'Laadpalen in de gemeente',
@@ -120,8 +127,12 @@ const DATA = [
     v0: [20, 80],
     s: [6, 40],
     min: 3,
+    real: [5, 900],
   },
 ];
+
+// Kan deze waarde echt voorkomen in het verhaal van c?
+const real = (c, v) => v >= c.real[0] && v <= c.real[1];
 
 // Een reeks waarnemingen: n jaren met stappen van 2 tot 8 jaar, en bij elk jaar een waarde.
 function makeData(n = ri(4, 5)) {
@@ -140,7 +151,7 @@ function makeData(n = ri(4, 5)) {
       if (Math.abs(dv) < gp * c.min) ok = false;
       vs.push(rd(vs[vs.length - 1] + dv, c.k));
     }
-    if (ok && vs.every((v) => v > 0)) return { c, ys, vs };
+    if (ok && vs.every((v) => real(c, v))) return { c, ys, vs };
   }
 }
 
@@ -377,7 +388,7 @@ function s45extra() {
       base = back ? va : vb,
       Y0 = back ? Ya : Yb,
       ans = base + sgn * m * r;
-    if (ans <= 0 || Math.abs(m * r) < 2 * 10 ** -k || half(ans, k)) continue;
+    if (!real(c, ans) || Math.abs(m * r) < 2 * 10 ** -k || half(ans, k)) continue;
     const est = (p, q) => line(ys[p], vs[p], ys[q], vs[q], Y),
       pairs = (
         back
@@ -472,7 +483,9 @@ function s45year() {
         exact = near(fr, 0, 1e-9) || near(fr, 1, 1e-9),
         okT = extra ? t >= 1 && t <= 10 : t >= 0.65 && t <= gap - 0.65,
         okFr = exact || (fr >= 0.15 && fr <= 0.35) || (fr >= 0.65 && fr <= 0.85);
-      return okT && okFr && z > 0 && crossings(vs, z) === (extra ? 0 : 1) ? { z, t, exact } : null;
+      return okT && okFr && real(c, z) && crossings(vs, z) === (extra ? 0 : 1)
+        ? { z, t, exact }
+        : null;
     };
     const found = [10, 5, 2, 1].map((s) => fit(s * 10 ** -k)).find(Boolean);
     if (!found) continue;

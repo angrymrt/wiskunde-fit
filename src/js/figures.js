@@ -655,22 +655,61 @@ function chart({
       P = (a, R = r) => [cx + R * Math.sin(a), cy - R * Math.cos(a)];
     W = 2 * r + 220;
     H = cy + r + 42;
+    // Eerst de sectoren en de plek van elk label: de naam met het getal eronder, naast de sector.
     let a0 = 0;
-    vs.forEach((v, j) => {
+    const secs = vs.map((v, j) => {
       const a1 = a0 + (2 * Math.PI * v) / sum,
         m = (a0 + a1) / 2,
+        [lx, ly] = P(m, r + 10),
+        sin = Math.sin(m),
+        side = sin > 1e-9 ? 1 : sin < -1e-9 ? -1 : 0,
+        w = 7 * Math.max(cats[j].length, shown(v).length),
+        s = {
+          a0,
+          a1,
+          x: lx,
+          y: ly + (Math.cos(m) > 0.3 ? -14 : Math.cos(m) < -0.3 ? 12 : -2),
+          side,
+          w,
+        };
+      a0 = a1;
+      return s;
+    });
+    const box = (s) => {
+      const x0 = s.side > 0 ? s.x : s.side < 0 ? s.x - s.w : s.x - s.w / 2;
+      return { x0, x1: x0 + s.w, y0: s.y - 11, y1: s.y + 18 };
+    };
+    // Vallen twee labels over elkaar, zoals bij twee kleine sectoren naast elkaar, dan schuift het
+    // label dat verder van de verticale lijn door het midden staat opzij, van de cirkel af.
+    for (let pass = 0; pass < 4; pass++)
+      secs.forEach((s, i) =>
+        secs.forEach((t, k) => {
+          if (k <= i) return;
+          const [b, c] = [box(s), box(t)];
+          if (b.x0 >= c.x1 || c.x0 >= b.x1 || b.y0 >= c.y1 || c.y0 >= b.y1) return;
+          const [far, near] =
+              Math.abs(s.side ? s.x - cx : 0) > Math.abs(t.side ? t.x - cx : 0) ? [s, t] : [t, s],
+            nb = box(near);
+          if (far.side > 0) far.x = nb.x1 + 6;
+          else if (far.side < 0) far.x = nb.x0 - 6;
+        }),
+      );
+    // Schuift een label buiten de figuur, dan wordt de figuur breder.
+    const bs = secs.map(box),
+      ox = Math.max(0, 4 - Math.min(...bs.map((b) => b.x0)));
+    W = Math.max(W, Math.max(...bs.map((b) => b.x1)) + 4) + ox;
+    const C = cx + ox;
+    vs.forEach((v, j) => {
+      const { a0, a1, x, y, side } = secs[j],
         [x0, y0] = P(a0),
         [x1, y1] = P(a1),
-        [lx, ly] = P(m, r + 10),
-        anchor = Math.sin(m) > 0.2 ? 'start' : Math.sin(m) < -0.2 ? 'end' : 'middle',
-        dy = Math.cos(m) > 0.3 ? -14 : Math.cos(m) < -0.3 ? 12 : -2,
+        anchor = side > 0 ? 'start' : side < 0 ? 'end' : 'middle',
         cls = `sec c${(j % 6) + 1}`;
       o +=
         v === sum
-          ? `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${r}"/>`
-          : `<path class="${cls}" d="M${cx} ${cy}L${f1(x0)} ${f1(y0)}A${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${f1(x1)} ${f1(y1)}Z"/>`;
-      o += txt(lx, ly + dy, cats[j], 'tc', anchor) + txt(lx, ly + dy + 15, shown(v), 'tc', anchor);
-      a0 = a1;
+          ? `<circle class="${cls}" cx="${C}" cy="${cy}" r="${r}"/>`
+          : `<path class="${cls}" d="M${C} ${cy}L${f1(x0 + ox)} ${f1(y0)}A${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${f1(x1 + ox)} ${f1(y1)}Z"/>`;
+      o += txt(x + ox, y, cats[j], 'tc', anchor) + txt(x + ox, y + 15, shown(v), 'tc', anchor);
     });
     out.push(`Met de klok mee vanaf boven: ${list(vs, pct ? shown : vu)}.`);
   } else {
@@ -686,7 +725,10 @@ function chart({
     const axisName = (n, un) => [n, un && `(${un})`].filter(Boolean).join(' '),
       axis = axisName(yn, unit),
       ml = 14 + 7 * Math.max(...ticks.map((t) => num(t).length)),
-      mt = top + (axis ? 20 : 0) + (vals ? 14 : 6),
+      // De titel van de verticale as staat op ty. Met getallen bij de staven of punten komt er
+      // ruimte onder, zodat het getal bij de hoogste waarde niet over de titel valt.
+      ty = top + 12,
+      mt = top + (axis ? 20 : 0) + (vals ? (axis ? 22 : 14) : 6),
       pw = n * u,
       scale = (a, b) => (v) => mt + ((b - Math.min(b, Math.max(a, v))) / (b - a)) * h,
       Y = scale(lo, hi),
@@ -724,11 +766,11 @@ function chart({
     if (brk) o += txt(ml - 6, yB + 4, '0', 'tk', 'end');
     cats.forEach((c, j) => (o += txt(X(j), yB + 17, c)));
     if (xn) o += txt(ml + pw / 2, yB + 37, xn);
-    if (axis) o += txt(4, mt - 14, axis, 'tc', 'start');
+    if (axis) o += txt(4, ty, axis, 'tc', 'start');
     if (R) {
       o += `<path class="ax" d="M${R.x} ${mt - 8}V${f1(yB)}${ticks2.map((t) => `M${R.x} ${f1(R.Y(t))}h4`).join('')}"/>`;
       for (const t of ticks2) o += txt(R.x + 7, R.Y(t) + 4, num(t), 'tk', 'start');
-      if (R.axis) o += txt(W - 4, mt - 14, R.axis, 'tc', 'end');
+      if (R.axis) o += txt(W - 4, ty, R.axis, 'tc', 'end');
     }
     // Met grow is de breedste staaf die van het grootste getal.
     const most = Math.max(...tops),
