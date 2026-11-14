@@ -1,5 +1,5 @@
 // Onderwerp: Rekenen met procenten. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, pick, coin, near, rd, isNice, d } from '../math.js';
+import { ri, pick, coin, near, rd, isNice, d, until } from '../math.js';
 import { F, RF, H, needRound, euro, group } from './shared.js';
 import { T, schema } from '../typeset.js';
 
@@ -191,20 +191,19 @@ const PER = [
 // Een gemiddelde per persoon: miljard gedeeld door miljoen, met eerst dezelfde eenheid.
 function perPerson() {
   const c = pick(PER);
-  let N, tot, ans;
-  for (;;) {
-    N = ri(40, 850) / 10;
-    tot = Math.round((ri(c.per[0], c.per[1]) * N) / 1000);
-    ans = (tot * 1000) / N;
-    if (
+  const [N, tot, ans] = until(
+    () => {
+      const N = ri(40, 850) / 10;
+      const tot = Math.round((ri(c.per[0], c.per[1]) * N) / 1000);
+      return [N, tot, (tot * 1000) / N];
+    },
+    ([, tot, ans]) =>
       tot >= 20 &&
       ans >= c.per[0] &&
       ans <= c.per[1] &&
       !isNice(ans, -3) &&
-      !near(ans % 1000, 500, 1e-6)
-    )
-      break;
-  }
+      !near(ans % 1000, 500, 1e-6),
+  );
   const fields = [RF(c.pre, ans, -3, c.post)],
     r = g(rd(ans, -3));
   return {
@@ -276,9 +275,10 @@ const PLACE = { '-3': ['duizendtallen', 'duizend', 1000], '-6': ['miljoenen', 'm
 // Een groot getal afronden op duizendtallen of miljoenen: 37 333 wordt 37 000.
 function roundBig() {
   const c = pick(ROUNDS);
-  let x;
-  do x = c.x();
-  while (isNice(x, c.n) || rd(x, c.n) === rd(x, c.n - 1));
+  const x = until(
+    () => c.x(),
+    (x) => !(isNice(x, c.n) || rd(x, c.n) === rd(x, c.n - 1)),
+  );
   const [word, one, k] = PLACE[c.n],
     r = rd(x, c.n),
     next = Math.floor((x % k) / (k / 10)),
@@ -337,17 +337,17 @@ const UPS = [4, 5, 6, 8, 12, 15, 20, 25, 2.5, 7.5, 12.5];
 const DOWNS = [10, 15, 20, 25, 30, 35, 40, 12.5];
 // Een prijs vóór de verandering, zo dat de nieuwe prijs precies op centen uitkomt.
 function priceFor(lo, hi, f) {
-  for (;;) {
-    const o = rd(ri(lo, hi) + pick([0, 0, 0.5, 0.95, 0.99]), 2);
-    if (isNice(o * f, 2)) return o;
-  }
+  return until(
+    () => rd(ri(lo, hi) + pick([0, 0, 0.5, 0.95, 0.99]), 2),
+    (o) => isNice(o * f, 2),
+  );
 }
 // Een aantal vóór de verandering, zo dat het nieuwe aantal een geheel getal is.
 function countFor(lo, hi, f) {
-  for (;;) {
-    const o = ri(lo, hi);
-    if (isNice(o * f, 0)) return o;
-  }
+  return until(
+    () => ri(lo, hi),
+    (o) => isNice(o * f, 0),
+  );
 }
 
 // Eigen verhalen met een aantal dat is veranderd. r is het bereik van oud.
@@ -478,13 +478,15 @@ function makeBack() {
     };
   }
   const c = pick(COUNT_OLD_BIG);
-  let p, f, n, o;
-  do {
-    p = pick(c.up ? [3.5, 4.5, 6.5, 8.5, 2.8, 7.2, 14] : [6.5, 8.5, 12.5, 15.5, 4.8, 18]);
-    f = fac(p, c.up);
-    n = ri(40, 400) * 1000;
-    o = n / f;
-  } while (isNice(o, -3));
+  const [p, , n, o] = until(
+    () => {
+      const p = pick(c.up ? [3.5, 4.5, 6.5, 8.5, 2.8, 7.2, 14] : [6.5, 8.5, 12.5, 15.5, 4.8, 18]);
+      const f = fac(p, c.up);
+      const n = ri(40, 400) * 1000;
+      return [p, f, n, n / f];
+    },
+    ([, , , o]) => !isNice(o, -3),
+  );
   const field = RF(c.pre, o, -3, c.unit);
   return {
     p,
@@ -633,11 +635,13 @@ function makeWhole() {
   if (ri(0, 9) < 6) {
     const c = pick(PART_WHOLE),
       p = pick(c.p);
-    let t, x;
-    do {
-      t = ri(c.r[0], c.r[1]) * (c.k || 1);
-      x = rd((t * p) / 100, 6);
-    } while (!isNice(x, c.money ? 2 : 0));
+    const [t, x] = until(
+      () => {
+        const t = ri(c.r[0], c.r[1]) * (c.k || 1);
+        return [t, rd((t * p) / 100, 6)];
+      },
+      ([, x]) => isNice(x, c.money ? 2 : 0),
+    );
     const show = c.money ? eu : g;
     return {
       p,
@@ -652,11 +656,13 @@ function makeWhole() {
   }
   const c = pick(PART_WHOLE_ROUND),
     p = pick(c.p);
-  let x, t;
-  do {
-    x = c.x();
-    t = x / (p / 100);
-  } while (isNice(t, c.n));
+  const [x, t] = until(
+    () => {
+      const x = c.x();
+      return [x, x / (p / 100)];
+    },
+    ([, t]) => !isNice(t, c.n),
+  );
   const field = RF(c.pre, t, c.n, c.unit);
   return {
     p,
@@ -731,9 +737,10 @@ function backThenOn() {
       p2 = pick([4, 5, 6, 8, 10, 15]),
       f1 = fac(p1, false),
       f2 = fac(p2, true);
-    let o;
-    do o = ri(lo, hi) + pick([0, 0.5]);
-    while (!isNice(o * f1, 2) || !isNice(o * f2, 2));
+    const o = until(
+      () => ri(lo, hi) + pick([0, 0.5]),
+      (o) => isNice(o * f1, 2) && isNice(o * f2, 2),
+    );
     const n = rd(o * f1, 2),
       x = rd(o * f2, 2),
       b = { p: p1, up: false, o, n, show: eu, tol: EUR, what: ' korting' };
@@ -847,15 +854,16 @@ const PART_OF_PART = [
 // Een deel van een deel: twee keer van deel naar totaal.
 function partOfPart() {
   const c = pick(PART_OF_PART);
-  let p1, p2, tot, mid, x;
-  for (;;) {
-    p1 = pick([30, 35, 40, 45, 60, 64, 75, 80]);
-    p2 = pick([15, 20, 25, 30, 35, 40, 45, 55]);
-    tot = ri(c.r[0], c.r[1]) * 10;
-    mid = rd((tot * p1) / 100, 6);
-    x = rd((mid * p2) / 100, 6);
-    if (Number.isInteger(mid) && Number.isInteger(x) && x >= 5) break;
-  }
+  const [p1, p2, tot, mid, x] = until(
+    () => {
+      const p1 = pick([30, 35, 40, 45, 60, 64, 75, 80]);
+      const p2 = pick([15, 20, 25, 30, 35, 40, 45, 55]);
+      const tot = ri(c.r[0], c.r[1]) * 10;
+      const mid = rd((tot * p1) / 100, 6);
+      return [p1, p2, tot, mid, rd((mid * p2) / 100, 6)];
+    },
+    ([, , , mid, x]) => Number.isInteger(mid) && Number.isInteger(x) && x >= 5,
+  );
   const q1 = d(p1 / 100),
     q2 = d(p2 / 100),
     w1 = { p: p2, t: mid, x, show: g, tol: WHOLE },
@@ -920,15 +928,17 @@ const TWO_PCTS = [5, 8, 10, 12, 15, 20, 25, 30, 40];
 function twoBack() {
   const c = pick(TWO_BACK),
     y = ri(2019, 2022);
-  let p1, u1, p2, u2, tot, mid, n;
-  for (;;) {
-    [p1, p2] = [pick(TWO_PCTS), pick(TWO_PCTS)];
-    [u1, u2] = [coin(), coin()];
-    tot = ri(c.r[0], c.r[1]);
-    mid = rd(tot * fac(p1, u1), 6);
-    n = rd(mid * fac(p2, u2), 6);
-    if (Number.isInteger(mid) && Number.isInteger(n) && (u1 !== u2 || p1 !== p2)) break;
-  }
+  const [p1, p2, u1, u2, tot, mid, n] = until(
+    () => {
+      const [p1, p2] = [pick(TWO_PCTS), pick(TWO_PCTS)];
+      const [u1, u2] = [coin(), coin()];
+      const tot = ri(c.r[0], c.r[1]);
+      const mid = rd(tot * fac(p1, u1), 6);
+      return [p1, p2, u1, u2, tot, mid, rd(mid * fac(p2, u2), 6)];
+    },
+    ([p1, p2, u1, u2, , mid, n]) =>
+      Number.isInteger(mid) && Number.isInteger(n) && (u1 !== u2 || p1 !== p2),
+  );
   const f1 = fac(p1, u1),
     f2 = fac(p2, u2),
     rel = (p, u) => `${p}% ${u ? 'meer' : 'minder'}`,
