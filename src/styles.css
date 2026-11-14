@@ -1193,6 +1193,49 @@ sub {
   display: grid;
   gap: 10px;
 }
+/* De lijst met stappen staat dicht bij de zin erboven en eronder, zoals een alinea. */
+.vsteps {
+  margin: 0;
+  padding-left: 1.4em;
+}
+.vfig {
+  margin: 8px 0 0;
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.vraster {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+}
+.vr-bg {
+  fill: var(--blue-soft);
+}
+.vr-lijn {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 0.4;
+  opacity: 0.55;
+}
+.vr-rand {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 1;
+}
+.vr-cel {
+  fill: var(--orange);
+}
+.vr-ring {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 1.5;
+}
+.vr-t {
+  fill: var(--ink);
+  font-size: 11px;
+}
 /* De drie getallen vallen op met de zachte blauwe kleur, die er in de donkere modus al een heeft. */
 .vstats .tile {
   background: var(--blue-soft);
@@ -1211,8 +1254,10 @@ sub {
   border-radius: 6px;
 }
 .vkop {
-  margin: 0;
   padding: 10px 0 4px;
+}
+.vkop h3 {
+  margin: 0;
   font: inherit;
   font-weight: 800;
   letter-spacing: 0;
@@ -1226,7 +1271,7 @@ sub {
   align-items: baseline;
   gap: 2px 12px;
 }
-.vkop > span:last-child,
+.vkop > span,
 .vdomein .ctopic summary > span:last-child {
   text-align: right;
   white-space: nowrap;

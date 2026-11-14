@@ -357,6 +357,13 @@ app.addEventListener('click', (e) => {
     render();
     return;
   }
+  // Zo maken we de vragen: alle onderwerpen open of dicht, zonder het scherm opnieuw te bouwen.
+  if (a === 'vragenopen') {
+    document.querySelectorAll('.vdomeinen details').forEach((d) => {
+      d.open = id === 'open';
+    });
+    return;
+  }
   if (a === 'boekfilter' || a === 'boekfilterclear') {
     const filters = { ...state.view.filters };
     if (a === 'boekfilter') {
