@@ -1,6 +1,6 @@
 // Onderwerp: Lineaire ongelijkheden. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { graph } from '../figures.js';
-import { ri, nz, pick, Q, near, lin, dlin, sg, d } from '../math.js';
+import { ri, nz, pick, until, Q, near, lin, dlin, sg, d } from '../math.js';
 import { F, euro } from './shared.js';
 import { T } from '../typeset.js';
 
@@ -30,11 +30,10 @@ const divide = (co, sign, rhs, fin, k) =>
         `x ${fin} ${k}`,
       ];
 function s15basic() {
-  let a, c;
-  do {
-    a = nz(-8, 8);
-    c = nz(-8, 8);
-  } while (a === c);
+  const [a, c] = until(
+    () => [nz(-8, 8), nz(-8, 8)],
+    ([a, c]) => a !== c,
+  );
   const k = nz(-8, 8),
     b = nz(-12, 12),
     dd = (a - c) * k + b,
@@ -57,42 +56,39 @@ function s15basic() {
   };
 }
 function s15br() {
-  for (let i = 0; i < 60; i++) {
-    const k = nz(-7, 7),
-      p = pick([-4, -3, -2, 2, 3, 4, 5]),
-      q = nz(-6, 6),
-      r = nz(-7, 7);
-    if (p === r) continue;
-    const dd = p * (k + q) - r * k,
-      s0 = pick(SIG),
-      co = p - r,
-      fin = co < 0 ? flip[s0] : s0;
-    const pr = `${p < 0 ? '-' : ''}${Math.abs(p)}(x${sg(q)})`;
-    return {
-      q: T(`Los op: ${pr} ${s0} ${lin(r, dd)}`),
-      fields: ineqOut(fin, k),
-      hint: 'Werk eerst de haakjes weg en los daarna op. Let op het ongelijkheidsteken als je door een negatief getal deelt.',
-      steps: [
-        `${lin(p, p * q)} ${s0} ${lin(r, dd)}`,
-        ...(co === 1 ? [`x ${fin} ${k}`] : divide(co, s0, dd - p * q, fin, k)),
-      ],
-      traps: ineqTrap(fin, k),
-      v: () =>
-        [k - 1, k, k + 1].every((x) => holds(p * (x + q), s0, r * x + dd) === holds(x, fin, k)),
-    };
-  }
-  return s15basic();
+  const [k, p, q, r] = until(
+    () => [nz(-7, 7), pick([-4, -3, -2, 2, 3, 4, 5]), nz(-6, 6), nz(-7, 7)],
+    ([, p, , r]) => p !== r,
+  );
+  const dd = p * (k + q) - r * k,
+    s0 = pick(SIG),
+    co = p - r,
+    fin = co < 0 ? flip[s0] : s0;
+  const pr = `${p < 0 ? '-' : ''}${Math.abs(p)}(x${sg(q)})`;
+  return {
+    q: T(`Los op: ${pr} ${s0} ${lin(r, dd)}`),
+    fields: ineqOut(fin, k),
+    hint: 'Werk eerst de haakjes weg en los daarna op. Let op het ongelijkheidsteken als je door een negatief getal deelt.',
+    steps: [
+      `${lin(p, p * q)} ${s0} ${lin(r, dd)}`,
+      ...(co === 1 ? [`x ${fin} ${k}`] : divide(co, s0, dd - p * q, fin, k)),
+    ],
+    traps: ineqTrap(fin, k),
+    v: () =>
+      [k - 1, k, k + 1].every((x) => holds(p * (x + q), s0, r * x + dd) === holds(x, fin, k)),
+  };
 }
 function s15gr() {
-  let a1, a2, xs, ys, b1, b2;
-  do {
-    a1 = pick([-2, -1, 1, 2, 0.5]);
-    a2 = pick([-2, -1, 1, 2, -0.5]);
-    xs = pick([0, 2, 2, 4]);
-    ys = ri(-1, 3);
-    b1 = ys - a1 * xs;
-    b2 = ys - a2 * xs;
-  } while (a1 === a2 || Math.abs(b1) > 6 || Math.abs(b2) > 6);
+  const [a1, a2, xs, ys, b1, b2] = until(
+    () => {
+      const a1 = pick([-2, -1, 1, 2, 0.5]),
+        a2 = pick([-2, -1, 1, 2, -0.5]),
+        xs = pick([0, 2, 2, 4]),
+        ys = ri(-1, 3);
+      return [a1, a2, xs, ys, ys - a1 * xs, ys - a2 * xs];
+    },
+    ([a1, a2, , , b1, b2]) => !(a1 === a2 || Math.abs(b1) > 6 || Math.abs(b2) > 6),
+  );
   const s0 = pick(SIG),
     grow = a1 > a2,
     up = s0 === '>'; /* links groter dan rechts: l boven m */
@@ -171,15 +167,18 @@ function s15flip() {
 }
 // Een schets zonder ruitjes: het snijpunt bereken je eerst, en daarna lees je af welke kant het is.
 function s15sketch() {
-  let a1, a2, b1, b2, xs;
-  do {
-    a1 = pick([-3, -2, -1, 1, 2, 3]);
-    a2 = pick([-3, -2, -1, 1, 2, 3]);
-    b1 = nz(-6, 8);
-    b2 = nz(-6, 8);
-    xs = (b2 - b1) / (a1 - a2);
+  const [a1, a2, b1, b2, xs] = until(
+    () => {
+      const a1 = pick([-3, -2, -1, 1, 2, 3]),
+        a2 = pick([-3, -2, -1, 1, 2, 3]),
+        b1 = nz(-6, 8),
+        b2 = nz(-6, 8);
+      return [a1, a2, b1, b2, (b2 - b1) / (a1 - a2)];
+    },
     // Lijnen die bijna evenwijdig lopen, zijn in een schets niet uit elkaar te houden.
-  } while (Math.abs(a1 - a2) < 2 || !xs || Math.abs(xs) > 5 || !Number.isInteger(xs * 2));
+    ([a1, a2, , , xs]) =>
+      !(Math.abs(a1 - a2) < 2 || !xs || Math.abs(xs) > 5 || !Number.isInteger(xs * 2)),
+  );
   const ys = a1 * xs + b1,
     co = a1 - a2,
     s0 = pick(SIG),

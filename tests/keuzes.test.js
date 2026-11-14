@@ -82,3 +82,23 @@ test('until geeft zonder tellen hetzelfde toeval als een gewone lus', () => {
     assert.equal(metUntil, lus);
   }
 });
+
+// Een eigen lus voor toeval kan alleKeuzes niet overslaan, dus de generatoren gebruiken until.
+test('de onderwerpen kiezen opnieuw met until en schrijven geen eigen lus voor toeval', async () => {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const dir = new URL('../src/js/topics/', import.meta.url);
+  const VORMEN = [
+    [/\bdo \{/, 'do … while'],
+    [/for \(;;\)/, 'for (;;)'],
+    [/for \(let \w+ = 0; \w+ < \d{3,};/, 'een lus met veel pogingen'],
+    [/^\s*while \(/m, 'while'],
+    [/Math\.random/, 'Math.random'],
+  ];
+  const gevonden = [];
+  for (const f of await readdir(dir)) {
+    if (!f.endsWith('.js')) continue;
+    const tekst = await readFile(new URL(f, dir), 'utf8');
+    for (const [re, naam] of VORMEN) if (re.test(tekst)) gevonden.push(`${f}: ${naam}`);
+  }
+  assert.deepEqual(gevonden, [], 'Gebruik until(maak, klopt) uit math.js, zie AGENTS.md.');
+});
