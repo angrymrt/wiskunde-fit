@@ -605,7 +605,7 @@ export default {
   intro:
     'Een diagram of een getal kan een verkeerde indruk geven, ook als de gegevens kloppen. Hier leer je herkennen wanneer een diagram misleidend is, reken je met procentpunten en controleer je of een bewering over een diagram klopt.',
   description:
-    'Misleidende diagrammen herkennen: een as die niet bij 0 begint, ongelijke stappen, twee schalen. Rekenen met procentpunten. Gratis oefenen met uitleg.',
+    'Misleidende diagrammen herkennen oefenen: een as die niet bij 0 begint, ongelijke stappen en procentpunten. Havo 3, gratis met uitleg en hints.',
   videos: {
     menno: [['Misleidende statistiek', 'GBPsDtFgJoQ']],
   },

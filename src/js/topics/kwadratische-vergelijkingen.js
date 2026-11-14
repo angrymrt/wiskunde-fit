@@ -441,7 +441,7 @@ export default {
   intro:
     'In een kwadratische vergelijking staat een kwadraat, zoals in x^2 - 3x = 10. Je lost die op met een werkschema: maak het rechterlid 0, ontbind in factoren en gebruik dat een product alleen 0 is als een van de factoren 0 is.',
   description:
-    'Los kwadratische vergelijkingen op met ontbinden in factoren: rechterlid nul maken, haakjes, delen door a en f(x) = c. Gratis oefenen met uitleg.',
+    'Kwadratische vergelijkingen oplossen oefenen met ontbinden in factoren, zoals x² − 3x = 10. Havo 3, gratis met uitleg, hints en uitwerkingen.',
   videos: {
     menno: [
       ['Kwadratische vergelijkingen oplossen', 'tkapcNIaDM0'],

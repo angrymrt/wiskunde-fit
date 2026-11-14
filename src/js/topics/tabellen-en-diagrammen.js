@@ -948,7 +948,7 @@ export default {
   intro:
     'Gegevens zet je overzichtelijk in een tabel of een diagram. Hier reken je met een gemiddelde, een aandeel en een procentuele verandering uit een tabel, lees je staaf- en cirkeldiagrammen af en leer je welk diagram bij welke gegevens past.',
   description:
-    'Reken met tabellen, staafdiagrammen en cirkeldiagrammen: gemiddelde, aandeel en procentuele verandering. Kies welk diagram past. Gratis oefenen.',
+    'Tabellen en diagrammen oefenen: gemiddelde, aandeel en procentuele verandering aflezen, en kiezen welk diagram past. Havo 3, gratis met uitleg.',
   videos: {
     menno: [['Tabellen en diagrammen', 'rAx6i4uWHI0']],
   },

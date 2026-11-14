@@ -743,7 +743,7 @@ export default {
   intro:
     'Met procenten zeg je hoe groot een deel is, of hoeveel iets is toegenomen of afgenomen. Hier leer je de procentuele verandering berekenen en rekenen met de vermenigvuldigingsfactor, ook als er meer veranderingen na elkaar komen.',
   description:
-    'Bereken procenten, de procentuele toename of afname en de vermenigvuldigingsfactor, ook bij procent op procent. Gratis oefenen met uitwerkingen.',
+    'Procenten berekenen oefenen: procentuele toename en afname, de vermenigvuldigingsfactor en procent op procent. Havo 3, gratis met uitleg en hints.',
   videos: {
     menno: [
       ['Procentuele verandering', 'b0Y7EzRorT4'],

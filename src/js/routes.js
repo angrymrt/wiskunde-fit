@@ -80,8 +80,15 @@ function viewFor(pathname, search = '') {
 
 // Staat Wiskundefit al in de titel, zoals bij Home en Over, dan niet nog een keer erachter.
 function titleFor(v) {
-  const title = `${SCREENS[v.name]?.title ?? nameOf(v)}${v.oefen ? ' oefenen' : ''}`;
+  const title = `${SCREENS[v.name]?.title ?? nameOf(v)}${suffixFor(v)}`;
   return title.includes('Wiskundefit') ? title : `${title} | Wiskundefit`;
+}
+// Wat achter de naam in de titel komt, zodat een zoeker ziet dat je hier kunt oefenen. De titel van
+// de uitlegpagina verschilt zo van die van het oefenscherm.
+function suffixFor(v) {
+  if (v.name === 'topic') return v.oefen ? ' oefenen' : ' oefenen met uitleg';
+  if (v.name === 'domain') return ' oefenen';
+  return v.oefen ? ' oefenen' : '';
 }
 // De naam van een scherm, zoals in het kruimelpad.
 function nameOf(v) {
@@ -129,4 +136,4 @@ function crumbsFor(v) {
   return [...up, { text: nameOf(v) }];
 }
 
-export { pathFor, to, viewFor, titleFor, sectionFor, crumbsFor };
+export { pathFor, to, viewFor, titleFor, nameOf, sectionFor, crumbsFor };

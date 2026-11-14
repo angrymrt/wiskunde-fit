@@ -1094,7 +1094,7 @@ export default {
   intro:
     'De top is het hoogste of laagste punt van een parabool. Hier leer je de top berekenen, en de punten waar de grafiek de x-as en de y-as snijdt. Daarmee bereken je ook hoe hoog een bal komt, hoe breed een tunnel is en of iets erdoor past.',
   description:
-    'Bereken de top van een parabool met x_top = −b/(2a), de snijpunten met de assen, en de top van a(x − p)² + q en a(x − d)(x − e). Met uitleg.',
+    'Top van een parabool berekenen oefenen, met x = −b/(2a), en de snijpunten met de assen. Havo 3, gratis met uitleg, hints en uitwerkingen.',
   videos: {
     menno: [
       ['De top berekenen', '1_misRbQ9CU'],

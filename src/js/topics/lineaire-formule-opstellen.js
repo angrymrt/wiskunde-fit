@@ -414,7 +414,7 @@ export default {
   intro:
     'Soms heb je een grafiek, twee punten of een verhaal en zoek je de formule die daarbij hoort. Hier leer je hoe je a en b vindt.',
   description:
-    'Stel een lineaire formule op uit een grafiek, twee punten, een tabel of een verhaal. Bereken a en b en oefen gratis met steeds nieuwe vragen.',
+    'Lineaire formule opstellen oefenen: a en b berekenen uit een grafiek, twee punten, een tabel of een verhaal. Havo 3, gratis met uitleg en hints.',
   videos: {
     menno: [
       ['De formule y = ax + b', 'RpDZhdELvFY'],
