@@ -186,7 +186,7 @@ test('de onderwerpen kiezen opnieuw met until en schrijven geen eigen lus voor t
   const VORMEN = [
     [/\bdo \{/, 'do … while'],
     [/for \(;;\)/, 'for (;;)'],
-    [/for \(let \w+ = 0; \w+ < \d{3,};/, 'een lus met veel pogingen'],
+    [/for \(let \w+ = 0; \w+ < \d+;/, 'een lus met een vaste limiet'],
     [/^\s*while \(/m, 'while'],
     [/Math\.random/, 'Math.random'],
   ];

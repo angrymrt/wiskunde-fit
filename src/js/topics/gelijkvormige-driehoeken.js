@@ -396,5 +396,3 @@ export default {
     },
   ],
 };
-
-export { s22comm };
