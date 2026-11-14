@@ -28,16 +28,77 @@ function parseSeed(text) {
   return seed <= 0xffffffff ? seed : null;
 }
 
-const ri = (a, b) => a + Math.floor(random() * (b - a + 1));
-const nz = (a, b) => {
-  let x;
-  do {
-    x = ri(a, b);
-  } while (x === 0);
-  return x;
+// Elke keuze van een generator gaat via choose(n): een geheel getal van 0 tot en met n - 1. ri, pick,
+// coin en shuffle zijn er gewoon mee gemaakt. Zo kan alleKeuzes elke keuze een voor een doorlopen
+// en tellen hoeveel verschillende vragen een generator kan maken, zonder dat een seed iets anders
+// geeft. Zie #22.
+let choose = (n) => Math.floor(random() * n);
+
+// Een keuze die niet mooi uitkomt, kies je opnieuw met until(maak, klopt): maak geeft een
+// uitkomst, klopt zegt of die goed is. Schrijf zelf geen lus voor toeval, want alleKeuzes kan een
+// lus niet overslaan. Zonder tellen kiest until opnieuw tot het klopt, met hetzelfde toeval als
+// een gewone lus.
+class Afgekeurd extends Error {}
+let telt = false;
+const until = (maak, klopt) => {
+  for (;;) {
+    const x = maak();
+    if (klopt(x)) return x;
+    // Bij het tellen is dit pad geen vraag: alleKeuzes gaat naar het volgende.
+    if (telt) throw new Afgekeurd();
+  }
 };
+
+// Vervangt choose zolang make loopt, net als withSeed het toeval vervangt. Een keuze die until
+// afkeurt, gooit dan Afgekeurd.
+function withChoices(kies, make) {
+  const before = [choose, telt];
+  choose = kies;
+  telt = true;
+  try {
+    return make();
+  } finally {
+    [choose, telt] = before;
+  }
+}
+
+// Loopt alle keuzes van make een voor een door en roept op voor elke uitkomst. Geeft het aantal
+// paden terug, of null als er meer dan maxPaden zijn: dan is het te veel om na te lopen. Een pad
+// met meer dan maxKeuzes keuzes is een generator die steeds opnieuw begint, en telt niet mee.
+// Het eerste pad kiest overal 0. Daarna gaat de laatste keuze die nog kan een omhoog, en begint
+// alles daarna weer bij 0.
+function alleKeuzes(make, op, { maxPaden = 1e6, maxKeuzes = 200 } = {}) {
+  const pad = [];
+  let paden = 0;
+  for (;;) {
+    let i = 0;
+    const kies = (n) => {
+      if (i >= maxKeuzes) throw new Afgekeurd();
+      if (i === pad.length) pad.push({ k: 0, n });
+      return pad[i++].k;
+    };
+    try {
+      op(withChoices(kies, make));
+      paden++;
+    } catch (e) {
+      if (!(e instanceof Afgekeurd)) throw e;
+    }
+    if (paden > maxPaden) return null;
+    pad.length = i;
+    while (pad.length && pad[pad.length - 1].k + 1 >= pad[pad.length - 1].n) pad.pop();
+    if (!pad.length) return paden;
+    pad[pad.length - 1].k++;
+  }
+}
+
+const ri = (a, b) => a + choose(b - a + 1);
+const nz = (a, b) =>
+  until(
+    () => ri(a, b),
+    (x) => x !== 0,
+  );
 const pick = (a) => a[ri(0, a.length - 1)];
-const coin = () => random() < 0.5;
+const coin = () => choose(2) === 0;
 const shuffle = (a) => {
   a = [...a];
   for (let i = a.length - 1; i > 0; i--) {
@@ -148,6 +209,10 @@ export {
   newSeed,
   seedText,
   parseSeed,
+  withChoices,
+  alleKeuzes,
+  until,
+  Afgekeurd,
   ri,
   nz,
   pick,
