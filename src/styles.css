@@ -1188,6 +1188,134 @@ sub {
 .ctable td {
   font-variant-numeric: tabular-nums;
 }
+/* Zo maken we de vragen: drie getallen bovenaan, en de domeinen als kaarten in hun eigen kleur. */
+.vstats {
+  display: grid;
+  gap: 10px;
+}
+/* De lijst met stappen staat dicht bij de zin erboven en eronder, zoals een alinea. */
+.vsteps {
+  margin: 0;
+  padding-left: 1.4em;
+}
+.vfig {
+  margin: 8px 0 0;
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.vraster {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+}
+.vr-bg {
+  fill: var(--blue-soft);
+}
+.vr-lijn {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 0.4;
+  opacity: 0.55;
+}
+.vr-rand {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 1;
+}
+.vr-cel {
+  fill: var(--orange);
+}
+.vr-ring {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 1.5;
+}
+.vr-t {
+  fill: var(--ink);
+  font-size: 11px;
+}
+/* De drie getallen vallen op met de zachte blauwe kleur, die er in de donkere modus al een heeft. */
+.vstats .tile {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+}
+.vtile-main .tile-value {
+  font-size: 2.4rem;
+}
+.vdomein {
+  min-width: 0;
+  margin-bottom: 14px;
+  break-inside: avoid;
+  padding: 0 14px 6px;
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--accent);
+  border-radius: 6px;
+}
+.vkop {
+  padding: 10px 0 4px;
+}
+.vkop h3 {
+  margin: 0;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--accent);
+}
+/* De naam breekt zo nodig af, het aantal blijft rechts staan en breekt niet af. */
+.vkop,
+.vdomein .ctopic summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+.vkop > span,
+.vdomein .ctopic summary > span:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+/* Breekt een naam af, dan begint de tweede regel onder de tekst en niet onder het pijltje. */
+.vdomein .ctopic summary > span:first-child {
+  padding-left: 1.1em;
+  text-indent: -1.1em;
+}
+.vdomein .ctopic summary > span:first-child::before {
+  text-indent: 0;
+}
+.vtotaal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--blue);
+  border-radius: 6px;
+  background: var(--blue-soft);
+  font-size: 1.1rem;
+}
+.vtotaal b {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.vdomein .ctopic:last-child {
+  border-bottom: 0;
+}
+/* De drie getallen staan naast elkaar als er genoeg ruimte is, elk zo breed als het getal vraagt. */
+@media (min-width: 820px) {
+  .vstats {
+    grid-template-columns: auto auto auto;
+  }
+}
+@media (min-width: 820px) {
+  .vdomeinen {
+    columns: 2;
+    column-gap: 14px;
+  }
+}
 .ctopic > p {
   margin: 6px 0 10px;
 }

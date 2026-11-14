@@ -494,6 +494,7 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
     'privacy',
     'contact',
     'cijfers',
+    'zo-maken-we-vragen',
     // De code, de CSS en de lettertypes, zie scripts/build.js.
     'assets',
     // De functie voor de anonieme tellen, zie api/tel.js. Azure houdt /api altijd voor functies.
