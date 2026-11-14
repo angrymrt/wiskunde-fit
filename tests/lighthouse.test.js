@@ -27,7 +27,7 @@ test('een score die 3 punten of meer lager is dan live krijgt een waarschuwing',
 });
 
 test('de opmerking begint met de markering waarmee de workflow hem terugvindt', () => {
-  const l = meting(98, 100, 100);
+  const l = { ...meting(98, 100, 100), metingen: 3 };
   const tekst = opmerking(
     'https://p',
     'https://l',
@@ -35,4 +35,32 @@ test('de opmerking begint met de markering waarmee de workflow hem terugvindt', 
     3,
   );
   assert.ok(tekst.startsWith('<!-- lighthouse -->'));
+});
+
+test('een mislukte meting wordt overgeslagen en het aantal klopt', () => {
+  const origineel = console.error;
+  console.error = () => {};
+  try {
+    let i = 0;
+    const r = meetMediaan('x', 3, () => {
+      if (i++ === 1) throw new Error('mislukt');
+      return meting(90, 100, 100);
+    });
+    assert.equal(r.metingen, 2);
+    assert.throws(
+      () =>
+        meetMediaan('x', 2, () => {
+          throw new Error('mislukt');
+        }),
+      /mislukt/,
+    );
+  } finally {
+    console.error = origineel;
+  }
+});
+
+test('een verschil rekent met de getoonde getallen en toont geen -0', () => {
+  const t = tabel(PAGINAS[0], meting(100, 100, 100, 2000, 5.4), meting(100, 100, 100, 2000, 10.4));
+  assert.match(t, /\| TBT \(ms\) \| 5 \| 10 \| \+5 \|/);
+  assert.match(t, /\| CLS \| 0,000 \| 0,000 \| 0,000 \|/);
 });

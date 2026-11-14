@@ -88,7 +88,10 @@ export const meetMediaan = (adres, runs, meetFn = meet) => {
     }
   }
   if (!alle.length) throw fout;
-  return Object.fromEntries(Object.keys(alle[0]).map((k) => [k, mediaan(alle.map((m) => m[k]))]));
+  const waarden = Object.fromEntries(
+    Object.keys(alle[0]).map((k) => [k, mediaan(alle.map((m) => m[k]))]),
+  );
+  return { ...waarden, metingen: alle.length };
 };
 
 // Een getal met komma en een teken bij een verschil, en nooit -0,0.
@@ -114,21 +117,25 @@ export const tabel = (pagina, live, preview) => {
   for (const [id, naam, om, dec] of METINGEN) {
     const a = om(live[id]);
     const b = om(preview[id]);
-    const v = b - a;
+    // Het verschil van de getoonde, afgeronde getallen, zodat de tabel klopt als je narekent.
+    const v = Number(b.toFixed(dec)) - Number(a.toFixed(dec));
     regels.push(`| ${naam} | ${fmt(a, dec)} | ${fmt(b, dec)} | ${fmt(v, dec, true)} |`);
   }
   return regels.join('\n');
 };
 
-export const opmerking = (preview, live, resultaten, runs) =>
-  [
+export const opmerking = (preview, live, resultaten) => {
+  // Het kleinste aantal geslaagde metingen, want een mislukte wordt overgeslagen.
+  const n = Math.min(...resultaten.flatMap((r) => [r.live.metingen, r.preview.metingen]));
+  return [
     '<!-- lighthouse -->',
     '### Lighthouse (mobiel)',
     '',
-    `Preview ${preview} tegenover ${live}. Middelste van ${runs} metingen. ⚠️ betekent ${DREMPEL} punten of meer lager dan live. SEO telt niet mee, want de preview en het oefenscherm zijn \`noindex\`. Informatief, niet verplicht.`,
+    `Preview ${preview} tegenover ${live}. Middelste van ${n} metingen. ⚠️ betekent ${DREMPEL} punten of meer lager dan live. SEO telt niet mee, want de preview en het oefenscherm zijn \`noindex\`. Informatief, niet verplicht.`,
     '',
     ...resultaten.map(({ pagina, live: l, preview: p }) => `${tabel(pagina, l, p)}\n`),
   ].join('\n');
+};
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const preview = (process.argv[2] ?? '').replace(/\/$/, '');
@@ -143,7 +150,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     live: meetMediaan(live + pagina.pad, runs),
     preview: meetMediaan(preview + pagina.pad, runs),
   }));
-  const tekst = opmerking(preview, live, resultaten, runs);
+  const tekst = opmerking(preview, live, resultaten);
   console.log(tekst);
   if (process.env.LIGHTHOUSE_UIT) writeFileSync(process.env.LIGHTHOUSE_UIT, tekst);
 }
