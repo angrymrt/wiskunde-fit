@@ -27,6 +27,8 @@ const DESCRIPTIONS = {
     'Een vraag, een idee of een fout in de stof gevonden? Mail Wiskundefit of meld het op GitHub. Testers met een schermlezer zijn ook welkom.',
   cijfers:
     'Hoe er op Wiskundefit wordt geoefend: welke stof het meest, welke vragen moeilijk zijn en welke fouten vaak voorkomen. Anoniem geteld.',
+  vragen:
+    'Hoe Wiskundefit vragen maakt en het antwoord nakijkt, en hoeveel verschillende vragen elke soort vraag kan maken. Gratis oefenen, zonder account.',
   stof: 'Je gekozen stof, je voortgang en je laatste resultaat.',
   stofoefen: 'Oefen de stof die je zelf hebt gekozen.',
   toets: 'Maak een proeftoets over je eigen stof, met een cijfer en uitwerkingen.',
@@ -55,7 +57,9 @@ const PAGES = [
   ...TOPICS.map((t) => page({ name: 'topic', slug: t.slug }, t.description)),
   page({ name: 'kies' }, DESCRIPTIONS.kies),
   ...MAPPINGS.map((m) => page({ name: 'mapping', id: m.id }, mappingDescription(m))),
-  ...['over', 'privacy', 'contact', 'cijfers'].map((name) => page({ name }, DESCRIPTIONS[name])),
+  ...['over', 'privacy', 'contact', 'cijfers', 'vragen'].map((name) =>
+    page({ name }, DESCRIPTIONS[name]),
+  ),
   ...TOPICS.map((t) =>
     page(
       { name: 'topic', slug: t.slug, oefen: true },
