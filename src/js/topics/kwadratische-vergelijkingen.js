@@ -222,11 +222,7 @@ function s33moveTry() {
     hint: T('Maak eerst het rechterlid 0. Ontbind daarna het linkerlid in factoren.'),
   });
 }
-const s33move = () =>
-  until(
-    s33moveTry,
-    (q) => q !== null,
-  );
+const s33move = () => until(s33moveTry, (q) => q !== null);
 
 // Eén poging voor een vergelijking met haakjes van deze soort. Geeft null als de getallen niet
 // mooi uitkomen, en dan probeert s33brackets het opnieuw met dezelfde soort.
