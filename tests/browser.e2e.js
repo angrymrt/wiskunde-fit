@@ -724,16 +724,16 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await p.click('.hero a[href="/methode-indeling"]');
     const status = () => p.textContent('.found-count [role="status"]');
     const search = () => new URL(p.url()).search;
-    assert.equal(await p.locator('.book').count(), 3);
+    assert.equal(await p.locator('.book').count(), 4);
     assert.ok(await p.isHidden('#filters'), 'de filters staan eerst dicht');
     await p.screenshot({ path: `${shotDir}kies-uit-je-boek.png`, fullPage: true });
     await p.click('[data-act="boekfilters"]');
     assert.equal(await p.getAttribute('[data-act="boekfilters"]', 'aria-expanded'), 'true');
     await p.click('[data-act="boekfilter"][data-id="niveau:vwo"]');
-    assert.equal(await status(), '2 boeken passen bij je filters');
+    assert.equal(await status(), '3 boeken passen bij je filters');
     assert.equal(search(), '?niveau=vwo');
     await p.click('[data-act="boekfilterclear"]');
-    assert.equal(await status(), '3 boeken');
+    assert.equal(await status(), '4 boeken');
     assert.equal(search(), '');
     // Een boek voor havo 3: twee filters, en de focus blijft op het vinkje.
     await p.click('label:has([data-id="niveau:havo"])');
