@@ -31,7 +31,7 @@ test('id en adres zijn uniek en het adres is geldig', () => {
 });
 
 test('elke methode-indeling heeft alle paragrafen', () => {
-  const expected = { 'gr13-hv1': 47, 'gr13-hv2': 39, 'gr13-havo3': 46 };
+  const expected = { 'gr13-hv1': 47, 'gr13-hv2': 39, 'gr13-vwo1': 6, 'gr13-havo3': 46 };
   for (const m of MAPPINGS) assert.equal(paragraphsOf(m).length, expected[m.id], m.id);
 });
 
@@ -75,7 +75,8 @@ test('de dekking klopt met de vraagsoorten', () => {
 test('een methode-indeling die niet is vergeleken met het boek zegt dat', () => {
   for (const m of MAPPINGS) {
     const coverage = paragraphsOf(m).map((p) => p.coverage);
-    if (m.note) assert.ok(!coverage.includes('gedekt'), `${m.id}: gedekt zonder vergelijking`);
+    if (m.note && m.id !== 'gr13-vwo1')
+      assert.ok(!coverage.includes('gedekt'), `${m.id}: gedekt zonder vergelijking`);
   }
 });
 
@@ -106,6 +107,11 @@ test('elk deel heeft een leerboek en een FLEX-boek met een geldig ISBN', () => {
     for (const b of m.books) assert.ok(validIsbn(b.isbn), `${b.name}: ${b.isbn}`);
     for (const part of new Set(m.books.map((b) => b.part))) {
       const names = m.books.filter((b) => b.part === part).map((b) => b.name);
+      // Voor vwo 1 bestaat geen FLEX-boek, alleen de leerboeken.
+      if (m.id === 'gr13-vwo1') {
+        assert.equal(names.length, 1, `${m.id} ${part}`);
+        continue;
+      }
       assert.equal(names.length, 2, `${m.id} ${part}`);
       assert.equal(names.filter((n) => n.includes('FLEX')).length, 1, `${m.id} ${part}`);
     }
@@ -132,7 +138,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
   );
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 126);
+  assert.equal(prog.stof.length, 142);
   setStof([]);
 });
 

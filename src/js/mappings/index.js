@@ -1,9 +1,10 @@
 // Alle methode-indelingen. Een nieuwe methode-indeling voeg je hier toe.
 import hv1 from './gr13-hv1.js';
 import hv2 from './gr13-hv2.js';
+import vwo1 from './gr13-vwo1.js';
 import havo3 from './gr13-havo3.js';
 
-const MAPPINGS = [hv1, hv2, havo3];
+const MAPPINGS = [hv1, hv2, vwo1, havo3];
 const MAPPING = Object.fromEntries(MAPPINGS.map((m) => [m.id, m]));
 
 // Dekking: zonder vraagsoorten niet gedekt, en anders gedekt tenzij de paragraaf 'deels' zegt.

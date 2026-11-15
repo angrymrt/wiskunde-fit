@@ -524,6 +524,71 @@
       "aantal": 555159864,
       "ondergrens": true,
       "exact": false
+    },
+    "127": {
+      "aantal": 2987888,
+      "exact": false
+    },
+    "128": {
+      "aantal": 166768,
+      "exact": true
+    },
+    "129": {
+      "aantal": 1260,
+      "exact": true
+    },
+    "130": {
+      "aantal": 332928,
+      "exact": true
+    },
+    "131": {
+      "aantal": 11932,
+      "exact": true
+    },
+    "132": {
+      "aantal": 54080,
+      "exact": true
+    },
+    "133": {
+      "aantal": 685,
+      "exact": true
+    },
+    "134": {
+      "aantal": 410,
+      "exact": true
+    },
+    "135": {
+      "aantal": 102,
+      "exact": true
+    },
+    "136": {
+      "aantal": 1010,
+      "exact": true
+    },
+    "137": {
+      "aantal": 520097,
+      "exact": true
+    },
+    "138": {
+      "aantal": 56,
+      "exact": true
+    },
+    "139": {
+      "aantal": 105665,
+      "ondergrens": true,
+      "exact": false
+    },
+    "140": {
+      "aantal": 746928,
+      "exact": true
+    },
+    "141": {
+      "aantal": 46734,
+      "exact": true
+    },
+    "142": {
+      "aantal": 588,
+      "exact": true
     }
   }
 }

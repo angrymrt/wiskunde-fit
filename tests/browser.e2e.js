@@ -724,16 +724,16 @@ test('een leerling kiest stof uit het boek en oefent die', { timeout: 120_000 },
     await p.click('.hero a[href="/methode-indeling"]');
     const status = () => p.textContent('.found-count [role="status"]');
     const search = () => new URL(p.url()).search;
-    assert.equal(await p.locator('.book').count(), 3);
+    assert.equal(await p.locator('.book').count(), 4);
     assert.ok(await p.isHidden('#filters'), 'de filters staan eerst dicht');
     await p.screenshot({ path: `${shotDir}kies-uit-je-boek.png`, fullPage: true });
     await p.click('[data-act="boekfilters"]');
     assert.equal(await p.getAttribute('[data-act="boekfilters"]', 'aria-expanded'), 'true');
     await p.click('[data-act="boekfilter"][data-id="niveau:vwo"]');
-    assert.equal(await status(), '2 boeken passen bij je filters');
+    assert.equal(await status(), '3 boeken passen bij je filters');
     assert.equal(search(), '?niveau=vwo');
     await p.click('[data-act="boekfilterclear"]');
-    assert.equal(await status(), '3 boeken');
+    assert.equal(await status(), '4 boeken');
     assert.equal(search(), '');
     // Een boek voor havo 3: twee filters, en de focus blijft op het vinkje.
     await p.click('label:has([data-id="niveau:havo"])');
@@ -894,14 +894,15 @@ test(
           });
         }
         await checkOverflow(`${id} schuifjes op maximum`);
-        // Elke video staat er één keer, en de link bovenaan gaat naar de video's.
+        // Elke video staat er één keer, en de link bovenaan gaat naar de video's. Een onderwerp
+        // zonder video's heeft geen link en geen kop.
         const videos = await p.evaluate((i) => {
           const v = wiskundefit.TOPIC[i].videos;
           return Object.values(v).flat().length;
         }, id);
         assert.equal(await p.locator('.vid-links a').count(), videos, `${id}: video's`);
-        assert.ok(await p.$('a[href="#videos"]'), `${id}: link naar de video's`);
-        assert.ok(await p.$('h2#videos'), `${id}: kop van de video's`);
+        assert.equal(!!(await p.$('a[href="#videos"]')), videos > 0, `${id}: link naar de video's`);
+        assert.equal(!!(await p.$('h2#videos')), videos > 0, `${id}: kop van de video's`);
         await p.click('a.btn[href$="/oefenen"]');
 
         const skills = await p.evaluate((i) => wiskundefit.TOPIC[i].skills.map((k) => k.id), id);
@@ -2194,7 +2195,7 @@ test(
 // parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB.
 const LIMITS = {
   page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
-  // Alleen Zo maken we de vragen: alle 126 vraagsoorten en drie roosters staan erin.
+  // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   start: { sent: 60, own: 165, why: 'de code bij het eerste bezoek' },
