@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.19.4
+
+### Hersteld
+
+- Een onderwerp oefenen toont niet meer ook de soorten vragen die niet in je stof zitten. Heb je in Mijn stof een deel van een onderwerp gekozen, dan oefen je daar alleen dat deel. Met de schakelaar "Alleen mijn stof" zet je dat uit om alle soorten van het onderwerp te oefenen. Een gedeelde link naar een vraag werkt zoals eerst.
+
 ## 1.19.3
 
 ### Verbeterd

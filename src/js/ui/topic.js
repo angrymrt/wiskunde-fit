@@ -2,7 +2,7 @@
 import { isDrawing } from '../answers.js';
 import { prog, skillPct, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
-import { topicOf } from '../stof.js';
+import { isChosen, topicOf } from '../stof.js';
 import { makeQuestion } from '../topics/index.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
@@ -54,13 +54,20 @@ function vVideos(s) {
 }
 // Zonder seed krijgt de vraag een nieuwe. Met ?soort=...&seed=... uit het adres komt precies die
 // vraag terug.
+// Heeft de leerling stof gekozen met een deel van de soorten van dit onderwerp, dan staat de
+// schakelaar "Alleen mijn stof" erbij, standaard aan. Uit (st.alle) oefent ze alles.
+const mijnStof = (s) => {
+  const mine = s.skills.filter((k) => isChosen(k.id));
+  return !s.mixed && mine.length && mine.length < s.skills.length ? mine : null;
+};
+const activeSkills = (s) => (!state.prac[s.slug]?.alle && mijnStof(s)) || s.skills;
 function newQuestion(s, seed) {
   const st = state.prac[s.slug];
   let sk;
   if (st.filter) {
     sk = s.skills.find((k) => k.id === st.filter);
   } else {
-    const pool = [...s.skills].sort(
+    const pool = [...activeSkills(s)].sort(
       (a, b) => skillPct(a.id) - skillPct(b.id) + (Math.random() - 0.5) * 0.5,
     );
     sk = pool.find((k) => k.id !== st.lastSkill) || pool[0];
@@ -86,20 +93,39 @@ const practiceState = (s) => state.prac[s.slug] || (state.prac[s.slug] = { right
 function applySoort(s, soort = null, seed) {
   const st = practiceState(s);
   st.filter = soort;
+  // Een nieuw bezoek begint weer met alleen je stof.
+  st.alle = false;
+  // Een gedeelde link met ?soort= toont die soort altijd, ook buiten je stof.
+  if (soort && !activeSkills(s).some((k) => k.id === soort)) st.alle = true;
   if (soort && seed !== undefined && (st.q?.seed !== seed || st.skill?.id !== soort))
     newQuestion(s, seed);
   else if (soort && st.skill?.id !== soort) newQuestion(s);
+}
+function scopeSwitch(s) {
+  return mijnStof(s)
+    ? `<button class="switch" type="button" role="switch" aria-checked="${!state.prac[s.slug]?.alle}" data-act="scope">Alleen mijn stof</button>`
+    : '';
 }
 // Oefenen in één blok: bovenaan de kop met de soorten vragen, daaronder de vraag. Alleen de vraag
 // komt met een korte animatie in beeld, de kop blijft staan.
 function vPractice(s, title) {
   const st = practiceState(s);
-  if (!st.q) newQuestion(s);
+  // De stofkeuze kan veranderd zijn (ook in een ander tabblad): een soort die niet meer meedoet, vervalt.
+  const act = activeSkills(s);
+  if (!act.some((k) => k.id === st.filter)) st.filter = null;
+  if (!st.q || !act.includes(st.skill)) newQuestion(s);
   const q = st.q,
     done = st.status === 'right' || st.status === 'shown';
   const chips = s.mixed
     ? `<p class="small">Uitleg bij deze vraag: ${topicLink(topicOf(st.skill.id))}</p>`
-    : `<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${s.skills.map((k) => `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`).join('')}</div>`;
+    : `${scopeSwitch(s)}<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${activeSkills(
+        s,
+      )
+        .map(
+          (k) =>
+            `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`,
+        )
+        .join('')}</div>`;
   const share = shareHTML(st.skill, q),
     meld = meldHTML(st.skill, q);
   return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}${meld.button}</span></div>${share.note}</div>

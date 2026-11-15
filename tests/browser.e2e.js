@@ -356,6 +356,17 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     );
     assert.deepEqual(mixed, ['rekenen-met-een-formule']);
     await p.screenshot({ path: `${shotDir}mijn-stof-boek.png`, fullPage: true });
+    // Een half gekozen onderwerp oefent standaard alleen de gekozen soorten, tot je alles kiest.
+    await p.goto(at('/rekenen-met-een-formule/oefenen'));
+    const chipCount = () => p.locator('.chips .chip').count();
+    const mine = await chipCount();
+    assert.match(await p.textContent('main'), /Alleen mijn stof/);
+    await p.click('[data-act="scope"]');
+    const all = await chipCount();
+    assert.ok(all > mine, `alle soorten (${all}) zijn meer dan mijn stof (${mine})`);
+    await p.click('[data-act="scope"]');
+    assert.equal(await chipCount(), mine);
+    await p.screenshot({ path: `${shotDir}onderwerp-mijn-stof.png` });
     await p.goto(siteUrl);
     assert.equal(await p.locator('.domain .pill', { hasText: 'Mijn stof' }).count(), 7);
 
@@ -2198,7 +2209,7 @@ const LIMITS = {
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 60, own: 165, why: 'de code bij het eerste bezoek' },
+  start: { sent: 60, own: 166, why: 'de code bij het eerste bezoek' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
   css: { sent: 8, why: 'de CSS' },
