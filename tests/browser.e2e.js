@@ -1229,6 +1229,25 @@ test('elke vooraf gebouwde pagina is zonder JavaScript te lezen', async () => {
   }
 });
 
+test('Zo maken we de vragen past op een telefoon, ook met alles uitgeklapt', async () => {
+  const browser = await launch();
+  try {
+    for (const width of [320, 360, 390]) {
+      const p = await browser.newPage({ viewport: { width, height: 800 } });
+      await p.goto(at('/zo-maken-we-vragen'));
+      await p.click('[data-act="vragenopen"][data-id="open"]');
+      assert.equal(
+        await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1),
+        false,
+        `${width} px: de pagina is breder dan het scherm`,
+      );
+      await p.close();
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
 test('de terugknop gaat naar het vorige scherm en bewaart een half gemaakte vraag', async () => {
   const browser = await launch();
   try {
@@ -2167,11 +2186,18 @@ test(
 // gedeelde code en de catalogus: in november 2026 47 kB (125 kB zelf). Het grootste onderwerp, Top
 // en snijpunten van een parabool, was 10 kB (27 kB zelf), en het grootste gedeelde bestand 8 kB
 // (17 kB zelf). Een nieuw onderwerp maakt het eerste bezoek dus nauwelijks groter. Wordt een
-// onderwerp te groot, verdeel het dan in twee onderwerpen.
+// onderwerp te groot, verdeel het dan in twee onderwerpen. De pagina Zo maken we de vragen (#22)
+// maakte het eerste bezoek 3,5 kB groter (12 kB zelf), door de tekst en de aantallen per soort vraag:
+// het eerste bezoek was 54 kB en mag nu 60 kB zijn. De pagina zelf is 8,6 kB, want alle 126
+// soorten en de roosters staan erin. Die heeft daarom een eigen grens (lijst), zodat de grens voor
+// de andere pagina's blijft laag. Die was 6 kB, tot de grootste pagina (Top en snijpunten van een
+// parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB.
 const LIMITS = {
-  page: { sent: 6, why: 'een vooraf gebouwde pagina' },
+  page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
+  // Alleen Zo maken we de vragen: alle 126 vraagsoorten en drie roosters staan erin.
+  lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 55, own: 150, why: 'de code bij het eerste bezoek' },
+  start: { sent: 60, own: 165, why: 'de code bij het eerste bezoek' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
   css: { sent: 8, why: 'de CSS' },
@@ -2195,7 +2221,10 @@ const underLimit = (what, size, limit) => {
 test('de pagina’s en de code blijven klein', async () => {
   const dist = new URL('../dist/', import.meta.url);
   const topics = new Set(TOPICS.map((t) => t.slug));
-  const files = PAGES.map((p) => [p.file, p.shell || !p.path ? 'shell' : 'page']);
+  const files = PAGES.map((p) => [
+    p.file,
+    p.shell || !p.path ? 'shell' : p.file === 'zo-maken-we-vragen/index.html' ? 'lijst' : 'page',
+  ]);
   for (const name of await readdir(new URL('assets/', dist))) {
     const ext = name.match(/\.\w+$/)?.[0];
     const code = topics.has(name.replace(/-\w+\.js$/, ''))

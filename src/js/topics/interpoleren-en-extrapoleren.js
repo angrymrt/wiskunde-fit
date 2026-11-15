@@ -1,5 +1,5 @@
 // Onderwerp: Interpoleren en extrapoleren. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, pick, near, rd, isNice, d } from '../math.js';
+import { ri, pick, near, rd, isNice, d, until } from '../math.js';
 import { F, RF, needRound, group, miss, trap } from './shared.js';
 import { T, tabel } from '../typeset.js';
 import { chart } from '../figures.js';
@@ -138,21 +138,24 @@ const real = (c, v) => v >= c.real[0] && v <= c.real[1];
 function makeData(n = ri(4, 5)) {
   const c = pick(DATA),
     p = 10 ** c.k;
-  for (;;) {
-    const gaps = Array.from({ length: n - 1 }, () => ri(2, 8)),
-      span = gaps.reduce((a, b) => a + b, 0);
-    if (span > 26) continue;
-    const ys = [ri(1996, 2024 - span)];
-    gaps.forEach((gp) => ys.push(ys[ys.length - 1] + gp));
-    const vs = [ri(c.v0[0] * p, c.v0[1] * p) / p];
-    let ok = true;
-    for (const gp of gaps) {
-      const dv = ri(Math.round(gp * c.s[0] * p), Math.round(gp * c.s[1] * p)) / p;
-      if (Math.abs(dv) < gp * c.min) ok = false;
-      vs.push(rd(vs[vs.length - 1] + dv, c.k));
-    }
-    if (ok && vs.every((v) => real(c, v))) return { c, ys, vs };
-  }
+  return until(
+    () => {
+      const gaps = Array.from({ length: n - 1 }, () => ri(2, 8)),
+        span = gaps.reduce((a, b) => a + b, 0);
+      if (span > 26) return null;
+      const ys = [ri(1996, 2024 - span)];
+      gaps.forEach((gp) => ys.push(ys[ys.length - 1] + gp));
+      const vs = [ri(c.v0[0] * p, c.v0[1] * p) / p];
+      let ok = true;
+      for (const gp of gaps) {
+        const dv = ri(Math.round(gp * c.s[0] * p), Math.round(gp * c.s[1] * p)) / p;
+        if (Math.abs(dv) < gp * c.min) ok = false;
+        vs.push(rd(vs[vs.length - 1] + dv, c.k));
+      }
+      return { c, ys, vs, ok };
+    },
+    (x) => x !== null && x.ok && x.vs.every((v) => real(c, v)),
+  );
 }
 
 // De gegevens als tabel in de vraag, of als lijndiagram met de jaren op de goede afstand. Twee
@@ -198,16 +201,19 @@ const RATE = 'gemiddelde verandering per jaar = {verschil in waarde/verschil in 
 
 // De gegevens en twee waarnemingen waartussen de verandering per jaar niet op een half uitkomt.
 function rateData() {
-  for (;;) {
-    const D = makeData(),
-      n = D.ys.length,
-      whole = ri(0, 2) === 0,
-      j = ri(0, n - 2),
-      [a, b] = whole ? [0, n - 1] : [j, j + 1],
-      nr = Math.min(D.c.k + 1, 2),
-      r = rd(D.vs[b] - D.vs[a], D.c.k) / (D.ys[b] - D.ys[a]);
-    if (!half(r, nr)) return { D, whole, a, b, nr };
-  }
+  return until(
+    () => {
+      const D = makeData(),
+        n = D.ys.length,
+        whole = ri(0, 2) === 0,
+        j = ri(0, n - 2),
+        [a, b] = whole ? [0, n - 1] : [j, j + 1],
+        nr = Math.min(D.c.k + 1, 2),
+        r = rd(D.vs[b] - D.vs[a], D.c.k) / (D.ys[b] - D.ys[a]);
+      return { D, whole, a, b, nr, r };
+    },
+    ({ r, nr }) => !half(r, nr),
+  );
 }
 
 function s45rate() {
@@ -312,43 +318,147 @@ function estimateTraps({ c, Ya, Yb, gap, diff, r, m, sgn, base, Y0, ans, other, 
 }
 
 function s45inter() {
-  for (;;) {
-    const D = makeData(),
-      { c, ys, vs } = D,
-      n = ys.length,
-      k = c.k,
-      j = ri(0, n - 2),
-      [Ya, Yb, va, vb] = [ys[j], ys[j + 1], vs[j], vs[j + 1]],
-      gap = Yb - Ya,
-      Y = ri(Ya + 1, Yb - 1),
-      m = Y - Ya,
-      diff = rd(vb - va, k),
-      r = diff / gap,
-      ans = va + m * r;
+  const { D, c, ys, n, k, vs, j, Ya, Yb, va, vb, gap, Y, m, diff, r, ans } = until(
+    () => {
+      const D = makeData(),
+        { c, ys, vs } = D,
+        n = ys.length,
+        k = c.k,
+        j = ri(0, n - 2),
+        [Ya, Yb, va, vb] = [ys[j], ys[j + 1], vs[j], vs[j + 1]],
+        gap = Yb - Ya,
+        Y = ri(Ya + 1, Yb - 1),
+        m = Y - Ya,
+        diff = rd(vb - va, k),
+        r = diff / gap,
+        ans = va + m * r;
+      return { D, c, ys, n, k, vs, j, Ya, Yb, va, vb, gap, Y, m, diff, r, ans };
+    },
     // De verandering moet te zien zijn, en de schatting mag niet op een waarneming uitkomen.
-    if (Math.abs(m * r) < 2 * 10 ** -k || Math.abs(vb - ans) < 2 * 10 ** -k || half(ans, k))
-      continue;
-    const est = (p, q) => line(ys[p], vs[p], ys[q], vs[q], Y),
-      pairs = [
-        [0, n - 1],
-        [j - 1, j],
-        [j + 1, j + 2],
-      ].filter(([p, q]) => p >= 0 && q < n && !(p === j && q === j + 1)),
-      fields = [RF(`Schatting voor ${Y}:`, rd(ans, 9), k, c.post)],
-      { look, html, fig } = show(D);
-    return {
-      q: T(`${look} Schat ${c.the} in ${Y}.${needRound(fields)}`) + html,
-      fig,
-      fields,
-      hint: T(
-        `Gebruik de twee waarnemingen om ${Y} heen. Bereken eerst de gemiddelde verandering per jaar.`,
-      ),
-      steps: [
-        `${Y} ligt tussen ${Ya} en ${Yb}, dus interpoleren met de waarnemingen van ${Ya} en ${Yb}.`,
-        perYear(c, Ya, va, Yb, vb, r),
-        `${Y} is ${m} jaar na ${Ya}, dus de schatting voor ${Y} is ${fx(va, k)} + ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`,
-      ],
-      traps: estimateTraps({
+    ({ k, vb, m, r, ans }) =>
+      !(Math.abs(m * r) < 2 * 10 ** -k || Math.abs(vb - ans) < 2 * 10 ** -k || half(ans, k)),
+  );
+  const est = (p, q) => line(ys[p], vs[p], ys[q], vs[q], Y),
+    pairs = [
+      [0, n - 1],
+      [j - 1, j],
+      [j + 1, j + 2],
+    ].filter(([p, q]) => p >= 0 && q < n && !(p === j && q === j + 1)),
+    fields = [RF(`Schatting voor ${Y}:`, rd(ans, 9), k, c.post)],
+    { look, html, fig } = show(D);
+  return {
+    q: T(`${look} Schat ${c.the} in ${Y}.${needRound(fields)}`) + html,
+    fig,
+    fields,
+    hint: T(
+      `Gebruik de twee waarnemingen om ${Y} heen. Bereken eerst de gemiddelde verandering per jaar.`,
+    ),
+    steps: [
+      `${Y} ligt tussen ${Ya} en ${Yb}, dus interpoleren met de waarnemingen van ${Ya} en ${Yb}.`,
+      perYear(c, Ya, va, Yb, vb, r),
+      `${Y} is ${m} jaar na ${Ya}, dus de schatting voor ${Y} is ${fx(va, k)} + ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`,
+    ],
+    traps: estimateTraps({
+      c,
+      Ya,
+      Yb,
+      gap,
+      diff,
+      r,
+      m,
+      sgn: 1,
+      base: va,
+      Y0: Ya,
+      ans,
+      other: pairs.map(([p, q]) => est(p, q)),
+      wrongYear: [va + (Yb - Y) * r, vb + m * r],
+      why: `Gebruik de twee waarnemingen om ${Y} heen: die van ${Ya} en ${Yb}.`,
+    }).filter(Boolean),
+    // Met de rechte lijn door de twee waarnemingen, en het jaar ligt ertussen.
+    v: () => near(line(Ya, va, Yb, vb, Y), ans, 1e-9) && Ya < Y && Y < Yb && !ys.includes(Y),
+  };
+}
+
+function s45extra() {
+  const { D, c, ys, vs, n, k, back, a, b, Ya, Yb, va, vb, gap, diff, r, m, Y, sgn, base, Y0, ans } =
+    until(
+      () => {
+        const D = makeData(),
+          { c, ys, vs } = D,
+          n = ys.length,
+          k = c.k,
+          back = ri(0, 3) === 0,
+          [a, b] = back ? [0, 1] : [n - 2, n - 1],
+          [Ya, Yb, va, vb] = [ys[a], ys[b], vs[a], vs[b]],
+          gap = Yb - Ya,
+          diff = rd(vb - va, k),
+          r = diff / gap,
+          m = back ? ri(1, 5) : ri(2, 8),
+          Y = back ? Ya - m : Yb + m,
+          sgn = back ? -1 : 1,
+          base = back ? va : vb,
+          Y0 = back ? Ya : Yb,
+          ans = base + sgn * m * r;
+        return {
+          D,
+          c,
+          ys,
+          vs,
+          n,
+          k,
+          back,
+          a,
+          b,
+          Ya,
+          Yb,
+          va,
+          vb,
+          gap,
+          diff,
+          r,
+          m,
+          Y,
+          sgn,
+          base,
+          Y0,
+          ans,
+        };
+      },
+      ({ c, k, m, r, ans }) => !(!real(c, ans) || Math.abs(m * r) < 2 * 10 ** -k || half(ans, k)),
+    );
+  const est = (p, q) => line(ys[p], vs[p], ys[q], vs[q], Y),
+    pairs = (
+      back
+        ? [
+            [0, n - 1],
+            [1, 2],
+          ]
+        : [
+            [0, n - 1],
+            [n - 3, n - 2],
+          ]
+    ).filter(([p, q]) => p >= 0 && q < n),
+    tol = 0.5 * 10 ** -k,
+    fields = [RF(`Schatting voor ${Y}:`, rd(ans, 9), k, c.post)],
+    { look, html, fig } = show(D),
+    first = back
+      ? `${Y} ligt vóór ${Ya}, dus extrapoleren terug in de tijd. Gebruik de eerste twee waarnemingen: ${Ya} en ${Yb}.`
+      : `${Y} komt na ${Yb}, dus extrapoleren. Gebruik de laatste twee waarnemingen: ${Ya} en ${Yb}.`,
+    last = back
+      ? `${Y} is ${m} jaar vóór ${Ya}, dus de schatting voor ${Y} is ${fx(va, k)} - ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`
+      : `${Y} is ${m} jaar na ${Yb}, dus de schatting voor ${Y} is ${fx(vb, k)} + ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`;
+  return {
+    q: T(`${look} Schat ${c.the} in ${Y}.${needRound(fields)}`) + html,
+    fig,
+    fields,
+    hint: T(
+      back
+        ? 'Ligt het jaar vóór de eerste waarneming, gebruik dan de eerste twee waarnemingen. Bereken de gemiddelde verandering per jaar en reken terug in de tijd.'
+        : 'Ligt het jaar na de laatste waarneming, gebruik dan de laatste twee waarnemingen. Bereken de gemiddelde verandering per jaar.',
+    ),
+    steps: [first, perYear(c, Ya, va, Yb, vb, r), last],
+    traps: [
+      ...estimateTraps({
         c,
         Ya,
         Yb,
@@ -356,103 +466,29 @@ function s45inter() {
         diff,
         r,
         m,
-        sgn: 1,
-        base: va,
-        Y0: Ya,
+        sgn,
+        base,
+        Y0,
         ans,
         other: pairs.map(([p, q]) => est(p, q)),
-        wrongYear: [va + (Yb - Y) * r, vb + m * r],
-        why: `Gebruik de twee waarnemingen om ${Y} heen: die van ${Ya} en ${Yb}.`,
-      }).filter(Boolean),
-      // Met de rechte lijn door de twee waarnemingen, en het jaar ligt ertussen.
-      v: () => near(line(Ya, va, Yb, vb, Y), ans, 1e-9) && Ya < Y && Y < Yb && !ys.includes(Y),
-    };
-  }
-}
-
-function s45extra() {
-  for (;;) {
-    const D = makeData(),
-      { c, ys, vs } = D,
-      n = ys.length,
-      k = c.k,
-      back = ri(0, 3) === 0,
-      [a, b] = back ? [0, 1] : [n - 2, n - 1],
-      [Ya, Yb, va, vb] = [ys[a], ys[b], vs[a], vs[b]],
-      gap = Yb - Ya,
-      diff = rd(vb - va, k),
-      r = diff / gap,
-      m = back ? ri(1, 5) : ri(2, 8),
-      Y = back ? Ya - m : Yb + m,
-      sgn = back ? -1 : 1,
-      base = back ? va : vb,
-      Y0 = back ? Ya : Yb,
-      ans = base + sgn * m * r;
-    if (!real(c, ans) || Math.abs(m * r) < 2 * 10 ** -k || half(ans, k)) continue;
-    const est = (p, q) => line(ys[p], vs[p], ys[q], vs[q], Y),
-      pairs = (
-        back
-          ? [
-              [0, n - 1],
-              [1, 2],
-            ]
-          : [
-              [0, n - 1],
-              [n - 3, n - 2],
-            ]
-      ).filter(([p, q]) => p >= 0 && q < n),
-      tol = 0.5 * 10 ** -k,
-      fields = [RF(`Schatting voor ${Y}:`, rd(ans, 9), k, c.post)],
-      { look, html, fig } = show(D),
-      first = back
-        ? `${Y} ligt vóór ${Ya}, dus extrapoleren terug in de tijd. Gebruik de eerste twee waarnemingen: ${Ya} en ${Yb}.`
-        : `${Y} komt na ${Yb}, dus extrapoleren. Gebruik de laatste twee waarnemingen: ${Ya} en ${Yb}.`,
-      last = back
-        ? `${Y} is ${m} jaar vóór ${Ya}, dus de schatting voor ${Y} is ${fx(va, k)} - ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`
-        : `${Y} is ${m} jaar na ${Yb}, dus de schatting voor ${Y} is ${fx(vb, k)} + ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`;
-    return {
-      q: T(`${look} Schat ${c.the} in ${Y}.${needRound(fields)}`) + html,
-      fig,
-      fields,
-      hint: T(
-        back
-          ? 'Ligt het jaar vóór de eerste waarneming, gebruik dan de eerste twee waarnemingen. Bereken de gemiddelde verandering per jaar en reken terug in de tijd.'
-          : 'Ligt het jaar na de laatste waarneming, gebruik dan de laatste twee waarnemingen. Bereken de gemiddelde verandering per jaar.',
-      ),
-      steps: [first, perYear(c, Ya, va, Yb, vb, r), last],
-      traps: [
-        ...estimateTraps({
-          c,
-          Ya,
-          Yb,
-          gap,
-          diff,
-          r,
-          m,
-          sgn,
-          base,
-          Y0,
-          ans,
-          other: pairs.map(([p, q]) => est(p, q)),
-          wrongYear: back ? [va - (Yb - Y) * r] : [vb + (Y - Ya) * r],
-          why: back
-            ? `Gebruik bij een jaar vóór de eerste waarneming de eerste twee waarnemingen: die van ${Ya} en ${Yb}.`
-            : `Gebruik bij extrapoleren de laatste twee waarnemingen: die van ${Ya} en ${Yb}. Die passen het best bij de nieuwste ontwikkeling.`,
-        }),
-        back &&
-          trap(
-            'verkeerde-richting',
-            `${Y} ligt vóór ${Ya}. Ga dus terug in de tijd: ${fx(va, k)} − ${m} · ${dots(r)}.`,
-            miss(0, [va + m * r], ans, tol, tol),
-          ),
-      ].filter(Boolean),
-      // Met de rechte lijn door de twee waarnemingen, en het jaar ligt buiten de tabel.
-      v: () =>
-        near(line(Ya, va, Yb, vb, Y), ans, 1e-9) &&
-        (back ? Y < ys[0] : Y > ys[n - 1]) &&
-        Math.abs(a - b) === 1,
-    };
-  }
+        wrongYear: back ? [va - (Yb - Y) * r] : [vb + (Y - Ya) * r],
+        why: back
+          ? `Gebruik bij een jaar vóór de eerste waarneming de eerste twee waarnemingen: die van ${Ya} en ${Yb}.`
+          : `Gebruik bij extrapoleren de laatste twee waarnemingen: die van ${Ya} en ${Yb}. Die passen het best bij de nieuwste ontwikkeling.`,
+      }),
+      back &&
+        trap(
+          'verkeerde-richting',
+          `${Y} ligt vóór ${Ya}. Ga dus terug in de tijd: ${fx(va, k)} − ${m} · ${dots(r)}.`,
+          miss(0, [va + m * r], ans, tol, tol),
+        ),
+    ].filter(Boolean),
+    // Met de rechte lijn door de twee waarnemingen, en het jaar ligt buiten de tabel.
+    v: () =>
+      near(line(Ya, va, Yb, vb, Y), ans, 1e-9) &&
+      (back ? Y < ys[0] : Y > ys[n - 1]) &&
+      Math.abs(a - b) === 1,
+  };
 }
 
 // Ligt z tussen de waarden van twee waarnemingen die na elkaar komen? Telt hoe vaak.
@@ -460,96 +496,99 @@ const crossings = (vs, z) =>
   vs.slice(1).filter((v, i) => Math.min(v, vs[i]) <= z && z <= Math.max(v, vs[i])).length;
 
 function s45year() {
-  for (;;) {
-    const D = makeData(),
-      { c, ys, vs } = D,
-      n = ys.length,
-      k = c.k,
-      extra = ri(0, 2) === 0,
-      j = extra ? n - 2 : ri(0, n - 2),
-      [Ya, Yb, va, vb] = [ys[j], ys[j + 1], vs[j], vs[j + 1]],
-      gap = Yb - Ya,
-      diff = rd(vb - va, k),
-      r = diff / gap,
-      [Y0, v0] = extra ? [Yb, vb] : [Ya, va],
-      t0 = extra ? ri(10, 80) / 10 : ri(7, gap * 10 - 7) / 10;
-    // Eerst een tijdstip, dan de mooiste waarde in de buurt die past: op tientallen, vijftallen,
-    // tweetallen of gehelen van de laatste decimaal. Het aantal jaren t mag niet bijna op een half
-    // uitkomen, want dan is niet duidelijk welk jaar het is.
-    const fit = (zs) => {
-      const z = rd(Math.round((v0 + t0 * r) / zs) * zs, c.k),
-        t = (z - v0) / r,
-        fr = t - Math.floor(t),
-        exact = near(fr, 0, 1e-9) || near(fr, 1, 1e-9),
-        okT = extra ? t >= 1 && t <= 10 : t >= 0.65 && t <= gap - 0.65,
-        okFr = exact || (fr >= 0.15 && fr <= 0.35) || (fr >= 0.65 && fr <= 0.85);
-      return okT && okFr && real(c, z) && crossings(vs, z) === (extra ? 0 : 1)
-        ? { z, t, exact }
-        : null;
-    };
-    const found = [10, 5, 2, 1].map((s) => fit(s * 10 ** -k)).find(Boolean);
-    if (!found) continue;
-    const { z, t, exact } = found,
-      Y = Math.round(Y0 + t),
-      tt = exact ? Math.round(t) : t,
-      zt = `${fx(z, k)}${c.zu ? ` ${c.zu}` : ''}`,
-      dz = rd(z - v0, k),
-      field = exact ? F('Jaar:', Y) : RF('Jaar:', Y0 + t, 0),
-      { look, html, fig } = show(D),
-      tol = 0.5,
-      hit = (ws) => miss(0, ws, Y0 + t, tol, tol),
-      more = dz > 0 ? 'meer' : 'minder';
-    return {
-      q:
-        T(
-          `${look} Schat in welk jaar ${c.the} ${zt} is.${exact ? '' : ' Rond af op een heel jaar.'}`,
-        ) + html,
-      fig,
-      fields: [field],
-      hint: T(
-        'Bereken de gemiddelde verandering per jaar. Hoeveel moet er nog bij of af? Deel dat door de verandering per jaar. Dan weet je hoeveel jaar later het is.',
+  const { D, c, ys, vs, k, extra, Ya, Yb, va, vb, gap, diff, r, Y0, v0, found } = until(
+    () => {
+      const D = makeData(),
+        { c, ys, vs } = D,
+        n = ys.length,
+        k = c.k,
+        extra = ri(0, 2) === 0,
+        j = extra ? n - 2 : ri(0, n - 2),
+        [Ya, Yb, va, vb] = [ys[j], ys[j + 1], vs[j], vs[j + 1]],
+        gap = Yb - Ya,
+        diff = rd(vb - va, k),
+        r = diff / gap,
+        [Y0, v0] = extra ? [Yb, vb] : [Ya, va],
+        t0 = extra ? ri(10, 80) / 10 : ri(7, gap * 10 - 7) / 10;
+      // Eerst een tijdstip, dan de mooiste waarde in de buurt die past: op tientallen, vijftallen,
+      // tweetallen of gehelen van de laatste decimaal. Het aantal jaren t mag niet bijna op een half
+      // uitkomen, want dan is niet duidelijk welk jaar het is.
+      const fit = (zs) => {
+        const z = rd(Math.round((v0 + t0 * r) / zs) * zs, c.k),
+          t = (z - v0) / r,
+          fr = t - Math.floor(t),
+          exact = near(fr, 0, 1e-9) || near(fr, 1, 1e-9),
+          okT = extra ? t >= 1 && t <= 10 : t >= 0.65 && t <= gap - 0.65,
+          okFr = exact || (fr >= 0.15 && fr <= 0.35) || (fr >= 0.65 && fr <= 0.85);
+        return okT && okFr && real(c, z) && crossings(vs, z) === (extra ? 0 : 1)
+          ? { z, t, exact }
+          : null;
+      };
+      const found = [10, 5, 2, 1].map((s) => fit(s * 10 ** -k)).find(Boolean);
+      return { D, c, ys, vs, k, extra, Ya, Yb, va, vb, gap, diff, r, Y0, v0, found };
+    },
+    ({ found }) => found,
+  );
+  const { z, t, exact } = found,
+    Y = Math.round(Y0 + t),
+    tt = exact ? Math.round(t) : t,
+    zt = `${fx(z, k)}${c.zu ? ` ${c.zu}` : ''}`,
+    dz = rd(z - v0, k),
+    field = exact ? F('Jaar:', Y) : RF('Jaar:', Y0 + t, 0),
+    { look, html, fig } = show(D),
+    tol = 0.5,
+    hit = (ws) => miss(0, ws, Y0 + t, tol, tol),
+    more = dz > 0 ? 'meer' : 'minder';
+  return {
+    q:
+      T(
+        `${look} Schat in welk jaar ${c.the} ${zt} is.${exact ? '' : ' Rond af op een heel jaar.'}`,
+      ) + html,
+    fig,
+    fields: [field],
+    hint: T(
+      'Bereken de gemiddelde verandering per jaar. Hoeveel moet er nog bij of af? Deel dat door de verandering per jaar. Dan weet je hoeveel jaar later het is.',
+    ),
+    steps: [
+      extra
+        ? `${zt} is ${more} dan ${fx(vb, k)}, de laatste waarneming. Dus extrapoleren met de laatste twee waarnemingen: ${Ya} en ${Yb}.`
+        : `${zt} ligt tussen ${fx(va, k)} (${Ya}) en ${fx(vb, k)} (${Yb}), dus interpoleren met de waarnemingen van ${Ya} en ${Yb}.`,
+      perYear(c, Ya, va, Yb, vb, r),
+      `Van ${fx(v0, k)} naar ${fx(z, k)}: ${fx(z, k)} - ${fx(v0, k)} = ${fx(dz, k)}.`,
+      `{${fx(dz, k)}/${dots(r)}} ${exact ? `= ${tt}` : `≈ ${fx(t, 1)}`}, dus ${exact ? tt : fx(t, 1)} jaar na ${Y0}.`,
+      exact
+        ? `${Y0} + ${tt} = ${Y}, dus in ${Y}.`
+        : `${Y0} + ${fx(t, 1)} = ${fx(Y0 + rd(t, 1), 1)}, dus in ${Y}.`,
+    ],
+    traps: [
+      trap(
+        'aantal-jaren-geen-jaartal',
+        `Dit is het aantal jaren na ${Y0}. Tel dat nog op bij ${Y0}.`,
+        hit([t]),
       ),
-      steps: [
-        extra
-          ? `${zt} is ${more} dan ${fx(vb, k)}, de laatste waarneming. Dus extrapoleren met de laatste twee waarnemingen: ${Ya} en ${Yb}.`
-          : `${zt} ligt tussen ${fx(va, k)} (${Ya}) en ${fx(vb, k)} (${Yb}), dus interpoleren met de waarnemingen van ${Ya} en ${Yb}.`,
-        perYear(c, Ya, va, Yb, vb, r),
-        `Van ${fx(v0, k)} naar ${fx(z, k)}: ${fx(z, k)} - ${fx(v0, k)} = ${fx(dz, k)}.`,
-        `{${fx(dz, k)}/${dots(r)}} ${exact ? `= ${tt}` : `≈ ${fx(t, 1)}`}, dus ${exact ? tt : fx(t, 1)} jaar na ${Y0}.`,
-        exact
-          ? `${Y0} + ${tt} = ${Y}, dus in ${Y}.`
-          : `${Y0} + ${fx(t, 1)} = ${fx(Y0 + rd(t, 1), 1)}, dus in ${Y}.`,
-      ],
-      traps: [
-        trap(
-          'aantal-jaren-geen-jaartal',
-          `Dit is het aantal jaren na ${Y0}. Tel dat nog op bij ${Y0}.`,
-          hit([t]),
-        ),
-        trap(
-          'niet-gedeeld-door-jaren',
-          `Deel de verandering van ${Ya} tot ${Yb} eerst door het aantal jaren, ${gap}. Dan heb je de verandering per jaar.`,
-          hit([Y0 + dz / diff]),
-        ),
-        trap(
-          'startwaarde-vergeten',
-          `Bereken eerst hoeveel er nog bij of af moet: ${fx(z, k)} − ${fx(v0, k)}. Deel dat door de verandering per jaar.`,
-          hit([Y0 + z / r]),
-        ),
-        trap(
-          'verkeerd-beginjaar',
-          `Je rekent vanaf ${fx(v0, k)}, de waarde in ${Y0}. Tel de jaren dus ook op bij ${Y0}.`,
-          hit([(extra ? Ya : Yb) + t]),
-        ),
-      ].filter(Boolean),
-      // Met de rechte lijn door de twee waarnemingen hoort bij dat moment precies z, en z komt
-      // niet ook ergens anders in de tabel voor.
-      v: () =>
-        near(line(Ya, va, Yb, vb, Y0 + t), z, 1e-9) &&
-        Math.abs(Y0 + t - Y) <= 0.5 &&
-        crossings(vs, z) === (extra ? 0 : 1),
-    };
-  }
+      trap(
+        'niet-gedeeld-door-jaren',
+        `Deel de verandering van ${Ya} tot ${Yb} eerst door het aantal jaren, ${gap}. Dan heb je de verandering per jaar.`,
+        hit([Y0 + dz / diff]),
+      ),
+      trap(
+        'startwaarde-vergeten',
+        `Bereken eerst hoeveel er nog bij of af moet: ${fx(z, k)} − ${fx(v0, k)}. Deel dat door de verandering per jaar.`,
+        hit([Y0 + z / r]),
+      ),
+      trap(
+        'verkeerd-beginjaar',
+        `Je rekent vanaf ${fx(v0, k)}, de waarde in ${Y0}. Tel de jaren dus ook op bij ${Y0}.`,
+        hit([(extra ? Ya : Yb) + t]),
+      ),
+    ].filter(Boolean),
+    // Met de rechte lijn door de twee waarnemingen hoort bij dat moment precies z, en z komt
+    // niet ook ergens anders in de tabel voor.
+    v: () =>
+      near(line(Ya, va, Yb, vb, Y0 + t), z, 1e-9) &&
+      Math.abs(Y0 + t - Y) <= 0.5 &&
+      crossings(vs, z) === (extra ? 0 : 1),
+  };
 }
 
 // Een voorbeeldtabel voor de uitleg.

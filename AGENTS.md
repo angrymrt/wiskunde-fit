@@ -27,6 +27,7 @@ npm run dev           # bouwt de site in dist-dev/ en toont die op poort 5173 zo
 npm run dev:nep       # hetzelfde, maar de pagina Cijfers toont nepcijfers uit data/nep-tellen/
 npm test              # generatortests, adressen, schermen, server en releasecontrole, ongeveer 3 seconden
 npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer 2,5 minuut
+npm run vragen-tellen # telt hoeveel verschillende vragen elke soort maakt (alles ongeveer 15 minuten); met nummers erachter alleen die soorten
 npm run build         # maakt de site in dist/, met een HTML-bestand per pagina
 npm run images        # maakt de PNG's in src/ opnieuw, alleen nodig als het ontwerp verandert
 npm run fonts         # maakt het lettertype voor de koppen en het logo, alleen nodig als het ontwerp verandert
@@ -57,11 +58,12 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 
 ## Een vraag toevoegen
 
-1. Schrijf in het juiste bestand in `src/js/topics/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen. Haal al het toeval uit `ri`, `nz`, `pick`, `coin` en `shuffle` in `math.js`, nooit uit `Math.random`. Dan maakt dezelfde seed steeds dezelfde vraag, en `npm test` controleert dat. Faalt een vraag in de test, dan staat de link naar precies die vraag in de melding.
+1. Schrijf in het juiste bestand in `src/js/topics/` een functie die een vraag teruggeeft. Bedenk eerst het antwoord en maak daar de vraag bij, zodat de getallen altijd mooi uitkomen. Haal al het toeval uit `ri`, `nz`, `pick`, `coin` en `shuffle` in `math.js`, nooit uit `Math.random`. Kies je opnieuw als de getallen niet mooi uitkomen, gebruik dan `until(maak, klopt)` uit `math.js` en schrijf geen eigen lus (`do … while`, `for (;;)`) of aanroep van de generator zelf. `maak` doet de keuzes van één ronde en geeft de uitkomst, en `klopt` bevat geen toeval. Zo kan het tellen van de verschillende vragen een afgekeurde keuze overslaan. Dan maakt dezelfde seed steeds dezelfde vraag, en `npm test` controleert dat. Faalt een vraag in de test, dan staat de link naar precies die vraag in de melding.
 2. Zet de functie in de lijst `skills` onderaan het bestand, met het eerstvolgende vrije nummer: `[66, 'Naam van de vraagsoort', mijnFunctie]`.
 3. Zet hetzelfde nummer in `tests/vraagsoort-ids.js`: `66: 'mijnFunctie'`.
 4. Draai `npm test`. De test vindt de nieuwe vraag vanzelf en zegt welk nummer vrij is.
-5. Draai `node scripts/vingerafdrukken.js`. Dat bewaart een vingerafdruk van de vraag bij een paar vaste seeds in `tests/vingerafdrukken.json`. Doe dat ook als een vraagsoort stopt.
+5. Draai `npm run vragen-tellen`. Dat telt hoeveel verschillende vragen de nieuwe vraagsoort maakt en zet dat in `data/vragen-tellen.json`, voor de pagina Zo maken we de vragen. `npm test` faalt als een generator is veranderd en het tellen niet is bijgewerkt. Met nummers erachter telt het alleen die soorten, zoals `npm run vragen-tellen -- 66 67`. Stopt een vraagsoort, haal dan haar regel zelf uit `data/vragen-tellen.json` en `tests/vragen-tellen-stempels.json`.
+6. Draai `node scripts/vingerafdrukken.js`. Dat bewaart een vingerafdruk van de vraag bij een paar vaste seeds in `tests/vingerafdrukken.json`. Doe dat ook als een vraagsoort stopt.
 
 Een gedeelde link bevat alleen de vraagsoort en de seed. Geeft dezelfde seed later een andere vraag, dan ziet wie de link opent iets anders dan de leerling die hem deelde. Daarom faalt `npm test` als de getallen in de vraag of de antwoorden bij dezelfde seed veranderen. Andere woorden, een hint, een uitwerking of de opmaak van een figuur mogen gewoon. Het script werkt een veranderde vingerafdruk niet vanzelf bij. Moeten de getallen of antwoorden echt anders, geef de vraagsoort dan eerst een versie in de link. Die bestaat nog niet: bouw hem de eerste keer dat dit nodig is ([#60](https://github.com/angrymrt/wiskunde-fit/issues/60)). Werk daarna de vingerafdruk bij met het nummer erbij, zoals `node scripts/vingerafdrukken.js 17`.
 

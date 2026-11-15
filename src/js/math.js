@@ -28,16 +28,112 @@ function parseSeed(text) {
   return seed <= 0xffffffff ? seed : null;
 }
 
-const ri = (a, b) => a + Math.floor(random() * (b - a + 1));
-const nz = (a, b) => {
-  let x;
-  do {
-    x = ri(a, b);
-  } while (x === 0);
-  return x;
+// Elke keuze van een generator gaat via choose(n): een geheel getal van 0 tot en met n - 1. ri, pick,
+// coin en shuffle zijn er gewoon mee gemaakt. Zo kan alleKeuzes elke keuze een voor een doorlopen
+// en tellen hoeveel keuzes een generator kan maken, zonder dat een seed iets anders geeft. Zie #22.
+let choose = (n) => Math.floor(random() * n);
+
+// Een keuze die niet mooi uitkomt, kies je opnieuw met until(maak, klopt): maak geeft een
+// uitkomst, klopt zegt of die goed is. Schrijf zelf geen lus voor toeval, want alleKeuzes kan een
+// lus niet overslaan. Zonder tellen kiest until opnieuw tot het klopt, met hetzelfde toeval als
+// een gewone lus.
+class Afgekeurd extends Error {}
+let telt = false;
+const until = (maak, klopt) => {
+  for (;;) {
+    const x = maak();
+    if (klopt(x)) return x;
+    // Bij het tellen is dit pad geen vraag: alleKeuzes gaat naar het volgende.
+    if (telt) throw new Afgekeurd();
+  }
 };
+
+// Is alleKeuzes of schatKeuzes bezig? Dan telt een andere volgorde van meerkeuzeantwoorden niet als
+// een andere vraag, dus MC schudt dan niet.
+const tellen = () => telt;
+
+// Vervangt choose zolang make loopt, net als withSeed het toeval vervangt. Een keuze die until
+// afkeurt, gooit dan Afgekeurd.
+function withChoices(kies, make) {
+  const before = [choose, telt];
+  choose = kies;
+  telt = true;
+  try {
+    return make();
+  } finally {
+    [choose, telt] = before;
+  }
+}
+
+// Loopt alle keuzes van make een voor een door en roept op voor elke uitkomst. Geeft het aantal
+// paden terug dat een vraag geeft, of null als er meer dan maxPaden zijn bezocht, ook de afgekeurde:
+// dan is het te veel om na te lopen. Twee paden kunnen dezelfde vraag geven, bijvoorbeeld bij pick
+// uit een lijst met dubbele waarden, dus dit is een bovengrens voor het aantal verschillende
+// vragen. Een pad met meer dan maxKeuzes keuzes is een generator die steeds opnieuw begint, en telt
+// niet mee.
+// Het eerste pad kiest overal 0. Daarna gaat de laatste keuze die nog kan een omhoog, en begint
+// alles daarna weer bij 0.
+function alleKeuzes(make, op, { maxPaden = 1e6, maxKeuzes = 200 } = {}) {
+  const pad = [];
+  let paden = 0;
+  let bezocht = 0;
+  for (;;) {
+    let i = 0;
+    const kies = (n) => {
+      if (i >= maxKeuzes) throw new Afgekeurd();
+      if (i === pad.length) pad.push({ k: 0, n });
+      return pad[i++].k;
+    };
+    bezocht++;
+    try {
+      op(withChoices(kies, make));
+      paden++;
+    } catch (e) {
+      if (!(e instanceof Afgekeurd)) throw e;
+    }
+    if (bezocht > maxPaden) return null;
+    pad.length = i;
+    while (pad.length && pad[pad.length - 1].k + 1 >= pad[pad.length - 1].n) pad.pop();
+    if (!pad.length) return paden;
+    pad[pad.length - 1].k++;
+  }
+}
+
+// Schat het aantal paden van make als alleKeuzes er te veel vindt. Elke ronde loopt één willekeurig
+// pad: het aantal paden is dan het product van alle n op dat pad, of 0 als until het pad afkeurt.
+// Het gemiddelde van de rondes is een zuivere schatting (de methode van Knuth). Meer paden kunnen
+// wel dezelfde vraag geven, dus dit is een bovengrens voor het aantal verschillende vragen, behalve
+// dat een steekproef bij een zware staart meestal te laag uitkomt. De seed
+// ligt vast, dus elke keer komt hetzelfde uit.
+function schatKeuzes(make, { rondes = 20000, seed = 1, maxKeuzes = 200 } = {}) {
+  const rnd = mulberry32(seed);
+  let som = 0;
+  for (let r = 0; r < rondes; r++) {
+    let i = 0;
+    let gewicht = 1;
+    const kies = (n) => {
+      if (i++ >= maxKeuzes) throw new Afgekeurd();
+      gewicht *= n;
+      return Math.floor(rnd() * n);
+    };
+    try {
+      withChoices(kies, make);
+      som += gewicht;
+    } catch (e) {
+      if (!(e instanceof Afgekeurd)) throw e;
+    }
+  }
+  return som / rondes;
+}
+
+const ri = (a, b) => a + choose(b - a + 1);
+const nz = (a, b) =>
+  until(
+    () => ri(a, b),
+    (x) => x !== 0,
+  );
 const pick = (a) => a[ri(0, a.length - 1)];
-const coin = () => random() < 0.5;
+const coin = () => choose(2) === 0;
 const shuffle = (a) => {
   a = [...a];
   for (let i = a.length - 1; i > 0; i--) {
@@ -148,6 +244,12 @@ export {
   newSeed,
   seedText,
   parseSeed,
+  withChoices,
+  alleKeuzes,
+  schatKeuzes,
+  tellen,
+  until,
+  Afgekeurd,
   ri,
   nz,
   pick,

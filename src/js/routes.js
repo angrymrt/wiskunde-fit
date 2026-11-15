@@ -17,6 +17,7 @@ const SCREENS = {
   privacy: { path: '/privacy', title: 'Privacy' },
   contact: { path: '/contact', title: 'Contact' },
   cijfers: { path: '/cijfers', title: 'Cijfers' },
+  vragen: { path: '/zo-maken-we-vragen', title: 'Zo maken we de vragen' },
 };
 
 function pathFor(v) {

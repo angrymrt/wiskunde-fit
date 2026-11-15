@@ -4,6 +4,7 @@ import { MAPPING } from '../mappings/index.js';
 import { DOMAIN, TOPIC } from '../topics/index.js';
 import { vContact, vOver, vPrivacy } from './about.js';
 import { vCijfers } from './cijfers.js';
+import { vVragen } from './vragen.js';
 import { vToetsRes, vToetsRun, vToetsSetup } from './exam.js';
 import { vDomain, vHome } from './home.js';
 import { vLaden } from './laden.js';
@@ -24,6 +25,7 @@ function content(v) {
   if (v.name === 'over') return vOver();
   if (v.name === 'privacy') return vPrivacy();
   if (v.name === 'cijfers') return vCijfers();
+  if (v.name === 'vragen') return vVragen();
   if (v.name === 'contact') return vContact();
   if (v.name === 'kies') return vPick();
   if (v.name === 'mapping') return vMapping(MAPPING[v.id]);

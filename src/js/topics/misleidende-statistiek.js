@@ -1,5 +1,5 @@
 // Onderwerp: Misleidende statistiek. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, pick, coin, near, rd, isNice, d } from '../math.js';
+import { ri, pick, coin, near, rd, isNice, d, until } from '../math.js';
 import { F, RF, MC, group, needRound, miss, trap } from './shared.js';
 import { T } from '../typeset.js';
 import { chart } from '../figures.js';
@@ -43,13 +43,14 @@ function axisFig() {
   const c = pick(NARROW),
     cats = years(5),
     hi = c.lo + 6 * c.s;
-  let values;
-  for (;;) {
-    values = cats.map(() => c.lo + (ri(1, 12) * c.s) / 2);
-    const lo = Math.min(...values),
-      top = Math.max(...values);
-    if (top - c.lo >= 3 * (lo - c.lo)) break;
-  }
+  const values = until(
+    () => cats.map(() => c.lo + (ri(1, 12) * c.s) / 2),
+    (values) => {
+      const lo = Math.min(...values),
+        top = Math.max(...values);
+      return top - c.lo >= 3 * (lo - c.lo);
+    },
+  );
   const p = {
       kind: coin() ? 'staaf' : 'lijn',
       title: c.title,
@@ -206,12 +207,13 @@ const PICS = [
 function wideFig() {
   const c = pick(PICS),
     cats = years(4);
-  let values;
-  for (;;) {
-    values = cats.map(() => ri(c.r[0], c.r[1]) * c.k);
-    const q = Math.max(...values) / Math.min(...values);
-    if (q >= 2 && q <= 3.5 && isNice(q, 1)) break;
-  }
+  const values = until(
+    () => cats.map(() => ri(c.r[0], c.r[1]) * c.k),
+    (values) => {
+      const q = Math.max(...values) / Math.min(...values);
+      return q >= 2 && q <= 3.5 && isNice(q, 1);
+    },
+  );
   const big = values.indexOf(Math.max(...values)),
     small = values.indexOf(Math.min(...values)),
     r = values[big] / values[small],
@@ -265,9 +267,10 @@ function wrongChoice(k, p) {
 
 function s44misleading() {
   const kind = pick(Object.keys(WHAT));
-  let made;
-  do made = FIGS[kind]();
-  while (!made.ok());
+  const made = until(
+    () => FIGS[kind](),
+    (made) => made.ok(),
+  );
   const { p, steps } = made,
     order = [kind, ...Object.keys(WHAT).filter((k) => k !== kind)],
     opts = order.map((k) => T(WHAT[k]));
@@ -308,22 +311,28 @@ function s44points() {
     y1 = ri(2015, 2021),
     y2 = y1 + ri(1, 4),
     mode = pick(['van-naar', 'van-naar', 'punten', 'procent']);
-  let p1, p2, pp, up;
-  for (;;) {
-    up = coin();
-    if (mode === 'procent') {
-      p1 = ri(c.r[0], c.r[1]);
-      const r = pick([10, 15, 20, 25, 30, 40, 50]);
-      p2 = rd(p1 * (1 + (up ? r : -r) / 100), 6);
-      if (!isNice(p2, 1)) continue;
-    } else {
-      p1 = coin() ? ri(c.r[0], c.r[1]) : ri(c.r[0] * 10, c.r[1] * 10) / 10;
-      p2 = rd(p1 + ((up ? 1 : -1) * ri(5, 120)) / 10, 1);
-    }
-    pp = rd(Math.abs(p2 - p1), 1);
-    const A = (pp / p1) * 100;
-    if (p2 > 0 && p2 < 100 && pp > 0 && A >= 1 && Math.abs(A - pp) >= 0.5) break;
-  }
+  const { p1, p2, up } = until(
+    () => {
+      const up = coin();
+      let p1, p2;
+      if (mode === 'procent') {
+        p1 = ri(c.r[0], c.r[1]);
+        const r = pick([10, 15, 20, 25, 30, 40, 50]);
+        p2 = rd(p1 * (1 + (up ? r : -r) / 100), 6);
+      } else {
+        p1 = coin() ? ri(c.r[0], c.r[1]) : ri(c.r[0] * 10, c.r[1] * 10) / 10;
+        p2 = rd(p1 + ((up ? 1 : -1) * ri(5, 120)) / 10, 1);
+      }
+      return { p1, p2, up };
+    },
+    ({ p1, p2 }) => {
+      if (mode === 'procent' && !isNice(p2, 1)) return false;
+      const pp = rd(Math.abs(p2 - p1), 1);
+      const A = (pp / p1) * 100;
+      return p2 > 0 && p2 < 100 && pp > 0 && A >= 1 && Math.abs(A - pp) >= 0.5;
+    },
+  );
+  const pp = rd(Math.abs(p2 - p1), 1);
   const A = (pp / p1) * 100,
     r = rd(A, 6),
     word = up ? 'toename' : 'afname',
@@ -442,49 +451,54 @@ function s44claim() {
   // Of de bewering klopt, hangt af van de getallen, niet van de as. Bij times zegt de bewering dat
   // B N keer zoveel is als A, en die klopt als B precies N keer A is. Anders zegt de bewering dat
   // het aantal van A naar B meer dan verdubbeld is, en die klopt als B meer dan 2 keer A is.
-  let N, A, B, iA, iB, values, lo, k;
-  for (;;) {
-    N = pick(!zero && ok ? [2, 3] : [2, 3, 4, 5]);
-    iA = times ? ri(0, 3) : 0;
-    iB = times ? ri(iA + 1, 4) : 4;
-    if (zero) {
-      // De hoogte past bij de getallen. Klopt de bewering niet, dan overdrijft die.
-      lo = 0;
-      if (times) {
-        const r = ok ? N : pick([N - 1, N - 0.5].filter((x) => x >= 1.5));
-        A = 2 * ri(Math.ceil(top / 24), Math.floor(top / (2 * r)));
-        B = A * r;
+  const { N, A, B, iA, iB, values, lo, k } = until(
+    () => {
+      let N, A, B, iA, iB, values, lo, k;
+      N = pick(!zero && ok ? [2, 3] : [2, 3, 4, 5]);
+      iA = times ? ri(0, 3) : 0;
+      iB = times ? ri(iA + 1, 4) : 4;
+      if (zero) {
+        // De hoogte past bij de getallen. Klopt de bewering niet, dan overdrijft die.
+        lo = 0;
+        if (times) {
+          const r = ok ? N : pick([N - 1, N - 0.5].filter((x) => x >= 1.5));
+          A = 2 * ri(Math.ceil(top / 24), Math.floor(top / (2 * r)));
+          B = A * r;
+        } else {
+          A = ri(Math.ceil(top / 10), Math.floor(top / 3));
+          B = Math.round((A * (ok ? ri(22, 35) : ri(13, 19))) / 10);
+        }
+        values = cats.map(() => ri(Math.ceil(top / 6), top));
       } else {
-        A = ri(Math.ceil(top / 10), Math.floor(top / 3));
-        B = Math.round((A * (ok ? ri(22, 35) : ri(13, 19))) / 10);
+        if (ok) {
+          // De as begint net onder A. B lijkt dan veel groter dan A, maar de bewering klopt.
+          lo = c.s * ri(1, 3);
+          A = lo + ri(Math.ceil(c.s / 2), c.s);
+          B = times ? N * A : Math.round((A * ri(22, 30)) / 10);
+        } else {
+          // In het diagram lijkt B N keer zo hoog of meer dan twee keer zo hoog, maar dat is het niet.
+          lo = pick(c.lo);
+          const m = times
+            ? ri(Math.ceil(c.s / 2), Math.floor((5 * c.s) / N))
+            : ri(Math.ceil(c.s / 2), 2 * c.s);
+          A = lo + m;
+          B = lo + (times ? N * m : Math.round((m * ri(22, 35)) / 10));
+        }
+        k = Math.max(5, Math.ceil((Math.max(A, B) - lo) / c.s));
+        values = cats.map(() => lo + Math.round((ri(1, 2 * k) * c.s) / 2));
       }
-      values = cats.map(() => ri(Math.ceil(top / 6), top));
-    } else {
-      if (ok) {
-        // De as begint net onder A. B lijkt dan veel groter dan A, maar de bewering klopt.
-        lo = c.s * ri(1, 3);
-        A = lo + ri(Math.ceil(c.s / 2), c.s);
-        B = times ? N * A : Math.round((A * ri(22, 30)) / 10);
-      } else {
-        // In het diagram lijkt B N keer zo hoog of meer dan twee keer zo hoog, maar dat is het niet.
-        lo = pick(c.lo);
-        const m = times
-          ? ri(Math.ceil(c.s / 2), Math.floor((5 * c.s) / N))
-          : ri(Math.ceil(c.s / 2), 2 * c.s);
-        A = lo + m;
-        B = lo + (times ? N * m : Math.round((m * ri(22, 35)) / 10));
-      }
-      k = Math.max(5, Math.ceil((Math.max(A, B) - lo) / c.s));
-      values = cats.map(() => lo + Math.round((ri(1, 2 * k) * c.s) / 2));
-    }
-    values[iA] = A;
-    values[iB] = B;
-    const real = B / A,
-      claim = times ? N : 2,
-      // Klopt de bewering niet, dan ligt de echte verhouding er duidelijk naast.
-      clear = ok ? !times || real === N : Math.abs(real - claim) > 0.05;
-    if (B > A && clear && ok === (times ? real === N : real > 2) && (zero || k <= 8)) break;
-  }
+      values[iA] = A;
+      values[iB] = B;
+      return { N, A, B, iA, iB, values, lo, k };
+    },
+    ({ N, A, B, k }) => {
+      const real = B / A,
+        claim = times ? N : 2,
+        // Klopt de bewering niet, dan ligt de echte verhouding er duidelijk naast.
+        clear = ok ? !times || real === N : Math.abs(real - claim) > 0.05;
+      return B > A && clear && ok === (times ? real === N : real > 2) && (zero || k <= 8);
+    },
+  );
   const p = {
       kind: times ? 'staaf' : 'lijn',
       title: c.title,

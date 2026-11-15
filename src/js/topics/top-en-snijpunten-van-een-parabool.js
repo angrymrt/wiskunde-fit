@@ -1,5 +1,21 @@
 // Onderwerp: Top en snijpunten van een parabool. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, coin, near, d, rd, sg, Q, qv, qMul, fr, isNice, dlin } from '../math.js';
+import {
+  ri,
+  nz,
+  pick,
+  coin,
+  near,
+  d,
+  rd,
+  sg,
+  Q,
+  qv,
+  qMul,
+  fr,
+  isNice,
+  dlin,
+  until,
+} from '../math.js';
 import {
   F,
   RF,
@@ -107,22 +123,23 @@ function sketchFig(abc, marks, label) {
 const A_INT = [-3, -2, -1, 1, 2, 3];
 const A_DEC = [-1.8, -1.5, -1.2, -0.6, -0.5, -0.4, 0.4, 0.5, 0.6, 1.2, 1.5];
 function s31top() {
-  let abc, h;
-  do {
-    const kind = pick(['geheel', 'geheel', 'half', 'komma']),
-      a = pick(kind === 'komma' ? A_DEC : A_INT);
-    h =
-      kind === 'geheel'
-        ? nz(-4, 4)
-        : kind === 'half'
-          ? pick([-2.5, -1.5, -0.5, 0.5, 1.5, 2.5])
-          : pick([-2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, -2, -1, 1, 2, 3]);
-    abc = [a, rd(-2 * a * h, 6), nz(-9, 12)];
-  } while (
-    !isNice(abc[1], 2) ||
-    !isNice(value(abc, h), 2) ||
-    Math.abs(value(abc, h)) > 40 ||
-    !fairSlips(abc, h)
+  const [abc, h] = until(
+    () => {
+      const kind = pick(['geheel', 'geheel', 'half', 'komma']),
+        a = pick(kind === 'komma' ? A_DEC : A_INT);
+      const h =
+        kind === 'geheel'
+          ? nz(-4, 4)
+          : kind === 'half'
+            ? pick([-2.5, -1.5, -0.5, 0.5, 1.5, 2.5])
+            : pick([-2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, -2, -1, 1, 2, 3]);
+      return [[a, rd(-2 * a * h, 6), nz(-9, 12)], h];
+    },
+    ([abc, h]) =>
+      isNice(abc[1], 2) &&
+      isNice(value(abc, h), 2) &&
+      Math.abs(value(abc, h)) <= 40 &&
+      fairSlips(abc, h),
   );
   const [a, b] = abc,
     n = pick(NAMES),
@@ -165,12 +182,14 @@ function s31top() {
 // plek van b: −p/(2a) = x_top. Bij y_top staat p op de plek van c: eerst x_top, dan f(x_top) = y_top.
 function s31topUnknown() {
   const byX = coin();
-  let abc, h;
-  do {
-    const a = pick(A_INT);
-    h = nz(-4, 4);
-    abc = [a, -2 * a * h, nz(-9, 9)];
-  } while (Math.abs(value(abc, h)) > 40 || !fairSlips(abc, h));
+  const [abc, h] = until(
+    () => {
+      const a = pick(A_INT);
+      const h = nz(-4, 4);
+      return [[a, -2 * a * h, nz(-9, 9)], h];
+    },
+    ([abc, h]) => Math.abs(value(abc, h)) <= 40 && fairSlips(abc, h),
+  );
   const [a, b, c] = abc,
     n = pick(NAMES),
     yt = value(abc, h),
@@ -281,23 +300,27 @@ function s35top() {
 }
 
 function s34top() {
-  let a, r, s, c, xt, yt;
-  do {
-    a = pick(A_FORM);
-    r = nz(-8, 8);
-    s = nz(-8, 8);
-    xt = (r + s) / 2;
-    yt = qv(a) * (xt - r) * (xt - s);
-    c = qv(a) * r * s;
-  } while (
-    r >= s ||
-    (s - r) % 2 ||
-    !xt ||
-    !Number.isInteger(yt) ||
-    !Number.isInteger(c) ||
-    Math.abs(yt) > 50 ||
-    !clear(fromFactors(a, r, s)) ||
-    Math.abs(c) > 50
+  const [a, r, s, c, xt, yt] = until(
+    () => {
+      const a = pick(A_FORM);
+      const r = nz(-8, 8);
+      const s = nz(-8, 8);
+      const xt = (r + s) / 2;
+      const yt = qv(a) * (xt - r) * (xt - s);
+      const c = qv(a) * r * s;
+      return [a, r, s, c, xt, yt];
+    },
+    ([a, r, s, c, xt, yt]) =>
+      !(
+        r >= s ||
+        (s - r) % 2 ||
+        !xt ||
+        !Number.isInteger(yt) ||
+        !Number.isInteger(c) ||
+        Math.abs(yt) > 50 ||
+        !clear(fromFactors(a, r, s)) ||
+        Math.abs(c) > 50
+      ),
   );
   const n = pick(NAMES),
     // In de formule staan d en e in willekeurige volgorde. A ligt links van B.
@@ -390,18 +413,18 @@ const SCALE = [1, 1, 1, -1, -1, 2, 3, -2, -3, [1, 2], [-1, 2], [-1, 3]];
 function s33axes() {
   const sc = pick(SCALE),
     k = Array.isArray(sc) ? Q(sc[0], sc[1]) : Q(sc);
-  let p, q;
-  do {
-    p = nz(-9, 9);
-    q = nz(-9, 9);
-  } while (
-    p >= q ||
-    p === -q ||
-    Math.abs(p * q) > 40 ||
-    // Het snijpunt met de y-as is een geheel getal, en niet te groot.
-    !Number.isInteger(qv(qMul(k, p * q))) ||
-    Math.abs(qv(k) * p * q) > 60 ||
-    !clear([1, -(p + q), p * q].map((x) => x * qv(k)))
+  const [p, q] = until(
+    () => [nz(-9, 9), nz(-9, 9)],
+    ([p, q]) =>
+      !(
+        p >= q ||
+        p === -q ||
+        Math.abs(p * q) > 40 ||
+        // Het snijpunt met de y-as is een geheel getal, en niet te groot.
+        !Number.isInteger(qv(qMul(k, p * q))) ||
+        Math.abs(qv(k) * p * q) > 60 ||
+        !clear([1, -(p + q), p * q].map((x) => x * qv(k)))
+      ),
   );
   const n = pick(NAMES),
     N = [1, -(p + q), p * q],
@@ -537,21 +560,25 @@ function s35sketch() {
 // bergparabool en de top (p, q). Twee punten even ver links en rechts van de top maken de grafiek
 // af. In het rooster zet de leerling de top en nog twee punten; elk punt op de parabool is goed.
 function s35draw() {
-  let a, A, p, q, s;
-  do {
-    a = pick([-2, -1, -1, 1, 1, 2, Q(1, 2), Q(-1, 2)]);
-    A = qv(a);
-    // Bij a = ½ zijn de punten 2 van de top af, zodat de y een geheel getal is.
-    s = Math.abs(A) < 1 ? 2 : 1;
-    p = pick([-3, -2, -1, 0, 1, 2, 3]);
-    // Een dalparabool onderin en een bergparabool bovenin, zodat je veel van de grafiek ziet.
-    q = A > 0 ? ri(-5, 0) : ri(0, 5);
-  } while (
-    !inGrid(p, q) ||
-    !inGrid(p - s, q + A * s * s) ||
-    !inGrid(p + s, q + A * s * s) ||
-    // Bij p = 0 en q = 0 is het alleen ax², zonder top om af te lezen.
-    (!p && !q)
+  const [a, A, p, q, s] = until(
+    () => {
+      const a = pick([-2, -1, -1, 1, 1, 2, Q(1, 2), Q(-1, 2)]);
+      const A = qv(a);
+      // Bij a = ½ zijn de punten 2 van de top af, zodat de y een geheel getal is.
+      const s = Math.abs(A) < 1 ? 2 : 1;
+      const p = pick([-3, -2, -1, 0, 1, 2, 3]);
+      // Een dalparabool onderin en een bergparabool bovenin, zodat je veel van de grafiek ziet.
+      const q = A > 0 ? ri(-5, 0) : ri(0, 5);
+      return [a, A, p, q, s];
+    },
+    ([, A, p, q, s]) =>
+      !(
+        !inGrid(p, q) ||
+        !inGrid(p - s, q + A * s * s) ||
+        !inGrid(p + s, q + A * s * s) ||
+        // Bij p = 0 en q = 0 is het alleen ax², zonder top om af te lezen.
+        (!p && !q)
+      ),
   );
   const n = pick(NAMES),
     abc = fromVertex(a, p, q),
@@ -718,18 +745,21 @@ function s34tunnel() {
   const s = pick(ARCHES),
     n = pick(NAMES),
     kind = coin() ? 'de' : 'abc';
-  let a, r, w;
-  do {
-    if (kind === 'de') {
-      a = pick([-0.1, -0.15, -0.2, -0.25, -0.3, -0.4, -0.5]);
-      r = pick([0.6, 0.8, 1, 1.2, 1.4, 1.5, 1.8, 2, 2.4]);
-      w = pick([4, 4.4, 4.8, 5, 5.2, 5.6, 6, 6.4, 7, 7.2, 7.8, 8]);
-    } else {
-      a = pick([-0.125, -0.2, -0.25, -0.5]);
-      r = ri(1, 4);
-      w = ri(4, 10);
-    }
-  } while (-a * (w / 2) ** 2 < 2 || -a * (w / 2) ** 2 > 6);
+  const [a, r, w] = until(
+    () => {
+      if (kind === 'de') {
+        const a = pick([-0.1, -0.15, -0.2, -0.25, -0.3, -0.4, -0.5]);
+        const r = pick([0.6, 0.8, 1, 1.2, 1.4, 1.5, 1.8, 2, 2.4]);
+        const w = pick([4, 4.4, 4.8, 5, 5.2, 5.6, 6, 6.4, 7, 7.2, 7.8, 8]);
+        return [a, r, w];
+      }
+      const a = pick([-0.125, -0.2, -0.25, -0.5]);
+      const r = ri(1, 4);
+      const w = ri(4, 10);
+      return [a, r, w];
+    },
+    ([a, , w]) => !(-a * (w / 2) ** 2 < 2 || -a * (w / 2) ** 2 > 6),
+  );
   const e = rd(r + w, 6),
     xt = rd((r + e) / 2, 6),
     abc = [a, rd(-a * (r + e), 6), rd(a * r * e, 6)],
@@ -801,34 +831,38 @@ function s34tunnel() {
 // formule als a(x − d)(x − e), anders als ax² + bx + c. r en e zijn de x van de linker- en de
 // rechterkant, xt is het midden en top de hoogte. half is de halve breedte die minstens nodig is.
 function makeArch(kind, half) {
-  let a, r, e, xt, top, abc;
-  do {
-    if (kind === 'de') {
-      a = pick([-0.1, -0.15, -0.2, -0.25, -0.3, -0.4, -0.5]);
-      r = pick([0.5, 0.8, 1, 1.2, 1.5, 2, 2.5, 3]);
-      const w = pick([4, 4.4, 5, 5.6, 6, 6.4, 7, 7.2, 8, 9, 10]);
-      e = rd(r + w, 6);
-      xt = rd((r + e) / 2, 6);
-      top = rd(-a * (w / 2) ** 2, 6);
-      abc = [a, rd(-a * (r + e), 6), rd(a * r * e, 6)];
-    } else {
-      // Eerst de top, dan de formule: zo komen b en c mooi uit. De kanten hoeven dat niet.
-      a = pick([-0.2, -0.25, -0.3, -0.4, -0.5, -0.6]);
-      xt = pick([3, 3.5, 4, 4.5, 5, 5.5, 6]);
-      top = ri(25, 60) / 10;
-      abc = [a, rd(-2 * a * xt, 6), rd(a * xt * xt + top, 6)];
-      const h = Math.sqrt(top / -a);
-      r = xt - h;
-      e = xt + h;
-    }
-  } while (
-    top < 2 ||
-    top > 6 ||
-    r < 0.3 ||
-    (e - r) / 2 < half ||
-    (kind !== 'de' && (!isNice(abc[1], 2) || !isNice(abc[2], 2)))
+  return until(
+    () => {
+      let a, r, e, xt, top, abc;
+      if (kind === 'de') {
+        a = pick([-0.1, -0.15, -0.2, -0.25, -0.3, -0.4, -0.5]);
+        r = pick([0.5, 0.8, 1, 1.2, 1.5, 2, 2.5, 3]);
+        const w = pick([4, 4.4, 5, 5.6, 6, 6.4, 7, 7.2, 8, 9, 10]);
+        e = rd(r + w, 6);
+        xt = rd((r + e) / 2, 6);
+        top = rd(-a * (w / 2) ** 2, 6);
+        abc = [a, rd(-a * (r + e), 6), rd(a * r * e, 6)];
+      } else {
+        // Eerst de top, dan de formule: zo komen b en c mooi uit. De kanten hoeven dat niet.
+        a = pick([-0.2, -0.25, -0.3, -0.4, -0.5, -0.6]);
+        xt = pick([3, 3.5, 4, 4.5, 5, 5.5, 6]);
+        top = ri(25, 60) / 10;
+        abc = [a, rd(-2 * a * xt, 6), rd(a * xt * xt + top, 6)];
+        const h = Math.sqrt(top / -a);
+        r = xt - h;
+        e = xt + h;
+      }
+      return { a, r, e, xt, top, abc };
+    },
+    ({ r, e, top, abc }) =>
+      !(
+        top < 2 ||
+        top > 6 ||
+        r < 0.3 ||
+        (e - r) / 2 < half ||
+        (kind !== 'de' && (!isNice(abc[1], 2) || !isNice(abc[2], 2)))
+      ),
   );
-  return { a, r, e, xt, top, abc };
 }
 // Een schets van de boog op de x-as, zonder getallen. Met getallen zou de beschrijving voor een
 // schermlezer de top verklappen.
@@ -995,17 +1029,20 @@ function fit(kind) {
     // Eerst of het erdoor past, dan de maten. Zo is het ongeveer half om half.
     fits = coin(),
     [lo, hi] = s.H;
-  let arch, xs, y, options;
   // Wat erdoor moet, is lager dan de top. Anders zie je het antwoord zonder te rekenen. En het
   // scheelt minstens 0,15 meter met de hoogte bij de zijkant.
-  do {
-    arch = makeArch(kind, W / 2 + 0.5);
-    xs = rd(arch.xt + W / 2, 6);
-    y = rd(value(arch.abc, xs), 6);
-    options = (fits ? [-0.5, -0.4, -0.3, -0.2] : [0.2, 0.3, 0.4, 0.5])
-      .map((t) => rd(y + t, 1))
-      .filter((h) => Math.abs(h - y) >= 0.15 && h >= lo && h <= hi && h <= arch.top - 0.15);
-  } while (!options.length);
+  const [arch, xs, y, options] = until(
+    () => {
+      const arch = makeArch(kind, W / 2 + 0.5);
+      const xs = rd(arch.xt + W / 2, 6);
+      const y = rd(value(arch.abc, xs), 6);
+      const options = (fits ? [-0.5, -0.4, -0.3, -0.2] : [0.2, 0.3, 0.4, 0.5])
+        .map((t) => rd(y + t, 1))
+        .filter((h) => Math.abs(h - y) >= 0.15 && h >= lo && h <= hi && h <= arch.top - 0.15);
+      return [arch, xs, y, options];
+    },
+    ([, , , options]) => options.length > 0,
+  );
   const H = pick(options),
     { a, r, e, xt, top, abc } = arch,
     at = (t) => rd(value(abc, t), 6),
