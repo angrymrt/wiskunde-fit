@@ -62,11 +62,11 @@ export default {
       part: 'deel 1',
       description: 'Assen, grafieken en eerste formules',
       paragraphs: [
-        ['3.1', 'Punten plaatsen met coördinaten'],
+        ['3.1', 'Punten plaatsen met coördinaten', [127, 128, 129, 130, 132], 'deels'],
         ['3.2', 'Grafieken lezen en tekenen'],
-        ['3.3', 'Formules in woorden'],
-        ['3.4', 'Formules in letters schrijven'],
-        ['3.5', 'Van formule naar grafiek'],
+        ['3.3', 'Formules in woorden', [133, 134, 135, 136, 137], 'deels'],
+        ['3.4', 'Formules in letters schrijven', [138, 139, 140, 141, 142], 'deels'],
+        ['3.5', 'Van formule naar grafiek', [1, 2, 3, 4, 5, 8, 11, 14, 16], 'deels'],
       ],
     },
     {

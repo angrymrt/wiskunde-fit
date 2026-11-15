@@ -2,6 +2,16 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.19.0
+
+### Nieuw
+
+- Drie nieuwe onderwerpen voor hoofdstuk 3 van Getal & Ruimte vwo 1 en havo/vwo 1.
+- **Coördinaten en assenstelsels**: punten aflezen, punten verschuiven, punten op de assen, het ontbrekende hoekpunt van een figuur vinden, de kwadranten en de regelmaat in een rij punten.
+- **Woordformules**: een formule in woorden opstellen en gebruiken, bijvoorbeeld om een prijs of een afstand uit te rekenen.
+- **Formules met letters**: een woordformule schrijven met letters en daarmee rekenen.
+- De stof sluit aan op de paragrafen van hoofdstuk 3 in het boek.
+
 ## 1.18.0
 
 ### Nieuw

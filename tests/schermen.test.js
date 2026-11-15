@@ -85,17 +85,17 @@ test('Kies uit je boek toont de boeken die bij de filters passen, met je boek bo
   );
   // Zonder filters de hele lijst, zoals zonder JavaScript.
   const all = books();
-  assert.deepEqual(all.ids, ['gr13-hv1', 'gr13-hv2', 'gr13-havo3']);
-  assert.equal(all.status, '3 boeken');
+  assert.deepEqual(all.ids, ['gr13-hv1', 'gr13-hv2', 'gr13-vwo1', 'gr13-havo3']);
+  assert.equal(all.status, '4 boeken');
   assert.doesNotMatch(all.html, /Mijn boek/);
   assert.match(all.html, /20 van de 46 paragrafen kun je hier oefenen, 4 daarvan deels\./);
   assert.match(all.html, /14 van de 39 paragrafen kun je hier deels oefenen\./);
   assert.match(all.html, /Deel 1 en deel 2, leerboek of FLEX-boek/);
   // Een boek voor havo/vwo hoort bij havo en bij vwo.
-  assert.deepEqual(books({ niveau: ['vwo'] }).ids, ['gr13-hv1', 'gr13-hv2']);
+  assert.deepEqual(books({ niveau: ['vwo'] }).ids, ['gr13-hv1', 'gr13-hv2', 'gr13-vwo1']);
   assert.deepEqual(books({ niveau: ['havo'] }).ids, ['gr13-hv1', 'gr13-hv2', 'gr13-havo3']);
   // Binnen een filter is één keuze genoeg, tussen de filters moet alles passen.
-  assert.deepEqual(books({ leerjaar: ['1', '3'] }).ids, ['gr13-hv1', 'gr13-havo3']);
+  assert.deepEqual(books({ leerjaar: ['1', '3'] }).ids, ['gr13-hv1', 'gr13-vwo1', 'gr13-havo3']);
   const one = books({ niveau: ['vwo'], leerjaar: ['2'] });
   assert.deepEqual(one.ids, ['gr13-hv2']);
   assert.equal(one.status, '1 boek past bij je filters');
@@ -110,7 +110,7 @@ test('Kies uit je boek toont de boeken die bij de filters passen, met je boek bo
   prog.mapping = 'gr13-havo3';
   try {
     const mine = books();
-    assert.deepEqual(mine.ids, ['gr13-havo3', 'gr13-hv1', 'gr13-hv2']);
+    assert.deepEqual(mine.ids, ['gr13-havo3', 'gr13-hv1', 'gr13-hv2', 'gr13-vwo1']);
     assert.equal(mine.html.match(/Mijn boek/g).length, 1);
     assert.doesNotMatch(books({ niveau: ['vwo'] }).html, /Mijn boek/);
   } finally {
