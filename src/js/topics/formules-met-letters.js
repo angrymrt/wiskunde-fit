@@ -70,7 +70,7 @@ const STORIES = [
     y: 'hoogte',
     x: 'aantal pannenkoeken',
     l: 'h',
-    xl: 'w',
+    xl: 'p',
     dy: 'de hoogte',
     dx: 'het aantal pannenkoeken',
     u: 'mm',
