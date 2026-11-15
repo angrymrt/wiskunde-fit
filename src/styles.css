@@ -1213,6 +1213,10 @@ sub {
 .vr-bg {
   fill: var(--blue-soft);
 }
+.vr-af {
+  fill: var(--muted);
+  opacity: 0.4;
+}
 .vr-lijn {
   fill: none;
   stroke: var(--blue);

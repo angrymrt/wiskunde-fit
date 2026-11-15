@@ -128,6 +128,45 @@ function uitschrijving(skills, tellen) {
   return `<p class="vuit"><span class="small muted">Dat is dus${ondergrens(skills, tellen) ? ' meer dan' : ' ongeveer'}:</span><b>${uitgeschreven(n)}</b></p>`;
 }
 
+// Een rooster van b (−9 tot 9) bij x (−8 tot 8), voor de vraag "Bereken f(x) = ax + b". b en x mogen
+// niet 0 zijn: die vakjes zijn grijs en tellen niet mee. De aantallen komen uit de lijsten, zodat de
+// tekst en het plaatje niet uit elkaar kunnen lopen.
+const AF = { b: [-9, 9], x: [-8, 8] };
+const aantalWaarden = ([van, tot]) => tot - van + 1;
+const nulKolom = AF.b[1] + 1; // de plek van b = 0
+const nulRij = AF.x[1] + 1; // de plek van x = 0
+const afRaster = () => {
+  const kolommen = aantalWaarden(AF.b);
+  const rijen = aantalWaarden(AF.x);
+  const totaal = kolommen * rijen;
+  const over = (kolommen - 1) * (rijen - 1);
+  return { kolommen, rijen, totaal, over, af: totaal - over };
+};
+function rasterAfgekeurd() {
+  const { kolommen: N, rijen: M, totaal, over, af } = afRaster();
+  const C = 12;
+  const X = 26;
+  const Y = 22;
+  const w = N * C;
+  const h = M * C;
+  const label = `Een rooster van ${N} bij ${M} vakjes, ${getal(totaal)} samen. In ${getal(af)} vakjes is b of x gelijk aan 0. Die vakjes worden afgekeurd, dus er blijven ${getal(over)} vakjes over.`;
+  const nul = (k, r) => k === nulKolom || r === nulRij;
+  let cellen = '';
+  for (let r = 0; r < M; r++)
+    for (let k = 0; k < N; k++)
+      if (nul(k, r))
+        cellen += `<rect class="vr-af" x="${X + k * C}" y="${Y + r * C}" width="${C}" height="${C}"/>`;
+  return `<figure class="vfig"><svg class="vraster" viewBox="0 0 ${X + w + 2} ${Y + h + 2}" role="img" aria-label="${label}">
+  <defs><pattern id="vraster-af-vakje" width="${C}" height="${C}" patternUnits="userSpaceOnUse"><path class="vr-lijn" d="M${C} 0H0V${C}"/></pattern></defs>
+  <rect class="vr-bg" x="${X}" y="${Y}" width="${w}" height="${h}"/>
+  ${cellen}
+  <rect class="vr-patroon" x="${X}" y="${Y}" width="${w}" height="${h}" fill="url(#vraster-af-vakje)"/>
+  <rect class="vr-rand" x="${X}" y="${Y}" width="${w}" height="${h}"/>
+  <text class="vr-t" x="${X + w / 2}" y="14" text-anchor="middle">b: ${N} mogelijkheden</text>
+  <text class="vr-t" x="12" y="${Y + h / 2}" text-anchor="middle" transform="rotate(-90 12 ${Y + h / 2})">x: ${M} mogelijkheden</text>
+  </svg><figcaption class="small muted">Elk vakje is één keuze voor b en x. De grijze vakjes zijn afgekeurd: daar is b of x gelijk aan 0. Er blijven ${getal(over)} van de ${getal(totaal)} vakjes over.</figcaption></figure>`;
+}
+
 function vVragen() {
   const tellen = TELLEN;
   const skills = TOPICS.flatMap((t) => t.skills);
@@ -152,9 +191,11 @@ function vVragen() {
   </ol>
   <p>Elke keuze kan met elke andere keuze samen. Er zijn dus 76 × 76 = 5.776 verschillende vragen.</p>
   ${raster()}</div>
-  <div class="block"><h2 class="h3">Opnieuw kiezen tot het mooi uitkomt</h2>
-  <p>Soms komt een keuze niet mooi uit. Een van de getallen is 0, of het antwoord is een lelijke breuk. Dan kiest de generator opnieuw, tot de vraag klopt. Zo'n afgekeurde keuze telt niet mee.</p>
-  <p>We tellen dus niet alle combinaties, maar alleen de combinaties die een goede vraag geven. En als twee keuzes dezelfde vraag geven, telt die vraag één keer. Een andere volgorde van de antwoorden bij meerkeuze maakt het ook niet een andere vraag.</p></div>
+  <div class="block"><h2 class="h3">Niet elk vakje is een goede vraag</h2>
+  <p>Neem de vraag: "Gegeven is f(x) = ax + b. Bereken f(x) voor een gegeven x." De generator kiest een getal voor b en een voor x, en ze mogen geen van beide 0 zijn. Elk vakje in het rooster is weer één keuze.</p>
+  ${rasterAfgekeurd()}
+  <p>Een keuze die niet mag, valt af. De generator kiest dan opnieuw, tot de vraag klopt. We tellen dus alleen de vakjes die een goede vraag geven.</p>
+  <p>Soms geven twee vakjes dezelfde vraag. Die vraag telt dan één keer. Een andere volgorde van de antwoorden bij meerkeuze maakt het ook niet een andere vraag.</p></div>
   <div class="block"><h2 class="h3">Hoe we weten dat het antwoord klopt</h2>
   <p>Bij elke vraag rekent de computer het antwoord nog een keer na, op een andere manier dan de generator zelf. Komt daar iets anders uit, dan slaat de test alarm.</p>
   <p>Bij elke wijziging maken de tests duizenden vragen en controleren die allemaal. Elke vraag hoort bij een seed, een getal dat de vraag vastlegt. Met dezelfde seed krijg je precies dezelfde vraag, dus een fout is altijd te herhalen.</p></div>
