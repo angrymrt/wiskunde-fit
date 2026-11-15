@@ -3,10 +3,12 @@ import { ri, pick, coin, until, Q, qv, near, isNice, rd, d, fr } from '../math.j
 import { F, MC } from './shared.js';
 import { T } from '../typeset.js';
 
-// Een bedrag in euro's met twee decimalen als het geen heel getal is: 12,50 en geen 12,5.
+// Een bedrag in euro met twee decimalen als het geen heel getal is: 12,50 en geen 12,5.
 const geld = (x) => (isNice(x, 0) ? String(Math.round(x)) : x.toFixed(2).replace('.', ','));
 // Een uitkomst met de eenheid erachter, zoals 20 euro of 18 cm.
 const amt = (c, x) => `${c.u === 'euro' ? geld(x) : d(x)} ${c.u}`;
+// Dezelfde uitkomst voor de uitwerking, in dezelfde schrijfwijze als de rekenstappen: 27,5 euro.
+const amd = (c, x) => `${d(x)} ${c.u}`;
 
 // Woordformules die stijgen: uitkomst = vast deel + getal · aantal. y is de naam van de uitkomst,
 // x de woorden voor het aantal en u de eenheid, die in de zin staat en niet in de formule. a, b en
@@ -16,7 +18,7 @@ const UP = [
     y: 'huurprijs',
     x: 'aantal uren',
     u: 'euro',
-    wat: "Voor de huurprijs in euro's van een kano geldt de woordformule",
+    wat: 'Voor de huurprijs in euro van een kano geldt de woordformule',
     a: [5, 6, 8, 10],
     b: [3, 4, 5, 6],
     n: [2, 6],
@@ -32,7 +34,7 @@ const UP = [
     y: 'ritprijs',
     x: 'aantal kilometer',
     u: 'euro',
-    wat: "Voor de ritprijs in euro's van een taxi geldt de woordformule",
+    wat: 'Voor de ritprijs in euro van een taxi geldt de woordformule',
     a: [3, 4, 5],
     b: [2, 2.5, 3],
     n: [4, 16],
@@ -63,7 +65,7 @@ const UP = [
     y: 'spaargeld',
     x: 'aantal weken',
     u: 'euro',
-    wat: "Noor doet elke week evenveel geld in haar spaarpot. Voor haar spaargeld in euro's geldt de woordformule",
+    wat: 'Noor doet elke week evenveel geld in haar spaarpot. Voor haar spaargeld in euro geldt de woordformule',
     a: [10, 15, 20, 25, 30],
     b: [2, 3, 4, 5],
     n: [3, 12],
@@ -79,7 +81,7 @@ const UP = [
     y: 'kosten',
     x: 'aantal lessen',
     u: 'euro',
-    wat: "Voor de kosten in euro's van zwemles geldt de woordformule",
+    wat: 'Voor de kosten in euro van zwemles geldt de woordformule',
     a: [15, 20, 25],
     b: [6, 7, 8, 9],
     n: [4, 12],
@@ -114,7 +116,7 @@ const DOWN = [
     y: 'beltegoed',
     x: 'aantal minuten',
     u: 'euro',
-    wat: "Voor het beltegoed in euro's van Sem geldt de woordformule",
+    wat: 'Voor het beltegoed in euro van Sem geldt de woordformule',
     a: [10, 15, 20],
     b: [0.2, 0.25, 0.5],
     n: [10, 18],
@@ -181,7 +183,7 @@ function wfFill() {
     q: T(`${c.wat} ${c.y} = ${d(a)} + ${d(b)} · ${c.x}. ${c.vraag(n)}`),
     fields: [F(`${c.y} =`, y, c.u)],
     hint: T(`Vul ${n} in voor ${c.x}. Reken eerst de keer uit en tel daarna op.`),
-    steps: [`${c.y} = ${d(a)} + ${d(b)} · ${n} = ${d(a)} + ${d(bn)} = ${d(y)}`, c.zin(amt(c, y))],
+    steps: [`${c.y} = ${d(a)} + ${d(b)} · ${n} = ${d(a)} + ${d(bn)} = ${d(y)}`, c.zin(amd(c, y))],
     traps: [
       fout(
         'eerst-optellen',
@@ -221,7 +223,7 @@ function wfDown() {
     q: T(`${c.wat} ${c.y} = ${d(a)} - ${d(b)} · ${c.x}. ${c.vraag(nt)}`),
     fields: [F(`${c.y} =`, y, c.u)],
     hint: T(`Vul ${nt} in voor ${c.x}. Reken eerst de keer uit en trek dat daarna af.`),
-    steps: [`${c.y} = ${d(a)} - ${d(b)} · ${nt} = ${d(a)} - ${d(bn)} = ${d(y)}`, c.zin(amt(c, y))],
+    steps: [`${c.y} = ${d(a)} - ${d(b)} · ${nt} = ${d(a)} - ${d(bn)} = ${d(y)}`, c.zin(amd(c, y))],
     traps: [
       fout(
         'eerst-aftrekken',
@@ -249,7 +251,7 @@ const MAKE = [
     a: [3, 4, 5],
     b: [6, 7, 8],
     s: (a, b) =>
-      `Bij een bowlingbaan betaal je ${geld(a)} euro voor de schoenen en ${geld(b)} euro per spel. Stel een woordformule op voor de kosten in euro's.`,
+      `Bij een bowlingbaan betaal je ${geld(a)} euro voor de schoenen en ${geld(b)} euro per spel. Stel een woordformule op voor de kosten in euro.`,
     vast: (a) => `Eén keer ${geld(a)} euro voor de schoenen.`,
     per: (b) => `Per spel komt er ${geld(b)} euro bij.`,
   },
@@ -260,7 +262,7 @@ const MAKE = [
     a: [20, 25, 30, 35],
     b: [40, 45, 50],
     s: (a, b) =>
-      `Een klusser rekent ${geld(a)} euro voorrijkosten en ${geld(b)} euro per uur. Stel een woordformule op voor het bedrag in euro's.`,
+      `Een klusser rekent ${geld(a)} euro voorrijkosten en ${geld(b)} euro per uur. Stel een woordformule op voor het bedrag in euro.`,
     vast: (a) => `Eén keer ${geld(a)} euro voorrijkosten.`,
     per: (b) => `Per uur komt er ${geld(b)} euro bij.`,
   },
@@ -282,7 +284,7 @@ const MAKE = [
     a: [15, 20, 25, 30],
     b: [19, 22, 24, 28],
     s: (a, b) =>
-      `Bij een sportschool betaal je eenmalig ${geld(a)} euro inschrijfgeld. Daarna betaal je ${geld(b)} euro per maand. Stel een woordformule op voor de kosten in euro's.`,
+      `Bij een sportschool betaal je eenmalig ${geld(a)} euro inschrijfgeld. Daarna betaal je ${geld(b)} euro per maand. Stel een woordformule op voor de kosten in euro.`,
     vast: (a) => `Eén keer ${geld(a)} euro inschrijfgeld.`,
     per: (b) => `Per maand komt er ${geld(b)} euro bij.`,
   },
@@ -304,7 +306,7 @@ const MAKE = [
     a: [25, 30, 40, 50],
     b: [3.5, 4, 4.5, 5],
     s: (a, b) =>
-      `Op een cadeaukaart staat ${geld(a)} euro. Je koopt er elke week een tijdschrift van ${geld(b)} euro mee. Stel een woordformule op voor het tegoed in euro's.`,
+      `Op een cadeaukaart staat ${geld(a)} euro. Je koopt er elke week een tijdschrift van ${geld(b)} euro mee. Stel een woordformule op voor het tegoed in euro.`,
     vast: (a) => `Het begin is ${geld(a)} euro.`,
     per: (b) => `Per week gaat er ${geld(b)} euro af.`,
   },
@@ -409,7 +411,9 @@ function wfBack() {
         : `Reken eerst uit hoeveel er af is: ${d(a)} min de uitkomst. Deel daarna door ${d(b)}.`,
     ),
     steps: [
-      up ? `${d(y)} - ${d(a)} = ${d(rest)}` : `Er is ${d(a)} - ${d(y)} = ${d(rest)} af.`,
+      up
+        ? `${c.u === 'euro' ? geld(y) : d(y)} - ${d(a)} = ${d(rest)}`
+        : `Er is ${d(a)} - ${c.u === 'euro' ? geld(y) : d(y)} = ${d(rest)} af.`,
       `${d(rest)} : ${d(b)} = ${n}`,
       c.terugZin(n),
     ],
@@ -544,7 +548,7 @@ export default {
       ],
       ex: {
         q: T(
-          "Voor de huurprijs in euro's van een fiets geldt huurprijs = 7 + 3 · aantal uren. Je huurt de fiets 4 uur.",
+          'Voor de huurprijs in euro van een fiets geldt huurprijs = 7 + 3 · aantal uren. Je huurt de fiets 4 uur.',
         ),
         steps: ['huurprijs = 7 + 3 · 4 = 7 + 12 = 19', 'De huurprijs is 19 euro.'],
       },
@@ -573,7 +577,7 @@ export default {
       ],
       ex: {
         q: T(
-          "Een strandtent verhuurt een ligbed. Je betaalt 2 euro borg en 3 euro per uur. Stel een woordformule op voor de kosten in euro's.",
+          'Een strandtent verhuurt een ligbed. Je betaalt 2 euro borg en 3 euro per uur. Stel een woordformule op voor de kosten in euro.',
         ),
         steps: ['kosten = 2 + 3 · aantal uren'],
       },

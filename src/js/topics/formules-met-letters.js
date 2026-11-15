@@ -3,10 +3,12 @@ import { ri, nz, pick, coin, until, Q, qv, near, isNice, rd, d, fr, sg } from '.
 import { F, MC } from './shared.js';
 import { T } from '../typeset.js';
 
-// Een bedrag in euro's met twee decimalen als het geen heel getal is: 12,50 en geen 12,5.
+// Een bedrag in euro met twee decimalen als het geen heel getal is: 12,50 en geen 12,5.
 const geld = (x) => (isNice(x, 0) ? String(Math.round(x)) : x.toFixed(2).replace('.', ','));
 // Een uitkomst met de eenheid erachter, zoals 20 euro of 18 cm.
 const amt = (c, x) => `${c.u === 'euro' ? geld(x) : d(x)} ${c.u}`;
+// Dezelfde uitkomst voor de uitwerking, in dezelfde schrijfwijze als de rekenstappen: 27,5 euro.
+const amd = (c, x) => `${d(x)} ${c.u}`;
 
 // Een valkuil voor een fout getal w in het eerste veld. Komt w niet mooi uit, dan rondt een
 // leerling het zelf af, zoals 4,3 bij 4,333… Ligt w te dicht bij het goede antwoord, dan geldt de
@@ -36,8 +38,8 @@ const STORIES = [
     dy: 'de huurprijs',
     dx: 'het aantal dagen',
     u: 'euro',
-    wat: "Voor de huurprijs in euro's van een tent geldt de woordformule",
-    lw: "Voor de huurprijs h in euro's van een tent geldt",
+    wat: 'Voor de huurprijs in euro van een tent geldt de woordformule',
+    lw: 'Voor de huurprijs h in euro van een tent geldt',
     a: [10, 12, 15],
     b: [6, 8, 9],
     n: [2, 7],
@@ -54,8 +56,8 @@ const STORIES = [
     dy: 'de kosten',
     dx: 'het aantal ritjes',
     u: 'euro',
-    wat: "Voor de kosten in euro's van een middag op de kermis geldt de woordformule",
-    lw: "Voor de kosten k in euro's van een middag op de kermis geldt",
+    wat: 'Voor de kosten in euro van een middag op de kermis geldt de woordformule',
+    lw: 'Voor de kosten k in euro van een middag op de kermis geldt',
     a: [4, 5, 6],
     b: [2, 3, 4],
     n: [3, 9],
@@ -108,8 +110,8 @@ const STORIES = [
     dy: 'het tegoed',
     dx: 'het aantal films',
     u: 'euro',
-    wat: "Voor het tegoed in euro's op een bioscoopkaart geldt de woordformule",
-    lw: "Voor het tegoed t in euro's op een bioscoopkaart geldt",
+    wat: 'Voor het tegoed in euro op een bioscoopkaart geldt de woordformule',
+    lw: 'Voor het tegoed t in euro op een bioscoopkaart geldt',
     a: [30, 40, 50],
     b: [5, 6, 8],
     n: [1, 5],
@@ -284,7 +286,7 @@ function flValue() {
       ),
       steps: [
         `${s.xl} = ${n} geeft ${s.l} = ${valueChain(e, n, String(n)).join(' = ')}`,
-        s.zin(amt(s, y)),
+        s.zin(amd(s, y)),
       ],
       traps: valueTraps(e, n, y, s.xl),
       v: () => near((y - a) / e.k, n),
@@ -471,7 +473,7 @@ const TWO = [
     x1: 'v',
     x2: 'k',
     u: 'euro',
-    wat: "Voor de prijs p in euro's van kaartjes voor het zwembad geldt",
+    wat: 'Voor de prijs p in euro van kaartjes voor het zwembad geldt',
     met: 'Hierin is v het aantal volwassenen en k het aantal kinderen.',
     a: [6, 7, 8],
     b: [3, 4, 5],
@@ -495,8 +497,8 @@ const TWO = [
     x1: 't',
     x2: 's',
     u: 'euro',
-    wat: "Voor het bedrag b in euro's bij een strandtent geldt",
-    met: "Hierin is t het aantal tosti's en s het aantal smoothies.",
+    wat: 'Voor het bedrag b in euro bij een strandtent geldt',
+    met: 'Hierin is t het aantal tosti en s het aantal smoothies.',
     a: [3, 3.5, 4],
     b: [2, 2.5, 3],
     n1: [1, 4],
