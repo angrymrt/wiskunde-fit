@@ -228,3 +228,47 @@ test('een widget staat al getekend in de uitleg', async () => {
     for (const [, inner] of found) assert.match(inner, /<svg/, t.slug);
   }
 });
+
+test('een onderwerp oefent standaard alleen de gekozen soorten, en alles als je dat vraagt', async () => {
+  const { vPractice, applySoort } = await import(new URL('topic.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const topic = TOPICS.find((t) => t.skills.length > 2);
+  const [eerste, ...rest] = topic.skills;
+  const chips = (html) => [...html.matchAll(/data-act="filter" data-id="(\d*)"/g)].map((m) => m[1]);
+  const alle = ['', ...topic.skills.map((k) => String(k.id))];
+  const vorig = prog.stof;
+  try {
+    // Zonder stof, of met alles van het onderwerp, blijft alles zoals het was.
+    prog.stof = null;
+    assert.deepEqual(chips(vPractice(topic, 'x')), alle);
+    assert.doesNotMatch(vPractice(topic, 'x'), /alleen de soorten uit je stof/);
+    delete state.prac[topic.slug];
+    prog.stof = topic.skills.map((k) => k.id);
+    assert.deepEqual(chips(vPractice(topic, 'x')), alle);
+    // Met een deel: alleen dat deel, met een knop voor alles.
+    delete state.prac[topic.slug];
+    prog.stof = [eerste.id];
+    const mijn = vPractice(topic, 'x');
+    assert.deepEqual(chips(mijn), ['', String(eerste.id)]);
+    assert.match(mijn, /alleen de soorten uit je stof/);
+    assert.match(mijn, /data-act="scope" data-id="alle"/);
+    for (let i = 0; i < 20; i++) {
+      delete state.prac[topic.slug].q;
+      vPractice(topic, 'x');
+      assert.equal(state.prac[topic.slug].skill.id, eerste.id);
+    }
+    // Alles oefenen kan, en terug naar alleen je stof ook.
+    state.prac[topic.slug].alle = true;
+    const veel = vPractice(topic, 'x');
+    assert.deepEqual(chips(veel), alle);
+    assert.match(veel, /data-act="scope" data-id="mijn"/);
+    // Een gedeelde link met ?soort= toont die soort altijd.
+    state.prac[topic.slug].alle = false;
+    applySoort(topic, rest[0].id);
+    assert.equal(state.prac[topic.slug].skill.id, rest[0].id);
+    assert.deepEqual(chips(vPractice(topic, 'x')), alle);
+  } finally {
+    prog.stof = vorig;
+    delete state.prac[topic.slug];
+  }
+});

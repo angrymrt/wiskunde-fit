@@ -356,6 +356,17 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     );
     assert.deepEqual(mixed, ['rekenen-met-een-formule']);
     await p.screenshot({ path: `${shotDir}mijn-stof-boek.png`, fullPage: true });
+    // Een half gekozen onderwerp oefent standaard alleen de gekozen soorten, tot je alles kiest.
+    await p.goto(at('/rekenen-met-een-formule/oefenen'));
+    const chipCount = () => p.locator('.chips .chip').count();
+    const mine = await chipCount();
+    assert.match(await p.textContent('main'), /alleen de soorten uit je stof/);
+    await p.click('[data-act="scope"][data-id="alle"]');
+    const all = await chipCount();
+    assert.ok(all > mine, `alle soorten (${all}) zijn meer dan mijn stof (${mine})`);
+    await p.click('[data-act="scope"][data-id="mijn"]');
+    assert.equal(await chipCount(), mine);
+    await p.screenshot({ path: `${shotDir}onderwerp-mijn-stof.png` });
     await p.goto(siteUrl);
     assert.equal(await p.locator('.domain .pill', { hasText: 'Mijn stof' }).count(), 7);
 

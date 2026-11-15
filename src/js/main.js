@@ -502,6 +502,18 @@ app.addEventListener('click', (e) => {
     render();
     return;
   }
+  if (a === 'scope') {
+    const s = TOPIC[state.view.slug],
+      st = state.prac[s.slug];
+    st.alle = id === 'alle';
+    st.filter = null;
+    newQuestion(s);
+    delete state.view.soort;
+    delete state.view.seed;
+    history.replaceState(history.state, '', pathFor(state.view));
+    render();
+    return;
+  }
   if (a === 'hint') {
     const st = state.prac[state.view.slug];
     st.vals = readVals(st.q, 'p');
