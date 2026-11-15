@@ -6,7 +6,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 
 ### Hersteld
 
-- Een onderwerp oefenen toont niet meer ook de soorten vragen die niet in je stof zitten. Heb je in Mijn stof een deel van een onderwerp gekozen, dan oefen je daar alleen dat deel. Met de knop "Alle soorten van dit onderwerp" oefen je alles, en met "Alleen mijn stof" ga je weer terug. Een gedeelde link naar een vraag werkt zoals eerst.
+- Een onderwerp oefenen toont niet meer ook de soorten vragen die niet in je stof zitten. Heb je in Mijn stof een deel van een onderwerp gekozen, dan oefen je daar alleen dat deel. Met de schakelaar "Alleen mijn stof" zet je dat uit om alle soorten van het onderwerp te oefenen. Een gedeelde link naar een vraag werkt zoals eerst.
 
 ## 1.19.3
 

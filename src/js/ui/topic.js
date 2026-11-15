@@ -54,15 +54,13 @@ function vVideos(s) {
 }
 // Zonder seed krijgt de vraag een nieuwe. Met ?soort=...&seed=... uit het adres komt precies die
 // vraag terug.
-// Heeft de leerling stof gekozen met soorten van dit onderwerp, maar niet alle, dan oefent het
-// onderwerp standaard alleen die. Met st.alle kiest de leerling zelf alles.
-function activeSkills(s) {
-  const st = state.prac[s.slug];
-  if (s.mixed || st?.alle) return s.skills;
+// Heeft de leerling stof gekozen met een deel van de soorten van dit onderwerp, dan staat de
+// schakelaar "Alleen mijn stof" erbij, standaard aan. Uit (st.alle) oefent ze alles.
+const mijnStof = (s) => {
   const mine = s.skills.filter((k) => isChosen(k.id));
-  return mine.length && mine.length < s.skills.length ? mine : s.skills;
-}
-const onlyMine = (s) => activeSkills(s).length < s.skills.length;
+  return !s.mixed && mine.length && mine.length < s.skills.length ? mine : null;
+};
+const activeSkills = (s) => (!state.prac[s.slug]?.alle && mijnStof(s)) || s.skills;
 function newQuestion(s, seed) {
   const st = state.prac[s.slug];
   let sk;
@@ -103,12 +101,10 @@ function applySoort(s, soort = null, seed) {
     newQuestion(s, seed);
   else if (soort && st.skill?.id !== soort) newQuestion(s);
 }
-// Zegt wat er geoefend wordt, als dat niet alles van het onderwerp is, en laat wisselen.
-function scopeNote(s) {
-  const mine = onlyMine(s);
-  if (s.mixed || !(mine || (state.prac[s.slug]?.alle && s.skills.some((k) => isChosen(k.id)))))
-    return '';
-  return `<p class="small">${mine ? 'Je oefent alleen de soorten uit je stof.' : 'Je oefent alle soorten.'} <button class="linkbtn" type="button" data-act="scope" data-id="${mine ? 'alle">Alle soorten van dit onderwerp' : 'mijn">Alleen mijn stof'}</button></p>`;
+function scopeSwitch(s) {
+  return mijnStof(s)
+    ? `<button class="switch" type="button" role="switch" aria-checked="${!state.prac[s.slug]?.alle}" data-act="scope">Alleen mijn stof</button>`
+    : '';
 }
 // Oefenen in één blok: bovenaan de kop met de soorten vragen, daaronder de vraag. Alleen de vraag
 // komt met een korte animatie in beeld, de kop blijft staan.
@@ -122,7 +118,7 @@ function vPractice(s, title) {
     done = st.status === 'right' || st.status === 'shown';
   const chips = s.mixed
     ? `<p class="small">Uitleg bij deze vraag: ${topicLink(topicOf(st.skill.id))}</p>`
-    : `${scopeNote(s)}<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${activeSkills(
+    : `${scopeSwitch(s)}<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${activeSkills(
         s,
       )
         .map(

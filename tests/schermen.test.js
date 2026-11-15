@@ -250,8 +250,7 @@ test('een onderwerp oefent standaard alleen de gekozen soorten, en alles als je 
     prog.stof = [eerste.id];
     const mijn = vPractice(topic, 'x');
     assert.deepEqual(chips(mijn), ['', String(eerste.id)]);
-    assert.match(mijn, /alleen de soorten uit je stof/);
-    assert.match(mijn, /data-act="scope" data-id="alle"/);
+    assert.match(mijn, /role="switch" aria-checked="true" data-act="scope"/);
     for (let i = 0; i < 20; i++) {
       delete state.prac[topic.slug].q;
       vPractice(topic, 'x');
@@ -261,7 +260,7 @@ test('een onderwerp oefent standaard alleen de gekozen soorten, en alles als je 
     state.prac[topic.slug].alle = true;
     const veel = vPractice(topic, 'x');
     assert.deepEqual(chips(veel), alle);
-    assert.match(veel, /data-act="scope" data-id="mijn"/);
+    assert.match(veel, /aria-checked="false" data-act="scope"/);
     // Verandert de stof, dan vervalt een lopende vraag van een soort die niet meer meedoet.
     state.prac[topic.slug].alle = false;
     state.prac[topic.slug].filter = rest[0].id;

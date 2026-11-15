@@ -316,6 +316,42 @@ a.btn {
   text-decoration: underline;
   cursor: pointer;
 }
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.switch::before {
+  content: '';
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--muted);
+  box-sizing: border-box;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--sheet);
+}
+.switch[aria-checked='true']::before {
+  background: var(--blue);
+}
+.switch[aria-checked='true']::after {
+  left: 21px;
+}
 .mail {
   overflow-wrap: anywhere;
 }

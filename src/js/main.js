@@ -505,7 +505,7 @@ app.addEventListener('click', (e) => {
   if (a === 'scope') {
     const s = TOPIC[state.view.slug],
       st = state.prac[s.slug];
-    st.alle = id === 'alle';
+    st.alle = !st.alle;
     st.filter = null;
     newQuestion(s);
     delete state.view.soort;
