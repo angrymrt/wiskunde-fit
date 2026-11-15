@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.19.1
+
+### Verbeterd
+
+- Bij een paar vragen over woordformules en formules met letters staat een nieuw verhaal.
+
 ## 1.19.0
 
 ### Nieuw
