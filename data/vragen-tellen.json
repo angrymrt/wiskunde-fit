@@ -566,8 +566,9 @@
       "exact": true
     },
     "137": {
-      "aantal": 520097,
-      "exact": true
+      "aantal": 489534,
+      "ondergrens": true,
+      "exact": false
     },
     "138": {
       "aantal": 56,

@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.19.2
+
+### Verbeterd
+
+- Bij Woordformules, de vraag "Welke waarde kan niet?", is het foute antwoord niet meer steeds de hoogste of de laagste keuze. Soms is het een uitkomst waar geen heel aantal bij hoort.
+
 ## 1.19.1
 
 ### Verbeterd

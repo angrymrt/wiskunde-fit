@@ -1,5 +1,5 @@
 // Onderwerp: Woordformules. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, pick, coin, until, Q, qv, near, isNice, rd, d, fr } from '../math.js';
+import { ri, pick, coin, until, Q, qv, near, isNice, rd, d, fr, ap } from '../math.js';
 import { F, MC } from './shared.js';
 import { T } from '../typeset.js';
 
@@ -16,6 +16,7 @@ const amd = (c, x) => `${d(x)} ${c.u}`;
 const UP = [
   {
     y: 'rekening',
+    heel: true,
     x: 'aantal kinderen',
     u: 'euro',
     wat: 'Voor de rekening in euro van een kinderfeestje in een klimhal geldt de woordformule',
@@ -32,6 +33,7 @@ const UP = [
   },
   {
     y: 'prijs',
+    heel: true,
     x: 'aantal posters',
     u: 'euro',
     wat: 'Voor de prijs in euro van posters bij een drukker geldt de woordformule',
@@ -63,6 +65,7 @@ const UP = [
   },
   {
     y: 'spaargeld',
+    heel: true,
     x: 'aantal weken',
     u: 'euro',
     wat: 'Noor doet elke week evenveel geld in haar spaarpot. Voor haar spaargeld in euro geldt de woordformule',
@@ -79,6 +82,7 @@ const UP = [
   },
   {
     y: 'kosten',
+    heel: true,
     x: 'aantal lessen',
     u: 'euro',
     wat: 'Voor de kosten in euro van zwemles geldt de woordformule',
@@ -124,6 +128,8 @@ const DOWN = [
     zin: (w) => `Sem heeft dan nog ${w} op zijn printpas.`,
     terug: (w) => `Sem heeft nog ${w} op zijn printpas. Hoeveel vellen heeft hij geprint?`,
     terugZin: (n) => `Sem heeft ${n} vellen geprint.`,
+    heel: true,
+    welk: 'Welk saldo kan niet?',
     kanNiet: (w) => `Een saldo van ${w} kan niet.`,
     op: (t) => `Na ${t} vellen is de printpas leeg.`,
   },
@@ -139,6 +145,8 @@ const DOWN = [
     zin: (w) => `Er zit dan ${w} water in de ton.`,
     terug: (w) => `Er zit nog ${w} water in de ton. Na hoeveel dagen is dat?`,
     terugZin: (n) => `Dat is na ${n} dagen.`,
+    heel: true,
+    welk: 'Welke inhoud kan niet?',
     kanNiet: (w) => `Er kan niet ${w} water in de ton zitten.`,
     op: (t) => `Na ${t} dagen is de ton leeg.`,
   },
@@ -454,6 +462,33 @@ function wfBack() {
 
 // Welke waarde kan niet? Bij een dalende formule: een aantal waarbij het al op is. Bij een
 // stijgende formule: een uitkomst die kleiner is dan het vaste deel.
+// Het foute antwoord ligt tussen de goede uitkomsten in, met evenveel decimalen als de rest, en
+// hoort bij een aantal dat niet heel is.
+const tussen = (vals, a, b) =>
+  until(
+    () => {
+      const dp = [0, 1, 2].find((n) => [a, b, ...vals].every((x) => isNice(x, n))) ?? 2,
+        step = 10 ** -dp,
+        i = ri(0, vals.length - 2),
+        lo = Math.min(vals[i], vals[i + 1]),
+        hi = Math.max(vals[i], vals[i + 1]);
+      return rd(lo + step * ri(1, Math.max(1, Math.round((hi - lo) / step) - 1)), 6);
+    },
+    (bad) => !isNice((bad - a) / b, 0),
+  );
+
+// Hint en uitwerking bij een foute uitkomst waar geen heel aantal bij hoort. up: stijgende formule.
+const geenHeel = (c, up, a, b, bad) => {
+  const k = rd(Math.abs(bad - a) / b, 6);
+  return {
+    hint: T(`Reken bij elke uitkomst uit bij welk ${c.x} die hoort. Een aantal is een heel getal.`),
+    steps: [
+      `${c.x} = (${d(up ? bad : a)} - ${d(up ? a : bad)}) : ${d(b)} ${ap(k, 2)}`,
+      `Dat is geen heel aantal, dus ${amd(c, bad)} kan niet.`,
+    ],
+  };
+};
+
 function wfCannot() {
   if (coin()) {
     const { c, a, b, t } = until(
@@ -466,11 +501,33 @@ function wfCannot() {
       ({ t }) => isNice(t, 0) && t >= 5,
     );
     const goods = [
-        ri(1, Math.floor(t / 3)),
-        ri(Math.floor(t / 3) + 1, Math.floor((2 * t) / 3)),
-        ri(Math.floor((2 * t) / 3) + 1, t - 1),
-      ],
-      bad = t + ri(1, 5),
+      ri(1, Math.floor(t / 3)),
+      ri(Math.floor(t / 3) + 1, Math.floor((2 * t) / 3)),
+      ri(Math.floor((2 * t) / 3) + 1, t - 1),
+    ];
+    if (c.heel && coin()) {
+      const ys = goods.map((k) => rd(a - b * k, 6)),
+        bad = tussen(ys, a, b),
+        opts = [bad, ...ys].map((x) => T(amt(c, x)));
+      return {
+        q: T(`${c.wat} ${c.y} = ${d(a)} - ${d(b)} · ${c.x}. ${c.welk}`),
+        mc: MC(opts, 0),
+        ...geenHeel(c, false, a, b, bad),
+        traps: [
+          {
+            id: 'kan-wel',
+            f: (v) => v[0] !== opts[0],
+            m: 'Reken uit bij welk aantal die uitkomst hoort. Is dat een heel getal, dan kan het wel.',
+          },
+        ],
+        v: () =>
+          !isNice((a - bad) / b, 0) &&
+          bad > Math.min(...ys) &&
+          bad < Math.max(...ys) &&
+          goods.every((k) => isNice(k, 0) && a - b * k > 0),
+      };
+    }
+    const bad = t + ri(1, 5),
       bb = rd(b * bad, 6),
       y = rd(a - bb, 6),
       opts = [bad, ...goods].map((k) => T(String(k)));
@@ -498,8 +555,29 @@ function wfCannot() {
     a = pick(c.a),
     b = pick(c.b),
     ks = [ri(1, 3), ri(4, 6), ri(7, 10)],
-    goods = ks.map((k) => rd(a + b * k, 6)),
-    bad = ri(1, a - 1),
+    goods = ks.map((k) => rd(a + b * k, 6));
+  if (c.heel && coin()) {
+    const bad = tussen(goods, a, b),
+      opts = [bad, ...goods].map((x) => T(amt(c, x)));
+    return {
+      q: T(`${c.wat} ${c.y} = ${d(a)} + ${d(b)} · ${c.x}. ${c.welk}`),
+      mc: MC(opts, 0),
+      ...geenHeel(c, true, a, b, bad),
+      traps: [
+        {
+          id: 'kan-wel',
+          f: (v) => v[0] !== opts[0],
+          m: 'Reken uit bij welk aantal die uitkomst hoort. Is dat een heel getal, dan kan het wel.',
+        },
+      ],
+      v: () =>
+        !isNice((bad - a) / b, 0) &&
+        bad > Math.min(...goods) &&
+        bad < Math.max(...goods) &&
+        goods.every((g) => isNice((g - a) / b, 0) && (g - a) / b > 0),
+    };
+  }
+  const bad = ri(1, a - 1),
     opts = [bad, ...goods].map((x) => T(amt(c, x)));
   return {
     q: T(`${c.wat} ${c.y} = ${d(a)} + ${d(b)} · ${c.x}. ${c.welk}`),
