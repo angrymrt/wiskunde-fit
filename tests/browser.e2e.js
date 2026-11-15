@@ -2190,9 +2190,10 @@ test(
 // maakte het eerste bezoek 3,5 kB groter (12 kB zelf), door de tekst en de aantallen per soort vraag:
 // het eerste bezoek was 54 kB en mag nu 60 kB zijn. De pagina zelf is 8,6 kB, want alle 126
 // soorten en de roosters staan erin. Die heeft daarom een eigen grens (lijst), zodat de grens voor
-// de andere pagina's (6 kB) blijft staan.
+// de andere pagina's blijft laag. Die was 6 kB, tot de grootste pagina (Top en snijpunten van een
+// parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB.
 const LIMITS = {
-  page: { sent: 6, why: 'een vooraf gebouwde pagina' },
+  page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 126 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
