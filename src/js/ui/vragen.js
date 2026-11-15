@@ -13,13 +13,15 @@ import { crumbs, pageHead, REPO } from './layout.js';
 const getal = (x) => x.toLocaleString('nl-NL');
 
 // Een vraag komt uit een seed van 32 bits. Zo'n seed zijn er 4.294.967.296, dus een vraagsoort laat
-// hooguit zoveel verschillende vragen zien, ook als de generator er in theorie meer kan maken. Is
-// het getal groter, dan staat er dit aantal, als schatting: een seed geeft haast nooit dezelfde
-// vraag als een andere seed. Zie #22.
+// hooguit zoveel verschillende vragen zien, ook als de generator er in theorie meer kan maken. Bij
+// D mogelijke vragen en N seeds, die elk een willekeurige vraag geven, zijn er gemiddeld
+// D · (1 − e^(−N/D)) verschillende vragen te zien: bij een grote D bijna N, bij een kleine D bijna
+// D. Die uitkomst groeit met D, dus een ondergrens blijft een ondergrens. Zie #22.
 const SEEDS = 2 ** 32;
 function soort(tellen, k) {
   const s = tellen.soorten[k.id];
-  return s && s.aantal > SEEDS ? { aantal: SEEDS, exact: false } : s;
+  if (!s || s.aantal * 100 < SEEDS) return s;
+  return { ...s, aantal: -s.aantal * Math.expm1(-SEEDS / s.aantal), exact: false };
 }
 
 // Een schatting laten we zien op twee cijfers, want een tiende van een miljoen is schijnzekerheid.
@@ -32,47 +34,27 @@ function onder(n) {
   const stap = 10 ** Math.max(0, Math.floor(Math.log10(n)) - 1);
   return Math.floor(n / stap) * stap;
 }
-// n op twee cijfers als m × 10^e, met m van 1 tot 10.
-function macht(n) {
-  let e = Math.floor(Math.log10(n));
-  let m = Number((n / 10 ** e).toPrecision(2));
-  if (m >= 10) {
-    m /= 10;
-    e++;
-  }
-  return { m, e };
-}
-// "8,5 × 10²⁴". Een schermlezer leest het teken ² niet goed voor, dus daar staat het in woorden.
-function wetenschappelijk(n) {
-  const { m, e } = macht(n);
-  const mantisse = m.toLocaleString('nl-NL');
-  return `<span aria-hidden="true">${mantisse} × 10<sup>${e}</sup></span><span class="sr">${mantisse} keer 10 tot de macht ${e}</span>`;
-}
-// De som van alle aantallen, helemaal uitgeschreven met puntjes: 8.500.120.000.533.232.122. Dat kan
-// in JavaScript niet met gewone getallen, want die zijn bij zo'n groot getal niet meer precies.
+// De som van alle aantallen, helemaal uitgeschreven met puntjes: 8.500.120.000.533.232.122. Zo'n
+// getal is voor gewone getallen te groot om precies te zijn, dus we tellen op met BigInt.
 function uitgeschreven(skills, tellen) {
   const som = skills.reduce((n, k) => n + BigInt(Math.round(soort(tellen, k).aantal)), BigInt(0));
   return String(som).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
-// Vanaf 10^12 is een getal in woorden niet meer te lezen, en dan schrijven we m × 10^e.
-const GROTE_MACHT = 1e12;
 // "5.776" bij een exact aantal, en bij een schatting "≈ 120.000". Een schermlezer leest het teken
 // niet goed voor, dus daar staat "ongeveer".
 const MEER = 'meer dan ';
 const ongeveer = '<span aria-hidden="true">≈ </span><span class="sr">ongeveer </span>';
-const mooi = (n) => (n >= GROTE_MACHT ? wetenschappelijk(n) : getal(rond(n)));
 const aantal = (s) =>
   s.exact
     ? getal(s.aantal)
-    : `${s.ondergrens ? MEER : ongeveer}${mooi(s.ondergrens ? onder(s.aantal) : s.aantal)}`;
-// Een groot getal in woorden: "140 miljoen" of "3,8 miljard", en daarboven "8,5 × 10²⁴".
+    : `${s.ondergrens ? MEER : ongeveer}${getal(rond(s.ondergrens ? onder(s.aantal) : s.aantal))}`;
+// Een groot getal in woorden: "140 miljoen" of "3,8 miljard".
 const groot = (n) => {
-  if (n >= GROTE_MACHT) return wetenschappelijk(n);
   if (n < 1e6) return getal(rond(n));
   const [deel, woord] = n >= 1e9 ? [1e9, 'miljard'] : [1e6, 'miljoen'];
   const m = Number((n / deel).toPrecision(2));
   // Vlak onder een grens rondt het af naar 1.000 miljoen: dan is het de volgende eenheid.
-  if (m >= 1000) return woord === 'miljoen' ? groot(1e9) : wetenschappelijk(n);
+  if (m >= 1000) return woord === 'miljoen' ? groot(1e9) : `${getal(m)} miljard`;
   return `${m.toLocaleString('nl-NL')} ${woord}`;
 };
 
@@ -245,19 +227,21 @@ function vVragen() {
   <p>Elke keuze kan met elke andere keuze samen. Er zijn dus 76 × 76 = 5.776 verschillende vragen.</p>
   ${raster()}</div>
   <div class="block"><h2 class="h3">Niet elk vakje is een goede vraag</h2>
-  <p>Neem de vraag: "Gegeven is f(x) = ax + b. Bereken f(x) voor een gegeven x." De generator kiest een getal voor b en een voor x, en ze mogen geen van beide 0 zijn. Elk vakje in het rooster is weer één keuze.</p>
+  <p>Neem als eenvoudig voorbeeld de vraag: "Gegeven is f(x) = ax + b. Bereken f(x) voor een gegeven x." De generator kiest een getal voor b en een voor x, en ze mogen geen van beide 0 zijn. Elk vakje in het rooster is weer één keuze.</p>
   ${rasterAfgekeurd()}
   <p>Een keuze die niet mag, valt af. De generator kiest dan opnieuw, tot de vraag klopt. We tellen dus alleen de vakjes die een goede vraag geven.</p>
 </div>
   <div class="block"><h2 class="h3">Soms is een vraag dubbel</h2>
-  <p>Neem de vraag om x² − 10x + 21 = 0 op te lossen. De generator maakt die vraag uit twee oplossingen, p en q, die elk een getal van 1 tot 10 zijn. Kiest hij p = 3 en q = 7, of p = 7 en q = 3? Dat geeft dezelfde vergelijking, dus dezelfde vraag.</p>
+  <p>Neem als eenvoudig voorbeeld de vraag om x² − 10x + 21 = 0 op te lossen. De generator maakt die vraag uit twee oplossingen, p en q, die elk een getal van 1 tot 10 zijn. Kiest hij p = 3 en q = 7, of p = 7 en q = 3? Dat geeft dezelfde vergelijking, dus dezelfde vraag.</p>
   ${rasterDubbel()}
-  <p>Zo'n vraag telt één keer. We tellen dus verschillende vragen en niet alle keuzes. Een andere volgorde van de antwoorden bij meerkeuze maakt het ook niet een andere vraag.</p></div>
+  <p>Zo'n vraag telt één keer. We tellen dus verschillende vragen en niet alle keuzes. Een andere volgorde van de antwoorden bij meerkeuze telt ook niet als een andere vraag.</p></div>
   <div class="block"><h2 class="h3">Hoe we weten dat het antwoord klopt</h2>
   <p>Bij elke vraag rekent de computer het antwoord nog een keer na, op een andere manier dan de generator zelf. Komt daar iets anders uit, dan slaat de test alarm.</p>
   <p>Bij elke wijziging maken de tests duizenden vragen en controleren die allemaal. Elke vraag hoort bij een seed, een getal dat de vraag vastlegt. Met dezelfde seed krijg je precies dezelfde vraag, dus een fout is altijd te herhalen.</p></div>
   <div class="block"><h2 class="h3">Hoeveel vragen zijn er?</h2>
-  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Soms is het aantal te groot om na te tellen. Staat er <b>≈</b> voor, dan hebben we het geschat, en dat kan er wat naast zitten. Staat er <b>meer dan</b> voor, dan weten we alleen dat het er minstens zoveel zijn, en zijn het er waarschijnlijk meer. Een getal als 2,3 × 10<sup>21</sup> lees je als 2,3 keer 10<sup>21</sup>, en 10<sup>21</sup> is een 1 met 21 nullen. Zulke grote aantallen komen er als de generator veel getallen kiest, zoals bij een tabel of een diagram. Elke vraag komt uit een seed van 32 bits, en daarvan zijn er 4.294.967.296. Meer verschillende vragen dan dat kan één soort dus niet laten zien, en zo'n soort staat hier op ongeveer 4,3 miljard.</p>
+  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien.</p>
+  <p>Soms is een aantal te groot om na te tellen. Staat er <b>≈</b> voor, dan hebben we het geschat, en dat kan er wat naast zitten. Staat er <b>meer dan</b> voor, dan weten we alleen dat het er minstens zoveel zijn, en zijn het er waarschijnlijk meer.</p>
+  <p>Een soort kan nooit meer dan ongeveer 4,3 miljard verschillende vragen laten zien. Elke vraag komt uit een seed, en een seed is een getal van 32 bits. Daar zijn er 4.294.967.296 van. Een soort met meer mogelijke vragen staat hier op ongeveer 4,3 miljard.</p>
   <div class="row"><button class="btn quiet" type="button" data-act="vragenopen" data-id="open">Alles openen</button><button class="btn quiet" type="button" data-act="vragenopen" data-id="dicht">Alles sluiten</button></div>
   ${perOnderwerp(tellen)}
   <p class="vtotaal"><span>Samen</span><span><b>${kort(skills, tellen)}</b> verschillende vragen</span></p></div>

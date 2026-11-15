@@ -1324,6 +1324,10 @@ sub {
   .vdomein .ctable td {
     padding: 5px 3px;
   }
+  /* Een lang woord als Vermenigvuldigingsfactor breekt af, zodat de tabel niet opzij schuift. */
+  .vdomein .ctable tbody th {
+    overflow-wrap: anywhere;
+  }
 }
 @media (max-width: 480px) {
   .vdomein .ctopic summary {

@@ -59,8 +59,9 @@ test('schat komt in de buurt bij een scheve verdeling', () => {
     const x = coin() ? ri(0, 3) : ri(1000, 5999);
     return { q: `vraag ${x}` };
   };
-  const { aantal } = schat(gen, 60000);
+  const { aantal, ondergrens } = schat(gen, 60000);
   assert.ok(aantal > 4000 && aantal < 7000, `geschat ${aantal}`);
+  assert.equal(ondergrens, true);
 });
 
 test('schat neemt bij een gelijkmatige verdeling het aantal paden, en dat is geen ondergrens', () => {

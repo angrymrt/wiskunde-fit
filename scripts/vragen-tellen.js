@@ -65,7 +65,10 @@ export function schat(gen, trekkingen = TREKKINGEN) {
   if (paren <= 2 * verwacht + 5) return { aantal: Math.round(paden) };
   // Chao1 groeit mee met het aantal trekkingen en is dus een ondergrens: er zijn minstens zoveel.
   const chao1 = telling.size + (f1 * (f1 - 1)) / (2 * (f2 + 1));
-  return { aantal: Math.round(Math.min(chao1, paden)), ondergrens: true };
+  // Is het aantal paden kleiner, dan is dat een bovengrens en geen ondergrens.
+  return chao1 <= paden
+    ? { aantal: Math.round(chao1), ondergrens: true }
+    : { aantal: Math.round(paden) };
 }
 
 export function tel(skill) {
