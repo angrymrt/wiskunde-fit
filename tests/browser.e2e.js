@@ -2195,7 +2195,7 @@ test(
 // parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB.
 const LIMITS = {
   page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
-  // Alleen Zo maken we de vragen: alle 126 vraagsoorten en drie roosters staan erin.
+  // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   start: { sent: 60, own: 165, why: 'de code bij het eerste bezoek' },
