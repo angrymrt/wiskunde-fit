@@ -494,11 +494,11 @@ const TWO = [
   },
   {
     l: 'z',
-    x1: 'w',
+    x1: 'b',
     x2: 'g',
     u: 'euro',
     wat: 'Voor de omzet z in euro van een bakker op een ochtend geldt',
-    met: 'Hierin is w het aantal broden en g het aantal gebakjes.',
+    met: 'Hierin is b het aantal broden en g het aantal gebakjes.',
     a: [3, 3.5, 4],
     b: [2, 2.5, 3],
     n1: [1, 4],
