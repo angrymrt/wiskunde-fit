@@ -894,14 +894,15 @@ test(
           });
         }
         await checkOverflow(`${id} schuifjes op maximum`);
-        // Elke video staat er één keer, en de link bovenaan gaat naar de video's.
+        // Elke video staat er één keer, en de link bovenaan gaat naar de video's. Een onderwerp
+        // zonder video's heeft geen link en geen kop.
         const videos = await p.evaluate((i) => {
           const v = wiskundefit.TOPIC[i].videos;
           return Object.values(v).flat().length;
         }, id);
         assert.equal(await p.locator('.vid-links a').count(), videos, `${id}: video's`);
-        assert.ok(await p.$('a[href="#videos"]'), `${id}: link naar de video's`);
-        assert.ok(await p.$('h2#videos'), `${id}: kop van de video's`);
+        assert.equal(!!(await p.$('a[href="#videos"]')), videos > 0, `${id}: link naar de video's`);
+        assert.equal(!!(await p.$('h2#videos')), videos > 0, `${id}: kop van de video's`);
         await p.click('a.btn[href$="/oefenen"]');
 
         const skills = await p.evaluate((i) => wiskundefit.TOPIC[i].skills.map((k) => k.id), id);

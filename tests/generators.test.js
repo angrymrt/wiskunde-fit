@@ -523,8 +523,10 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
     assert.ok(!reserved.includes(d.slug), `${d.slug} is gereserveerd`);
     assert.ok(d.intro && !/[{}<]/.test(d.intro), `${d.name}: de intro is geen gewone tekst`);
   }
+  // Een adres heeft geen accenten: Coördinaten wordt coordinaten.
+  const plain = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
   for (const t of TOPICS) {
-    assert.equal(t.slug, t.title.toLowerCase().replaceAll(' ', '-'), t.title);
+    assert.equal(t.slug, plain(t.title.toLowerCase()).replaceAll(' ', '-'), t.title);
     assert.ok(!reserved.includes(t.slug), `${t.slug} is gereserveerd`);
     assert.ok(t.intro, `${t.title} heeft geen intro`);
     assert.ok(!/[{}<]/.test(t.intro), `${t.title}: de intro is geen gewone tekst`);

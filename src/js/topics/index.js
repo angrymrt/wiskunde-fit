@@ -4,6 +4,9 @@
 // van elk onderwerp alleen de catalogus: de naam, het adres, de intro en de namen van de
 // vraagsoorten. De build zet die op de plek van de imports hieronder (zie scripts/catalogus.js).
 // De generatoren en de uitleg komen pas met laadOnderwerpen().
+import coordinaten from './coordinaten-en-assenstelsels.js';
+import woordformules from './woordformules.js';
+import letters from './formules-met-letters.js';
 import rekenen from './rekenen-met-een-formule.js';
 import lijnen from './lineaire-grafieken-tekenen.js';
 import opstellen from './lineaire-formule-opstellen.js';
@@ -59,7 +62,18 @@ const DOMAINS = [
     description:
       'Formules en grafieken oefenen: lineaire formules, snijpunten, de top van een parabool en verschuiven. Gratis met uitleg, hints en uitwerkingen.',
     color: 'blue',
-    topics: [rekenen, lijnen, opstellen, snijpunten, kwadratisch, topSnijpunten, verschuiven],
+    topics: [
+      coordinaten,
+      woordformules,
+      letters,
+      rekenen,
+      lijnen,
+      opstellen,
+      snijpunten,
+      kwadratisch,
+      topSnijpunten,
+      verschuiven,
+    ],
   },
   {
     slug: 'vergelijkingen-en-ongelijkheden',
@@ -95,6 +109,7 @@ const DOMAINS = [
 
 // Stof die je al moet kennen voordat je aan een onderwerp begint.
 const PREREQUISITES = new Map([
+  [letters, [woordformules]],
   [rekenen, [vergelijkingen]],
   [lijnen, [rekenen]],
   [opstellen, [lijnen]],
