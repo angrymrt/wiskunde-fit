@@ -1217,6 +1217,10 @@ sub {
   fill: var(--muted);
   opacity: 0.4;
 }
+.vr-dubbel {
+  fill: var(--orange);
+  opacity: 0.3;
+}
 .vr-lijn {
   fill: none;
   stroke: var(--blue);

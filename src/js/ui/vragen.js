@@ -33,11 +33,14 @@ function wetenschappelijk(n) {
   const mantisse = m.toLocaleString('nl-NL');
   return `<span aria-hidden="true">${mantisse} × 10<sup>${e}</sup></span><span class="sr">${mantisse} keer 10 tot de macht ${e}</span>`;
 }
-// Het hele getal, op twee cijfers: 8.500.000.000.000.000.000.000.000. Zonder BigInt, want zo groot
-// kan een getal in JavaScript niet precies.
-function uitgeschreven(n) {
-  const { m, e } = macht(n);
-  return `${Math.round(m * 10)}${'0'.repeat(e - 1)}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+// De som van alle aantallen, helemaal uitgeschreven met puntjes: 8.500.120.000.533.232.122. Dat kan
+// in JavaScript niet met gewone getallen, want die zijn bij zo'n groot getal niet meer precies.
+function uitgeschreven(skills, tellen) {
+  const som = skills.reduce(
+    (n, k) => n + BigInt(Math.round(tellen.soorten[k.id].aantal)),
+    BigInt(0),
+  );
+  return String(som).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 // Vanaf 10^12 is een getal in woorden niet meer te lezen, en dan schrijven we m × 10^e.
 const GROTE_MACHT = 1e12;
@@ -122,10 +125,10 @@ function raster() {
 }
 
 // Is het totaal zo groot dat het als m × 10^e staat, dan schrijven we het ook één keer helemaal uit.
+// Alleen de eerste cijfers zeggen iets: de aantallen zijn schattingen.
 function uitschrijving(skills, tellen) {
-  const n = som(skills, tellen);
-  if (n < GROTE_MACHT) return '';
-  return `<p class="vuit"><span class="small muted">Dat is dus${ondergrens(skills, tellen) ? ' meer dan' : ' ongeveer'}:</span><b>${uitgeschreven(n)}</b></p>`;
+  if (som(skills, tellen) < GROTE_MACHT) return '';
+  return `<p class="vuit"><span class="small muted">Onze huidige beste schatting van het aantal verschillende vragen is:</span><b>${uitgeschreven(skills, tellen)}</b><span class="small muted">Alleen de eerste cijfers zeggen iets, want veel aantallen zijn schattingen.</span></p>`;
 }
 
 // Een rooster van b (−9 tot 9) bij x (−8 tot 8), voor de vraag "Bereken f(x) = ax + b". b en x mogen
@@ -167,6 +170,40 @@ function rasterAfgekeurd() {
   </svg><figcaption class="small muted">Elk vakje is één keuze voor b en x. De grijze vakjes zijn afgekeurd: daar is b of x gelijk aan 0. Er blijven ${getal(over)} van de ${getal(totaal)} vakjes over.</figcaption></figure>`;
 }
 
+// Een rooster van p bij q (1 tot 10), voor de vergelijking x² − (p + q)x + pq = 0. Het vakje (p, q) en
+// het gespiegelde vakje (q, p) geven dezelfde vergelijking, dus alleen één van beide telt. De
+// aantallen volgen uit N.
+const NP = 10;
+function rasterDubbel() {
+  const C = 16;
+  const X = 26;
+  const Y = 22;
+  const w = NP * C;
+  const uniek = (NP * (NP + 1)) / 2;
+  const totaal = NP * NP;
+  const label = `Een rooster van ${NP} bij ${NP} vakjes, ${getal(totaal)} samen. Het vakje van p en q en het gespiegelde vakje geven dezelfde vergelijking. Daardoor zijn er ${getal(uniek)} verschillende vragen.`;
+  const vakje = (p, q) =>
+    `x="${X + (p - 1) * C}" y="${Y + (q - 1) * C}" width="${C}" height="${C}"`;
+  let dubbel = '';
+  for (let q = 1; q <= NP; q++)
+    for (let p = q + 1; p <= NP; p++) dubbel += `<rect class="vr-dubbel" ${vakje(p, q)}/>`;
+  const midden = (p, q) => [X + (p - 0.5) * C, Y + (q - 0.5) * C];
+  const [x1, y1] = midden(3, 7);
+  const [x2, y2] = midden(7, 3);
+  return `<figure class="vfig"><svg class="vraster" viewBox="0 0 ${X + w + 2} ${Y + w + 2}" role="img" aria-label="${label}">
+  <defs><pattern id="vraster-dubbel-vakje" width="${C}" height="${C}" patternUnits="userSpaceOnUse"><path class="vr-lijn" d="M${C} 0H0V${C}"/></pattern></defs>
+  <rect class="vr-bg" x="${X}" y="${Y}" width="${w}" height="${w}"/>
+  ${dubbel}
+  <rect class="vr-patroon" x="${X}" y="${Y}" width="${w}" height="${w}" fill="url(#vraster-dubbel-vakje)"/>
+  <rect class="vr-rand" x="${X}" y="${Y}" width="${w}" height="${w}"/>
+  <line class="vr-ring" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-dasharray="3 3"/>
+  <circle class="vr-ring" cx="${x1}" cy="${y1}" r="8"/>
+  <circle class="vr-ring" cx="${x2}" cy="${y2}" r="8"/>
+  <text class="vr-t" x="${X + w / 2}" y="14" text-anchor="middle">p: ${NP} mogelijkheden</text>
+  <text class="vr-t" x="12" y="${Y + w / 2}" text-anchor="middle" transform="rotate(-90 12 ${Y + w / 2})">q: ${NP} mogelijkheden</text>
+  </svg><figcaption class="small muted">De twee omcirkelde vakjes (p = 3 en q = 7, en p = 7 en q = 3) geven dezelfde vraag. De oranje vakjes zijn zo'n tweede vakje voor dezelfde vraag. Er blijven ${getal(uniek)} verschillende vragen over van de ${getal(totaal)} vakjes.</figcaption></figure>`;
+}
+
 function vVragen() {
   const tellen = TELLEN;
   const skills = TOPICS.flatMap((t) => t.skills);
@@ -195,7 +232,11 @@ function vVragen() {
   <p>Neem de vraag: "Gegeven is f(x) = ax + b. Bereken f(x) voor een gegeven x." De generator kiest een getal voor b en een voor x, en ze mogen geen van beide 0 zijn. Elk vakje in het rooster is weer één keuze.</p>
   ${rasterAfgekeurd()}
   <p>Een keuze die niet mag, valt af. De generator kiest dan opnieuw, tot de vraag klopt. We tellen dus alleen de vakjes die een goede vraag geven.</p>
-  <p>Soms geven twee vakjes dezelfde vraag. Die vraag telt dan één keer. Een andere volgorde van de antwoorden bij meerkeuze maakt het ook niet een andere vraag.</p></div>
+</div>
+  <div class="block"><h2 class="h3">Soms is een vraag dubbel</h2>
+  <p>Neem de vraag om x² − 10x + 21 = 0 op te lossen. De generator maakt die vraag uit twee oplossingen, p en q, die elk een getal van 1 tot 10 zijn. Kiest hij p = 3 en q = 7, of p = 7 en q = 3? Dat geeft dezelfde vergelijking, dus dezelfde vraag.</p>
+  ${rasterDubbel()}
+  <p>Zo'n vraag telt één keer. We tellen dus verschillende vragen en niet alle keuzes. Een andere volgorde van de antwoorden bij meerkeuze maakt het ook niet een andere vraag.</p></div>
   <div class="block"><h2 class="h3">Hoe we weten dat het antwoord klopt</h2>
   <p>Bij elke vraag rekent de computer het antwoord nog een keer na, op een andere manier dan de generator zelf. Komt daar iets anders uit, dan slaat de test alarm.</p>
   <p>Bij elke wijziging maken de tests duizenden vragen en controleren die allemaal. Elke vraag hoort bij een seed, een getal dat de vraag vastlegt. Met dezelfde seed krijg je precies dezelfde vraag, dus een fout is altijd te herhalen.</p></div>
