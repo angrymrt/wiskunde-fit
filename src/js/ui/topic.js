@@ -95,6 +95,8 @@ const practiceState = (s) => state.prac[s.slug] || (state.prac[s.slug] = { right
 function applySoort(s, soort = null, seed) {
   const st = practiceState(s);
   st.filter = soort;
+  // Een nieuw bezoek begint weer met alleen je stof.
+  st.alle = false;
   // Een gedeelde link met ?soort= toont die soort altijd, ook buiten je stof.
   if (soort && !activeSkills(s).some((k) => k.id === soort)) st.alle = true;
   if (soort && seed !== undefined && (st.q?.seed !== seed || st.skill?.id !== soort))
@@ -106,13 +108,16 @@ function scopeNote(s) {
   const mine = onlyMine(s);
   if (s.mixed || !(mine || (state.prac[s.slug]?.alle && s.skills.some((k) => isChosen(k.id)))))
     return '';
-  return `<p class="small">${mine ? 'Je oefent alleen de soorten uit je stof.' : 'Je oefent alle soorten van dit onderwerp.'} <button class="linkbtn" type="button" data-act="scope" data-id="${mine ? 'alle">Alle soorten van dit onderwerp' : 'mijn">Alleen mijn stof'}</button></p>`;
+  return `<p class="small">${mine ? 'Je oefent alleen de soorten uit je stof.' : 'Je oefent alle soorten.'} <button class="linkbtn" type="button" data-act="scope" data-id="${mine ? 'alle">Alle soorten van dit onderwerp' : 'mijn">Alleen mijn stof'}</button></p>`;
 }
 // Oefenen in één blok: bovenaan de kop met de soorten vragen, daaronder de vraag. Alleen de vraag
 // komt met een korte animatie in beeld, de kop blijft staan.
 function vPractice(s, title) {
   const st = practiceState(s);
-  if (!st.q) newQuestion(s);
+  // De stofkeuze kan veranderd zijn (ook in een ander tabblad): een soort die niet meer meedoet, vervalt.
+  const act = activeSkills(s);
+  if (!act.some((k) => k.id === st.filter)) st.filter = null;
+  if (!st.q || !act.includes(st.skill)) newQuestion(s);
   const q = st.q,
     done = st.status === 'right' || st.status === 'shown';
   const chips = s.mixed

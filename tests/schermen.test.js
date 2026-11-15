@@ -262,6 +262,13 @@ test('een onderwerp oefent standaard alleen de gekozen soorten, en alles als je 
     const veel = vPractice(topic, 'x');
     assert.deepEqual(chips(veel), alle);
     assert.match(veel, /data-act="scope" data-id="mijn"/);
+    // Verandert de stof, dan vervalt een lopende vraag van een soort die niet meer meedoet.
+    state.prac[topic.slug].alle = false;
+    state.prac[topic.slug].filter = rest[0].id;
+    prog.stof = [eerste.id];
+    vPractice(topic, 'x');
+    assert.equal(state.prac[topic.slug].filter, null);
+    assert.equal(state.prac[topic.slug].skill.id, eerste.id);
     // Een gedeelde link met ?soort= toont die soort altijd.
     state.prac[topic.slug].alle = false;
     applySoort(topic, rest[0].id);

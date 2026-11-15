@@ -511,7 +511,7 @@ app.addEventListener('click', (e) => {
     delete state.view.soort;
     delete state.view.seed;
     history.replaceState(history.state, '', pathFor(state.view));
-    render();
+    render('[data-act="scope"]');
     return;
   }
   if (a === 'hint') {
