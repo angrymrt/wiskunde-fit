@@ -107,13 +107,15 @@ test('elk deel heeft een leerboek en een FLEX-boek met een geldig ISBN', () => {
     for (const b of m.books) assert.ok(validIsbn(b.isbn), `${b.name}: ${b.isbn}`);
     for (const part of new Set(m.books.map((b) => b.part))) {
       const names = m.books.filter((b) => b.part === part).map((b) => b.name);
-      // Van vwo 1 is alleen deel 2 bekend, en daarvan nog geen FLEX-boek.
-      if (m.id === 'gr13-vwo1') continue;
+      // Voor vwo 1 bestaat geen FLEX-boek, alleen de leerboeken.
+      if (m.id === 'gr13-vwo1') {
+        assert.equal(names.length, 1, `${m.id} ${part}`);
+        continue;
+      }
       assert.equal(names.length, 2, `${m.id} ${part}`);
       assert.equal(names.filter((n) => n.includes('FLEX')).length, 1, `${m.id} ${part}`);
     }
     for (const c of m.chapters) {
-      if (m.id === 'gr13-vwo1') continue; // deel 1 ontbreekt nog
       assert.ok(
         m.books.some((b) => b.part === c.part),
         `${m.id}: hoofdstuk ${c.number}`,

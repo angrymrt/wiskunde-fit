@@ -1,6 +1,5 @@
 // Getal & Ruimte, 13e editie, vwo 1. Alleen hoofdstuk 3 is ingevuld.
-// Deel 1 staat niet bij de boeken: het ISBN ervan is nog niet bekend, en een boek zonder ISBN
-// past niet in de controle. Vul het boek aan zodra het ISBN bekend is.
+// Voor vwo 1 bestaat geen FLEX-boek, alleen de twee leerboeken.
 export default {
   id: 'gr13-vwo1',
   slug: 'getal-en-ruimte-13-vwo-1',
@@ -10,6 +9,11 @@ export default {
   year: 1,
   note: 'Alleen hoofdstuk 3 is ingevuld, de andere hoofdstukken volgen later. Deze vragen zijn gemaakt voor havo 3 of havo/vwo en zijn alleen voor hoofdstuk 3 met dit boek vergeleken: 3.1, 3.4, 3.5 en 3.6 wel, 3.2 en 3.3 niet.',
   books: [
+    {
+      part: 'deel 1',
+      name: 'Getal & Ruimte ed 13.0 vwo 1 leerboek deel 1',
+      isbn: '9789001304027',
+    },
     {
       part: 'deel 2',
       name: 'Getal & Ruimte ed 13.0 vwo 1 leerboek deel 2',
