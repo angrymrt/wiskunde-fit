@@ -352,6 +352,19 @@ a.btn {
 .switch[aria-checked='true']::after {
   left: 21px;
 }
+@media (forced-colors: active) {
+  .switch::before {
+    forced-color-adjust: none;
+    background: ButtonText;
+  }
+  .switch::after {
+    forced-color-adjust: none;
+    background: Canvas;
+  }
+  .switch[aria-checked='true']::before {
+    background: Highlight;
+  }
+}
 .mail {
   overflow-wrap: anywhere;
 }
