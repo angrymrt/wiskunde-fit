@@ -23,7 +23,7 @@ const fout = (id, w, goed, m) =>
     : null;
 
 // Letters voor een kale uitdrukking. Geen l, o of i: die lijken op 1 en 0.
-const LETTERS = ['a', 'b', 'd', 'e', 'f', 'g', 'k', 'n', 'p', 'r', 't', 'x'];
+const LETTERS = ['c', 'g', 'h', 'k', 'm', 'p', 'q', 's', 'u', 'w', 'y', 'z'];
 
 // Verhalen met een woordformule: uitkomst = vast deel + getal · aantal, of met een min. l en xl
 // zijn de letters voor de uitkomst en het aantal, dy en dx de woorden met lidwoord. a, b en n zijn
@@ -31,21 +31,21 @@ const LETTERS = ['a', 'b', 'd', 'e', 'f', 'g', 'k', 'n', 'p', 'r', 't', 'x'];
 const STORIES = [
   {
     up: true,
-    y: 'huurprijs',
-    x: 'aantal dagen',
+    y: 'hoogte',
+    x: 'aantal dozen',
     l: 'h',
     xl: 'd',
-    dy: 'de huurprijs',
-    dx: 'het aantal dagen',
-    u: 'euro',
-    wat: 'Voor de huurprijs in euro van een tent geldt de woordformule',
-    lw: 'Voor de huurprijs h in euro van een tent geldt',
+    dy: 'de hoogte',
+    dx: 'het aantal dozen',
+    u: 'cm',
+    wat: 'Voor de hoogte in cm van een stapel dozen op een plank geldt de woordformule',
+    lw: 'Voor de hoogte h in cm van een stapel dozen op een plank geldt',
     a: [10, 12, 15],
     b: [6, 8, 9],
     n: [2, 7],
-    zin: (w) => `De huurprijs is ${w}.`,
-    terug: (w) => `De huurprijs is ${w}. Hoeveel dagen heb je de tent gehuurd?`,
-    terugZin: (n) => `Je hebt de tent ${n} dagen gehuurd.`,
+    zin: (w) => `De stapel is dan ${w} hoog.`,
+    terug: (w) => `De stapel is ${w} hoog. Hoeveel dozen liggen erop?`,
+    terugZin: (n) => `Er liggen ${n} dozen op de plank.`,
   },
   {
     up: true,
@@ -210,7 +210,7 @@ function flWrite() {
 }
 
 // Tekst van een uitdrukking c + k · letter. lead zegt of het vaste getal vooraan staat, zoals in
-// 3 - 5n; anders staat het achteraan, zoals in 8f - 2, of is het er niet, zoals in 7a.
+// 20 - 4w; anders staat het achteraan, zoals in 9q + 5, of is het er niet, zoals in 6m.
 function exprText({ k, c, lead }, l) {
   const ka = d(Math.abs(k));
   if (lead) return `${d(c)} ${k < 0 ? '-' : '+'} ${ka}${l}`;
@@ -270,8 +270,8 @@ function valueTraps({ k, c, lead }, xv, y, l) {
   ].filter(Boolean);
 }
 
-// Een uitdrukking met een letter berekenen, zoals 7a, 5 + 3d of 3 - 5n. Soms is het een formule uit
-// een verhaal, zoals h = 12 + 9d.
+// Een uitdrukking met een letter berekenen, zoals 6m, 4 + 9w of 25 - 2z. Soms is het een formule
+// uit een verhaal, zoals h = 15 + 4d.
 function flValue() {
   if (ri(1, 3) === 1) {
     const { c: s, a, b, n } = story(STORIES);
@@ -323,7 +323,7 @@ function flValue() {
   };
 }
 
-// Een uitdrukking met haakjes berekenen, zoals 5(a - 3), -2(d + 8) + 1 of 20 - 3(t - 4). Het
+// Een uitdrukking met haakjes berekenen, zoals 6(m + 2), -3(w - 5) + 4 of 25 - 2(z + 7). Het
 // getal voor het haakje is m, het getal in het haakje r en het vaste getal c.
 function flBrackets() {
   const l = pick(LETTERS),
@@ -469,12 +469,12 @@ function flBack() {
 // voor hun waarden.
 const TWO = [
   {
-    l: 'p',
+    l: 'k',
     x1: 'v',
-    x2: 'k',
+    x2: 'j',
     u: 'euro',
-    wat: 'Voor de prijs p in euro van kaartjes voor het zwembad geldt',
-    met: 'Hierin is v het aantal volwassenen en k het aantal kinderen.',
+    wat: 'Voor de kosten k in euro van een rondvaart geldt',
+    met: 'Hierin is v het aantal volwassenen en j het aantal jongeren.',
     a: [6, 7, 8],
     b: [3, 4, 5],
     n1: [1, 4],
@@ -493,12 +493,12 @@ const TWO = [
     n2: [1, 4],
   },
   {
-    l: 'b',
-    x1: 't',
-    x2: 's',
+    l: 'z',
+    x1: 'w',
+    x2: 'g',
     u: 'euro',
-    wat: 'Voor het bedrag b in euro bij een strandtent geldt',
-    met: 'Hierin is t het aantal tosti en s het aantal smoothies.',
+    wat: 'Voor de omzet z in euro van een bakker op een ochtend geldt',
+    met: 'Hierin is w het aantal broden en g het aantal gebakjes.',
     a: [3, 3.5, 4],
     b: [2, 2.5, 3],
     n1: [1, 4],
@@ -556,7 +556,7 @@ export default {
   slug: 'formules-met-letters',
   title: 'Formules met letters',
   intro:
-    'In een formule kun je een letter gebruiken in plaats van woorden, zoals b = 8 + 4u. Hier leer je een woordformule met letters schrijven, een getal invullen voor een letter, ook met haakjes en negatieve getallen, en terugrekenen.',
+    'In een formule kun je een letter gebruiken in plaats van woorden, zoals p = 5 + 2w. Hier leer je een woordformule met letters schrijven, een getal invullen voor een letter, ook met haakjes en negatieve getallen, en terugrekenen.',
   description:
     'Formules met letters oefenen: invullen voor een letter, ook negatief en met haakjes, een woordformule met letters schrijven en terugrekenen. Gratis met uitleg.',
   videos: {},
@@ -572,11 +572,11 @@ export default {
       t: 'Letters in plaats van woorden',
       p: [
         T(
-          'In plaats van een woord gebruik je in een formule vaak een letter. Bij huurprijs = 6 + 5 · aantal uren schrijf je h voor de huurprijs en u voor het aantal uren. Dan krijg je h = 6 + 5 · u.',
+          'In plaats van een woord gebruik je in een formule vaak een letter. Bij rekening = 4 + 3 · aantal kinderen schrijf je r voor de rekening en k voor het aantal kinderen. Dan krijg je r = 4 + 3 · k.',
         ),
-        T('Het punt tussen een getal en een letter mag weg: 5u betekent 5 · u. Dus h = 6 + 5u.'),
+        T('Het punt tussen een getal en een letter mag weg: 3k betekent 3 · k. Dus r = 4 + 3k.'),
       ],
-      watch: T('Tel 6 en 5 niet bij elkaar op: h = 11u klopt niet.'),
+      watch: T('Tel 4 en 3 niet bij elkaar op: r = 7k klopt niet.'),
     },
     {
       t: 'Invullen voor een letter',
@@ -586,10 +586,10 @@ export default {
         ),
       ],
       ex: {
-        q: T('Bereken 4 + 6g voor g = 3.'),
-        steps: ['g = 3 geeft 4 + 6g = 4 + 6 · 3 = 4 + 18 = 22'],
+        q: T('Bereken 5 + 4s voor s = 6.'),
+        steps: ['s = 6 geeft 5 + 4s = 5 + 4 · 6 = 5 + 24 = 29'],
       },
-      watch: T('6g met g = 3 is 6 · 3 = 18, en niet 63.'),
+      watch: T('4s met s = 6 is 4 · 6 = 24, en niet 46.'),
     },
     {
       t: 'Negatieve getallen invullen',
@@ -599,23 +599,23 @@ export default {
         ),
       ],
       ex: {
-        q: T('Bereken 2 - 7r voor r = -3.'),
-        steps: ['r = -3 geeft 2 - 7r = 2 - 7 · -3 = 2 - -21 = 2 + 21 = 23'],
+        q: T('Bereken 9 - 4w voor w = -5.'),
+        steps: ['w = -5 geeft 9 - 4w = 9 - 4 · -5 = 9 - -20 = 9 + 20 = 29'],
       },
-      watch: T('Reken 2 - 7 niet eerst uit. Eerst de keer, dan de min.'),
+      watch: T('Reken 9 - 4 niet eerst uit. Eerst de keer, dan de min.'),
     },
     {
       t: 'Haakjes',
       p: [
         T(
-          'Ook voor een haakje laat je het punt weg: 4(p - 2) betekent 4 · (p - 2). Reken eerst uit wat tussen de haakjes staat en vermenigvuldig dat daarna.',
+          'Ook voor een haakje laat je het punt weg: 3(m + 5) betekent 3 · (m + 5). Reken eerst uit wat tussen de haakjes staat en vermenigvuldig dat daarna.',
         ),
       ],
       ex: {
-        q: T('Bereken 4(p - 2) voor p = 9.'),
-        steps: ['p = 9 geeft 4(p - 2) = 4(9 - 2) = 4 · 7 = 28'],
+        q: T('Bereken 3(m + 5) voor m = 4.'),
+        steps: ['m = 4 geeft 3(m + 5) = 3(4 + 5) = 3 · 9 = 27'],
       },
-      watch: T('4(p - 2) is niet hetzelfde als 4p - 2. Het hele haakje gaat keer 4.'),
+      watch: T('3(m + 5) is niet hetzelfde als 3m + 5. Het hele haakje gaat keer 3.'),
     },
     {
       t: 'Terugrekenen',
@@ -625,20 +625,20 @@ export default {
         ),
       ],
       ex: {
-        q: T('Er geldt 7 + 3t = 31. Bereken t.'),
-        steps: ['7 + 3t = 31', '3t = 31 - 7 = 24', 't = 24 : 3 = 8'],
+        q: T('Er geldt 9 + 4q = 37. Bereken q.'),
+        steps: ['9 + 4q = 37', '4q = 37 - 9 = 28', 'q = 28 : 4 = 7'],
       },
     },
     {
       t: 'Twee letters',
       p: [
         T(
-          'Een formule kan ook twee letters hebben, zoals k = 9a + 2,5b. Vul voor elke letter het goede getal in. Reken de keersommen uit en tel ze op.',
+          'Een formule kan ook twee letters hebben, zoals z = 8c + 3,5d. Vul voor elke letter het goede getal in. Reken de keersommen uit en tel ze op.',
         ),
       ],
       ex: {
-        q: T('Bereken k = 9a + 2,5b voor a = 2 en b = 4.'),
-        steps: ['a = 2 en b = 4 geeft k = 9 · 2 + 2,5 · 4 = 18 + 10 = 28'],
+        q: T('Bereken z = 8c + 3,5d voor c = 3 en d = 2.'),
+        steps: ['c = 3 en d = 2 geeft z = 8 · 3 + 3,5 · 2 = 24 + 7 = 31'],
       },
     },
   ],
