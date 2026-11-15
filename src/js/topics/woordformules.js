@@ -124,6 +124,8 @@ const DOWN = [
     zin: (w) => `Sem heeft dan nog ${w} op zijn printpas.`,
     terug: (w) => `Sem heeft nog ${w} op zijn printpas. Hoeveel vellen heeft hij geprint?`,
     terugZin: (n) => `Sem heeft ${n} vellen geprint.`,
+    heel: true,
+    welk: 'Welk saldo kan niet?',
     kanNiet: (w) => `Een saldo van ${w} kan niet.`,
     op: (t) => `Na ${t} vellen is de printpas leeg.`,
   },
@@ -139,6 +141,8 @@ const DOWN = [
     zin: (w) => `Er zit dan ${w} water in de ton.`,
     terug: (w) => `Er zit nog ${w} water in de ton. Na hoeveel dagen is dat?`,
     terugZin: (n) => `Dat is na ${n} dagen.`,
+    heel: true,
+    welk: 'Welke inhoud kan niet?',
     kanNiet: (w) => `Er kan niet ${w} water in de ton zitten.`,
     op: (t) => `Na ${t} dagen is de ton leeg.`,
   },
@@ -454,6 +458,19 @@ function wfBack() {
 
 // Welke waarde kan niet? Bij een dalende formule: een aantal waarbij het al op is. Bij een
 // stijgende formule: een uitkomst die kleiner is dan het vaste deel.
+// Het foute antwoord ligt tussen de goede in: een uitkomst waar geen heel aantal bij hoort.
+// De hele aantallen van de goede uitkomsten zijn ks; het foute aantal is een half getal ertussen.
+const tussen = (ks) => ri(ks[0], ks[2] - 1) + 0.5;
+
+// Uitwerking en valkuil voor een foute uitkomst die bij een aantal met een half hoort.
+const halfAantal = (c, teken, a, b, kb, bad) => ({
+  hint: T(`Reken bij elke uitkomst uit bij welk ${c.x} die hoort. Een aantal is een heel getal.`),
+  steps: [
+    `${d(a)} ${teken} ${d(b)} · ${d(kb)} = ${d(bad)}, dus bij ${amd(c, bad)} hoort ${d(kb)} ${c.x.replace('aantal ', '')}.`,
+    `Dat is geen heel aantal, dus ${amd(c, bad)} kan niet.`,
+  ],
+});
+
 function wfCannot() {
   if (coin()) {
     const { c, a, b, t } = until(
@@ -466,11 +483,32 @@ function wfCannot() {
       ({ t }) => isNice(t, 0) && t >= 5,
     );
     const goods = [
-        ri(1, Math.floor(t / 3)),
-        ri(Math.floor(t / 3) + 1, Math.floor((2 * t) / 3)),
-        ri(Math.floor((2 * t) / 3) + 1, t - 1),
-      ],
-      bad = t + ri(1, 5),
+      ri(1, Math.floor(t / 3)),
+      ri(Math.floor(t / 3) + 1, Math.floor((2 * t) / 3)),
+      ri(Math.floor((2 * t) / 3) + 1, t - 1),
+    ];
+    if (c.heel && coin()) {
+      const kb = tussen(goods),
+        bad = rd(a - b * kb, 6),
+        opts = [bad, ...goods.map((k) => rd(a - b * k, 6))].map((x) => T(amt(c, x)));
+      return {
+        q: T(`${c.wat} ${c.y} = ${d(a)} - ${d(b)} · ${c.x}. ${c.welk}`),
+        mc: MC(opts, 0),
+        ...halfAantal(c, '-', a, b, kb, bad),
+        traps: [
+          {
+            id: 'kan-wel',
+            f: (v) => v[0] !== opts[0],
+            m: 'Reken uit bij welk aantal die uitkomst hoort. Is dat een heel getal, dan kan het wel.',
+          },
+        ],
+        v: () =>
+          !isNice(kb, 0) &&
+          bad > 0 &&
+          goods.every((k) => isNice(k, 0) && a - b * k > 0 && rd(a - b * k, 6) !== bad),
+      };
+    }
+    const bad = t + ri(1, 5),
       bb = rd(b * bad, 6),
       y = rd(a - bb, 6),
       opts = [bad, ...goods].map((k) => T(String(k)));
@@ -498,8 +536,29 @@ function wfCannot() {
     a = pick(c.a),
     b = pick(c.b),
     ks = [ri(1, 3), ri(4, 6), ri(7, 10)],
-    goods = ks.map((k) => rd(a + b * k, 6)),
-    bad = ri(1, a - 1),
+    goods = ks.map((k) => rd(a + b * k, 6));
+  if (coin()) {
+    const kb = tussen(ks),
+      bad = rd(a + b * kb, 6),
+      opts = [bad, ...goods].map((x) => T(amt(c, x)));
+    return {
+      q: T(`${c.wat} ${c.y} = ${d(a)} + ${d(b)} · ${c.x}. ${c.welk}`),
+      mc: MC(opts, 0),
+      ...halfAantal(c, '+', a, b, kb, bad),
+      traps: [
+        {
+          id: 'kan-wel',
+          f: (v) => v[0] !== opts[0],
+          m: 'Reken uit bij welk aantal die uitkomst hoort. Is dat een heel getal, dan kan het wel.',
+        },
+      ],
+      v: () =>
+        !isNice(kb, 0) &&
+        goods.every((g) => isNice((g - a) / b, 0) && (g - a) / b > 0) &&
+        !goods.includes(bad),
+    };
+  }
+  const bad = ri(1, a - 1),
     opts = [bad, ...goods].map((x) => T(amt(c, x)));
   return {
     q: T(`${c.wat} ${c.y} = ${d(a)} + ${d(b)} · ${c.x}. ${c.welk}`),
