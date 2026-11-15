@@ -408,7 +408,7 @@ function wfBack() {
     hint: T(
       up
         ? `Haal eerst het vaste getal ${d(a)} eraf. Deel daarna door ${d(b)}.`
-        : `Reken eerst uit hoeveel er af is: ${d(a)} min de uitkomst. Deel daarna door ${d(b)}.`,
+        : `Reken eerst uit hoeveel er af is: ${d(a)} minus de uitkomst. Deel daarna door ${d(b)}.`,
     ),
     steps: [
       up
@@ -482,7 +482,7 @@ function wfCannot() {
       hint: T('Vul elk aantal in de formule in. Welke uitkomst kan niet?'),
       steps: [
         `${c.y} = ${d(a)} - ${d(b)} · ${bad} = ${d(a)} - ${d(bb)} = ${d(y)}`,
-        `${c.kanNiet(amt(c, y))} ${c.op(t)}`,
+        `${c.kanNiet(amd(c, y))} ${c.op(t)}`,
       ],
       traps: [
         {
