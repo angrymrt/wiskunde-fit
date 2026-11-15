@@ -7,7 +7,7 @@ export default {
   edition: 13,
   level: 'vwo',
   year: 1,
-  note: 'Alleen hoofdstuk 3 is ingevuld, de andere hoofdstukken volgen later. Deze vragen zijn gemaakt voor havo 3 of havo/vwo en zijn alleen voor hoofdstuk 3 met dit boek vergeleken: 3.1, 3.4, 3.5 en 3.6 wel, 3.2 en 3.3 niet.',
+  note: 'Alleen hoofdstuk 3 is ingevuld, de andere hoofdstukken volgen later. Deze vragen zijn gemaakt voor havo 3 of havo/vwo en zijn alleen voor hoofdstuk 3 met dit boek vergeleken: 3.1 wel, 3.4 t/m 3.6 alleen met de samenvatting en de diagnostische toets, 3.2 en 3.3 niet.',
   books: [
     {
       part: 'deel 1',
@@ -40,9 +40,9 @@ export default {
         [
           '3.6',
           'Grafiek bij een formule',
-          [1, 2, 3, 4, 5, 8, 11, 14, 16],
+          [1, 2, 3, 8, 11, 16],
           'deels',
-          'Grafieken aflezen bij een verhaal kun je hier nog niet oefenen.',
+          'Grafieken aflezen bij een verhaal, een formule opstellen uit een grafiek en uitrekenen wanneer iets leeg is kun je hier nog niet oefenen.',
         ],
       ],
     },

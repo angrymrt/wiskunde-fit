@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.19.3
+
+### Verbeterd
+
+- Bij Getal & Ruimte vwo 1, hoofdstuk 3, paragraaf 3.6 staan drie soorten vragen niet meer bij de stof: uitrekenen wanneer iets leeg is, de coördinaat van een punt op een lijn berekenen en een formule opstellen uit een grafiek. Het boek heeft die waarschijnlijk nog niet behandeld. Kies je stof uit dit hoofdstuk opnieuw, dan komen ze ook niet meer in je proeftoets.
+
 ## 1.19.2
 
 ### Verbeterd
