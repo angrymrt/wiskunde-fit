@@ -1244,6 +1244,11 @@ sub {
   fill: var(--ink);
   font-size: 11px;
 }
+/* De domeinen mogen smaller worden dan een tabel erin, zodat alleen de tabel opzij schuift. Anders
+   maakt een uitgeklapte tabel de hele pagina breder dan het scherm. */
+.vdomeinen {
+  min-width: 0;
+}
 /* De drie getallen vallen op met de zachte blauwe kleur, die er in de donkere modus al een heeft. */
 .vstats .tile {
   background: var(--blue-soft);
@@ -1301,6 +1306,33 @@ sub {
 }
 .vdomein .ctopic summary > span:first-child::before {
   text-indent: 0;
+}
+/* In een kaart is er weinig ruimte. Een aantal als "meer dan 2.400.000" mag over twee regels, de
+   naam van de soort hoeft niet zo breed, en bij een smal scherm staat het aantal van een onderwerp
+   onder de naam. */
+.vdomein .ctable td {
+  white-space: normal;
+}
+.vdomein .ctable tbody th {
+  min-width: 0;
+}
+@media (max-width: 400px) {
+  .vdomein {
+    padding: 0 8px 6px;
+  }
+  .vdomein .ctable th,
+  .vdomein .ctable td {
+    padding: 5px 3px;
+  }
+}
+@media (max-width: 480px) {
+  .vdomein .ctopic summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vdomein .ctopic summary > span:last-child {
+    text-align: left;
+    padding-left: 1.1em;
+  }
 }
 .vtotaal {
   display: flex;
