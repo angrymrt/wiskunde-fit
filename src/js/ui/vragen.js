@@ -43,12 +43,11 @@ function uitgeschreven(n) {
 const GROTE_MACHT = 1e12;
 // "5.776" bij een exact aantal, en bij een schatting "≈ 120.000". Een schermlezer leest het teken
 // niet goed voor, dus daar staat "ongeveer".
+const MEER = 'meer dan ';
+const ongeveer = '<span aria-hidden="true">≈ </span><span class="sr">ongeveer </span>';
+const mooi = (n) => (n >= GROTE_MACHT ? wetenschappelijk(n) : getal(rond(n)));
 const aantal = (s) =>
-  s.exact
-    ? getal(s.aantal)
-    : `<span aria-hidden="true">≈ </span><span class="sr">ongeveer </span>${
-        s.aantal >= GROTE_MACHT ? wetenschappelijk(s.aantal) : getal(rond(s.aantal))
-      }`;
+  s.exact ? getal(s.aantal) : `${s.ondergrens ? MEER : ongeveer}${mooi(s.aantal)}`;
 // Een groot getal in woorden: "140 miljoen" of "3,8 miljard", en daarboven "8,5 × 10²⁴".
 const groot = (n) => {
   if (n >= GROTE_MACHT) return wetenschappelijk(n);
@@ -65,11 +64,13 @@ const practice = (skill, topic) =>
 
 const som = (skills, tellen) => skills.reduce((n, k) => n + (tellen.soorten[k.id]?.aantal ?? 0), 0);
 const schatting = (skills, tellen) => skills.some((k) => tellen.soorten[k.id]?.exact === false);
+// Is één van de aantallen een ondergrens, dan is de som dat ook: er zijn minstens zoveel.
+const ondergrens = (skills, tellen) => skills.some((k) => tellen.soorten[k.id]?.ondergrens);
 // Een som van schattingen is zelf een schatting. Kort staat er "≈" voor, in een kop of een regel
 // onder een onderwerp.
 const kort = (skills, tellen) =>
   schatting(skills, tellen)
-    ? `<span aria-hidden="true">≈ </span><span class="sr">ongeveer </span>${groot(som(skills, tellen))}`
+    ? `${ondergrens(skills, tellen) ? MEER : ongeveer}${groot(som(skills, tellen))}`
     : getal(som(skills, tellen));
 
 function perOnderwerp(tellen) {
@@ -124,7 +125,7 @@ function raster() {
 function uitschrijving(skills, tellen) {
   const n = som(skills, tellen);
   if (n < GROTE_MACHT) return '';
-  return `<p class="vuit"><span class="small muted">Dat is dus ongeveer:</span><b>${uitgeschreven(n)}</b></p>`;
+  return `<p class="vuit"><span class="small muted">Dat is dus${ondergrens(skills, tellen) ? ' meer dan' : ' ongeveer'}:</span><b>${uitgeschreven(n)}</b></p>`;
 }
 
 function vVragen() {
@@ -135,7 +136,7 @@ function vVragen() {
   <div class="block"><h2 class="h3">Eerst even wat statistieken</h2>
   <p>Op Wiskundefit.nl kun je:</p>
   <div class="vstats">
-  <div class="tile vtile-main">${schatting(skills, tellen) ? '<span class="small muted">ongeveer</span>' : ''}<span class="tile-value">${schatting(skills, tellen) ? groot(som(skills, tellen)) : getal(som(skills, tellen))}</span><span class="tile-label">verschillende vragen oefenen</span></div>
+  <div class="tile vtile-main">${schatting(skills, tellen) ? `<span class="small muted">${ondergrens(skills, tellen) ? 'meer dan' : 'ongeveer'}</span>` : ''}<span class="tile-value">${schatting(skills, tellen) ? groot(som(skills, tellen)) : getal(som(skills, tellen))}</span><span class="tile-label">verschillende vragen oefenen</span></div>
   <div class="tile"><span class="small muted">verdeeld over</span><span class="tile-value">${skills.length} soorten vragen</span><span class="tile-label">om uit te kiezen</span></div>
   <div class="tile"><span class="small muted">in</span><span class="tile-value">${DOMAINS.length} domeinen</span><span class="tile-label">en ${TOPICS.length} onderwerpen</span></div>
   </div>${uitschrijving(skills, tellen)}</div>
@@ -158,7 +159,7 @@ function vVragen() {
   <p>Bij elke vraag rekent de computer het antwoord nog een keer na, op een andere manier dan de generator zelf. Komt daar iets anders uit, dan slaat de test alarm.</p>
   <p>Bij elke wijziging maken de tests duizenden vragen en controleren die allemaal. Elke vraag hoort bij een seed, een getal dat de vraag vastlegt. Met dezelfde seed krijg je precies dezelfde vraag, dus een fout is altijd te herhalen.</p></div>
   <div class="block"><h2 class="h3">Hoeveel vragen zijn er?</h2>
-  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Staat er <b>≈</b> voor, dan is het aantal te groot om na te tellen en hebben we het geschat, en dat kan er wat naast zitten. Een getal als 2,3 × 10<sup>21</sup> lees je als 2,3 keer 10<sup>21</sup>, en 10<sup>21</sup> is een 1 met 21 nullen. Dat gebeurt bij soorten waarbij de generator veel getallen kiest, zoals bij een tabel of een diagram: elke andere keuze geeft een andere vraag.</p>
+  <p>Hieronder staat per domein, onderwerp en soort vraag hoeveel verschillende vragen er zijn. Open een onderwerp om de soorten vragen te zien. Soms is het aantal te groot om na te tellen. Staat er <b>≈</b> voor, dan hebben we het geschat, en dat kan er wat naast zitten. Staat er <b>meer dan</b> voor, dan weten we alleen dat het er minstens zoveel zijn, en zijn het er waarschijnlijk meer. Een getal als 2,3 × 10<sup>21</sup> lees je als 2,3 keer 10<sup>21</sup>, en 10<sup>21</sup> is een 1 met 21 nullen. Zulke grote aantallen komen er als de generator veel getallen kiest, zoals bij een tabel of een diagram: elke andere keuze geeft een andere vraag.</p>
   <div class="row"><button class="btn quiet" type="button" data-act="vragenopen" data-id="open">Alles openen</button><button class="btn quiet" type="button" data-act="vragenopen" data-id="dicht">Alles sluiten</button></div>
   ${perOnderwerp(tellen)}
   <p class="vtotaal"><span>Samen</span><span><b>${kort(skills, tellen)}</b> verschillende vragen</span></p></div>

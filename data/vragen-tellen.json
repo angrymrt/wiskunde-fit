@@ -190,6 +190,7 @@
     },
     "48": {
       "aantal": 34540,
+      "ondergrens": true,
       "exact": false
     },
     "49": {
@@ -274,6 +275,7 @@
     },
     "69": {
       "aantal": 502354,
+      "ondergrens": true,
       "exact": false
     },
     "70": {
@@ -318,10 +320,12 @@
     },
     "80": {
       "aantal": 13762,
+      "ondergrens": true,
       "exact": false
     },
     "81": {
       "aantal": 230846,
+      "ondergrens": true,
       "exact": false
     },
     "82": {
@@ -362,6 +366,7 @@
     },
     "91": {
       "aantal": 369036,
+      "ondergrens": true,
       "exact": false
     },
     "92": {
@@ -418,10 +423,12 @@
     },
     "105": {
       "aantal": 2429593,
+      "ondergrens": true,
       "exact": false
     },
     "106": {
       "aantal": 2491315,
+      "ondergrens": true,
       "exact": false
     },
     "107": {
@@ -438,10 +445,12 @@
     },
     "110": {
       "aantal": 2263600,
+      "ondergrens": true,
       "exact": false
     },
     "111": {
       "aantal": 2551257,
+      "ondergrens": true,
       "exact": false
     },
     "112": {
@@ -450,10 +459,12 @@
     },
     "113": {
       "aantal": 592687,
+      "ondergrens": true,
       "exact": false
     },
     "114": {
       "aantal": 208016,
+      "ondergrens": true,
       "exact": false
     },
     "115": {
@@ -466,42 +477,52 @@
     },
     "117": {
       "aantal": 248819638,
+      "ondergrens": true,
       "exact": false
     },
     "118": {
       "aantal": 8979453,
+      "ondergrens": true,
       "exact": false
     },
     "119": {
       "aantal": 2582862,
+      "ondergrens": true,
       "exact": false
     },
     "120": {
       "aantal": 8432912,
+      "ondergrens": true,
       "exact": false
     },
     "121": {
       "aantal": 2508570,
+      "ondergrens": true,
       "exact": false
     },
     "122": {
       "aantal": 34024918,
+      "ondergrens": true,
       "exact": false
     },
     "123": {
       "aantal": 9999675006,
+      "ondergrens": true,
       "exact": false
     },
     "124": {
       "aantal": 1126369083,
+      "ondergrens": true,
       "exact": false
     },
     "125": {
       "aantal": 1738743522,
+      "ondergrens": true,
       "exact": false
     },
     "126": {
       "aantal": 555159864,
+      "ondergrens": true,
       "exact": false
     }
   }

@@ -38,8 +38,8 @@ const hash = (t) => createHash('sha1').update(t).digest('base64').slice(0, 16);
 // vaker voor), dus uit het aantal gelijke paren alleen volgt een veel te laag aantal. Daarom
 // gebruiken we Chao1, een schatting uit het aantal vragen dat één keer (f1) en twee keer (f2) is
 // getrokken: S + f1(f1 − 1) / (2(f2 + 1)), waarbij S het aantal verschillende vragen in de trekking
-// is. Die komt bij een scheve verdeling meestal wat te laag uit, dus het echte aantal is eerder
-// hoger dan lager.
+// is. Dat is een ondergrens: met meer trekkingen komt er meer uit, en het echte aantal kan veel
+// hoger zijn. Daarom krijgt zo'n aantal `ondergrens: true`, en toont de pagina "meer dan".
 // Zijn er bijna geen herhalingen, dan zegt de trekking niets over de grootte. Dan nemen we het
 // aantal paden van schatKeuzes (een bovengrens, want twee paden kunnen dezelfde vraag geven), maar
 // alleen als de trekking daarmee klopt: bij zoveel paden zijn er ongeveer N² / (2 · paden)
@@ -62,22 +62,23 @@ export function schat(gen, trekkingen = TREKKINGEN) {
   }
   const paden = schatKeuzes(gen);
   const verwacht = (trekkingen * (trekkingen - 1)) / 2 / paden;
-  if (paren <= 2 * verwacht + 5) return Math.round(paden);
+  if (paren <= 2 * verwacht + 5) return { aantal: Math.round(paden) };
+  // Chao1 groeit mee met het aantal trekkingen en is dus een ondergrens: er zijn minstens zoveel.
   const chao1 = telling.size + (f1 * (f1 - 1)) / (2 * (f2 + 1));
-  return Math.round(Math.min(chao1, paden));
+  return { aantal: Math.round(Math.min(chao1, paden)), ondergrens: true };
 }
 
 export function tel(skill) {
   // Eerst een snelle schatting van het aantal paden, zodat we geen tijd verliezen aan een
   // generator met honderden miljoenen paden.
   if (schatKeuzes(skill.gen, { rondes: 3000, seed: 7 }) > 30 * MAX_PADEN)
-    return { aantal: schat(skill.gen), exact: false };
+    return { ...schat(skill.gen), exact: false };
   const gezien = new Set();
   const paden = alleKeuzes(skill.gen, (q) => gezien.add(hash(sleutel(q))), {
     maxPaden: MAX_PADEN,
   });
   if (paden !== null) return { aantal: gezien.size, exact: true };
-  return { aantal: schat(skill.gen), exact: false };
+  return { ...schat(skill.gen), exact: false };
 }
 
 // Een korte stempel per vraagsoort, snel te berekenen: de vingerafdruk van de vragen bij vaste
@@ -112,9 +113,10 @@ const json = (x) => `${JSON.stringify(x, null, 2).replace(/("aantal": [\d.]+)e\+
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const start = Date.now();
-  const ids = process.argv.slice(2).map(Number);
+  const invoer = process.argv.slice(2);
+  const ids = invoer.map(Number);
   const bekend = TOPICS.flatMap((t) => t.skills).map((k) => k.id);
-  const onbekend = ids.filter((id) => !bekend.includes(id));
+  const onbekend = invoer.filter((x) => !bekend.includes(Number(x)));
   if (onbekend.length) {
     console.error(
       `Geen vraagsoort met nummer ${onbekend.join(', ')}. Gebruik: npm run vragen-tellen [-- nummers]`,
@@ -139,6 +141,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   await writeFile(STEMPELS, json(sommen));
   const n = Object.values(uit.soorten);
   console.log(
-    `${n.length} soorten: ${n.filter((s) => s.exact).length} exact, ${n.filter((s) => !s.exact).length} geschat, ${Math.round((Date.now() - start) / 1000)} s`,
+    `${n.length} soorten: ${n.filter((s) => s.exact).length} exact, ${n.filter((s) => !s.exact).length} geschat of ondergrens, ${Math.round((Date.now() - start) / 1000)} s`,
   );
 }
