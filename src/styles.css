@@ -1627,7 +1627,7 @@ ol.how {
   overflow: hidden;
   height: 1.25em;
   line-height: 1.25em;
-  vertical-align: bottom;
+  vertical-align: text-bottom;
 }
 .chip .roll .kol,
 .chip .roll .kol > span {

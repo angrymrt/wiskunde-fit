@@ -1703,6 +1703,14 @@ test('het getal bij een soort rolt alleen als het verandert', async () => {
     // Nog een keer proberen telt niet mee, dus ook geen beweging.
     await p.click('[data-act="show"]');
     assert.equal(await roll(p), null);
+    // Toon uitwerking telt bij een eerste poging als fout, en het getal rolt dan ook.
+    await next(p);
+    await p.click('[data-act="show"]');
+    assert.deepEqual((({ richting, nieuw, oud }) => ({ richting, nieuw, oud }))(await roll(p)), {
+      richting: 'neer',
+      nieuw: '3',
+      oud: '4',
+    });
     await p.close();
 
     // Zonder beweging komt het nieuwe getal rustig in beeld en rolt er niets.

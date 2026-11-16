@@ -158,6 +158,20 @@ document.body.append(melding);
 // laadt render() dat eerst en geeft het een Promise die klaar is als het scherm er staat. Duurt het
 // laden langer, dan toont het scherm dat het laadt, en lukt het niet, dan een melding met een knop
 // om het opnieuw te proberen. Een nieuwere render() gaat altijd voor.
+// Bewaart de eerste poging bij een soort. Verandert het getal bij de soort daardoor (`3/5`), dan
+// geeft het terug hoe, zodat het getal in de volgende render() rolt. Mijn stof oefenen heeft geen
+// getallen in beeld en dus ook geen beweging.
+function recPoging(st, ok, mixed) {
+  const van = skillGoed(st.skill.id);
+  rec(st.skill.id, ok);
+  const naar = skillGoed(st.skill.id);
+  return van !== naar && !mixed ? (st.roll = { id: st.skill.id, van, naar }) : null;
+}
+// De beweging hoort bij alleen die ene render, en niet bij de volgende (bijvoorbeeld een hint).
+function rolKlaar(st, roll) {
+  st.roll = null;
+  if (roll) melding.textContent = `Bij deze soort nu ${roll.naar} van 5 goed.`;
+}
 let renders = 0;
 function render(focus) {
   const nr = ++renders;
@@ -524,8 +538,9 @@ app.addEventListener('click', (e) => {
   if (a === 'show') {
     const st = state.prac[state.view.slug];
     st.vals = readVals(st.q, 'p');
+    let roll = null;
     if (st.first) {
-      rec(st.skill.id, false);
+      roll = recPoging(st, false, state.view.name === 'stofoefen');
       telPoging(st, 'uitwerking');
       st.total++;
       st.first = false;
@@ -534,6 +549,7 @@ app.addEventListener('click', (e) => {
     st.msg = '';
     st.marks = st.q.mc ? { each: [String(st.vals[0]) === String(st.q.mc.a)], reveal: true } : null;
     render('.sol');
+    rolKlaar(st, roll);
     return;
   }
   if (a === 'showsol') {
@@ -642,10 +658,7 @@ app.addEventListener('submit', (e) => {
     const c = checkAnswer(st.q, vals);
     let roll = null;
     if (st.first) {
-      const van = skillGoed(st.skill.id);
-      rec(st.skill.id, c.ok);
-      const naar = skillGoed(st.skill.id);
-      if (van !== naar && !s.mixed) roll = st.roll = { id: st.skill.id, van, naar };
+      roll = recPoging(st, c.ok, s.mixed);
       telPoging(st, c.ok ? 'goed' : 'fout');
       st.total++;
       if (c.ok) st.right++;
@@ -662,9 +675,7 @@ app.addEventListener('submit', (e) => {
       st.msg = trap?.m || 'Nog niet goed. Probeer het nog eens, of bekijk de hint.';
     }
     render(c.ok ? '#nextq' : '#pfb');
-    // De beweging hoort bij alleen deze render, en niet bij de volgende (bijvoorbeeld een hint).
-    st.roll = null;
-    if (roll) melding.textContent = `Bij deze soort nu ${roll.naar} van 5 goed.`;
+    rolKlaar(st, roll);
   }
 });
 window.addEventListener('popstate', () => {
