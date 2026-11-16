@@ -700,7 +700,12 @@ app.addEventListener('submit', async (e) => {
     // Het plaatje bij de vijfde goede staat in een eigen bestand. Dat is al geladen zodra het
     // oefenscherm opende; zo niet, dan wacht dit er eenmalig op. Dit staat voor de controle van
     // st.first, want bij een dubbele klik mag de poging maar één keer tellen.
-    if (st.first && c.ok && (st.streak || 0) === 4 && !iconen) await laadIconen().catch(() => {});
+    if (st.first && c.ok && (st.streak || 0) === 4 && !iconen) {
+      const vraag = st.q;
+      await laadIconen().catch(() => {});
+      // Intussen kan de voortgang gewist zijn of kan er een andere vraag staan. Dan telt deze poging niet.
+      if (state.prac[s.slug] !== st || st.q !== vraag) return;
+    }
     let roll = null;
     if (st.first) {
       roll = recPoging(st, c.ok, s.mixed);
