@@ -451,7 +451,7 @@ test('oude voortgang verhuist mee met de nieuwe indeling', () => {
 });
 
 test('opgeslagen voortgang houdt alleen wat klopt', () => {
-  const empty = { v: 5, skills: {}, stof: null, mapping: null };
+  const empty = { v: 5, skills: {}, stof: null, mapping: null, iconen: {} };
   // Geen voortgang of iets wat geen voortgang is.
   for (const saved of [null, 'x', 5, [], [1, 2]]) assert.deepEqual(cleanProgress(saved), empty);
   // Uit #56: een tekst in plaats van een lijst liet het herladen vastlopen.
@@ -463,14 +463,29 @@ test('opgeslagen voortgang houdt alleen wat klopt', () => {
       skills: { 3: [1, 0, 1], 4: [1, 2, 'x', 0], 5: [1, 1, 1, 1, 1, 0, 0], 6: [], x: [1], 0: [1] },
       stof: [41, 3, 999, 3, 'a'],
       mapping: 'gr13-havo3',
+      iconen: {
+        ster: 3,
+        hart: 1.5,
+        paddestoel: 0,
+        kat: -1,
+        raket: '2',
+        Hoofdletter: 1,
+        'x y': 1,
+        nieuw: 7,
+      },
     }),
     {
       v: 5,
       skills: { 3: [1, 0, 1], 4: [1, 0], 5: [1, 1, 1, 0, 0] },
       stof: [3, 41],
       mapping: 'gr13-havo3',
+      // Alleen een positief geheel getal bij een geldig id. Een onbekend id blijft staan.
+      iconen: { ster: 3, nieuw: 7 },
     },
   );
+  // Iets anders dan een lijst met tellen valt weg.
+  for (const iconen of ['x', [1], 5, null])
+    assert.deepEqual(cleanProgress({ v: 5, iconen }).iconen, {}, JSON.stringify(iconen));
   // Een onbekende indeling of stofkeuze wordt leeg, ook een naam als constructor.
   for (const mapping of ['onbekend', 'constructor', 5, null])
     assert.equal(cleanProgress({ v: 5, mapping }).mapping, null, String(mapping));

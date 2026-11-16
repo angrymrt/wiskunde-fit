@@ -33,7 +33,7 @@ function vPrivacy() {
   <p>De tellen komen in een tabel bij Microsoft Azure in West-Europa. Azure zet bij elke tel zelf het tijdstip. Binnen ongeveer een week tellen we ze op per dag en verwijderen we de losse tellen. Die optelling is openbaar, ${repo('op GitHub')}, zodat iedereen kan zien wat we bewaren. Wat eruit komt, staat op de pagina <a href="${to('cijfers')}">Cijfers</a>.</p>
   <p>Zo'n tel mag zonder dat we het je eerst vragen, omdat die alleen dient om de kwaliteit van de site te meten en bijna geen gevolgen heeft voor je privacy (artikel 11.7a, lid 3 van de Telecommunicatiewet). Zo lezen wij die regel.</p></div>
   <div class="block"><h2 class="h3">Je voortgang</h2>
-  <p>Je voortgang staat alleen in de opslag van deze browser (localStorage): welke soorten vragen je goed of fout had, welke stof en welk boek je koos, en je laatste proeftoets met je antwoorden, ook als je die nog niet hebt ingeleverd. Die gegevens komen niet bij ons terecht.</p>
+  <p>Je voortgang staat alleen in de opslag van deze browser (localStorage): welke soorten vragen je goed of fout had, welke stof en welk boek je koos, hoe vaak je 5 vragen achter elkaar goed had en welke plaatjes je daarbij zag, en je laatste proeftoets met je antwoorden, ook als je die nog niet hebt ingeleverd. Die gegevens komen niet bij ons terecht.</p>
   <p>Je wist je voortgang met de knop <b>Voortgang wissen</b> op <a href="${to('stof')}">Mijn stof</a>, of door de sitegegevens in je browser te wissen.</p>
   <p>Kies je met de knop bovenaan een licht of donker scherm dat anders is dan op je apparaat, dan onthoudt deze browser dat ook. Kies je weer hetzelfde als je apparaat, dan wordt die keuze gewist.</p></div>
   <div class="block"><h2 class="h3">Waar de site staat</h2>

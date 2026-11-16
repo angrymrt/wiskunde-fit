@@ -4,7 +4,17 @@ import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
 import { TOPICS, TOPIC, laadOnderwerpen } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
-import { STORE, load, opslag, prog, rec, resetProgress, skillGoed, update } from './progress.js';
+import {
+  STORE,
+  load,
+  opslag,
+  prog,
+  rec,
+  recIcoon,
+  resetProgress,
+  skillGoed,
+  update,
+} from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof, topicOf } from './stof.js';
 import {
@@ -167,10 +177,38 @@ function recPoging(st, ok, mixed) {
   const naar = skillGoed(st.skill.id);
   return van !== naar && !mixed ? (st.roll = { id: st.skill.id, van, naar }) : null;
 }
+// De plaatjes bij 5 goede antwoorden achter elkaar staan in een eigen bestand, dat pas laadt als
+// een oefenscherm opent. Zo blijft de code bij het eerste bezoek klein.
+let iconen = null;
+const laadIconen = () =>
+  iconen ? Promise.resolve(iconen) : import('./iconen.js').then((m) => (iconen = m));
+// Houdt de reeks van goede eerste pogingen bij. Geeft de beweging voor de volgende render() terug,
+// of null als er niets te zien is. Bij de vijfde goede in een reeks kiest dit een plaatje en telt
+// het dat je het zag.
+function reeksPoging(st, ok) {
+  const n = st.streak || 0;
+  if (!ok) {
+    st.streak = 0;
+    return n ? (st.reeksAnim = { type: 'leeg', van: n }) : null;
+  }
+  if (n + 1 < 5) {
+    st.streak = n + 1;
+    return (st.reeksAnim = { type: 'op' });
+  }
+  st.streak = 0;
+  // Lukte het laden niet, bijvoorbeeld zonder internet, dan loopt de balk gewoon leeg.
+  if (!iconen) return (st.reeksAnim = { type: 'leeg', van: 5 });
+  const plaatje = iconen.kiesIcoon(Math.random(), Math.random());
+  recIcoon(plaatje.id);
+  return (st.reeksAnim = { type: 'icoon', icoon: plaatje.svg });
+}
 // De beweging hoort bij alleen die ene render, en niet bij de volgende (bijvoorbeeld een hint).
 function rolKlaar(st, roll) {
   st.roll = null;
-  if (roll) melding.textContent = `Bij deze soort nu ${roll.naar} van 5 goed.`;
+  const icoon = st.reeksAnim?.type === 'icoon';
+  st.reeksAnim = null;
+  if (icoon) melding.textContent = '5 achter elkaar goed!';
+  else if (roll) melding.textContent = `Bij deze soort nu ${roll.naar} van 5 goed.`;
 }
 let renders = 0;
 function render(focus) {
@@ -226,6 +264,7 @@ function paint(focus) {
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
+  if (state.view.oefen || state.view.name === 'stofoefen') laadIconen().catch(() => {});
   mountWidgets();
   showDrawn();
   watchPracticeBar();
@@ -541,6 +580,7 @@ app.addEventListener('click', (e) => {
     let roll = null;
     if (st.first) {
       roll = recPoging(st, false, state.view.name === 'stofoefen');
+      reeksPoging(st, false);
       telPoging(st, 'uitwerking');
       st.total++;
       st.first = false;
@@ -610,7 +650,7 @@ app.addEventListener('click', (e) => {
     return go({ name: 'toetsres' });
   }
 });
-app.addEventListener('submit', (e) => {
+app.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (e.target.id === 'tform') {
     if (!storeOrFollow()) return;
@@ -658,7 +698,11 @@ app.addEventListener('submit', (e) => {
     const c = checkAnswer(st.q, vals);
     let roll = null;
     if (st.first) {
+      // Het plaatje bij de vijfde goede staat in een eigen bestand. Dat is al geladen zodra het
+      // oefenscherm opende; zo niet, dan wacht dit er eenmalig op.
+      if (c.ok && (st.streak || 0) === 4 && !iconen) await laadIconen().catch(() => {});
       roll = recPoging(st, c.ok, s.mixed);
+      reeksPoging(st, c.ok);
       telPoging(st, c.ok ? 'goed' : 'fout');
       st.total++;
       if (c.ok) st.right++;
