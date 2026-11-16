@@ -1629,6 +1629,235 @@ test('soort in het adres kiest de vraagsoort', async () => {
   }
 });
 
+test('het getal bij een soort rolt alleen als het verandert', async () => {
+  const browser = await launch();
+  try {
+    const { slug, skills } = TOPICS[0];
+    const id = skills[0].id;
+    const answer = async (p, goed) => {
+      const a = await p.evaluate(
+        `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(slug)}].q)`,
+      );
+      if (a.mc !== null) await p.check(`#pm${goed ? a.mc : a.mc === 0 ? 1 : 0}`);
+      else await fill(p, 'p', a.vals, goed ? undefined : '999');
+      await p.click('#pform button[type=submit]');
+    };
+    const roll = (p) =>
+      p.evaluate((i) => {
+        const n = document.querySelector(`.chip[data-id="${i}"] .n.gewijzigd`);
+        if (!n) return null;
+        const r = n.querySelector('.roll');
+        return {
+          richting: r.classList.contains('op') ? 'op' : 'neer',
+          nieuw: r.querySelector('.kol > span:not(.oud)').textContent,
+          oud: r.querySelector('.oud').textContent,
+          oudVoorSchermlezer: r.querySelector('.oud').getAttribute('aria-hidden'),
+          tekst: n.textContent,
+        };
+      }, id);
+    const next = async (p) => {
+      await p.click('#nextq');
+    };
+
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(at(`/${slug}/oefenen?soort=${id}`));
+    // Meer goed: het nieuwe getal komt van boven.
+    await answer(p, true);
+    assert.deepEqual(await roll(p), {
+      richting: 'op',
+      nieuw: '1',
+      oud: '0',
+      oudVoorSchermlezer: 'true',
+      tekst: '10/5',
+    });
+    assert.equal(await p.textContent('#laadmelding'), 'Bij deze soort nu 1 van 5 goed.');
+    assert.equal(
+      await p.evaluate(() => document.activeElement.id),
+      'nextq',
+      'de focus blijft staan',
+    );
+    assert.ok(
+      await p.evaluate(() => document.getAnimations().some((a) => a.animationName === 'roll-op')),
+      'met beweging rolt het getal',
+    );
+    // Een volgende render, zoals een klik op de hint, herhaalt de beweging niet.
+    await next(p);
+    assert.equal(await roll(p), null);
+    for (let n = 2; n <= 5; n++) {
+      await answer(p, true);
+      assert.equal((await roll(p)).nieuw, String(n));
+      await next(p);
+    }
+    // Al 5/5: nog een goed antwoord verandert niets.
+    await answer(p, true);
+    assert.equal(await roll(p), null, 'bij 5/5 blijft het 5/5');
+    await next(p);
+    // Een fout antwoord laat het oudste goede antwoord vallen: minder goed, het nieuwe komt van onder.
+    await answer(p, false);
+    assert.deepEqual((({ richting, nieuw, oud }) => ({ richting, nieuw, oud }))(await roll(p)), {
+      richting: 'neer',
+      nieuw: '4',
+      oud: '5',
+    });
+    assert.equal(await p.textContent('#laadmelding'), 'Bij deze soort nu 4 van 5 goed.');
+    // Nog een keer proberen telt niet mee, dus ook geen beweging.
+    await p.click('[data-act="show"]');
+    assert.equal(await roll(p), null);
+    // Toon uitwerking telt bij een eerste poging als fout, en het getal rolt dan ook.
+    await next(p);
+    await p.click('[data-act="show"]');
+    assert.deepEqual((({ richting, nieuw, oud }) => ({ richting, nieuw, oud }))(await roll(p)), {
+      richting: 'neer',
+      nieuw: '3',
+      oud: '4',
+    });
+    await p.close();
+
+    // Zonder beweging komt het nieuwe getal rustig in beeld en rolt er niets.
+    const calm = await browser.newContext({ reducedMotion: 'reduce' });
+    const cp = await calm.newPage();
+    await cp.goto(at(`/${slug}/oefenen?soort=${id}`));
+    await answer(cp, true);
+    assert.equal((await roll(cp)).nieuw, '1');
+    assert.equal(
+      await cp.evaluate(() => getComputedStyle(document.querySelector('.roll .oud')).display),
+      'none',
+      'het oude getal is niet te zien',
+    );
+    assert.ok(
+      await cp.evaluate(() => document.getAnimations().every((a) => a.animationName !== 'roll-op')),
+      'er is geen rolbeweging',
+    );
+    await calm.close();
+  } finally {
+    await browser.close();
+  }
+});
+
+test('5 goede antwoorden achter elkaar geven een plaatje, en een fout begint opnieuw', async () => {
+  const browser = await launch();
+  try {
+    const { slug, skills } = TOPICS[0];
+    const id = skills[0].id;
+    const answer = async (p, goed) => {
+      const a = await p.evaluate(
+        `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(slug)}].q)`,
+      );
+      if (a.mc !== null) await p.check(`#pm${goed ? a.mc : a.mc === 0 ? 1 : 0}`);
+      else await fill(p, 'p', a.vals, goed ? undefined : '999');
+      await p.click('#pform button[type=submit]');
+    };
+    const reeks = (p) => p.getAttribute('.reeks', 'aria-label');
+    const gezien = (p) => p.evaluate(() => wiskundefit.prog.iconen);
+    const goed = async (p) => {
+      await answer(p, true);
+      await p.click('#nextq');
+    };
+
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(at(`/${slug}/oefenen?soort=${id}`));
+    assert.equal(await p.$('.reeks'), null, 'zonder poging nog geen balk');
+    for (let n = 1; n <= 4; n++) {
+      await answer(p, true);
+      assert.equal(await reeks(p), `${n} van 5 achter elkaar goed`);
+      assert.equal(await p.$('.icoon'), null, `${n}: nog geen plaatje`);
+      await p.click('#nextq');
+    }
+    // De vijfde: het plaatje verschijnt, de balk begint opnieuw en het wordt bewaard.
+    await answer(p, true);
+    assert.ok(await p.$('.reeks.klaar .icoon.toon'), 'het plaatje verschijnt');
+    assert.equal(await reeks(p), '0 van 5 achter elkaar goed');
+    assert.equal(await p.textContent('#laadmelding'), '5 achter elkaar goed!');
+    assert.equal(
+      await p.evaluate(() => document.activeElement.id),
+      'nextq',
+      'de focus blijft staan',
+    );
+    const eerste = await gezien(p);
+    assert.equal(
+      Object.values(eerste).reduce((t, n) => t + n, 0),
+      1,
+    );
+    assert.ok(
+      await p.evaluate(() =>
+        /"iconen":\{"[a-z-]+":1\}/.test(localStorage.getItem('lijn-driehoek-v1')),
+      ),
+      'bewaard in de browser',
+    );
+    // Een volgende render, zoals een klik op de hint, laat het plaatje niet opnieuw zien.
+    await p.click('#nextq');
+    assert.equal(await p.$('.icoon'), null);
+    assert.equal(await reeks(p), '0 van 5 achter elkaar goed');
+
+    // Twee goed en dan een fout: de balk loopt leeg en begint weer bij 0.
+    await goed(p);
+    await goed(p);
+    assert.equal(await reeks(p), '2 van 5 achter elkaar goed');
+    await answer(p, false);
+    assert.equal(await reeks(p), '0 van 5 achter elkaar goed');
+    assert.ok(await p.$('.reeks.leeg'), 'de balk loopt leeg');
+    // Een tweede poging telt niet mee, ook niet als die goed is.
+    await answer(p, true);
+    assert.equal(await reeks(p), '0 van 5 achter elkaar goed');
+    await p.click('#nextq');
+    // Toon uitwerking bij een eerste poging telt als fout.
+    await goed(p);
+    await p.click('[data-act="show"]');
+    assert.equal(await reeks(p), '0 van 5 achter elkaar goed');
+    await p.click('#nextq');
+
+    // Nog vijf goed: dezelfde teller loopt door, en de reeks na een herlaad begint opnieuw.
+    for (let n = 0; n < 5; n++) await goed(p);
+    assert.equal(
+      Object.values(await gezien(p)).reduce((t, n) => t + n, 0),
+      2,
+    );
+    await p.reload();
+    assert.equal(
+      Object.values(await gezien(p)).reduce((t, n) => t + n, 0),
+      2,
+      'ook na herladen',
+    );
+
+    // Voortgang wissen wist ook de plaatjes.
+    await p.goto(at('/mijn-stof'));
+    await p.click('[data-act="reset1"]');
+    await p.click('[data-act="reset2"]');
+    assert.deepEqual(await gezien(p), {});
+    await p.close();
+
+    // Zonder beweging staat het plaatje rustig stil en loopt de balk meteen leeg.
+    const calm = await browser.newContext({ reducedMotion: 'reduce' });
+    const cp = await calm.newPage();
+    await cp.goto(at(`/${slug}/oefenen?soort=${id}`));
+    for (let n = 0; n < 4; n++) await goed(cp);
+    await answer(cp, true);
+    assert.ok(await cp.$('.icoon.toon'));
+    assert.ok(
+      await cp.evaluate(() =>
+        document
+          .getAnimations()
+          .every((a) => !['icoon-op', 'seg-leeg', 'seg-pop'].includes(a.animationName)),
+      ),
+      'geen zwevende of schuivende beweging',
+    );
+    assert.equal(
+      await cp.evaluate(() =>
+        [...document.querySelectorAll('.reeks .seg')].every(
+          (s) =>
+            getComputedStyle(s).backgroundColor ===
+            getComputedStyle(document.querySelector('.reeks .seg')).backgroundColor,
+        ),
+      ),
+      true,
+      'alle vakjes zijn leeg',
+    );
+    await calm.close();
+  } finally {
+    await browser.close();
+  }
+});
+
 test('een probleem melden opent een paneel met links naar GitHub en e-mail', async () => {
   const browser = await launch();
   try {
@@ -2212,7 +2441,7 @@ const LIMITS = {
   start: { sent: 60, own: 166, why: 'de code bij het eerste bezoek' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
-  css: { sent: 8, why: 'de CSS' },
+  css: { sent: 8.5, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
 const kB = (n) => `${n.toFixed(1).replace('.', ',')} kB`;

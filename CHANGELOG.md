@@ -2,6 +2,16 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.20.0
+
+### Nieuw
+
+- Bij het oefenen zie je boven de vraag een balkje met 5 vakjes. Elk goed antwoord bij je eerste poging vult een vakje. Maak je een fout, of bekijk je meteen de uitwerking, dan begint het balkje opnieuw. Heb je 5 vragen achter elkaar goed, dan verschijnt er een klein plaatje: meestal een ster, maar soms iets anders, zoals een hart, een paddestoel of een dier. De site onthoudt in je browser welke plaatjes je zag en hoe vaak. Dat blijft alleen op jouw apparaat. Met Voortgang wissen op Mijn stof verdwijnt het weer.
+
+### Verbeterd
+
+- Bij het oefenen van een onderwerp rolt het getal achter een soort vraag (zoals 3/5) als het verandert. Zo zie je dat je voortgang is veranderd. Heb je beweging op je apparaat uitgezet, dan komt het nieuwe getal rustig in beeld.
+
 ## 1.19.4
 
 ### Hersteld

@@ -116,7 +116,7 @@ function migrateScope(scope) {
 // Zet opgeslagen voortgang om naar de vorm van nu, en houdt alleen wat klopt. Een ongeldig deel,
 // zoals een vraagsoort zonder lijst met resultaten, valt weg. De rest blijft staan.
 function cleanProgress(saved) {
-  const out = { v: 5, skills: {}, stof: null, mapping: null };
+  const out = { v: 5, skills: {}, stof: null, mapping: null, iconen: {} };
   if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return out;
   saved = { ...saved };
   const map = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
@@ -136,6 +136,12 @@ function cleanProgress(saved) {
     if (!/^[1-9]\d*$/.test(id) || !Array.isArray(results)) continue;
     const ok = results.filter((x) => x === 0 || x === 1).slice(-5);
     if (ok.length) out.skills[id] = ok;
+  }
+  // Hoe vaak je elk plaatje zag bij 5 goede antwoorden achter elkaar (zie iconen.js): een id met een
+  // positief geheel getal. Een onbekend id mag blijven, want dat kan van een nieuwere versie zijn.
+  const iconen = map(saved.iconen);
+  for (const [id, n] of Object.entries(iconen)) {
+    if (/^[a-z][a-z0-9-]*$/.test(id) && Number.isSafeInteger(n) && n > 0) out.iconen[id] = n;
   }
   // De stofkeuze bevat alleen vraagsoorten die bestaan, want oefenen en de proeftoets kiezen daaruit.
   if (Array.isArray(saved.stof)) {
@@ -157,7 +163,7 @@ function cleanProgress(saved) {
 const opslag = { voortgang: false, toets: false, gemeld: false };
 // In Node, bij het bouwen en testen, is er geen opslag. Dat is geen mislukte poging.
 const inBrowser = () => typeof window !== 'undefined';
-const prog = { v: 5, skills: {}, stof: null, mapping: null };
+const prog = { v: 5, skills: {}, stof: null, mapping: null, iconen: {} };
 // Leest de voortgang opnieuw, want een ander tabblad kan die intussen hebben veranderd.
 // Is er geen opslag, of lukte het bewaren niet, dan is wat in het geheugen staat het nieuwst.
 function load() {
@@ -197,16 +203,25 @@ function rec(id, ok) {
     if (a.length > 5) a.shift();
   });
 }
+// Telt dat je dit plaatje weer zag. Blijft alleen in deze browser, net als de rest van de voortgang.
+function recIcoon(id) {
+  update((p) => {
+    p.iconen[id] = (p.iconen[id] || 0) + 1;
+  });
+}
 const skillPct = (id) => {
   const a = prog.skills[id] || [];
   return a.reduce((t, x) => t + x, 0) / 5;
 };
+// Het getal in `3/5`: hoeveel van de laatste 5 antwoorden goed waren.
+const skillGoed = (id) => Math.round(skillPct(id) * 5);
 const topicPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
 const resetProgress = () =>
   update((p) => {
     p.skills = {};
     p.stof = null;
     p.mapping = null;
+    p.iconen = {};
   });
 
 export {
@@ -218,7 +233,9 @@ export {
   update,
   cleanProgress,
   rec,
+  recIcoon,
   skillPct,
+  skillGoed,
   topicPct,
   resetProgress,
   migrateSkills,

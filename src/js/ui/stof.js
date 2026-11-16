@@ -158,7 +158,7 @@ function progressHTML() {
   const stored =
     Object.keys(prog.skills).length || prog.stof || prog.mapping || state.test || state.result;
   const reset = state.confirmReset
-    ? `<p class="small">Wil je alles wissen? Je voortgang, je stof, je boek en je proeftoetsen zijn dan weg.</p><div class="row"><button class="btn quiet" type="button" data-act="reset2">Ja, wis alles</button><button class="btn quiet" type="button" data-act="reset0">Annuleren</button></div>`
+    ? `<p class="small">Wil je alles wissen? Je voortgang, je stof, je boek, je proeftoetsen en je verzamelde plaatjes zijn dan weg.</p><div class="row"><button class="btn quiet" type="button" data-act="reset2">Ja, wis alles</button><button class="btn quiet" type="button" data-act="reset0">Annuleren</button></div>`
     : `<div class="row"><button class="btn quiet" type="button" data-act="reset1">Voortgang wissen</button></div>`;
   return `<section class="sheet"><h2 class="h3">Je voortgang</h2><p class="small">Je voortgang, je stof en je laatste proeftoets blijven alleen in deze browser bewaard. <a class="linkbtn" href="${to('privacy')}">Lees meer over privacy</a></p>${stored ? reset : ''}</section>`;
 }

@@ -4,7 +4,17 @@ import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
 import { TOPICS, TOPIC, laadOnderwerpen } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
-import { STORE, load, opslag, prog, rec, resetProgress, update } from './progress.js';
+import {
+  STORE,
+  load,
+  opslag,
+  prog,
+  rec,
+  recIcoon,
+  resetProgress,
+  skillGoed,
+  update,
+} from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof, topicOf } from './stof.js';
 import {
@@ -158,6 +168,49 @@ document.body.append(melding);
 // laadt render() dat eerst en geeft het een Promise die klaar is als het scherm er staat. Duurt het
 // laden langer, dan toont het scherm dat het laadt, en lukt het niet, dan een melding met een knop
 // om het opnieuw te proberen. Een nieuwere render() gaat altijd voor.
+// Bewaart de eerste poging bij een soort. Verandert het getal bij de soort daardoor (`3/5`), dan
+// geeft het terug hoe, zodat het getal in de volgende render() rolt. Mijn stof oefenen heeft geen
+// getallen in beeld en dus ook geen beweging.
+function recPoging(st, ok, mixed) {
+  const van = skillGoed(st.skill.id);
+  rec(st.skill.id, ok);
+  const naar = skillGoed(st.skill.id);
+  return van !== naar && !mixed ? (st.roll = { id: st.skill.id, van, naar }) : null;
+}
+// De plaatjes bij 5 goede antwoorden achter elkaar staan in een eigen bestand, dat pas laadt als
+// een oefenscherm opent. Zo blijft de code bij het eerste bezoek klein.
+let iconen = null;
+let iconenLaden = null;
+// Eén poging per bezoek: lukt het laden niet, dan loopt de balk gewoon leeg (zie reeksPoging).
+const laadIconen = () => (iconenLaden ||= import('./iconen.js').then((m) => (iconen = m)));
+// Houdt de reeks van goede eerste pogingen bij. Geeft de beweging voor de volgende render() terug,
+// of null als er niets te zien is. Bij de vijfde goede in een reeks kiest dit een plaatje en telt
+// het dat je het zag.
+function reeksPoging(st, ok) {
+  const n = st.streak || 0;
+  if (!ok) {
+    st.streak = 0;
+    return n ? (st.reeksAnim = { type: 'leeg', van: n }) : null;
+  }
+  if (n + 1 < 5) {
+    st.streak = n + 1;
+    return (st.reeksAnim = { type: 'op' });
+  }
+  st.streak = 0;
+  // Lukte het laden niet, bijvoorbeeld zonder internet, dan loopt de balk gewoon leeg.
+  if (!iconen) return (st.reeksAnim = { type: 'leeg', van: 5 });
+  const plaatje = iconen.kiesIcoon(Math.random(), Math.random());
+  recIcoon(plaatje.id);
+  return (st.reeksAnim = { type: 'icoon', icoon: plaatje.svg });
+}
+// De beweging hoort bij alleen die ene render, en niet bij de volgende (bijvoorbeeld een hint).
+function rolKlaar(st, roll) {
+  st.roll = null;
+  const icoon = st.reeksAnim?.type === 'icoon';
+  st.reeksAnim = null;
+  if (icoon) melding.textContent = '5 achter elkaar goed!';
+  else if (roll) melding.textContent = `Bij deze soort nu ${roll.naar} van 5 goed.`;
+}
 let renders = 0;
 function render(focus) {
   const nr = ++renders;
@@ -212,6 +265,7 @@ function paint(focus) {
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
+  if (state.view.oefen || state.view.name === 'stofoefen') laadIconen().catch(() => {});
   mountWidgets();
   showDrawn();
   watchPracticeBar();
@@ -524,8 +578,10 @@ app.addEventListener('click', (e) => {
   if (a === 'show') {
     const st = state.prac[state.view.slug];
     st.vals = readVals(st.q, 'p');
+    let roll = null;
     if (st.first) {
-      rec(st.skill.id, false);
+      roll = recPoging(st, false, state.view.name === 'stofoefen');
+      reeksPoging(st, false);
       telPoging(st, 'uitwerking');
       st.total++;
       st.first = false;
@@ -534,6 +590,7 @@ app.addEventListener('click', (e) => {
     st.msg = '';
     st.marks = st.q.mc ? { each: [String(st.vals[0]) === String(st.q.mc.a)], reveal: true } : null;
     render('.sol');
+    rolKlaar(st, roll);
     return;
   }
   if (a === 'showsol') {
@@ -594,7 +651,7 @@ app.addEventListener('click', (e) => {
     return go({ name: 'toetsres' });
   }
 });
-app.addEventListener('submit', (e) => {
+app.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (e.target.id === 'tform') {
     if (!storeOrFollow()) return;
@@ -640,8 +697,19 @@ app.addEventListener('submit', (e) => {
       return;
     }
     const c = checkAnswer(st.q, vals);
+    // Het plaatje bij de vijfde goede staat in een eigen bestand. Dat is al geladen zodra het
+    // oefenscherm opende; zo niet, dan wacht dit er eenmalig op. Dit staat voor de controle van
+    // st.first, want bij een dubbele klik mag de poging maar één keer tellen.
+    if (st.first && c.ok && (st.streak || 0) === 4 && !iconen) {
+      const vraag = st.q;
+      await laadIconen().catch(() => {});
+      // Intussen kan de voortgang gewist zijn of kan er een andere vraag staan. Dan telt deze poging niet.
+      if (state.prac[s.slug] !== st || st.q !== vraag) return;
+    }
+    let roll = null;
     if (st.first) {
-      rec(st.skill.id, c.ok);
+      roll = recPoging(st, c.ok, s.mixed);
+      reeksPoging(st, c.ok);
       telPoging(st, c.ok ? 'goed' : 'fout');
       st.total++;
       if (c.ok) st.right++;
@@ -658,6 +726,7 @@ app.addEventListener('submit', (e) => {
       st.msg = trap?.m || 'Nog niet goed. Probeer het nog eens, of bekijk de hint.';
     }
     render(c.ok ? '#nextq' : '#pfb');
+    rolKlaar(st, roll);
   }
 });
 window.addEventListener('popstate', () => {

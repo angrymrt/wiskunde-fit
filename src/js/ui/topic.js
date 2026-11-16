@@ -1,6 +1,6 @@
 // De schermen van een onderwerp: de uitleg en het oefenen.
 import { isDrawing } from '../answers.js';
-import { prog, skillPct, topicPct } from '../progress.js';
+import { prog, skillGoed, skillPct, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { isChosen, topicOf } from '../stof.js';
 import { makeQuestion } from '../topics/index.js';
@@ -106,6 +106,41 @@ function scopeSwitch(s) {
     ? `<button class="switch" type="button" role="switch" aria-checked="${!state.prac[s.slug]?.alle}" data-act="scope">Alleen mijn stof</button>`
     : '';
 }
+// De reeks goede eerste pogingen: 5 vakjes. Elk goed antwoord vult er een, en een fout antwoord
+// leegt ze weer. Bij 5 verschijnt er een plaatje (zie iconen.js) dat uit de balk omhoog zweeft.
+// st.reeksAnim hoort bij alleen de render direct na een poging (main.js wist het daarna): zo laat
+// de CSS de beweging eenmaal zien en blijft er voor dezelfde toestand dezelfde HTML. Zonder
+// beweging staat de balk meteen goed en staat het plaatje even stil. De tekst voor een schermlezer
+// zegt altijd hoe de reeks er na de poging voor staat.
+const REEKS = 5;
+function reeksHTML(st) {
+  const n = st.streak || 0,
+    a = st.reeksAnim,
+    klaar = a?.type === 'icoon',
+    leeg = a?.type === 'leeg',
+    aan = klaar ? REEKS : leeg ? a.van : n,
+    tekst = `${n} van ${REEKS} achter elkaar goed`,
+    vakjes = Array.from(
+      { length: REEKS },
+      (_, i) =>
+        `<span class="seg${i < aan ? ' aan' : ''}${a && i === aan - 1 && !leeg ? ' pop' : ''}" style="--i:${REEKS - 1 - i}"></span>`,
+    ).join('');
+  const icoon = klaar
+    ? `<svg class="icoon toon" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${a.icoon}</svg>`
+    : '';
+  return `<span class="reeks${klaar ? ' klaar' : ''}${leeg ? ' leeg' : ''}" role="img" aria-label="${tekst}">${vakjes}${icoon}</span>`;
+}
+// Het getal `3/5` achter een soort. Is het net veranderd (roll), dan rolt het: bij meer goed gaat
+// het oude getal omlaag en komt het nieuwe van boven, bij minder goed andersom. Het oude getal is
+// alleen voor het oog; een schermlezer leest het nieuwe. Zonder beweging (prefers-reduced-motion)
+// komt het nieuwe getal rustig in beeld.
+function chipGetal(id, roll) {
+  if (roll?.id !== id) return `<span class="n">${skillGoed(id)}/5</span>`;
+  const nieuw = `<span>${roll.naar}</span>`,
+    oud = `<span class="oud" aria-hidden="true">${roll.van}</span>`,
+    op = roll.naar > roll.van;
+  return `<span class="n gewijzigd"><span class="roll ${op ? 'op' : 'neer'}"><span class="kol">${op ? nieuw + oud : oud + nieuw}</span></span>/5</span>`;
+}
 // Oefenen in één blok: bovenaan de kop met de soorten vragen, daaronder de vraag. Alleen de vraag
 // komt met een korte animatie in beeld, de kop blijft staan.
 function vPractice(s, title) {
@@ -123,12 +158,12 @@ function vPractice(s, title) {
       )
         .map(
           (k) =>
-            `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`,
+            `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? chipGetal(k.id, st.roll) : ''}</button>`,
         )
         .join('')}</div>`;
   const share = shareHTML(st.skill, q),
     meld = meldHTML(st.skill, q);
-  return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>` : ''}${share.button}${meld.button}</span></div>${share.note}</div>
+  return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}` : ''}${share.button}${meld.button}</span></div>${share.note}</div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !isDrawing(q) && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
