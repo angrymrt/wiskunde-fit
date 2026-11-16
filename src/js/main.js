@@ -180,8 +180,9 @@ function recPoging(st, ok, mixed) {
 // De plaatjes bij 5 goede antwoorden achter elkaar staan in een eigen bestand, dat pas laadt als
 // een oefenscherm opent. Zo blijft de code bij het eerste bezoek klein.
 let iconen = null;
-const laadIconen = () =>
-  iconen ? Promise.resolve(iconen) : import('./iconen.js').then((m) => (iconen = m));
+let iconenLaden = null;
+// Eén poging per bezoek: lukt het laden niet, dan loopt de balk gewoon leeg (zie reeksPoging).
+const laadIconen = () => (iconenLaden ||= import('./iconen.js').then((m) => (iconen = m)));
 // Houdt de reeks van goede eerste pogingen bij. Geeft de beweging voor de volgende render() terug,
 // of null als er niets te zien is. Bij de vijfde goede in een reeks kiest dit een plaatje en telt
 // het dat je het zag.
@@ -696,11 +697,12 @@ app.addEventListener('submit', async (e) => {
       return;
     }
     const c = checkAnswer(st.q, vals);
+    // Het plaatje bij de vijfde goede staat in een eigen bestand. Dat is al geladen zodra het
+    // oefenscherm opende; zo niet, dan wacht dit er eenmalig op. Dit staat voor de controle van
+    // st.first, want bij een dubbele klik mag de poging maar één keer tellen.
+    if (st.first && c.ok && (st.streak || 0) === 4 && !iconen) await laadIconen().catch(() => {});
     let roll = null;
     if (st.first) {
-      // Het plaatje bij de vijfde goede staat in een eigen bestand. Dat is al geladen zodra het
-      // oefenscherm opende; zo niet, dan wacht dit er eenmalig op.
-      if (c.ok && (st.streak || 0) === 4 && !iconen) await laadIconen().catch(() => {});
       roll = recPoging(st, c.ok, s.mixed);
       reeksPoging(st, c.ok);
       telPoging(st, c.ok ? 'goed' : 'fout');
