@@ -1,0 +1,50 @@
+{
+  "poging": [
+    {"soort":127,"uitkomst":"goed","duur":11,"hint":false,"aantal":1},
+    {"soort":127,"uitkomst":"goed","duur":13,"hint":false,"aantal":1},
+    {"soort":128,"uitkomst":"goed","duur":23,"hint":false,"aantal":1},
+    {"soort":129,"uitkomst":"goed","duur":18,"hint":false,"aantal":1},
+    {"soort":130,"uitkomst":"goed","duur":17,"hint":false,"aantal":1},
+    {"soort":130,"uitkomst":"goed","duur":24,"hint":false,"aantal":1},
+    {"soort":131,"uitkomst":"goed","duur":11,"hint":false,"aantal":1},
+    {"soort":132,"uitkomst":"goed","duur":39,"hint":false,"aantal":1},
+    {"soort":132,"uitkomst":"goed","duur":44,"hint":false,"aantal":1},
+    {"soort":133,"uitkomst":"fout","duur":18,"hint":false,"aantal":1},
+    {"soort":133,"uitkomst":"goed","duur":22,"hint":false,"aantal":1},
+    {"soort":135,"uitkomst":"goed","duur":29,"hint":false,"aantal":1},
+    {"soort":136,"uitkomst":"goed","duur":24,"hint":false,"aantal":1},
+    {"soort":137,"uitkomst":"fout","duur":30,"hint":false,"aantal":1},
+    {"soort":137,"uitkomst":"goed","duur":27,"hint":false,"aantal":1},
+    {"soort":137,"uitkomst":"goed","duur":119,"hint":false,"aantal":1},
+    {"soort":138,"uitkomst":"goed","duur":149,"hint":false,"aantal":1},
+    {"soort":139,"uitkomst":"goed","duur":22,"hint":false,"aantal":1},
+    {"soort":140,"uitkomst":"fout","duur":31,"hint":false,"aantal":1},
+    {"soort":140,"uitkomst":"goed","duur":24,"hint":false,"aantal":1},
+    {"soort":142,"uitkomst":"goed","duur":109,"hint":false,"aantal":1}
+  ],
+  "valkuil": [
+    {"soort":137,"valkuil":"kan-wel","aantal":1}
+  ],
+  "toetsvraag": [
+    {"soort":1,"uitkomst":"goed","aantal":1},
+    {"soort":2,"uitkomst":"goed","aantal":1},
+    {"soort":4,"uitkomst":"goed","aantal":1},
+    {"soort":5,"uitkomst":"goed","aantal":3},
+    {"soort":8,"uitkomst":"goed","aantal":1},
+    {"soort":14,"uitkomst":"goed","aantal":1},
+    {"soort":16,"uitkomst":"goed","aantal":2},
+    {"soort":128,"uitkomst":"goed","aantal":1},
+    {"soort":129,"uitkomst":"goed","aantal":1},
+    {"soort":131,"uitkomst":"goed","aantal":1},
+    {"soort":134,"uitkomst":"goed","aantal":1},
+    {"soort":136,"uitkomst":"goed","aantal":1},
+    {"soort":137,"uitkomst":"goed","aantal":1},
+    {"soort":138,"uitkomst":"goed","aantal":1},
+    {"soort":140,"uitkomst":"goed","aantal":1},
+    {"soort":141,"uitkomst":"goed","aantal":1},
+    {"soort":142,"uitkomst":"goed","aantal":1}
+  ],
+  "proeftoets": [
+    {"aantal":1}
+  ]
+}
