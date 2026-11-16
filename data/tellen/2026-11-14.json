@@ -1,0 +1,11 @@
+{
+  "poging": [
+    {"soort":106,"uitkomst":"goed","duur":43,"hint":false,"aantal":1},
+    {"soort":108,"uitkomst":"goed","duur":18,"hint":false,"aantal":1},
+    {"soort":111,"uitkomst":"goed","duur":26,"hint":false,"aantal":1},
+    {"soort":112,"uitkomst":"goed","duur":33,"hint":false,"aantal":1},
+    {"soort":112,"uitkomst":"goed","duur":43,"hint":false,"aantal":1},
+    {"soort":113,"uitkomst":"goed","duur":46,"hint":false,"aantal":1},
+    {"soort":114,"uitkomst":"goed","duur":115,"hint":false,"aantal":1}
+  ]
+}

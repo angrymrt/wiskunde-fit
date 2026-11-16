@@ -1,0 +1,8 @@
+{
+  "poging": [
+    {"soort":38,"uitkomst":"fout","duur":21,"hint":false,"aantal":1},
+    {"soort":38,"uitkomst":"goed","duur":343,"hint":false,"aantal":1},
+    {"soort":39,"uitkomst":"fout","duur":22,"hint":false,"aantal":1},
+    {"soort":39,"uitkomst":"goed","duur":29,"hint":false,"aantal":1}
+  ]
+}
