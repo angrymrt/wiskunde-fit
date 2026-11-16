@@ -12,6 +12,18 @@ import { TARGETS } from './browsers.js';
 import { catalogusPlugin } from './catalogus.js';
 
 const root = new URL('../', import.meta.url);
+// De cijfers voor de pagina Cijfers komen als eigen bestand in de code (src/js/cijfers-data.js), dat de
+// browser pas laadt als het scherm nodig is. Met define zou esbuild ze in een gedeeld bestand zetten,
+// dat main meteen laadt. Zie #184.
+const cijfersPlugin = () => ({
+  name: 'cijfers',
+  setup(build) {
+    build.onLoad({ filter: /[\\/]cijfers-data\.js$/ }, () => ({
+      contents: `export default ${JSON.stringify(globalThis.__CIJFERS__)};`,
+      loader: 'js',
+    }));
+  },
+});
 const dev = process.argv.includes('--dev');
 // Met --nep gebruikt de pagina Cijfers de nepcijfers uit data/nep-tellen/. Dat kan alleen in
 // dist-dev/, zodat nepcijfers nooit online komen.
@@ -81,7 +93,7 @@ const { metafile, outputFiles } = await build({
   bundle: true,
   format: 'esm',
   splitting: true,
-  plugins: [catalogusPlugin()],
+  plugins: [catalogusPlugin(), cijfersPlugin()],
   write: false,
   // esbuild zet nieuwere schrijfwijzen in de code en de CSS om voor deze browsers. Functies die er
   // niet zijn, zoals Object.hasOwn, zet het niet om. Die bewaakt tests/browsers.test.js.
@@ -100,7 +112,6 @@ const { metafile, outputFiles } = await build({
   define: {
     __VERSIE__: JSON.stringify(version),
     __DATUM__: JSON.stringify(date),
-    __CIJFERS__: JSON.stringify(globalThis.__CIJFERS__),
   },
 });
 // esbuild rekent bij de code ook de paden van de modules mee in de hash, en Windows schrijft die
@@ -179,6 +190,11 @@ for (const [path, { entryPoint }] of Object.entries(metafile.outputs)) {
     [file, ...imported(file)].filter((f) => !start.includes(f)),
   );
 }
+// De cijfers voor de pagina Cijfers staan in een eigen bestand (src/js/cijfers-data.js).
+const cijfersCode = Object.entries(metafile.outputs)
+  .filter(([, o]) => o.entryPoint === 'src/js/cijfers-data.js')
+  .map(([path]) => path.slice(out.length));
+if (cijfersCode.length !== 1) throw new Error('De cijfers staan niet in een eigen bestand.');
 const modulepreload = (list) =>
   list.map((f) => `\n    <link rel="modulepreload" href="${f}" />`).join('');
 
@@ -231,7 +247,7 @@ function pageHTML(page, body) {
   html = replace(
     html,
     /<script type="module" src="\/js\/main\.js"><\/script>/,
-    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : [])])}`,
+    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : []), ...(page.view.name === 'cijfers' ? cijfersCode : [])])}`,
   );
   return replace(
     html,

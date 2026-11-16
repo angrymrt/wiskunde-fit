@@ -1,5 +1,6 @@
 // De pagina Cijfers: hoe er op de site wordt geoefend, uit de anonieme tellen. De build rekent de
-// cijfers uit (src/js/cijfers.js) en zet ze als __CIJFERS__ in de code. Zie #19.
+// cijfers uit (src/js/cijfers.js) en zet ze als __CIJFERS__ in een eigen bestand (cijfers-data.js),
+// dat de browser pas laadt als dit scherm nodig is. Zie #19 en #184.
 //
 // Op de site heet een vraagsoort "soort vraag", een valkuil "veelgemaakte fout" en een eerste
 // poging "een gemaakte vraag". Zie BEGRIPPEN.md.
@@ -166,8 +167,23 @@ function perOnderwerp(c) {
   ${DOMAINS.map((d) => `<h3 class="plain-h">${esc(d.name)}</h3>${d.topics.map(topic).join('')}`).join('')}</div>`;
 }
 
+// De cijfers. In Node (de build en de tests) staan ze als globalThis.__CIJFERS__. In de browser laadt
+// laadCijfers() ze uit een eigen bestand, zodat de tellen de code bij het eerste bezoek niet groter
+// maken.
+let geladenCijfers = null;
+let lader = null;
+const cijfersKlaar = () => !lader || geladenCijfers !== null;
+// main.js geeft de browser een lader. Een mislukte download mag je opnieuw proberen.
+function laadCijfers() {
+  return lader().then((m) => {
+    geladenCijfers = m.default ?? false;
+  });
+}
+const zetCijfersLader = (f) => (lader = f);
+
 function vCijfers() {
-  const c = typeof __CIJFERS__ === 'object' ? __CIJFERS__ : null;
+  const c =
+    geladenCijfers || (typeof globalThis.__CIJFERS__ === 'object' ? globalThis.__CIJFERS__ : null);
   const nep = c?.nep
     ? '<p class="notice"><b>Dit zijn nepcijfers</b>, om de pagina te ontwerpen. Ze komen nooit online.</p>'
     : '';
@@ -194,4 +210,4 @@ function vCijfers() {
   ${populair(c)}${moeilijkst(c)}${fouten(c)}${leeg(c)}${perOnderwerp(c)}${about(true)}</div>`;
 }
 
-export { vCijfers };
+export { vCijfers, cijfersKlaar, laadCijfers, zetCijfersLader };

@@ -2432,13 +2432,15 @@ test(
 // het eerste bezoek was 54 kB en mag nu 60 kB zijn. De pagina zelf is 8,6 kB, want alle 126
 // soorten en de roosters staan erin. Die heeft daarom een eigen grens (lijst), zodat de grens voor
 // de andere pagina's blijft laag. Die was 6 kB, tot de grootste pagina (Top en snijpunten van een
-// parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB.
+// parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB. De tellen voor de pagina
+// Cijfers staan niet in het eerste bezoek, maar in een eigen bestand dat pas laadt op die pagina
+// (#184): anders groeide de code elke week. De grens is 61 kB (168 kB zelf) door de code die dat bestand laadt.
 const LIMITS = {
   page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 60, own: 166, why: 'de code bij het eerste bezoek' },
+  start: { sent: 61, own: 168, why: 'de code bij het eerste bezoek' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
   css: { sent: 8.5, why: 'de CSS' },
