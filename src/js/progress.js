@@ -201,6 +201,8 @@ const skillPct = (id) => {
   const a = prog.skills[id] || [];
   return a.reduce((t, x) => t + x, 0) / 5;
 };
+// Het getal in `3/5`: hoeveel van de laatste 5 antwoorden goed waren.
+const skillGoed = (id) => Math.round(skillPct(id) * 5);
 const topicPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
 const resetProgress = () =>
   update((p) => {
@@ -219,6 +221,7 @@ export {
   cleanProgress,
   rec,
   skillPct,
+  skillGoed,
   topicPct,
   resetProgress,
   migrateSkills,

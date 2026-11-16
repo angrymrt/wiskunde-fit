@@ -1,6 +1,6 @@
 // De schermen van een onderwerp: de uitleg en het oefenen.
 import { isDrawing } from '../answers.js';
-import { prog, skillPct, topicPct } from '../progress.js';
+import { prog, skillGoed, skillPct, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { isChosen, topicOf } from '../stof.js';
 import { makeQuestion } from '../topics/index.js';
@@ -106,6 +106,17 @@ function scopeSwitch(s) {
     ? `<button class="switch" type="button" role="switch" aria-checked="${!state.prac[s.slug]?.alle}" data-act="scope">Alleen mijn stof</button>`
     : '';
 }
+// Het getal `3/5` achter een soort. Is het net veranderd (roll), dan rolt het: bij meer goed gaat
+// het oude getal omlaag en komt het nieuwe van boven, bij minder goed andersom. Het oude getal is
+// alleen voor het oog; een schermlezer leest het nieuwe. Zonder beweging (prefers-reduced-motion)
+// komt het nieuwe getal rustig in beeld.
+function chipGetal(id, roll) {
+  if (roll?.id !== id) return `<span class="n">${skillGoed(id)}/5</span>`;
+  const nieuw = `<span>${roll.naar}</span>`,
+    oud = `<span class="oud" aria-hidden="true">${roll.van}</span>`,
+    op = roll.naar > roll.van;
+  return `<span class="n gewijzigd"><span class="roll ${op ? 'op' : 'neer'}"><span class="kol">${op ? nieuw + oud : oud + nieuw}</span></span>/5</span>`;
+}
 // Oefenen in één blok: bovenaan de kop met de soorten vragen, daaronder de vraag. Alleen de vraag
 // komt met een korte animatie in beeld, de kop blijft staan.
 function vPractice(s, title) {
@@ -123,7 +134,7 @@ function vPractice(s, title) {
       )
         .map(
           (k) =>
-            `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? `<span class="n">${Math.round(skillPct(k.id) * 5)}/5</span>` : ''}</button>`,
+            `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? chipGetal(k.id, st.roll) : ''}</button>`,
         )
         .join('')}</div>`;
   const share = shareHTML(st.skill, q),

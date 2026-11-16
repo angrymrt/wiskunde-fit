@@ -4,7 +4,7 @@ import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
 import { TOPICS, TOPIC, laadOnderwerpen } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
-import { STORE, load, opslag, prog, rec, resetProgress, update } from './progress.js';
+import { STORE, load, opslag, prog, rec, resetProgress, skillGoed, update } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof, topicOf } from './stof.js';
 import {
@@ -640,8 +640,12 @@ app.addEventListener('submit', (e) => {
       return;
     }
     const c = checkAnswer(st.q, vals);
+    let roll = null;
     if (st.first) {
+      const van = skillGoed(st.skill.id);
       rec(st.skill.id, c.ok);
+      const naar = skillGoed(st.skill.id);
+      if (van !== naar && !s.mixed) roll = st.roll = { id: st.skill.id, van, naar };
       telPoging(st, c.ok ? 'goed' : 'fout');
       st.total++;
       if (c.ok) st.right++;
@@ -658,6 +662,9 @@ app.addEventListener('submit', (e) => {
       st.msg = trap?.m || 'Nog niet goed. Probeer het nog eens, of bekijk de hint.';
     }
     render(c.ok ? '#nextq' : '#pfb');
+    // De beweging hoort bij alleen deze render, en niet bij de volgende (bijvoorbeeld een hint).
+    st.roll = null;
+    if (roll) melding.textContent = `Bij deze soort nu ${roll.naar} van 5 goed.`;
   }
 });
 window.addEventListener('popstate', () => {

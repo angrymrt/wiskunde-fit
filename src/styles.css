@@ -1620,6 +1620,63 @@ ol.how {
   font-variant-numeric: tabular-nums;
   margin-left: 4px;
 }
+/* Het getal rolt als het verandert: het oude gaat weg, het nieuwe komt erin. Meer goed: het nieuwe
+   komt van boven. Minder goed: van onder. */
+.chip .roll {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.25em;
+  line-height: 1.25em;
+  vertical-align: bottom;
+}
+.chip .roll .kol,
+.chip .roll .kol > span {
+  display: block;
+}
+.chip .roll .kol > .oud {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chip .roll .kol > .oud {
+    display: block;
+  }
+  .chip .roll.op .kol {
+    animation: roll-op 0.45s ease-out;
+  }
+  .chip .roll.neer .kol {
+    animation: roll-neer 0.45s ease-out;
+  }
+  @keyframes roll-op {
+    from {
+      transform: translateY(-1.25em);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes roll-neer {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translateY(-1.25em);
+    }
+  }
+  /* Bij minder goed staat het nieuwe getal onder het oude. */
+  .chip .roll.neer .kol {
+    transform: translateY(-1.25em);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip .n.gewijzigd {
+    animation: n-in 0.8s ease-out;
+  }
+  @keyframes n-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
 .q {
   font-size: 1.08rem;
 }

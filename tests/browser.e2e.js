@@ -1629,6 +1629,103 @@ test('soort in het adres kiest de vraagsoort', async () => {
   }
 });
 
+test('het getal bij een soort rolt alleen als het verandert', async () => {
+  const browser = await launch();
+  try {
+    const { slug, skills } = TOPICS[0];
+    const id = skills[0].id;
+    const answer = async (p, goed) => {
+      const a = await p.evaluate(
+        `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(slug)}].q)`,
+      );
+      if (a.mc !== null) await p.check(`#pm${goed ? a.mc : a.mc === 0 ? 1 : 0}`);
+      else await fill(p, 'p', a.vals, goed ? undefined : '999');
+      await p.click('#pform button[type=submit]');
+    };
+    const roll = (p) =>
+      p.evaluate((i) => {
+        const n = document.querySelector(`.chip[data-id="${i}"] .n.gewijzigd`);
+        if (!n) return null;
+        const r = n.querySelector('.roll');
+        return {
+          richting: r.classList.contains('op') ? 'op' : 'neer',
+          nieuw: r.querySelector('.kol > span:not(.oud)').textContent,
+          oud: r.querySelector('.oud').textContent,
+          oudVoorSchermlezer: r.querySelector('.oud').getAttribute('aria-hidden'),
+          tekst: n.textContent,
+        };
+      }, id);
+    const next = async (p) => {
+      await p.click('#nextq');
+    };
+
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(at(`/${slug}/oefenen?soort=${id}`));
+    // Meer goed: het nieuwe getal komt van boven.
+    await answer(p, true);
+    assert.deepEqual(await roll(p), {
+      richting: 'op',
+      nieuw: '1',
+      oud: '0',
+      oudVoorSchermlezer: 'true',
+      tekst: '10/5',
+    });
+    assert.equal(await p.textContent('#laadmelding'), 'Bij deze soort nu 1 van 5 goed.');
+    assert.equal(
+      await p.evaluate(() => document.activeElement.id),
+      'nextq',
+      'de focus blijft staan',
+    );
+    assert.ok(
+      await p.evaluate(() => document.getAnimations().some((a) => a.animationName === 'roll-op')),
+      'met beweging rolt het getal',
+    );
+    // Een volgende render, zoals een klik op de hint, herhaalt de beweging niet.
+    await next(p);
+    assert.equal(await roll(p), null);
+    for (let n = 2; n <= 5; n++) {
+      await answer(p, true);
+      assert.equal((await roll(p)).nieuw, String(n));
+      await next(p);
+    }
+    // Al 5/5: nog een goed antwoord verandert niets.
+    await answer(p, true);
+    assert.equal(await roll(p), null, 'bij 5/5 blijft het 5/5');
+    await next(p);
+    // Een fout antwoord laat het oudste goede antwoord vallen: minder goed, het nieuwe komt van onder.
+    await answer(p, false);
+    assert.deepEqual((({ richting, nieuw, oud }) => ({ richting, nieuw, oud }))(await roll(p)), {
+      richting: 'neer',
+      nieuw: '4',
+      oud: '5',
+    });
+    assert.equal(await p.textContent('#laadmelding'), 'Bij deze soort nu 4 van 5 goed.');
+    // Nog een keer proberen telt niet mee, dus ook geen beweging.
+    await p.click('[data-act="show"]');
+    assert.equal(await roll(p), null);
+    await p.close();
+
+    // Zonder beweging komt het nieuwe getal rustig in beeld en rolt er niets.
+    const calm = await browser.newContext({ reducedMotion: 'reduce' });
+    const cp = await calm.newPage();
+    await cp.goto(at(`/${slug}/oefenen?soort=${id}`));
+    await answer(cp, true);
+    assert.equal((await roll(cp)).nieuw, '1');
+    assert.equal(
+      await cp.evaluate(() => getComputedStyle(document.querySelector('.roll .oud')).display),
+      'none',
+      'het oude getal is niet te zien',
+    );
+    assert.ok(
+      await cp.evaluate(() => document.getAnimations().every((a) => a.animationName !== 'roll-op')),
+      'er is geen rolbeweging',
+    );
+    await calm.close();
+  } finally {
+    await browser.close();
+  }
+});
+
 test('een probleem melden opent een paneel met links naar GitHub en e-mail', async () => {
   const browser = await launch();
   try {
