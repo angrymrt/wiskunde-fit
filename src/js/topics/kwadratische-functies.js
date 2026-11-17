@@ -934,7 +934,7 @@ export default {
       t: 'De top en de symmetrie',
       p: [
         T(
-          'Een parabool is symmetrisch. De {{=symmetrieas|symmetrieas}} is een verticale lijn door de {{top|top}}. De {{=top|top}} is het laagste punt van een dalparabool en het hoogste punt van een bergparabool.',
+          'Een parabool is symmetrisch. De {{=symmetrieas|symmetrieas}} is een verticale lijn door de {{=top|top}}. De top is het laagste punt van een dalparabool en het hoogste punt van een bergparabool.',
         ),
         T(
           'Zijn twee functiewaarden gelijk, zoals f(p) = f(q), dan ligt x_top precies in het midden: x_top = {p + q/2}.',
