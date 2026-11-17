@@ -317,6 +317,9 @@ test(
       await p.click('h1');
       assert.equal(await p.locator('.pop').count(), 0);
 
+      // Onder de uitleg staat een lijst met de termen uit dit onderwerp.
+      assert.match(await p.locator('.termen').innerText(), /richtingscoëfficiënt/);
+
       // Een link met een hash naar een term zet de focus op die knop.
       await p.evaluate(() =>
         window.wiskundefit.go(
@@ -1240,7 +1243,7 @@ test('JavaScript neemt een vooraf gebouwde pagina over zonder iets te vervangen'
               // Een term wordt een knop (#39): de tekst en de plek blijven gelijk.
               if (
                 m.type === 'childList' &&
-                [...m.addedNodes, ...m.removedNodes].every((n) => n.matches?.('.term'))
+                [...m.addedNodes, ...m.removedNodes].every((n) => n.matches?.('.term, .termen'))
               )
                 return;
               window.vervangen.push(m.type);

@@ -11,6 +11,7 @@ function mount(root) {
   if (!luistert)
     window.addEventListener('resize', () => open?.breed !== innerWidth && sluit(false));
   luistert = true;
+  lijst(root);
   for (const sp of root.querySelectorAll('span.term')) {
     const id = sp.dataset.term;
     if (!WOORDEN[id]) continue;
@@ -28,6 +29,32 @@ function mount(root) {
   const naar = document.getElementById(location.hash.slice(1));
   if (naar?.matches('button.term') && /^(BODY|H1)$/.test(document.activeElement.tagName))
     naar.focus();
+}
+
+// Onder de uitleg van een onderwerp staan de termen die erin voorkomen, uit de woordenlijst. Zo hoeft
+// niemand een uitleg twee keer te schrijven. Bij elke render komt de lijst opnieuw.
+function lijst(root) {
+  const body = root.querySelector('.topic-body');
+  if (!body || body.querySelector('.termen')) return;
+  const ids = [
+    ...new Set([...body.querySelectorAll('span.term')].map((x) => x.dataset.term)),
+  ].filter((id) => WOORDEN[id]);
+  if (!ids.length) return;
+  const blok = document.createElement('div'),
+    kop = document.createElement('h2'),
+    dl = document.createElement('dl');
+  blok.className = 'block termen';
+  kop.className = 'h3';
+  kop.textContent = 'Woorden in dit onderwerp';
+  for (const id of ids) {
+    const dt = document.createElement('dt'),
+      dd = document.createElement('dd');
+    dt.textContent = WOORDEN[id].naam;
+    dd.textContent = WOORDEN[id].uitleg;
+    dl.append(dt, dd);
+  }
+  blok.append(kop, dl);
+  body.append(blok);
 }
 
 let open = null; // { knop, el, breed }
