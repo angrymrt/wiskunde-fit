@@ -28,12 +28,8 @@ export const WOORDEN = {
   btw: {
     naam: 'btw',
     uitleg:
-      'Btw is belasting op producten en diensten. Bij 21% btw is de prijs inclusief btw 1,21 keer de prijs exclusief btw.',
+      'Btw is belasting op producten en diensten. Een prijs inclusief btw is de prijs die je betaalt, met de btw er al in. Bij 21% btw is dat 1,21 keer de prijs zonder btw.',
     onderwerp: 'rekenen-met-procenten',
-  },
-  inclusief: {
-    naam: 'inclusief',
-    uitleg: 'Als iets inclusief btw is, zit de btw al bij de prijs in.',
   },
   snijpunt: {
     naam: 'snijpunt',

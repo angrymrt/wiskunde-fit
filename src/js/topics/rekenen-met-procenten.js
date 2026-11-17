@@ -430,8 +430,8 @@ function makeBack() {
         tol: EUR,
         what: ' btw',
         q: food
-          ? `Je boodschappen kosten samen ${eu(n)} euro, {{inclusief|inclusief}} 9% btw. Hoeveel euro is dat zonder btw?`
-          : `${name} kost ${eu(n)} euro, {{inclusief|inclusief}} 21% btw. Hoeveel euro is dat zonder btw?`,
+          ? `Je boodschappen kosten samen ${eu(n)} euro, {{btw|inclusief}} 9% btw. Hoeveel euro is dat zonder btw?`
+          : `${name} kost ${eu(n)} euro, {{btw|inclusief}} 21% btw. Hoeveel euro is dat zonder btw?`,
         field: F('zonder btw =', o, 'euro'),
         say: `Zonder btw is dat ${eu(o)} euro.`,
       };
@@ -786,7 +786,7 @@ function backThenOn() {
   b.field = F('zonder btw =', o, 'euro');
   return {
     q: T(
-      `Je boodschappen kosten samen ${eu(n)} euro, {{inclusief|inclusief}} 9% btw. Stel dat de btw op boodschappen 21% wordt. Hoeveel kosten dezelfde boodschappen dan? Bereken eerst het bedrag zonder btw.`,
+      `Je boodschappen kosten samen ${eu(n)} euro, {{btw|inclusief}} 9% btw. Stel dat de btw op boodschappen 21% wordt. Hoeveel kosten dezelfde boodschappen dan? Bereken eerst het bedrag zonder btw.`,
     ),
     fields: [b.field, F('met 21% btw =', x, 'euro')],
     steps: [
