@@ -530,10 +530,10 @@ export default {
       t: 'Het assenstelsel',
       p: [
         T(
-          'Een assenstelsel heeft een horizontale x-as en een verticale y-as. Die snijden elkaar in de oorsprong O, het punt (0, 0).',
+          'Een {{=assenstelsel|assenstelsel}} heeft een horizontale x-as en een verticale y-as. Die snijden elkaar in de {{=oorsprong|oorsprong}} O, het punt (0, 0).',
         ),
         T(
-          'Een punt schrijf je met een hoofdletter en twee getallen tussen haakjes, zoals P(4, -2). Het eerste getal is de x-coördinaat, het tweede de y-coördinaat.',
+          'Een punt schrijf je met een hoofdletter en twee getallen tussen haakjes, de {{=coordinaat|coördinaten}}, zoals P(4, -2). Het eerste getal is de x-coördinaat, het tweede de y-coördinaat.',
         ),
       ],
       ex: {
@@ -586,7 +586,7 @@ export default {
       t: 'Kwadranten',
       p: [
         TK(
-          'De assen verdelen het assenstelsel in vier kwadranten. Je nummert ze tegen de klok in: rechtsboven is kwadrant I, linksboven II, linksonder III en rechtsonder IV.',
+          'De assen verdelen het assenstelsel in vier {{=kwadrant|kwadranten}}. Je nummert ze tegen de klok in: rechtsboven is kwadrant I, linksboven II, linksonder III en rechtsonder IV.',
         ),
         TK(
           'In kwadrant I zijn x en y allebei positief, en in kwadrant III allebei negatief. In II is x negatief, en in IV is y negatief.',

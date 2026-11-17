@@ -450,10 +450,10 @@ export default {
       t: 'Twee bijzondere lijnen',
       p: [
         T(
-          'Bij a = 0 hoort de formule y = b. De grafiek is een horizontale lijn. Je spreekt dan van een constant verband.',
+          'Bij a = 0 hoort de formule y = b. De grafiek is een horizontale lijn. Je spreekt dan van een {{=constant-verband|constant verband}}.',
         ),
         T(
-          'Bij b = 0 hoort de formule y = ax. De grafiek gaat door de oorsprong. Je spreekt dan van een recht evenredig verband.',
+          'Bij b = 0 hoort de formule y = ax. De grafiek gaat door de {{oorsprong|oorsprong}}. Je spreekt dan van een {{=recht-evenredig-verband|recht evenredig verband}}.',
         ),
       ],
     },
@@ -479,7 +479,7 @@ export default {
       t: 'Evenwijdige lijnen',
       p: [
         T(
-          'Evenwijdige lijnen hebben dezelfde richtingscoëfficiënt. Je schrijft k // l, dus rc_k = rc_l.',
+          '{{=evenwijdig|Evenwijdige}} lijnen hebben dezelfde {{richtingscoefficient|richtingscoëfficiënt}}. Je schrijft k // l, dus rc_k = rc_l.',
         ),
       ],
       ex: {

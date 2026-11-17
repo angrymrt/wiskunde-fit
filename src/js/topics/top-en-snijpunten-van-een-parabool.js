@@ -1160,7 +1160,7 @@ export default {
       t: 'De top van f(x) = ax^2 + bx + c',
       p: [
         T(
-          'De top is het laagste punt van een dalparabool en het hoogste punt van een bergparabool. Voor elke parabool geldt x_top = {-b/2a}. Daarna is y_top = f(x_top).',
+          'De {{top|top}} is het laagste punt van een {{dalparabool|dalparabool}} en het hoogste punt van een {{bergparabool|bergparabool}}. Voor elke parabool geldt x_top = {-b/2a}. Daarna is y_top = f(x_top).',
         ),
       ],
       how: [

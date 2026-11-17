@@ -621,7 +621,7 @@ export default {
       t: 'Invullen in een woordformule',
       p: [
         T(
-          'Een woordformule zegt hoe je iets uitrekent. De eenheid staat in de zin, niet in de formule. Vul het aantal in. Reken eerst de keer uit en tel daarna op.',
+          'Een {{=woordformule|woordformule}} zegt hoe je iets uitrekent. De eenheid staat in de zin, niet in de formule. Vul het aantal in. Reken eerst de keer uit en tel daarna op.',
         ),
       ],
       ex: {

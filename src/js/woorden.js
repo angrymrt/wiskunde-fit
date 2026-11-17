@@ -53,6 +53,88 @@ export const WOORDEN = {
       'Een stukje van een som, gescheiden door + of −. In 3x² − 5x + 2 zijn de termen 3x², −5x en 2.',
     onderwerp: 'ontbinden-in-factoren',
   },
+  assenstelsel: {
+    naam: 'assenstelsel',
+    uitleg:
+      'Twee getallenlijnen die elkaar kruisen: de x-as is horizontaal en de y-as verticaal. Daarmee geef je elk punt een plek.',
+    onderwerp: 'coordinaten-en-assenstelsels',
+  },
+  oorsprong: {
+    naam: 'oorsprong',
+    uitleg: 'Het punt waar de x-as en de y-as elkaar kruisen. Dat is het punt (0, 0).',
+    onderwerp: 'coordinaten-en-assenstelsels',
+  },
+  coordinaat: {
+    naam: 'coördinaat',
+    uitleg:
+      'Een getal dat zegt waar een punt ligt. De x-coördinaat zegt hoe ver naar rechts of links, de y-coördinaat hoe ver omhoog of omlaag.',
+    onderwerp: 'coordinaten-en-assenstelsels',
+  },
+  kwadrant: {
+    naam: 'kwadrant',
+    uitleg:
+      'Een van de vier stukken waarin de assen het vlak verdelen. Je nummert ze I tot en met IV, tegen de klok in.',
+    onderwerp: 'coordinaten-en-assenstelsels',
+  },
+  woordformule: {
+    naam: 'woordformule',
+    uitleg: 'Een formule die in woorden zegt hoe je iets uitrekent, zoals prijs = 2 + 3 · aantal.',
+    onderwerp: 'woordformules',
+  },
+  'constant-verband': {
+    naam: 'constant verband',
+    uitleg:
+      'Een verband waarbij de uitkomst altijd hetzelfde is, wat je ook invult. De grafiek is een horizontale lijn, zoals bij y = 4.',
+    onderwerp: 'lineaire-formule-opstellen',
+  },
+  'recht-evenredig-verband': {
+    naam: 'recht evenredig verband',
+    uitleg:
+      'Een verband y = ax. Verdubbelt x, dan verdubbelt y ook. De grafiek is een rechte lijn door de oorsprong.',
+    onderwerp: 'lineaire-formule-opstellen',
+  },
+  evenwijdig: {
+    naam: 'evenwijdig',
+    uitleg: 'Lijnen die even steil lopen en elkaar daarom nooit snijden. Je schrijft k // l.',
+    onderwerp: 'lineaire-formule-opstellen',
+  },
+  functiewaarde: {
+    naam: 'functiewaarde',
+    uitleg:
+      'De uitkomst van een functie bij een bepaalde x. Bij f(x) = 2x + 1 is de functiewaarde bij x = 4 gelijk aan 9.',
+    onderwerp: 'kwadratische-functies',
+  },
+  'kwadratische-functie': {
+    naam: 'kwadratische functie',
+    uitleg: 'Een functie f(x) = ax² + bx + c met a ≠ 0. De grafiek is een parabool.',
+    onderwerp: 'kwadratische-functies',
+  },
+  parabool: {
+    naam: 'parabool',
+    uitleg: 'De kromme grafiek van een kwadratische functie. Hij is symmetrisch en heeft één top.',
+    onderwerp: 'kwadratische-functies',
+  },
+  dalparabool: {
+    naam: 'dalparabool',
+    uitleg: 'Een parabool met de top onderaan, als een dal. Hij hoort bij a > 0.',
+    onderwerp: 'kwadratische-functies',
+  },
+  bergparabool: {
+    naam: 'bergparabool',
+    uitleg: 'Een parabool met de top bovenaan, als een berg. Hij hoort bij a < 0.',
+    onderwerp: 'kwadratische-functies',
+  },
+  top: {
+    naam: 'top',
+    uitleg: 'Het laagste punt van een dalparabool of het hoogste punt van een bergparabool.',
+    onderwerp: 'kwadratische-functies',
+  },
+  symmetrieas: {
+    naam: 'symmetrieas',
+    uitleg:
+      'De verticale lijn door de top. Links en rechts ervan is de parabool elkaars spiegelbeeld.',
+    onderwerp: 'kwadratische-functies',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',

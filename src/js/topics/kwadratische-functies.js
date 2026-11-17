@@ -841,7 +841,7 @@ export default {
       t: 'Functiewaarden berekenen',
       p: [
         T(
-          'Bij een functie hoort bij elke x één uitkomst. Bij f(x) = x^2 - 4x + 1 is f(5) de functiewaarde bij x = 5. Je vervangt dan elke x door 5.',
+          'Bij een functie hoort bij elke x één uitkomst. Bij f(x) = x^2 - 4x + 1 is f(5) de {{=functiewaarde|functiewaarde}} bij x = 5. Je vervangt dan elke x door 5.',
         ),
       ],
       ex: {
@@ -859,13 +859,13 @@ export default {
       t: 'De functie f(x) = ax^2 + bx + c',
       p: [
         T(
-          'Een functie f(x) = ax^2 + bx + c met a ≠ 0 heet een kwadratische functie. a is het getal voor x^2, b het getal voor x en c het getal zonder x.',
+          'Een functie f(x) = ax^2 + bx + c met a ≠ 0 heet een {{=kwadratische-functie|kwadratische functie}}. a is het getal voor x^2, b het getal voor x en c het getal zonder x.',
         ),
         T(
           'Ontbreekt een term, dan is dat getal 0. Bij f(x) = 5 - x^2 is a = -1, b = 0 en c = 5. De volgorde van de termen maakt niet uit.',
         ),
         T(
-          'De grafiek is een parabool. Is a > 0, dan is het een dalparabool. Is a < 0, dan is het een bergparabool.',
+          'De grafiek is een {{=parabool|parabool}}. Is a > 0, dan is het een {{=dalparabool|dalparabool}}. Is a < 0, dan is het een {{=bergparabool|bergparabool}}.',
         ),
       ],
       ex: {
@@ -934,7 +934,7 @@ export default {
       t: 'De top en de symmetrie',
       p: [
         T(
-          'Een parabool is symmetrisch. De symmetrieas is een verticale lijn door de top. De top is het laagste punt van een dalparabool en het hoogste punt van een bergparabool.',
+          'Een parabool is symmetrisch. De {{=symmetrieas|symmetrieas}} is een verticale lijn door de {{top|top}}. De {{=top|top}} is het laagste punt van een dalparabool en het hoogste punt van een bergparabool.',
         ),
         T(
           'Zijn twee functiewaarden gelijk, zoals f(p) = f(q), dan ligt x_top precies in het midden: x_top = {p + q/2}.',
