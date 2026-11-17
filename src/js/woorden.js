@@ -5,39 +5,39 @@
 export const WOORDEN = {
   richtingscoefficient: {
     naam: 'richtingscoëfficiënt',
-    uitleg: 'Het getal a in y = ax + b. Het zegt hoeveel y omhoog gaat als x met 1 groter wordt.',
+    uitleg: 'Het getal a in y = ax + b. Het vertelt hoeveel y verandert als x 1 groter wordt.',
     onderwerp: 'lineaire-grafieken-tekenen',
   },
   procent: {
     naam: 'procent',
-    uitleg: 'Een honderdste deel. 1% is 1 van de 100, dus 0,01 als kommagetal.',
+    uitleg: 'Procent betekent "per honderd". 1% is 1 van de 100, oftewel 0,01 als kommagetal.',
     onderwerp: 'procentuele-verandering',
   },
   'procentuele-verandering': {
     naam: 'procentuele verandering',
     uitleg:
-      'Met hoeveel procent iets groter of kleiner is geworden, gerekend vanaf het getal van vóór de verandering.',
+      'Het percentage waarmee iets groter of kleiner is geworden. Je vergelijkt de verandering met het oorspronkelijke getal.',
     onderwerp: 'procentuele-verandering',
   },
   vermenigvuldigingsfactor: {
     naam: 'vermenigvuldigingsfactor',
     uitleg:
-      'Het getal waarmee je vermenigvuldigt om het nieuwe getal te krijgen. Bij 5% erbij hoort × 1,05.',
+      'Het getal waarmee je het oorspronkelijke getal vermenigvuldigt om het nieuwe getal te krijgen. Bij 5% erbij hoort × 1,05.',
     onderwerp: 'procentuele-verandering',
   },
   btw: {
     naam: 'btw',
     uitleg:
-      'Belasting die over een prijs komt, een percentage erbij. Bij 21% btw is de prijs met btw 1,21 keer zo groot als zonder.',
+      'Btw is belasting op producten en diensten. Bij 21% btw is de prijs inclusief btw 1,21 keer de prijs exclusief btw.',
     onderwerp: 'rekenen-met-procenten',
   },
   inclusief: {
     naam: 'inclusief',
-    uitleg: 'Met iets erbij gerekend. Bij een bedrag inclusief btw zit de btw er al in.',
+    uitleg: 'Als iets inclusief btw is, zit de btw al bij de prijs in.',
   },
   snijpunt: {
     naam: 'snijpunt',
-    uitleg: 'Het punt waar twee lijnen of een lijn en een as elkaar kruisen.',
+    uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',
   },
 };
 
