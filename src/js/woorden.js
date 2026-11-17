@@ -163,12 +163,13 @@ export const WOORDEN = {
   herleiden: {
     naam: 'herleiden',
     uitleg:
-      'Een formule of vergelijking omschrijven zonder dat de oplossingen veranderen, bijvoorbeeld zodat y alleen links staat.',
+      'Een formule of vergelijking omschrijven zonder dat de oplossingen veranderen, bijvoorbeeld zodat y alleen links staat. Je lost hem dus niet op.',
     onderwerp: 'vergelijkingen-met-twee-variabelen',
   },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',
+    onderwerp: 'snijpunten-van-lijnen',
   },
 };
 
