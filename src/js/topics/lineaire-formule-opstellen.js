@@ -437,7 +437,7 @@ export default {
       t: 'De formule opstellen uit een grafiek',
       how: [
         'Ga uit van y = ax + b.',
-        'Lees het snijpunt met de y-as af. Daaruit volgt b.',
+        'Lees het {{snijpunt|snijpunt}} met de y-as af. Daaruit volgt b.',
         T('Kies nog een roosterpunt op de lijn. Dan is a = {verticaal/horizontaal}.'),
         'Schrijf de formule op.',
       ],

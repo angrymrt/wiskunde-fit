@@ -1173,6 +1173,12 @@ test('JavaScript neemt een vooraf gebouwde pagina over zonder iets te vervangen'
             list.forEach((m) => {
               // De balk met Ga oefenen schakelt main.js zelf aan en uit.
               if (m.type === 'attributes' && m.target.matches('.practice-bar')) return;
+              // Een term wordt een knop (#39): de tekst en de plek blijven gelijk.
+              if (
+                m.type === 'childList' &&
+                [...m.addedNodes, ...m.removedNodes].every((n) => n.matches?.('.term'))
+              )
+                return;
               window.vervangen.push(m.type);
             }),
           ).observe(document.getElementById('app'), {

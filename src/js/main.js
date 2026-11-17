@@ -260,7 +260,18 @@ function render(focus) {
 // render() vervangt het hele scherm en daarmee het element met de focus. Zonder dit begint wie
 // het toetsenbord of een schermlezer gebruikt na elke klik weer bovenaan de pagina.
 // Geef een selector mee om de focus ergens anders te zetten dan waar die stond.
+// De knoppen en de popup bij termen (#39) laden pas als een scherm termen bevat.
+let termpopup = null;
+// Staat de leerling al op de uitleg van het onderwerp zelf, dan is de link niet nodig.
+const termLink = (slug, id) =>
+  !state.view.oefen && state.view.slug === slug
+    ? null
+    : `${pathFor({ name: 'topic', slug })}#${id}`;
+const mountTermen = () =>
+  app.querySelector('.term') &&
+  import('./ui/termpopup.js').then((m) => ((termpopup = m), m.mount(app)));
 function paint(focus) {
+  termpopup?.sluit(false);
   const target = focus || focusedSelector();
   if (prebuilt) Idiomorph.morph(app, screenHTML(), { morphStyle: 'innerHTML' });
   else app.innerHTML = screenHTML();
@@ -275,6 +286,7 @@ function paint(focus) {
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
   if (state.view.oefen || state.view.name === 'stofoefen') laadIconen().catch(() => {});
   mountWidgets();
+  mountTermen()?.catch(() => {});
   showDrawn();
   watchPracticeBar();
   runClock();
@@ -349,6 +361,7 @@ app.addEventListener('input', (e) => {
 });
 // De focus blijft in het paneel zolang het open staat, en Escape sluit het.
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && termpopup?.isOpen()) return termpopup.sluit(true);
   const panel = state.melden?.open && app.querySelector('.melden');
   if (!panel) return;
   if (e.key === 'Escape') {
@@ -395,11 +408,16 @@ app.addEventListener('click', (e) => {
   if (link) {
     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
+    termpopup?.sluit(false);
     if (link.dataset.act === 'kiesgo') update((p) => (p.mapping = link.dataset.id));
     const { pathname, search, hash } = new URL(link.href);
     return go(viewFor(pathname, search), hash);
   }
   if (e.target.closest('a[href^="#"]')) return saveScroll();
+  const term = e.target.closest('button.term');
+  if (term && termpopup) return termpopup.klik(term, termLink);
+  if (e.target.closest('[data-act="termsluit"]')) return termpopup?.sluit(true);
+  termpopup?.buiten(e.target);
   const b = e.target.closest('[data-act]');
   if (!b) return;
   // Safari geeft een knop geen focus bij een klik, en dan vindt render() hem niet terug.

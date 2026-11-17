@@ -77,7 +77,7 @@ export default {
           'In y = ax + b is b de y-coördinaat van het snijpunt met de y-as. De lijn gaat dus door (0, b).',
         ),
         T(
-          'a is de richtingscoëfficiënt, ook wel de helling genoemd: ga je 1 naar rechts, dan ga je a omhoog. Is a negatief, dan ga je omlaag. De richtingscoëfficiënt van lijn l schrijf je als rc_l.',
+          'a is de {{=richtingscoefficient|richtingscoëfficiënt}}, ook wel de helling genoemd: ga je 1 naar rechts, dan ga je a omhoog. Is a negatief, dan ga je omlaag. De richtingscoëfficiënt van lijn l schrijf je als rc_l.',
         ),
       ],
       widget: 'slope',

@@ -9,6 +9,7 @@ import { vToetsRes, vToetsRun, vToetsSetup } from './exam.js';
 import { vDomain, vHome } from './home.js';
 import { vLaden } from './laden.js';
 import { esc } from '../typeset.js';
+import { termen } from './termen.js';
 import { crumbs, footer, pageHead, storageNotice, testNotice, topbar, vMissing } from './layout.js';
 import { state } from './state.js';
 import { vMapping, vPick, vStof, vStofPractice } from './stof.js';
@@ -19,8 +20,8 @@ function content(v) {
   if (v.name === 'home') return vHome();
   if (v.name === 'domain') return vDomain(DOMAIN[v.slug]);
   if (v.name === 'topic') return vTopic(TOPIC[v.slug]);
-  if (v.name === 'toets') return state.test ? vToetsRun() : vToetsSetup();
-  if (v.name === 'toetsres') return vToetsRes();
+  if (v.name === 'toets') return state.test ? termen(vToetsRun(), false) : vToetsSetup();
+  if (v.name === 'toetsres') return termen(vToetsRes(), false);
   if (v.name === 'missing') return vMissing();
   if (v.name === 'over') return vOver();
   if (v.name === 'privacy') return vPrivacy();
