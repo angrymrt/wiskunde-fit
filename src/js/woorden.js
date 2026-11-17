@@ -16,13 +16,13 @@ export const WOORDEN = {
   'procentuele-verandering': {
     naam: 'procentuele verandering',
     uitleg:
-      'Het percentage waarmee iets groter of kleiner is geworden. Je vergelijkt de verandering met het oorspronkelijke getal.',
+      'Het percentage waarmee iets groter of kleiner is geworden. Je vergelijkt de verandering met het getal van vóór de verandering (oud).',
     onderwerp: 'procentuele-verandering',
   },
   vermenigvuldigingsfactor: {
     naam: 'vermenigvuldigingsfactor',
     uitleg:
-      'Het getal waarmee je het oorspronkelijke getal vermenigvuldigt om het nieuwe getal te krijgen. Bij 5% erbij hoort × 1,05.',
+      'Het getal waarmee je het getal van vóór de verandering (oud) vermenigvuldigt om het nieuwe getal te krijgen. Bij 5% erbij hoort × 1,05 en bij 5% eraf × 0,95.',
     onderwerp: 'procentuele-verandering',
   },
   btw: {
