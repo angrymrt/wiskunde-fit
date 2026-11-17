@@ -97,7 +97,7 @@ export const WOORDEN = {
   },
   evenwijdig: {
     naam: 'evenwijdig',
-    uitleg: 'Lijnen die dezelfde richting hebben en elkaar nooit snijden. Je schrijft k // l.',
+    uitleg: 'Lijnen die even steil lopen en elkaar daarom nooit snijden. Je schrijft k // l.',
     onderwerp: 'lineaire-formule-opstellen',
   },
   functiewaarde: {
