@@ -309,9 +309,9 @@ export default {
     {
       t: 'x buiten haakjes halen',
       p: [
-        'Ontbinden in factoren betekent: een som schrijven als een product. Het is het omgekeerde van haakjes wegwerken.',
+        '{{=ontbinden-in-factoren|Ontbinden in factoren}} betekent: een som schrijven als een product van {{=factor|factoren}}. Het is het omgekeerde van {{haakjes-wegwerken|haakjes wegwerken}}.',
         T(
-          'Zit in elke term een x, dan haal je x buiten haakjes. Bij x^2 + 6x is x^2 = x*x en 6x = 6*x, dus x^2 + 6x = x(x + 6).',
+          'Zit in elke {{=term|term}} een x, dan haal je x buiten haakjes. Bij x^2 + 6x is x^2 = x*x en 6x = 6*x, dus x^2 + 6x = x(x + 6).',
         ),
       ],
       ex: {

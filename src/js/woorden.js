@@ -31,6 +31,28 @@ export const WOORDEN = {
       'Btw is belasting op producten en diensten. Een prijs inclusief btw is de prijs die je betaalt, met de btw er al in. Bij 21% btw is dat 1,21 keer de prijs zonder btw.',
     onderwerp: 'rekenen-met-procenten',
   },
+  'ontbinden-in-factoren': {
+    naam: 'ontbinden in factoren',
+    uitleg: 'Een som schrijven als een product. Zo wordt x² + 5x gelijk aan x(x + 5).',
+    onderwerp: 'ontbinden-in-factoren',
+  },
+  'haakjes-wegwerken': {
+    naam: 'haakjes wegwerken',
+    uitleg: 'Een product met haakjes schrijven als een som. Zo wordt x(x + 5) gelijk aan x² + 5x.',
+    onderwerp: 'haakjes-wegwerken',
+  },
+  factor: {
+    naam: 'factor',
+    uitleg:
+      'Een getal of een uitdrukking waarmee je vermenigvuldigt. In 3(x + 2) zijn 3 en (x + 2) de factoren.',
+    onderwerp: 'ontbinden-in-factoren',
+  },
+  term: {
+    naam: 'term',
+    uitleg:
+      'Een stukje van een som, tussen de plussen en de minnen. In 3x² − 5x + 2 zijn de termen 3x², −5x en 2.',
+    onderwerp: 'ontbinden-in-factoren',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',
