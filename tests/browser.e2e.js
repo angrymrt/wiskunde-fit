@@ -112,6 +112,13 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
           while (await b.isVisible()) await b.click();
         }
         await check(`${id} uitleg`);
+        // Een term met zijn popup open (#39).
+        const term = p.locator('button.term').first();
+        if (await term.count()) {
+          await term.click();
+          await check(`${id} uitleg met een popup`);
+          await p.keyboard.press('Escape');
+        }
         await p.click('a.btn[href$="/oefenen"]');
         await p.click('[data-act="hint"]');
         await p.click('#pform button[type=submit]');
