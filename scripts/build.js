@@ -82,11 +82,21 @@ const { state } = await import('../src/js/ui/state.js');
 const { esc } = await import('../src/js/typeset.js');
 const { termenIn, termenLijstHTML } = await import('../src/js/woorden.js');
 // De uitleg van een onderwerp krijgt de lijst met woorden al in de pagina, zie woorden.js.
-const metTermenLijst = (html) =>
-  html.replace(
+const metTermenLijst = (html) => {
+  const met = html.replace(
     /(<div class="topic-body">[\s\S]*?)(<\/div>\s*<div class="practice-bar)/,
     (_, a, b) => a + termenLijstHTML(termenIn(a)) + b,
   );
+  // Verandert de bouw rond .topic-body, dan vindt de regex niets. Dan liever een fout dan een pagina
+  // zonder lijst.
+  if (
+    html.includes('<div class="topic-body">') &&
+    html.includes('data-term=') &&
+    !met.includes('class="block termen"')
+  )
+    throw new Error('De lijst met woorden staat niet in de uitleg: pas metTermenLijst aan.');
+  return met;
+};
 
 await rm(dist, { recursive: true, force: true });
 
