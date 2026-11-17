@@ -112,10 +112,13 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
           while (await b.isVisible()) await b.click();
         }
         await check(`${id} uitleg`);
-        // Een term met zijn popup open (#39).
-        const term = p.locator('button.term').first();
-        if (await term.count()) {
+        // Een term met zijn popup open (#39). De knoppen komen pas na het laden van de popup, dus
+        // wacht erop als de uitleg een term bevat, anders meet de test niets.
+        if (await p.locator('.term').count()) {
+          const term = p.locator('button.term:visible').first();
+          await term.waitFor();
           await term.click();
+          assert.equal(await term.getAttribute('aria-expanded'), 'true', `${id}: de popup is open`);
           await check(`${id} uitleg met een popup`);
           await p.keyboard.press('Escape');
         }
