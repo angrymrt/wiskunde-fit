@@ -18,7 +18,7 @@ function T(s) {
       // uitgelegd: daar komt het anker voor "Meer uitleg". De popup komt van main.js, zie ui/termen.js.
       const def = t[2] === '=',
         [id, woord] = t.slice(def ? 3 : 2, -2).split('|');
-      o += `<span class="term" data-term="${id}"${def ? ' data-def' : ''}>${esc(woord)}</span>`;
+      o += `<span class="term" data-term="${id}"${def ? ` id="${id}"` : ''}>${esc(woord)}</span>`;
     } else if (t[0] === '{' && t.length > 2) {
       const b = t.slice(1, -1);
       let k;

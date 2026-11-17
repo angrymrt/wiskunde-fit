@@ -278,6 +278,54 @@ test(
   },
 );
 
+test(
+  'een term opent een popup met uitleg, met tikken en met het toetsenbord',
+  { timeout: 60_000 },
+  async () => {
+    const browser = await launch();
+    try {
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      await p.goto(`${siteUrl}lineaire-grafieken-tekenen`);
+      await p.waitForSelector('button.term');
+      const knop = p.locator('button.term').first();
+      assert.equal(await knop.getAttribute('aria-expanded'), 'false');
+      // Het anker staat op de term, ook als je rechtstreeks naar het adres gaat.
+      assert.ok(await p.$('#richtingscoefficient'), 'het anker staat op de plek van de uitleg');
+
+      await knop.click();
+      assert.equal(await knop.getAttribute('aria-expanded'), 'true');
+      assert.equal(await p.locator('.pop').count(), 1);
+      assert.match(await p.locator('.pop').innerText(), /richtingscoëfficiënt/);
+      // De popup pakt de focus niet af.
+      assert.equal(await p.evaluate(() => document.activeElement.className), 'term');
+
+      // Sluit werkt, en de focus gaat terug naar de term.
+      await p.click('.pop [data-act="termsluit"]');
+      assert.equal(await p.locator('.pop').count(), 0);
+      assert.equal(await knop.getAttribute('aria-expanded'), 'false');
+
+      // Enter opent, Escape sluit en houdt de focus op de term.
+      await knop.focus();
+      await p.keyboard.press('Enter');
+      assert.equal(await p.locator('.pop').count(), 1);
+      await p.keyboard.press('Escape');
+      assert.equal(await p.locator('.pop').count(), 0);
+      assert.equal(await p.evaluate(() => document.activeElement.className), 'term');
+
+      // Een klik ergens anders sluit de popup.
+      await knop.click();
+      await p.click('h1');
+      assert.equal(await p.locator('.pop').count(), 0);
+
+      // Op de uitleg van het onderwerp zelf is "Meer uitleg" niet nodig.
+      await knop.click();
+      assert.equal(await p.locator('.pop a').count(), 0);
+    } finally {
+      await browser.close();
+    }
+  },
+);
+
 test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async () => {
   const browser = await launch();
   try {

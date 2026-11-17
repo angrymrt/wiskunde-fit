@@ -6,9 +6,10 @@
 function termen(html, aan = true) {
   const gezien = new Set();
   return html.replace(
-    /<span class="term" data-term="([a-z-]+)"( data-def)?>([^<]*)<\/span>/g,
-    (heel, id, _def, tekst) => {
-      if (!aan || gezien.has(id)) return tekst;
+    /<span class="term" data-term="([a-z-]+)"( id="[a-z-]+")?>([^<]*)<\/span>/g,
+    (heel, id, anker, tekst) => {
+      // De plek waar een term wordt uitgelegd houdt zijn id, ook als gewone tekst: daar linkt "Meer uitleg" heen.
+      if (!aan || gezien.has(id)) return anker ? `<span${anker}>${tekst}</span>` : tekst;
       gezien.add(id);
       return heel;
     },

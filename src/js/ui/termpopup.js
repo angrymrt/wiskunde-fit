@@ -3,9 +3,12 @@
 // Importeert niets uit de rest van de site, anders komt er een gedeeld bestand bij het eerste bezoek.
 import { WOORDEN } from '../woorden.js';
 
-// Maakt van elke <span class="term"> een knop. Het id komt op de plek waar de term wordt
-// uitgelegd (data-def), en alleen de eerste keer op de pagina.
+// Maakt van elke <span class="term"> een knop. Een id (de plek waar de term wordt uitgelegd) blijft.
+// Draait of vergroot het venster, dan staat de popup niet meer goed.
+let luistert = false;
 function mount(root) {
+  if (!luistert) window.addEventListener('resize', () => sluit(false));
+  luistert = true;
   for (const sp of root.querySelectorAll('span.term')) {
     const id = sp.dataset.term;
     if (!WOORDEN[id]) continue;
@@ -14,7 +17,7 @@ function mount(root) {
     knop.className = 'term';
     knop.dataset.term = id;
     knop.setAttribute('aria-expanded', 'false');
-    if ('def' in sp.dataset && !root.querySelector(`#${id}`)) knop.id = id;
+    if (sp.id) knop.id = sp.id;
     knop.textContent = sp.textContent;
     sp.replaceWith(knop);
   }
@@ -31,9 +34,9 @@ function sluit(terug) {
   knop.removeAttribute('aria-describedby');
   if (terug) knop.focus();
 }
-// `link(onderwerp, id)` geeft het adres van "Meer uitleg", of niets als de leerling al op de uitleg
-// van het onderwerp zelf is. main.js kent de adressen en de huidige pagina.
-function zetPopup(knop, link) {
+// `pathFor` en `view` komen van main.js. Staat de leerling al op de uitleg van het onderwerp zelf,
+// dan is de link "Meer uitleg" niet nodig.
+function zetPopup(knop, pathFor, view) {
   const id = knop.dataset.term,
     w = WOORDEN[id];
   const el = document.createElement('div');
@@ -43,10 +46,9 @@ function zetPopup(knop, link) {
   const naam = document.createElement('b');
   naam.textContent = w.naam;
   el.append(naam, w.uitleg);
-  const href = w.onderwerp && link(w.onderwerp, id);
-  if (href) {
+  if (w.onderwerp && (view.oefen || view.slug !== w.onderwerp)) {
     const a = document.createElement('a');
-    a.href = href;
+    a.href = `${pathFor({ name: 'topic', slug: w.onderwerp })}#${id}`;
     a.textContent = 'Meer uitleg';
     el.append(' ', a);
   }
@@ -58,23 +60,28 @@ function zetPopup(knop, link) {
   sluitknop.textContent = 'Sluit';
   rij.append(sluitknop);
   el.append(rij);
-  document.body.appendChild(el);
+  // De popup staat direct na het blok met de term, binnen het scherm: zo vindt Tab hem meteen en
+  // gaat een klik erin door dezelfde afhandeling als de rest.
+  (knop.closest('p, .q, .hintb, .watch, .block, .ex') || knop.parentNode).after(el);
   const r = knop.getBoundingClientRect(),
-    breed = el.offsetWidth,
-    links = Math.min(Math.max(8, r.left), document.documentElement.clientWidth - breed - 8);
+    basis = (el.offsetParent || document.body).getBoundingClientRect(),
+    links = Math.min(
+      Math.max(8, r.left),
+      document.documentElement.clientWidth - el.offsetWidth - 8,
+    );
   // Past de popup niet onder de term, dan komt hij erboven.
   const boven = r.bottom + 6 + el.offsetHeight > window.innerHeight && r.top > el.offsetHeight + 12;
-  el.style.left = `${links + window.scrollX}px`;
-  el.style.top = `${(boven ? r.top - el.offsetHeight - 6 : r.bottom + 6) + window.scrollY}px`;
+  el.style.left = `${links - basis.left}px`;
+  el.style.top = `${(boven ? r.top - el.offsetHeight - 6 : r.bottom + 6) - basis.top}px`;
   knop.setAttribute('aria-expanded', 'true');
   knop.setAttribute('aria-describedby', el.id);
   open = { knop, el };
 }
 // Een klik op dezelfde term sluit de popup, een klik op een andere term opent die.
-function klik(knop, link) {
+function klik(knop, pathFor, view) {
   const zelfde = open?.knop === knop;
   sluit(false);
-  if (!zelfde) zetPopup(knop, link);
+  if (!zelfde) zetPopup(knop, pathFor, view);
 }
 // Een klik buiten de term en de popup sluit de popup.
 function buiten(doel) {

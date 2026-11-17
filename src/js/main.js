@@ -114,7 +114,7 @@ const go = (v, hash = '') => {
   if (path === here() && !hash) history.replaceState(null, '', path);
   else history.pushState(null, '', path + hash);
   window.scrollTo(0, 0);
-  return show(v, hash ? `${hash} h2, h2${hash}` : 'h1');
+  return show(v, hash ? `${hash} h2, h2${hash}, button.term${hash}` : 'h1');
 };
 // Toont het scherm dat bij het adres hoort: bij het openen en bij de terugknop.
 function arrive(focus) {
@@ -262,11 +262,6 @@ function render(focus) {
 // Geef een selector mee om de focus ergens anders te zetten dan waar die stond.
 // De knoppen en de popup bij termen (#39) laden pas als een scherm termen bevat.
 let termpopup = null;
-// Staat de leerling al op de uitleg van het onderwerp zelf, dan is de link niet nodig.
-const termLink = (slug, id) =>
-  !state.view.oefen && state.view.slug === slug
-    ? null
-    : `${pathFor({ name: 'topic', slug })}#${id}`;
 const mountTermen = () =>
   app.querySelector('.term') &&
   import('./ui/termpopup.js').then((m) => ((termpopup = m), m.mount(app)));
@@ -415,7 +410,7 @@ app.addEventListener('click', (e) => {
   }
   if (e.target.closest('a[href^="#"]')) return saveScroll();
   const term = e.target.closest('button.term');
-  if (term && termpopup) return termpopup.klik(term, termLink);
+  if (term && termpopup) return termpopup.klik(term, pathFor, state.view);
   if (e.target.closest('[data-act="termsluit"]')) return termpopup?.sluit(true);
   termpopup?.buiten(e.target);
   const b = e.target.closest('[data-act]');

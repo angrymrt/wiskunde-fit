@@ -150,6 +150,8 @@ Een veld kan ook `label` krijgen, de naam voor een schermlezer als de tekst erna
 | `AC^2`, `rc_k`     | Superscript en subscript                                   |
 | `x-as`, `F-hoeken` | Koppelteken blijft staan, geen minteken                    |
 
+Een term met uitleg in een popup schrijf je als `{{id|woord}}`, met het `id` uit `woorden.js`. Schrijf `{{=id|woord}}` op de plek waar de term wordt uitgelegd, zodat "Meer uitleg" daarheen linkt. Een term is nooit zichtbaar in de proeftoets.
+
 Let op: een losse letter wordt altijd als variabele gezet, dus schrijf `meter` in plaats van `m`. Bij een andere letter dan x, zoals `a` gevolgd door `s`, zet je `​` ertussen. Anders wordt het het woord "as".
 
 Handige hulpen uit `math.js` zijn `lin(a, b, 'x')` voor een nette formule zonder `+ -3`, `fr(q)` voor een breuk in T-notatie, `d(x)` voor een getal met komma en `ap(x)` voor `= 3,5` of `≈ 3,5`.

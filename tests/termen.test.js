@@ -25,8 +25,14 @@ test('een term wordt één keer een knop, de rest gewone tekst', () => {
 test('{{=id|woord}} markeert de plek waar de term wordt uitgelegd', () => {
   assert.equal(
     T('{{=snijpunt|snijpunt}}'),
-    '<span class="term" data-term="snijpunt" data-def>snijpunt</span>',
+    '<span class="term" data-term="snijpunt" id="snijpunt">snijpunt</span>',
   );
+});
+
+test('de plek waar een term wordt uitgelegd houdt zijn id, ook als de term er al stond', () => {
+  const uit = termen(`${T('{{snijpunt|snijpunt}}')} en ${T('{{=snijpunt|snijpunt}}')}`);
+  assert.match(uit, /id="snijpunt">snijpunt<\/span>/);
+  assert.equal(uit.match(/<span class="term"/g).length, 1);
 });
 
 test('in de proeftoets zijn termen gewone tekst', () => {
