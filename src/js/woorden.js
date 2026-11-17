@@ -8,6 +8,29 @@ export const WOORDEN = {
     uitleg: 'Het getal a in y = ax + b. Het zegt hoeveel y omhoog gaat als x met 1 groter wordt.',
     onderwerp: 'lineaire-grafieken-tekenen',
   },
+  procent: {
+    naam: 'procent',
+    uitleg: 'Een honderdste deel. 1% is 1 van de 100, dus 0,01 als kommagetal.',
+    onderwerp: 'procentuele-verandering',
+  },
+  'procentuele-verandering': {
+    naam: 'procentuele verandering',
+    uitleg:
+      'Met hoeveel procent iets groter of kleiner is geworden, gerekend vanaf het getal van vóór de verandering.',
+    onderwerp: 'procentuele-verandering',
+  },
+  vermenigvuldigingsfactor: {
+    naam: 'vermenigvuldigingsfactor',
+    uitleg:
+      'Het getal waarmee je vermenigvuldigt om het nieuwe getal te krijgen. Bij 5% erbij hoort × 1,05.',
+    onderwerp: 'procentuele-verandering',
+  },
+  btw: {
+    naam: 'btw',
+    uitleg:
+      'Belasting die over een prijs komt, een percentage erbij. Bij 21% btw is de prijs met btw 1,21 keer zo groot als zonder.',
+    onderwerp: 'rekenen-met-procenten',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen of een lijn en een as elkaar kruisen.',

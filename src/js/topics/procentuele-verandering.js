@@ -790,7 +790,7 @@ export default {
     {
       t: 'Procenten',
       p: [
-        'Een procent is een honderdste deel. Wil je een procent van een getal weten, schrijf het procent dan als kommagetal en vermenigvuldig. Wil je weten hoeveel procent een deel is, deel het deel dan door het totaal en vermenigvuldig met 100%.',
+        'Een {{=procent|procent}} is een honderdste deel. Wil je een procent van een getal weten, schrijf het procent dan als kommagetal en vermenigvuldig. Wil je weten hoeveel procent een deel is, deel het deel dan door het totaal en vermenigvuldig met 100%.',
       ],
       ex: { q: T('Bereken 18,4% van 650.'), steps: ['18,4% van 650 is 0,184*650 = 119,6'] },
       ex2: {
@@ -801,7 +801,7 @@ export default {
     {
       t: 'Procentuele verandering',
       p: [
-        'De procentuele verandering zegt met hoeveel procent iets is toegenomen of afgenomen. Je deelt het verschil door oud, het getal van vóór de verandering:',
+        'De {{=procentuele-verandering|procentuele verandering}} zegt met hoeveel procent iets is toegenomen of afgenomen. Je deelt het verschil door oud, het getal van vóór de verandering:',
         'procentuele verandering = {nieuw - oud/oud} × 100%',
         'Komt er een negatief getal uit, dan is het een afname. In de antwoordzin schrijf je de procentuele afname als positief getal.',
       ],
@@ -818,7 +818,7 @@ export default {
     {
       t: 'De vermenigvuldigingsfactor',
       p: [
-        'Bij een toename of afname hoort een vermenigvuldigingsfactor. Daarmee reken je in één keer het nieuwe getal uit: nieuw = vermenigvuldigingsfactor × oud.',
+        'Bij een toename of afname hoort een {{=vermenigvuldigingsfactor|vermenigvuldigingsfactor}}. Daarmee reken je in één keer het nieuwe getal uit: nieuw = vermenigvuldigingsfactor × oud.',
         '18% erbij geeft 100% + 18% = 118%, dus × 1,18. En 7% eraf geeft 100% - 7% = 93%, dus × 0,93.',
         'Andersom hoort bij × 1,045 een toename van 4,5%, en bij × 0,8 een afname van 20%. Verdubbelen is × 2 en halveren is × 0,5. Bij 300% meer hoort 100% + 300% = 400%, dus × 4.',
       ],
@@ -838,7 +838,7 @@ export default {
     {
       t: 'Procent op procent',
       p: [
-        'Komen er twee of meer veranderingen na elkaar, dan vermenigvuldig je de vermenigvuldigingsfactoren. Percentages tel je niet op, want elke verandering gaat over een ander getal.',
+        'Komen er twee of meer veranderingen na elkaar, dan vermenigvuldig je de {{vermenigvuldigingsfactor|vermenigvuldigingsfactoren}}. Percentages tel je niet op, want elke verandering gaat over een ander getal.',
       ],
       ex: {
         q: T(

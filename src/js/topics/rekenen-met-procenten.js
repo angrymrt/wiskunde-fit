@@ -1041,9 +1041,9 @@ export default {
     {
       t: 'Oud berekenen',
       p: [
-        'Weet je het nieuwe getal en de procentuele verandering, dan reken je terug naar oud. Bij een toename van 12% hoort × 1,12, dus 1,12 × oud = nieuw. Heen vermenigvuldig je met 1,12, terug deel je door 1,12:',
+        'Weet je het nieuwe getal en de {{procentuele-verandering|procentuele verandering}}, dan reken je terug naar oud. Bij een toename van 12% hoort × 1,12, dus 1,12 × oud = nieuw. Heen vermenigvuldig je met 1,12, terug deel je door 1,12:',
         schema(['oud', 'nieuw'], ['1,12']),
-        'Je weet nieuw, dus oud = {nieuw/1,12}. Btw is ook een toename: bij 21% btw hoort × 1,21.',
+        'Je weet nieuw, dus oud = {nieuw/1,12}. {{=btw|Btw}} is ook een toename: bij 21% btw hoort × 1,21.',
       ],
       ex: {
         q: T('Na een prijsstijging van 15% kost een step 82,80 euro. Wat kostte de step eerst?'),
