@@ -198,7 +198,7 @@ function vTopic(s) {
   return `<div class="screen-grid color-${s.domain.color}">${crumbs()}<article class="sheet topic">
   <div class="head topic-head"><h1>${T(s.title)}</h1><p class="lead">${T(s.intro)}</p>${prerequisites}</div>
   <div class="topic-side"><div class="topic-actions">${practiceButton(s)}${backToRound(s)}${done}${videos ? `<a class="small" href="#videos">Naar de video's</a>` : ''}</div></div>
-  <div class="topic-body">${vLearn(s)}${videos}</div>
+  <div class="topic-body">${vLearn(s)}${videos}<!--termen--></div>
   <div class="practice-bar away">${practiceButton(s)}</div>
   ${pagerHTML(s)}</article></div>`;
 }

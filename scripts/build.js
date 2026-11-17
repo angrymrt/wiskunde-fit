@@ -81,20 +81,16 @@ const { screenHTML, shellHTML } = await import('../src/js/ui/screens.js');
 const { state } = await import('../src/js/ui/state.js');
 const { esc } = await import('../src/js/typeset.js');
 const { termenIn, termenLijstHTML } = await import('../src/js/woorden.js');
-// De uitleg van een onderwerp krijgt de lijst met woorden al in de pagina, zie woorden.js.
+// De uitleg van een onderwerp krijgt de lijst met woorden al in de pagina, zie woorden.js. Hij komt
+// op de plek van de markering <!--termen--> in vTopic (ui/topic.js), die blijft staan.
 const metTermenLijst = (html) => {
-  const met = html.replace(
-    /(<div class="topic-body">[\s\S]*?)(<\/div>\s*<div class="practice-bar)/,
-    (_, a, b) => a + termenLijstHTML(termenIn(a)) + b,
-  );
-  // Verandert de bouw rond .topic-body, dan vindt de regex niets. Dan liever een fout dan een pagina
-  // zonder lijst.
-  if (
-    html.includes('<div class="topic-body">') &&
-    html.includes('data-term=') &&
-    !met.includes('class="block termen"')
-  )
-    throw new Error('De lijst met woorden staat niet in de uitleg: pas metTermenLijst aan.');
+  const markering = '<!--termen-->';
+  const met = html.replace(markering, termenLijstHTML(termenIn(html)) + markering);
+  // Zonder markering of lijst liever een fout dan een uitleg zonder de lijst.
+  if (html.includes('<div class="topic-body">') && html.includes('data-term=') && met === html)
+    throw new Error(
+      'De lijst met woorden staat niet in de uitleg: de markering <!--termen--> mist.',
+    );
   return met;
 };
 
