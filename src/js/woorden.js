@@ -31,6 +31,10 @@ export const WOORDEN = {
       'Belasting die over een prijs komt, een percentage erbij. Bij 21% btw is de prijs met btw 1,21 keer zo groot als zonder.',
     onderwerp: 'rekenen-met-procenten',
   },
+  inclusief: {
+    naam: 'inclusief',
+    uitleg: 'Met iets erbij gerekend. Bij een bedrag inclusief btw zit de btw er al in.',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen of een lijn en een as elkaar kruisen.',
