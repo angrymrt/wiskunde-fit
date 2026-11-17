@@ -191,7 +191,7 @@ export default {
       t: 'De stelling van Pythagoras',
       p: [
         T(
-          'In een rechthoekige driehoek geldt: de kwadraten van de twee rechthoekszijden samen zijn gelijk aan het kwadraat van de schuine zijde. De schuine zijde ligt tegenover de rechte hoek.',
+          'In een rechthoekige driehoek geldt: de {{=kwadraat|kwadraten}} van de twee {{=rechthoekszijde|rechthoekszijden}} samen zijn gelijk aan het kwadraat van de {{=schuine-zijde|schuine zijde}}. De schuine zijde ligt tegenover de rechte hoek.',
         ),
       ],
       ex: {
@@ -209,7 +209,7 @@ export default {
     {
       t: 'Een hoogtelijn in een driehoek',
       p: [
-        'Een hoogtelijn verdeelt een driehoek in twee rechthoekige driehoeken. Daarin gebruik je de stelling van Pythagoras. In een gelijkbenige driehoek zijn de twee stukken van de basis even lang.',
+        'Een {{=hoogtelijn|hoogtelijn}} verdeelt een driehoek in twee rechthoekige driehoeken. Daarin gebruik je de stelling van Pythagoras. In een {{=gelijkbenige-driehoek|gelijkbenige driehoek}} zijn de twee stukken van de basis even lang.',
       ],
       watch: 'Rond een tussenantwoord niet af. Rond pas af bij het eindantwoord.',
     },

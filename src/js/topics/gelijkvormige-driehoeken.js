@@ -366,7 +366,7 @@ export default {
       t: 'Wat is gelijkvormig?',
       p: [
         T(
-          'Twee driehoeken zijn gelijkvormig als de een een vergroting of verkleining is van de ander. De hoeken zijn gelijk en de zijden passen in een verhoudingstabel. Je schrijft △ABC ∼ △DEF.',
+          'Twee driehoeken zijn {{=gelijkvormig|gelijkvormig}} als de een een vergroting of verkleining is van de ander. De hoeken zijn gelijk en de zijden passen in een verhoudingstabel. Je schrijft △ABC ∼ △DEF.',
         ),
       ],
       widget: 'scale',

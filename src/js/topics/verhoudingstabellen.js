@@ -339,7 +339,7 @@ export default {
     {
       t: 'Kruislings vermenigvuldigen',
       p: [
-        'Vermenigvuldig je in een verhoudingstabel de getallen die schuin tegenover elkaar staan, dan krijg je twee kruisproducten. Die zijn gelijk. Daarmee reken je een onbekend getal uit. Dat heet kruislings vermenigvuldigen.',
+        'Vermenigvuldig je in een {{=verhoudingstabel|verhoudingstabel}} de getallen die schuin tegenover elkaar staan, dan krijg je twee kruisproducten. Die zijn gelijk. Daarmee reken je een onbekend getal uit. Dat heet kruislings vermenigvuldigen.',
       ],
       ex: { q: vt(['6', 'x'], ['3', '5']), steps: ['3*x = 6*5', 'x = {6*5/3} = 10'] },
     },
@@ -369,7 +369,7 @@ export default {
     {
       t: 'Evenwijdige lijnen',
       p: [
-        'Snijden evenwijdige lijnen twee andere lijnen, dan passen de afgesneden stukken in een verhoudingstabel. Dat heet parallelprojectie. Schaduwen van de zon zijn daar een voorbeeld van.',
+        'Snijden {{evenwijdig|evenwijdige}} lijnen twee andere lijnen, dan passen de afgesneden stukken in een verhoudingstabel. Dat heet parallelprojectie. Schaduwen van de zon zijn daar een voorbeeld van.',
       ],
     },
   ],

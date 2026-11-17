@@ -685,7 +685,7 @@ export default {
     {
       t: 'Rechthoek en parallellogram',
       p: [
-        'Snijdt een lijn een zijde en het verlengde van een andere zijde, dan krijg je twee gelijkvormige driehoeken. Bij een rechthoek gebruik je vaak de gedeelde hoek en de rechte hoeken. Bij een parallellogram gebruik je vaak Z-hoeken en overstaande hoeken.',
+        'Snijdt een lijn een zijde en het {{=verlengde|verlengde}} van een andere zijde, dan krijg je twee gelijkvormige driehoeken. Bij een rechthoek gebruik je vaak de gedeelde hoek en de rechte hoeken. Bij een parallellogram gebruik je vaak Z-hoeken en overstaande hoeken.',
       ],
       watch: T(
         'In een rechthoek en een parallellogram zijn de overstaande zijden even lang. Zo vind je ook de lengte van een zijde die niet is gegeven.',

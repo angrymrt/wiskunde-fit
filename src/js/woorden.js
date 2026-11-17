@@ -166,6 +166,69 @@ export const WOORDEN = {
       'Een formule of vergelijking omschrijven zonder dat de oplossingen veranderen, bijvoorbeeld zodat y alleen links staat. Je lost hem dus niet op.',
     onderwerp: 'vergelijkingen-met-twee-variabelen',
   },
+  'schuine-zijde': {
+    naam: 'schuine zijde',
+    uitleg: 'De langste zijde van een rechthoekige driehoek. Ze ligt tegenover de rechte hoek.',
+    onderwerp: 'stelling-van-pythagoras',
+  },
+  rechthoekszijde: {
+    naam: 'rechthoekszijde',
+    uitleg: 'Een van de twee zijden van een rechthoekige driehoek die de rechte hoek insluiten.',
+    onderwerp: 'stelling-van-pythagoras',
+  },
+  kwadraat: {
+    naam: 'kwadraat',
+    uitleg: 'Een getal keer zichzelf, zoals 5² = 5 · 5 = 25.',
+    onderwerp: 'stelling-van-pythagoras',
+  },
+  hoogtelijn: {
+    naam: 'hoogtelijn',
+    uitleg:
+      'Een lijnstuk vanuit een hoekpunt van een driehoek, loodrecht op de zijde tegenover dat hoekpunt.',
+    onderwerp: 'stelling-van-pythagoras',
+  },
+  'gelijkbenige-driehoek': {
+    naam: 'gelijkbenige driehoek',
+    uitleg:
+      'Een driehoek met twee even lange zijden. De hoeken tegenover die zijden zijn ook gelijk.',
+    onderwerp: 'stelling-van-pythagoras',
+  },
+  verhoudingstabel: {
+    naam: 'verhoudingstabel',
+    uitleg:
+      'Een tabel waarin de getallen in een kolom bij elkaar horen en elke kolom dezelfde verhouding heeft. Wordt de ene waarde 2 keer zo groot, dan wordt de andere dat ook.',
+    onderwerp: 'verhoudingstabellen',
+  },
+  gelijkvormig: {
+    naam: 'gelijkvormig',
+    uitleg:
+      'Figuren met dezelfde vorm, waarvan de een een vergroting of verkleining van de ander is. De hoeken zijn gelijk en de zijden staan in dezelfde verhouding.',
+    onderwerp: 'gelijkvormige-driehoeken',
+  },
+  verlengde: {
+    naam: 'verlengde',
+    uitleg:
+      'Het deel van een rechte lijn dat ontstaat als je een lijnstuk voorbij een eindpunt doortrekt.',
+    onderwerp: 'lengtes-van-lijnstukken-berekenen',
+  },
+  'f-hoeken': {
+    naam: 'F-hoeken',
+    uitleg:
+      'Gelijke hoeken bij twee evenwijdige lijnen die door een derde lijn worden gesneden. Ze liggen bij de twee snijpunten op dezelfde plek.',
+    onderwerp: 'gelijkvormigheid-aantonen',
+  },
+  'z-hoeken': {
+    naam: 'Z-hoeken',
+    uitleg:
+      'Gelijke hoeken tussen twee evenwijdige lijnen, aan weerskanten van de lijn die ze snijdt. Samen liggen ze in een Z-vorm.',
+    onderwerp: 'gelijkvormigheid-aantonen',
+  },
+  'overstaande-hoeken': {
+    naam: 'overstaande hoeken',
+    uitleg:
+      'De twee hoeken die recht tegenover elkaar liggen als twee lijnen elkaar snijden. Ze zijn altijd gelijk.',
+    onderwerp: 'gelijkvormigheid-aantonen',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',
