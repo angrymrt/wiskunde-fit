@@ -2502,9 +2502,12 @@ test('de pagina Cijfers laadt de cijfers apart, en blijft staan terwijl dat duur
         await gate;
         await route.continue();
       });
+      const gevraagd = p.waitForRequest(/cijfers-data-/);
       await p.goto(at('/cijfers'));
       await p.waitForFunction(() => window.wiskundefit);
-      await p.waitForTimeout(400);
+      await gevraagd;
+      // Langer dan de 300 ms waarna het scherm zou zeggen dat het laadt.
+      await p.waitForTimeout(600);
       assert.ok(await p.$('#niet-zeggen'), 'de vooraf gebouwde pagina staat er');
       assert.equal(await p.$('#app :text("Even laden")'), null, 'geen laadmelding');
       release();
@@ -2522,10 +2525,11 @@ test('de pagina Cijfers laadt de cijfers apart, en blijft staan terwijl dat duur
       await p.evaluate(() => wiskundefit.go({ name: 'cijfers' }));
       await p.waitForSelector('#laadfout');
       await p.unroute(file);
+      const antwoord = p.waitForResponse((r) => /cijfers-data-/.test(r.url()) && r.ok());
       await p.click('[data-act=opnieuw]');
-      await p.waitForSelector('#app h1');
+      await antwoord;
+      await p.waitForSelector('#niet-zeggen');
       assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
-      assert.ok(geladen.length > 0, 'de cijfers zijn geladen');
       await p.close();
     }
   } finally {
