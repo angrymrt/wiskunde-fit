@@ -371,10 +371,10 @@ export default {
       t: 'Met grafieken',
       p: [
         T(
-          'Een ongelijkheid zoals 3x - 1 < x + 3 vraagt voor welke x de grafiek van y = 3x - 1 onder de grafiek van y = x + 3 ligt. Bij > kijk je waar de grafiek boven de andere ligt.',
+          'Een {{=ongelijkheid|ongelijkheid}} zoals 3x - 1 < x + 3 vraagt voor welke x de grafiek van y = 3x - 1 onder de grafiek van y = x + 3 ligt. Bij > kijk je waar de grafiek boven de andere ligt.',
         ),
         T(
-          'Zoek het snijpunt en kijk aan welke kant de ene lijn onder of boven de andere ligt. Hier snijden de lijnen elkaar bij x = 2, dus het antwoord is x < 2. Elk getal kleiner dan 2 is een oplossing, maar 2 zelf niet. Daarom teken je op de x-as een pijl met een open bolletje bij 2.',
+          'Zoek het {{snijpunt|snijpunt}} en kijk aan welke kant de ene lijn onder of boven de andere ligt. Hier snijden de lijnen elkaar bij x = 2, dus het antwoord is x < 2. Elk getal kleiner dan 2 is een oplossing, maar 2 zelf niet. Daarom teken je op de x-as een pijl met een open bolletje bij 2.',
         ),
       ],
     },

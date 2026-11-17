@@ -468,10 +468,10 @@ export default {
       t: 'Een product dat 0 is',
       p: [
         T(
-          'Is een product 0, dan is minstens één van de factoren 0. Dus A*B = 0 geeft A = 0 ∨ B = 0. Het teken ∨ betekent of.',
+          'Is een product 0, dan is minstens één van de {{factor|factoren}} 0. Dus A*B = 0 geeft A = 0 ∨ B = 0. Het teken ∨ betekent of.',
         ),
         T(
-          'Een kwadratische vergelijking heeft vaak twee oplossingen. Je schrijft ze op als x = -7 ∨ x = 4.',
+          'Een {{=kwadratische-vergelijking|kwadratische vergelijking}} heeft vaak twee oplossingen. Je schrijft ze op als x = -7 ∨ x = 4.',
         ),
       ],
       ex: {

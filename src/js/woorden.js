@@ -142,6 +142,30 @@ export const WOORDEN = {
       'De verticale lijn door de top. De twee helften van de parabool links en rechts van die lijn zijn elkaars spiegelbeeld.',
     onderwerp: 'kwadratische-functies',
   },
+  lid: {
+    naam: 'linkerlid en rechterlid',
+    uitleg:
+      'Het linkerlid is wat links van het is-gelijkteken staat, het rechterlid wat rechts ervan staat. In 3x + 1 = 7 is 3x + 1 het linkerlid en 7 het rechterlid.',
+    onderwerp: 'vergelijkingen-met-twee-variabelen',
+  },
+  ongelijkheid: {
+    naam: 'ongelijkheid',
+    uitleg:
+      'Een uitdrukking die zegt dat iets groter of kleiner is dan iets anders, met < of >. Bij x + 3 > 5 zijn er veel getallen die kloppen.',
+    onderwerp: 'lineaire-ongelijkheden',
+  },
+  'kwadratische-vergelijking': {
+    naam: 'kwadratische vergelijking',
+    uitleg:
+      "Een vergelijking waarin x² voorkomt, zoals x² + 2x = 15. Zo'n vergelijking heeft vaak twee oplossingen.",
+    onderwerp: 'kwadratische-vergelijkingen',
+  },
+  herleiden: {
+    naam: 'herleiden',
+    uitleg:
+      'Een formule of vergelijking omschrijven zonder dat de oplossingen veranderen, bijvoorbeeld zodat y alleen links staat.',
+    onderwerp: 'vergelijkingen-met-twee-variabelen',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',
