@@ -317,6 +317,22 @@ test(
       await p.click('h1');
       assert.equal(await p.locator('.pop').count(), 0);
 
+      // Een link met een hash naar een term zet de focus op die knop.
+      await p.evaluate(() =>
+        window.wiskundefit.go(
+          { name: 'topic', slug: 'lineaire-grafieken-tekenen' },
+          '#richtingscoefficient',
+        ),
+      );
+      await p.waitForFunction(() => document.activeElement.id === 'richtingscoefficient');
+
+      // Alleen de hoogte van het venster veranderen sluit de popup niet.
+      await p.locator('button.term').first().click();
+      await p.setViewportSize({ width: 390, height: 700 });
+      assert.equal(await p.locator('.pop').count(), 1);
+      await p.setViewportSize({ width: 360, height: 700 });
+      await p.waitForFunction(() => !document.querySelector('.pop'));
+
       // Op de uitleg van het onderwerp zelf is "Meer uitleg" niet nodig.
       await knop.click();
       assert.equal(await p.locator('.pop a').count(), 0);

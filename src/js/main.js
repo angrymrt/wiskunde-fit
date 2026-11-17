@@ -114,7 +114,7 @@ const go = (v, hash = '') => {
   if (path === here() && !hash) history.replaceState(null, '', path);
   else history.pushState(null, '', path + hash);
   window.scrollTo(0, 0);
-  return show(v, hash ? `${hash} h2, h2${hash}, button.term${hash}` : 'h1');
+  return show(v, hash ? `${hash} h2, h2${hash}` : 'h1');
 };
 // Toont het scherm dat bij het adres hoort: bij het openen en bij de terugknop.
 function arrive(focus) {
@@ -264,7 +264,10 @@ function render(focus) {
 let termpopup = null;
 const mountTermen = () =>
   app.querySelector('.term') &&
-  import('./ui/termpopup.js').then((m) => ((termpopup = m), m.mount(app)));
+  import('./ui/termpopup.js').then((m) => {
+    termpopup = m;
+    m.mount(app);
+  });
 function paint(focus) {
   termpopup?.sluit(false);
   const target = focus || focusedSelector();

@@ -4,10 +4,12 @@
 import { WOORDEN } from '../woorden.js';
 
 // Maakt van elke <span class="term"> een knop. Een id (de plek waar de term wordt uitgelegd) blijft.
-// Draait of vergroot het venster, dan staat de popup niet meer goed.
+// Verandert de breedte van het venster, dan staat de popup niet meer goed. Alleen de hoogte (de
+// werkbalk van een telefoon) maakt niet uit.
 let luistert = false;
 function mount(root) {
-  if (!luistert) window.addEventListener('resize', () => sluit(false));
+  if (!luistert)
+    window.addEventListener('resize', () => open?.breed !== innerWidth && sluit(false));
   luistert = true;
   for (const sp of root.querySelectorAll('span.term')) {
     const id = sp.dataset.term;
@@ -21,9 +23,14 @@ function mount(root) {
     knop.textContent = sp.textContent;
     sp.replaceWith(knop);
   }
+  // Linkt het adres met een # naar een term, dan krijgt die knop de focus, tenzij de leerling al
+  // ergens anders is.
+  const naar = document.getElementById(location.hash.slice(1));
+  if (naar?.matches('button.term') && /^(BODY|H1)$/.test(document.activeElement.tagName))
+    naar.focus();
 }
 
-let open = null; // { knop, el }
+let open = null; // { knop, el, breed }
 function sluit(terug) {
   if (!open) return;
   const { knop, el } = open;
@@ -75,7 +82,7 @@ function zetPopup(knop, pathFor, view) {
   el.style.top = `${(boven ? r.top - el.offsetHeight - 6 : r.bottom + 6) - basis.top}px`;
   knop.setAttribute('aria-expanded', 'true');
   knop.setAttribute('aria-describedby', el.id);
-  open = { knop, el };
+  open = { knop, el, breed: innerWidth };
 }
 // Een klik op dezelfde term sluit de popup, een klik op een andere term opent die.
 function klik(knop, pathFor, view) {
