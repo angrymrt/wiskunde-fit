@@ -300,7 +300,7 @@ test(
       assert.equal(await p.evaluate(() => document.activeElement.className), 'term');
 
       // Sluit werkt, en de focus gaat terug naar de term.
-      await p.click('.pop [data-act="termsluit"]');
+      await p.click('.pop button');
       assert.equal(await p.locator('.pop').count(), 0);
       assert.equal(await knop.getAttribute('aria-expanded'), 'false');
 
@@ -1243,7 +1243,7 @@ test('JavaScript neemt een vooraf gebouwde pagina over zonder iets te vervangen'
               // Een term wordt een knop (#39): de tekst en de plek blijven gelijk.
               if (
                 m.type === 'childList' &&
-                [...m.addedNodes, ...m.removedNodes].every((n) => n.matches?.('.term, .termen'))
+                [...m.addedNodes, ...m.removedNodes].every((n) => n.matches?.('.term'))
               )
                 return;
               window.vervangen.push(m.type);

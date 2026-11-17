@@ -266,12 +266,16 @@ const mountTermen = () =>
   app.querySelector('.term') &&
   import('./ui/termpopup.js').then((m) => {
     termpopup = m;
-    m.mount(app);
+    m.mount(app, pathFor, state);
   });
 function paint(focus) {
   termpopup?.sluit(false);
   const target = focus || focusedSelector();
-  if (prebuilt) Idiomorph.morph(app, screenHTML(), { morphStyle: 'innerHTML' });
+  if (prebuilt)
+    Idiomorph.morph(app, screenHTML(), {
+      morphStyle: 'innerHTML',
+      callbacks: { beforeNodeRemoved: (n) => !n.matches?.('.termen') },
+    });
   else app.innerHTML = screenHTML();
   prebuilt = false;
   melding.textContent = state.laden === 'bezig' ? 'Even laden…' : '';
@@ -359,7 +363,6 @@ app.addEventListener('input', (e) => {
 });
 // De focus blijft in het paneel zolang het open staat, en Escape sluit het.
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && termpopup?.isOpen()) return termpopup.sluit(true);
   const panel = state.melden?.open && app.querySelector('.melden');
   if (!panel) return;
   if (e.key === 'Escape') {
@@ -406,16 +409,11 @@ app.addEventListener('click', (e) => {
   if (link) {
     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
-    termpopup?.sluit(false);
     if (link.dataset.act === 'kiesgo') update((p) => (p.mapping = link.dataset.id));
     const { pathname, search, hash } = new URL(link.href);
     return go(viewFor(pathname, search), hash);
   }
   if (e.target.closest('a[href^="#"]')) return saveScroll();
-  const term = e.target.closest('button.term');
-  if (term && termpopup) return termpopup.klik(term, pathFor, state.view);
-  if (e.target.closest('[data-act="termsluit"]')) return termpopup?.sluit(true);
-  termpopup?.buiten(e.target);
   const b = e.target.closest('[data-act]');
   if (!b) return;
   // Safari geeft een knop geen focus bij een klik, en dan vindt render() hem niet terug.

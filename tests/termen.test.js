@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { T } from '../src/js/typeset.js';
 import { termen } from '../src/js/ui/termen.js';
-import { WOORDEN } from '../src/js/woorden.js';
+import { WOORDEN, termenIn, termenLijstHTML } from '../src/js/woorden.js';
 import { TOPIC } from '../src/js/topics/index.js';
 
 test('T zet {{id|woord}} om naar een term en laat de rest staan', () => {
@@ -63,4 +63,14 @@ test('elke term in de stof staat in de woordenlijst, en elke term heeft een uitl
     assert.ok(w.naam && w.uitleg, `${id} heeft een naam en een uitleg nodig`);
     if (w.onderwerp) assert.ok(TOPIC[w.onderwerp], `${id}: onderwerp ${w.onderwerp} bestaat niet`);
   }
+});
+
+test('de lijst met woorden heeft elke term één keer, in de volgorde van de tekst', () => {
+  const html = `${T('{{snijpunt|snijpunt}}')} ${T('{{richtingscoefficient|rc}}')} ${T('{{snijpunt|snijpunt}}')}`;
+  assert.deepEqual(termenIn(html), ['snijpunt', 'richtingscoefficient', 'snijpunt']);
+  const lijst = termenLijstHTML(termenIn(html));
+  assert.equal(lijst.match(/<dt>/g).length, 2);
+  assert.ok(lijst.indexOf('snijpunt') < lijst.indexOf('richtingscoëfficiënt'));
+  assert.equal(termenLijstHTML([]), '');
+  assert.equal(termenLijstHTML(['bestaat-niet']), '');
 });

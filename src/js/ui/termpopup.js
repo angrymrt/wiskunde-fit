@@ -1,16 +1,15 @@
 // De knop en de popup bij een term (#39). Wordt pas geladen als een scherm termen bevat, zodat de
 // woordenlijst niet bij het eerste bezoek meekomt. DOM-code: alleen main.js roept dit aan.
 // Importeert niets uit de rest van de site, anders komt er een gedeeld bestand bij het eerste bezoek.
-import { WOORDEN } from '../woorden.js';
+import { WOORDEN, termenLijstHTML } from '../woorden.js';
 
 // Maakt van elke <span class="term"> een knop. Een id (de plek waar de term wordt uitgelegd) blijft.
 // Verandert de breedte van het venster, dan staat de popup niet meer goed. Alleen de hoogte (de
 // werkbalk van een telefoon) maakt niet uit.
-let luistert = false;
-function mount(root) {
-  if (!luistert)
-    window.addEventListener('resize', () => open?.breed !== innerWidth && sluit(false));
-  luistert = true;
+let ctx = null; // { pathFor, state } van main.js, nodig voor de link "Meer uitleg"
+function mount(root, pathFor, state) {
+  if (!ctx) luister();
+  ctx = { pathFor, state };
   lijst(root);
   for (const sp of root.querySelectorAll('span.term')) {
     const id = sp.dataset.term;
@@ -32,29 +31,14 @@ function mount(root) {
 }
 
 // Onder de uitleg van een onderwerp staan de termen die erin voorkomen, uit de woordenlijst. Zo hoeft
-// niemand een uitleg twee keer te schrijven. Bij elke render komt de lijst opnieuw.
+// niemand een uitleg twee keer te schrijven. De vooraf gebouwde pagina heeft de lijst al.
 function lijst(root) {
   const body = root.querySelector('.topic-body');
-  if (!body || body.querySelector('.termen')) return;
-  const ids = [
-    ...new Set([...body.querySelectorAll('span.term')].map((x) => x.dataset.term)),
-  ].filter((id) => WOORDEN[id]);
-  if (!ids.length) return;
-  const blok = document.createElement('div'),
-    kop = document.createElement('h2'),
-    dl = document.createElement('dl');
-  blok.className = 'block termen';
-  kop.className = 'h3';
-  kop.textContent = 'Woorden in dit onderwerp';
-  for (const id of ids) {
-    const dt = document.createElement('dt'),
-      dd = document.createElement('dd');
-    dt.textContent = WOORDEN[id].naam;
-    dd.textContent = WOORDEN[id].uitleg;
-    dl.append(dt, dd);
-  }
-  blok.append(kop, dl);
-  body.append(blok);
+  if (body && !body.querySelector('.termen'))
+    body.insertAdjacentHTML(
+      'beforeend',
+      termenLijstHTML([...body.querySelectorAll('span.term')].map((x) => x.dataset.term)),
+    );
 }
 
 let open = null; // { knop, el, breed }
@@ -90,7 +74,7 @@ function zetPopup(knop, pathFor, view) {
     sluitknop = document.createElement('button');
   sluitknop.type = 'button';
   sluitknop.className = 'btn quiet';
-  sluitknop.dataset.act = 'termsluit';
+  sluitknop.onclick = () => sluit(true);
   sluitknop.textContent = 'Sluit';
   rij.append(sluitknop);
   el.append(rij);
@@ -111,16 +95,17 @@ function zetPopup(knop, pathFor, view) {
   knop.setAttribute('aria-describedby', el.id);
   open = { knop, el, breed: innerWidth };
 }
-// Een klik op dezelfde term sluit de popup, een klik op een andere term opent die.
-function klik(knop, pathFor, view) {
-  const zelfde = open?.knop === knop;
-  sluit(false);
-  if (!zelfde) zetPopup(knop, pathFor, view);
-}
-// Een klik buiten de term en de popup sluit de popup.
-function buiten(doel) {
-  if (open && !doel.closest('.term, .pop')) sluit(false);
+// Een klik op dezelfde term sluit de popup, een klik op een andere term opent die, en een klik
+// ergens anders sluit hem. Escape sluit en geeft de focus terug aan de term.
+function luister() {
+  window.addEventListener('resize', () => open?.breed !== innerWidth && sluit(false));
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && sluit(true));
+  document.addEventListener('click', (e) => {
+    const knop = e.target.closest('button.term'),
+      zelfde = open?.knop === knop;
+    if (knop || !e.target.closest('.pop')) sluit(false);
+    if (knop && !zelfde) zetPopup(knop, ctx.pathFor, ctx.state.view);
+  });
 }
 
-export { mount, sluit, klik, buiten };
-export const isOpen = () => open !== null;
+export { mount, sluit };
