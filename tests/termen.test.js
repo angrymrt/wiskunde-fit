@@ -5,6 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { T } from '../src/js/typeset.js';
 import { termen } from '../src/js/ui/termen.js';
 import { WOORDEN, termenIn, termenLijstHTML } from '../src/js/woorden.js';
+import { MARKERING, metTermenLijst } from '../scripts/termenlijst.js';
 import { TOPIC } from '../src/js/topics/index.js';
 
 test('T zet {{id|woord}} om naar een term en laat de rest staan', () => {
@@ -73,4 +74,34 @@ test('de lijst met woorden heeft elke term één keer, in de volgorde van de tek
   assert.ok(lijst.indexOf('snijpunt') < lijst.indexOf('richtingscoëfficiënt'));
   assert.equal(termenLijstHTML([]), '');
   assert.equal(termenLijstHTML(['bestaat-niet']), '');
+});
+
+test('de build zet de lijst op de markering, met alleen de termen uit de uitleg', () => {
+  const rc = T('{{richtingscoefficient|rc}}'),
+    sp = T('{{snijpunt|snijpunt}}');
+  const html = `<p>${rc}</p><div class="topic-body">${sp}${MARKERING}</div><div class="practice-bar">`;
+  const uit = metTermenLijst(html);
+  assert.equal(uit.match(/class="block termen"/g).length, 1);
+  assert.ok(uit.includes(`</dl></div>${MARKERING}</div>`), 'de lijst staat vlak voor de markering');
+  assert.ok(
+    !uit.includes('<dt>richtingscoëfficiënt'),
+    'een term buiten de uitleg staat niet in de lijst',
+  );
+  assert.ok(uit.includes('<dt>snijpunt'));
+});
+
+test('zonder termen blijft de markering staan, en een pagina zonder uitleg verandert niet', () => {
+  const zonder = `<div class="topic-body">tekst${MARKERING}</div>`;
+  assert.equal(metTermenLijst(zonder), zonder);
+  assert.equal(metTermenLijst('<main>Home</main>'), '<main>Home</main>');
+});
+
+test('een uitleg zonder markering geeft een fout in de build', () => {
+  assert.throws(() => metTermenLijst('<div class="topic-body">tekst</div>'), /markering/);
+});
+
+test('de lijst komt er letterlijk in, zonder dat tekens als patroon gelden', () => {
+  const lijst = termenLijstHTML(['snijpunt']);
+  const html = `<div class="topic-body">${T('{{snijpunt|snijpunt}}')}${MARKERING}</div>`;
+  assert.ok(metTermenLijst(html).includes(lijst));
 });

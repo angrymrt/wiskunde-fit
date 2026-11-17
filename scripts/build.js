@@ -80,19 +80,7 @@ const { PAGES, SITE, redirects } = await import('../src/js/pages.js');
 const { screenHTML, shellHTML } = await import('../src/js/ui/screens.js');
 const { state } = await import('../src/js/ui/state.js');
 const { esc } = await import('../src/js/typeset.js');
-const { termenIn, termenLijstHTML } = await import('../src/js/woorden.js');
-// De uitleg van een onderwerp krijgt de lijst met woorden al in de pagina, zie woorden.js. Hij komt
-// op de plek van de markering <!--termen--> in vTopic (ui/topic.js), die blijft staan.
-const metTermenLijst = (html) => {
-  const markering = '<!--termen-->';
-  const met = html.replace(markering, termenLijstHTML(termenIn(html)) + markering);
-  // Zonder markering of lijst liever een fout dan een uitleg zonder de lijst.
-  if (html.includes('<div class="topic-body">') && html.includes('data-term=') && met === html)
-    throw new Error(
-      'De lijst met woorden staat niet in de uitleg: de markering <!--termen--> mist.',
-    );
-  return met;
-};
+const { metTermenLijst } = await import('./termenlijst.js');
 
 await rm(dist, { recursive: true, force: true });
 
