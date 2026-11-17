@@ -56,12 +56,13 @@ export const WOORDEN = {
   assenstelsel: {
     naam: 'assenstelsel',
     uitleg:
-      'Twee getallenlijnen die elkaar kruisen: de x-as is horizontaal en de y-as verticaal. Daarmee geef je elk punt een plek.',
+      'Twee getallenlijnen die elkaar loodrecht kruisen: de x-as loopt horizontaal en de y-as verticaal. Hiermee kun je de plek van een punt aangeven.',
     onderwerp: 'coordinaten-en-assenstelsels',
   },
   oorsprong: {
     naam: 'oorsprong',
-    uitleg: 'Het punt waar de x-as en de y-as elkaar kruisen. Dat is het punt (0, 0).',
+    uitleg:
+      'Het punt waar de x-as en de y-as elkaar kruisen. De coördinaten van dit punt zijn (0, 0).',
     onderwerp: 'coordinaten-en-assenstelsels',
   },
   coordinaat: {
@@ -73,66 +74,72 @@ export const WOORDEN = {
   kwadrant: {
     naam: 'kwadrant',
     uitleg:
-      'Een van de vier stukken waarin de assen het vlak verdelen. Je nummert ze I tot en met IV, tegen de klok in.',
+      'Een van de vier gebieden waarin de x-as en de y-as het vlak verdelen. Je nummert ze I tot en met IV, tegen de klok in.',
     onderwerp: 'coordinaten-en-assenstelsels',
   },
   woordformule: {
     naam: 'woordformule',
-    uitleg: 'Een formule die in woorden zegt hoe je iets uitrekent, zoals prijs = 2 + 3 · aantal.',
+    uitleg:
+      'Een formule waarin je woorden gebruikt in plaats van letters, zoals prijs = 2 + 3 · aantal.',
     onderwerp: 'woordformules',
   },
   'constant-verband': {
     naam: 'constant verband',
     uitleg:
-      'Een verband waarbij de uitkomst altijd hetzelfde is, wat je ook invult. De grafiek is een horizontale lijn, zoals bij y = 4.',
+      'Een verband waarbij de uitkomst altijd hetzelfde blijft, welke waarde je ook voor x kiest. De grafiek is een horizontale lijn, zoals bij y = 4.',
     onderwerp: 'lineaire-formule-opstellen',
   },
   'recht-evenredig-verband': {
     naam: 'recht evenredig verband',
     uitleg:
-      'Een verband y = ax. Verdubbelt x, dan verdubbelt y ook. De grafiek is een rechte lijn door de oorsprong.',
+      'Een verband waarbij y altijd hetzelfde aantal keer zo groot is als x. Verdubbelt x, dan verdubbelt y ook. De grafiek is een rechte lijn door de oorsprong.',
     onderwerp: 'lineaire-formule-opstellen',
   },
   evenwijdig: {
     naam: 'evenwijdig',
-    uitleg: 'Lijnen die even steil lopen en elkaar daarom nooit snijden. Je schrijft k // l.',
+    uitleg: 'Lijnen die dezelfde richting hebben en elkaar nooit snijden. Je schrijft k // l.',
     onderwerp: 'lineaire-formule-opstellen',
   },
   functiewaarde: {
     naam: 'functiewaarde',
     uitleg:
-      'De uitkomst van een functie bij een bepaalde x. Bij f(x) = 2x + 1 is de functiewaarde bij x = 4 gelijk aan 9.',
+      'De uitkomst van een functie als je een bepaalde waarde voor x invult. Bij f(x) = 2x + 1 is de functiewaarde bij x = 4 gelijk aan 9.',
     onderwerp: 'kwadratische-functies',
   },
   'kwadratische-functie': {
     naam: 'kwadratische functie',
-    uitleg: 'Een functie f(x) = ax² + bx + c met a ≠ 0. De grafiek is een parabool.',
+    uitleg:
+      'Een functie met een formule van de vorm f(x) = ax² + bx + c, waarbij a niet 0 is. De grafiek is een parabool.',
     onderwerp: 'kwadratische-functies',
   },
   parabool: {
     naam: 'parabool',
-    uitleg: 'De kromme grafiek van een kwadratische functie. Hij is symmetrisch en heeft één top.',
+    uitleg:
+      'De kromme grafiek van een kwadratische functie. Een parabool is symmetrisch en heeft één top.',
     onderwerp: 'kwadratische-functies',
   },
   dalparabool: {
     naam: 'dalparabool',
-    uitleg: 'Een parabool met de top onderaan, als een dal. Hij hoort bij a > 0.',
+    uitleg:
+      'Een parabool die omhoog opent, met de top onderaan als een dal. Dit gebeurt als a groter is dan 0.',
     onderwerp: 'kwadratische-functies',
   },
   bergparabool: {
     naam: 'bergparabool',
-    uitleg: 'Een parabool met de top bovenaan, als een berg. Hij hoort bij a < 0.',
+    uitleg:
+      'Een parabool die omlaag opent, met de top bovenaan als een berg. Dit gebeurt als a kleiner is dan 0.',
     onderwerp: 'kwadratische-functies',
   },
   top: {
     naam: 'top',
-    uitleg: 'Het laagste punt van een dalparabool of het hoogste punt van een bergparabool.',
+    uitleg:
+      'Het hoogste of laagste punt van een parabool. Bij een dalparabool is dat het laagste punt, bij een bergparabool het hoogste.',
     onderwerp: 'kwadratische-functies',
   },
   symmetrieas: {
     naam: 'symmetrieas',
     uitleg:
-      'De verticale lijn door de top. Links en rechts ervan is de parabool elkaars spiegelbeeld.',
+      'De verticale lijn door de top. De twee helften van de parabool links en rechts van die lijn zijn elkaars spiegelbeeld.',
     onderwerp: 'kwadratische-functies',
   },
   snijpunt: {
