@@ -50,7 +50,7 @@ export const WOORDEN = {
   term: {
     naam: 'term',
     uitleg:
-      'Een stukje van een som, tussen de plussen en de minnen. In 3x² − 5x + 2 zijn de termen 3x², −5x en 2.',
+      'Een stukje van een som, gescheiden door + of −. In 3x² − 5x + 2 zijn de termen 3x², −5x en 2.',
     onderwerp: 'ontbinden-in-factoren',
   },
   snijpunt: {
