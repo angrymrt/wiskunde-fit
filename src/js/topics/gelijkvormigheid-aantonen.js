@@ -428,7 +428,7 @@ export default {
     {
       t: 'Gelijke hoeken vinden',
       p: [
-        'Gelijke hoeken herken je aan {{=f-hoeken|F-hoeken}}, {{=z-hoeken|Z-hoeken}} en {{=overstaande-hoeken|overstaande hoeken}}. Kies hieronder een soort hoek en bekijk waar de gelijke hoeken zitten.',
+        'Gelijke hoeken vind je bij {{=f-hoeken|F-hoeken}}, {{=z-hoeken|Z-hoeken}} en {{=overstaande-hoeken|overstaande hoeken}}. Kies hieronder een soort hoek en bekijk waar de gelijke hoeken zitten.',
         'Denk ook aan de twee gelijke hoeken in een {{gelijkbenige-driehoek|gelijkbenige driehoek}}, en aan rechte hoeken.',
       ],
       widget: 'angles',
