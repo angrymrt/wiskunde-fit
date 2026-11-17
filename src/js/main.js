@@ -33,6 +33,7 @@ import {
 } from './ui/exam.js';
 import { newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
+import { cijfersKlaar, laadCijfers, zetCijfersLader } from './ui/cijfers.js';
 import { nogTeLaden } from './ui/laden.js';
 import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
 import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
@@ -156,6 +157,7 @@ function focusOn(selector) {
 let prebuilt = app.firstElementChild !== null;
 // Het onderwerp van de vooraf gebouwde uitleg waarmee de pagina opende, als dat zo is.
 const opened = prebuilt ? viewFor(location.pathname, '') : {};
+const prebuiltCijfers = opened.name === 'cijfers';
 const prebuiltTopic = opened.name === 'topic' && !opened.oefen ? opened.slug : null;
 // Een gebied dat een schermlezer voorleest als er tekst in komt, zoals "Even laden…". Het staat er
 // al voordat de tekst verschijnt, anders lezen niet alle schermlezers het voor.
@@ -211,13 +213,17 @@ function rolKlaar(st, roll) {
   if (icoon) melding.textContent = '5 achter elkaar goed!';
   else if (roll) melding.textContent = `Bij deze soort nu ${roll.naar} van 5 goed.`;
 }
+// De cijfers staan in een eigen bestand, dat pas laadt als de pagina Cijfers nodig is (#184).
+zetCijfersLader(() => import('./cijfers-data.js'));
+const wachtOpCijfers = () => state.view.name === 'cijfers' && !cijfersKlaar();
 let renders = 0;
 function render(focus) {
   const nr = ++renders;
   // Een oude melding, zoals een fout bij een ander onderwerp, hoort niet bij deze render.
   state.laden = null;
   const missing = nogTeLaden();
-  if (!missing.length) {
+  const cijfers = wachtOpCijfers();
+  if (!missing.length && !cijfers) {
     if (followSoort) {
       followSoort = false;
       applySoort(TOPIC[state.view.slug], state.view.soort, state.view.seed);
@@ -231,19 +237,21 @@ function render(focus) {
     state.view.name === 'topic' &&
     !state.view.oefen &&
     state.view.slug === prebuiltTopic;
+  // De vooraf gebouwde pagina Cijfers is ook al helemaal te lezen.
+  const stil = quiet || (prebuilt && cijfers && prebuiltCijfers);
   const slow = setTimeout(() => {
-    if (nr !== renders || quiet) return;
+    if (nr !== renders || stil) return;
     state.laden = 'bezig';
     paint(focus);
   }, 300);
-  return laadOnderwerpen(missing).then(
+  return Promise.all([laadOnderwerpen(missing), cijfers ? laadCijfers() : null]).then(
     () => {
       clearTimeout(slow);
       if (nr === renders) return render(focus);
     },
     () => {
       clearTimeout(slow);
-      if (nr !== renders || quiet) return;
+      if (nr !== renders || stil) return;
       state.laden = 'fout';
       paint('#laadfout');
     },

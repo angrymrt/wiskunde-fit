@@ -2432,13 +2432,16 @@ test(
 // het eerste bezoek was 54 kB en mag nu 60 kB zijn. De pagina zelf is 8,6 kB, want alle 126
 // soorten en de roosters staan erin. Die heeft daarom een eigen grens (lijst), zodat de grens voor
 // de andere pagina's blijft laag. Die was 6 kB, tot de grootste pagina (Top en snijpunten van een
-// parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB.
+// parabool) er met de link in de voettekst precies op zat, en is nu 6,5 kB. De tellen voor de pagina
+// Cijfers staan niet in het eerste bezoek, maar in een eigen bestand dat pas laadt op die pagina
+// (#184): anders groeide de code elke week. Het eerste bezoek zat al boven de oude grenzen (60 kB en
+// 166 kB zelf) door eerdere groei; nu is het 60,6 kB en 167 kB zelf, dus de grenzen zijn 61 en 168.
 const LIMITS = {
   page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 60, own: 166, why: 'de code bij het eerste bezoek' },
+  start: { sent: 61, own: 168, why: 'de code bij het eerste bezoek' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
   css: { sent: 8.5, why: 'de CSS' },
@@ -2484,6 +2487,54 @@ test('de pagina’s en de code blijven klein', async () => {
     'de gedeelde code is gevonden',
   );
   for (const [file, kind] of files) underLimit(file, await sizes(file), LIMITS[kind]);
+});
+
+test('de pagina Cijfers laadt de cijfers apart, en blijft staan terwijl dat duurt', async () => {
+  const browser = await launch();
+  try {
+    const file = '**/assets/cijfers-data-*.js';
+    // Rechtstreeks openen: de vooraf gebouwde pagina blijft staan, ook als de cijfers laat komen.
+    {
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      let release;
+      const gate = new Promise((resolve) => (release = resolve));
+      await p.route(file, async (route) => {
+        await gate;
+        await route.continue();
+      });
+      const gevraagd = p.waitForRequest(/cijfers-data-/);
+      await p.goto(at('/cijfers'));
+      await p.waitForFunction(() => window.wiskundefit);
+      await gevraagd;
+      // Langer dan de 300 ms waarna het scherm zou zeggen dat het laadt.
+      await p.waitForTimeout(600);
+      assert.ok(await p.$('#niet-zeggen'), 'de vooraf gebouwde pagina staat er');
+      assert.equal(await p.$('#app :text("Even laden")'), null, 'geen laadmelding');
+      release();
+      await p.close();
+    }
+    // Vanaf Home: de cijfers laden pas nu, en bij een fout is er een melding met opnieuw proberen.
+    {
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      const geladen = [];
+      p.on('request', (r) => /cijfers-data-/.test(r.url()) && geladen.push(r.url()));
+      await p.goto(siteUrl);
+      await p.waitForFunction(() => window.wiskundefit);
+      assert.deepEqual(geladen, [], 'Home laadt de cijfers niet');
+      await p.route(file, (route) => route.abort());
+      await p.evaluate(() => wiskundefit.go({ name: 'cijfers' }));
+      await p.waitForSelector('#laadfout');
+      await p.unroute(file);
+      const antwoord = p.waitForResponse((r) => /cijfers-data-/.test(r.url()) && r.ok());
+      await p.click('[data-act=opnieuw]');
+      await antwoord;
+      await p.waitForSelector('#niet-zeggen');
+      assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
+      await p.close();
+    }
+  } finally {
+    await browser.close();
+  }
 });
 
 test('een onderwerp dat niet laadt, geeft een melding met opnieuw proberen', async () => {
