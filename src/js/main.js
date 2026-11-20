@@ -263,7 +263,7 @@ function render(focus) {
 // De knoppen en de popup bij termen (#39) laden pas als een scherm termen bevat.
 let termpopup = null;
 const mountTermen = () =>
-  app.querySelector('.term') &&
+  app.querySelector('.term, .termdef') &&
   import('./ui/termpopup.js').then((m) => {
     termpopup = m;
     m.mount(app, pathFor, state);

@@ -6,6 +6,7 @@ import { WOORDEN, termenLijstHTML } from '../woorden.js';
 // Maakt van elke <span class="term"> een knop. Een id (de plek waar de term wordt uitgelegd) blijft.
 // Verandert de breedte van het venster, dan staat de popup niet meer goed. Alleen de hoogte (de
 // werkbalk van een telefoon) maakt niet uit.
+let gescrold = ''; // het adres waarvoor we al naar de woordenlijst zijn gescrold
 let ctx = null; // { pathFor, state } van main.js, nodig voor de link "Meer uitleg"
 function mount(root, pathFor, state) {
   if (!ctx) luister();
@@ -26,8 +27,10 @@ function mount(root, pathFor, state) {
   // Linkt het adres met een # naar een term, dan krijgt die knop de focus, tenzij de leerling al
   // ergens anders is.
   const naar = document.getElementById(location.hash.slice(1));
-  // "Meer uitleg" linkt naar de term in de woordenlijst onder de uitleg.
-  if (naar?.matches('dt')) naar.scrollIntoView();
+  // "Meer uitleg" linkt naar de term in de woordenlijst onder de uitleg. Elke nieuwe tekening van het
+  // scherm roept mount aan, maar naar de term scrollen we maar één keer per adres.
+  if (naar?.matches('dt') && gescrold !== location.hash) naar.scrollIntoView();
+  gescrold = location.hash;
   if (naar?.matches('button.term') && /^(BODY|H1)$/.test(document.activeElement.tagName))
     naar.focus();
 }

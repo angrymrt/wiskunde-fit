@@ -339,6 +339,18 @@ test(
       );
       await p.waitForFunction(() => document.activeElement.id === 'richtingscoefficient');
 
+      // "Meer uitleg" gaat naar de term in de woordenlijst onder de uitleg, en die komt in beeld.
+      await p.evaluate(() =>
+        window.wiskundefit.go(
+          { name: 'topic', slug: 'lineaire-grafieken-tekenen' },
+          '#woord-richtingscoefficient',
+        ),
+      );
+      await p.waitForFunction(() => {
+        const r = document.getElementById('woord-richtingscoefficient')?.getBoundingClientRect();
+        return r && r.top >= 0 && r.bottom <= window.innerHeight;
+      });
+
       // Alleen de hoogte van het venster veranderen sluit de popup niet.
       await p.locator('button.term').first().click();
       await p.setViewportSize({ width: 390, height: 700 });
