@@ -20,7 +20,9 @@ function s13basic() {
   return {
     q: T(`Los op: ${lin(a, b)} = ${lin(c, dd)}`),
     fields: [F('x =', x)],
-    hint: 'Breng de termen met x naar één kant en de getallen naar de andere kant. Doe links en rechts hetzelfde.',
+    hint: T(
+      'Breng de {{term|termen}} met x naar één kant en de getallen naar de andere kant. Doe links en rechts hetzelfde.',
+    ),
     steps: [`${lin(a, b)} = ${lin(c, dd)}`, ...solved(a - c, dd - b, x)],
     traps: [
       {
@@ -48,7 +50,9 @@ function s13brackets() {
         return {
           q: T(`Los op: ${lq(p, q)} = ${lin(r, ss)}`),
           fields: [F('x =', x)],
-          hint: 'Werk eerst de haakjes weg. Vermenigvuldig allebei de termen tussen de haakjes.',
+          hint: T(
+            'Werk eerst de {{haakjes-wegwerken|haakjes weg}}. Vermenigvuldig allebei de {{term|termen}} tussen de haakjes.',
+          ),
           steps: [
             `${lq(p, q)} = ${lin(r, ss)}`,
             `${lin(p, p * q)} = ${lin(r, ss)}`,
@@ -73,7 +77,7 @@ function s13brackets() {
         return {
           q: T(`Los op: ${lq(p, q)} = ${lq(r, u)}`),
           fields: [F('x =', x)],
-          hint: 'Werk links en rechts de haakjes weg.',
+          hint: T('Werk links en rechts de {{haakjes-wegwerken|haakjes weg}}.'),
           steps: [`${lin(p, p * q)} = ${lin(r, r * u)}`, ...solved(p - r, r * u - p * q, x)],
           v: () => p * (x + q) === r * (x + u),
         };
@@ -87,7 +91,9 @@ function s13brackets() {
         return {
           q: T(`Los op: ${t} + ${lq(p, q)} = ${lq(r, u)}`),
           fields: [F('x =', x)],
-          hint: 'Werk de haakjes weg en tel daarna de losse getallen links bij elkaar op.',
+          hint: T(
+            'Werk de {{haakjes-wegwerken|haakjes weg}} en tel daarna de losse getallen links bij elkaar op.',
+          ),
           steps: [
             `${t} + ${lin(p, p * q)} = ${lin(r, r * u)}`,
             `${lin(p, t + p * q)} = ${lin(r, r * u)}`,
@@ -132,14 +138,14 @@ function s13expand() {
     B = p * q;
   return {
     q: T(
-      `Werk de haakjes weg en herleid: ${lin(t, 0)} ${p < 0 ? '-' : '+'} ${Math.abs(p)}(x${sg(q)})`,
+      `Werk de {{haakjes-wegwerken|haakjes weg}} en {{herleiden|herleid}}: ${lin(t, 0)} ${p < 0 ? '-' : '+'} ${Math.abs(p)}(x${sg(q)})`,
     ),
     fields: [
       { pre: '', a: A, post: 'x' },
       { pre: '+', a: B, post: '' },
     ],
     hint: T(
-      `Vermenigvuldig x en ${q} met ${p}. Tel daarna de termen met x bij elkaar op. Is het tweede getal negatief, vul dan bijvoorbeeld -5 in.`,
+      `Vermenigvuldig x en ${q} met ${p}. Tel daarna de {{term|termen}} met x bij elkaar op. Is het tweede getal negatief, vul dan bijvoorbeeld -5 in.`,
     ),
     steps: [
       `${lin(t, 0)} ${p < 0 ? '-' : '+'} ${Math.abs(p)}(x${sg(q)}) = ${lin(t, 0)} ${p < 0 ? '-' : '+'} ${Math.abs(p)}x ${B < 0 ? '-' : '+'} ${Math.abs(B)}`,
@@ -193,7 +199,7 @@ function s13frac() {
     q: T(`Los op: ${lin(a, b)} = ${lin(c, e)}`),
     fields: [F('x =', x)],
     hint: T(
-      `Vermenigvuldig alle termen links en rechts met ${L}, het kleinste veelvoud van de noemers.`,
+      `Vermenigvuldig alle {{term|termen}} links en rechts met ${L}, het kleinste veelvoud van de noemers.`,
     ),
     steps: [
       `Het kleinste veelvoud van de noemers is ${L}.`,

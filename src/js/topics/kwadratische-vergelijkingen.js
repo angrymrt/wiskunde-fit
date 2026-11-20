@@ -70,7 +70,7 @@ function solve({
     const ts = moved.map((i) => term(R[i], i, v)),
       back = moved.map((i) => term(qMul(R[i], -1), i, v));
     steps.push(
-      `Breng ${ts.join(' en ')} naar het linkerlid. Daarbij verandert ${ts.map((t, j) => `${t} in ${back[j]}`).join(' en ')}.`,
+      `Breng ${ts.join(' en ')} naar het {{lid|linkerlid}}. Daarbij verandert ${ts.map((t, j) => `${t} in ${back[j]}`).join(' en ')}.`,
       `${quad(LR, undefined, v)} = 0`,
     );
   }
@@ -151,7 +151,7 @@ function s33zero() {
     fs: factorsOf(rs),
     orig: (s) => at(N, s),
     hint: T(
-      `Ontbind het linkerlid: zoek twee getallen met product ${C} en som ${B}. Gebruik daarna A*B = 0 geeft A = 0 ∨ B = 0.`,
+      `{{ontbinden-in-factoren|Ontbind}} het {{lid|linkerlid}}: zoek twee getallen met product ${C} en som ${B}. Gebruik daarna A*B = 0 geeft A = 0 ∨ B = 0.`,
     ),
   });
 }
@@ -206,7 +206,7 @@ function s33moveTry() {
         [a, -b],
       ],
       orig: (s) => at(L, s) - at(R, s),
-      hint: T(`Maak het rechterlid 0 en haal ${v} buiten haakjes. Deel niet door ${v}.`),
+      hint: T(`Maak het {{lid|rechterlid}} 0 en haal ${v} buiten haakjes. Deel niet door ${v}.`),
     });
   }
   const rs = roots(48),
@@ -219,7 +219,9 @@ function s33moveTry() {
     R,
     fs: factorsOf(rs),
     orig: (s) => at(L, s) - at(R, s),
-    hint: T('Maak eerst het rechterlid 0. Ontbind daarna het linkerlid in factoren.'),
+    hint: T(
+      'Maak eerst het {{lid|rechterlid}} 0. {{ontbinden-in-factoren|Ontbind}} daarna het linkerlid in factoren.',
+    ),
   });
 }
 const s33move = () => until(s33moveTry, (q) => q !== null);
@@ -232,8 +234,10 @@ function bracketTry(kind, v) {
     [, B, C] = N.map(qv),
     x = (k) => `${v}(${lin(1, k, v)})`,
     direct = 'Het rechterlid is al 0. Werk de haakjes dus niet weg.',
-    zeroHint = T('Het rechterlid is al 0. Gebruik meteen A*B = 0 geeft A = 0 ∨ B = 0.'),
-    hint = T('Werk eerst de haakjes weg. Maak daarna het rechterlid 0 en ontbind het linkerlid.'),
+    zeroHint = T('Het {{lid|rechterlid}} is al 0. Gebruik meteen A*B = 0 geeft A = 0 ∨ B = 0.'),
+    hint = T(
+      'Werk eerst de {{haakjes-wegwerken|haakjes weg}}. Maak daarna het {{lid|rechterlid}} 0 en {{ontbinden-in-factoren|ontbind}} het linkerlid.',
+    ),
     haakjes = (wrong) =>
       trap(
         'haakjes-direct',
@@ -391,7 +395,7 @@ function s33scale() {
     fs: factorsOf(rs),
     orig: (x) => at(L, x) - at(R, x),
     hint: T(
-      `${qv(R[1]) || qv(R[2]) ? 'Maak eerst het rechterlid 0. ' : ''}${scaleText(k).replace('.', '')}, zodat er ${v}^2 staat. Ontbind daarna het linkerlid.`,
+      `${qv(R[1]) || qv(R[2]) ? 'Maak eerst het {{lid|rechterlid}} 0. ' : ''}${scaleText(k).replace('.', '')}, zodat er ${v}^2 staat. {{ontbinden-in-factoren|Ontbind}} daarna het linkerlid.`,
     ),
     traps: [
       trap(
@@ -426,7 +430,7 @@ function s33value() {
       k: Q(a),
       fs: factorsOf(rs),
       orig: (x) => at(f, x) - c,
-      hint: T(`Los de vergelijking ${n}(x) = ${c} op. Maak eerst het rechterlid 0.`),
+      hint: T(`Los de vergelijking ${n}(x) = ${c} op. Maak eerst het {{lid|rechterlid}} 0.`),
       traps: [
         trap(
           'rechterlid-niet-nul',

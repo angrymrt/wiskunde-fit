@@ -68,7 +68,9 @@ function s15br() {
   return {
     q: T(`Los op: ${pr} ${s0} ${lin(r, dd)}`),
     fields: ineqOut(fin, k),
-    hint: 'Werk eerst de haakjes weg en los daarna op. Let op het ongelijkheidsteken als je door een negatief getal deelt.',
+    hint: T(
+      'Werk eerst de {{haakjes-wegwerken|haakjes weg}} en los daarna op. Let op het ongelijkheidsteken als je door een negatief getal deelt.',
+    ),
     steps: [
       `${lin(p, p * q)} ${s0} ${lin(r, dd)}`,
       ...(co === 1 ? [`x ${fin} ${k}`] : divide(co, s0, dd - p * q, fin, k)),
@@ -109,12 +111,12 @@ function s15gr() {
     }),
     fields: ineqOut(fin, xs),
     hint: T(
-      `Zoek het snijpunt. Kijk daarna aan welke kant lijn l ${up ? 'boven' : 'onder'} lijn m ligt.`,
+      `Zoek het {{snijpunt|snijpunt}}. Kijk daarna aan welke kant lijn l ${up ? 'boven' : 'onder'} lijn m ligt.`,
     ),
     steps: [
       `De lijnen snijden elkaar bij x = ${xs}.`,
-      `Lijn l ligt ${up ? 'boven' : 'onder'} lijn m ${right ? 'rechts' : 'links'} van het snijpunt.`,
-      `Dus x ${fin} ${xs}. Het snijpunt zelf hoort er niet bij.`,
+      `Lijn l ligt ${up ? 'boven' : 'onder'} lijn m ${right ? 'rechts' : 'links'} van het {{snijpunt|snijpunt}}.`,
+      `Dus x ${fin} ${xs}. Het {{snijpunt|snijpunt}} zelf hoort er niet bij.`,
     ],
     traps: [
       {
@@ -290,7 +292,7 @@ function s15story() {
     rhs = b2 - b1,
     fin = co < 0 ? flip[st.s0] : st.s0;
   return {
-    q: T(`${st.text} Vul de formules in en los de ongelijkheid op.`),
+    q: T(`${st.text} Vul de formules in en los de {{ongelijkheid|ongelijkheid}} op.`),
     compact: true,
     fields: [
       { ...F(`${ln}:`, a1, 'x +'), label: `Getal voor x bij ${ln}` },

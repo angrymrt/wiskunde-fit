@@ -67,7 +67,7 @@ function s16iso() {
   const a = Q(-A, B),
     b = Q(C, B);
   return {
-    q: T(`Herleid ${lin2(A, B)} = ${C} tot de vorm y = ax + b.`),
+    q: T(`{{herleiden|Herleid}} ${lin2(A, B)} = ${C} tot de vorm y = ax + b.`),
     fields: [F('a =', a), F('b =', b)],
     hint: T(
       B === 1
@@ -96,7 +96,7 @@ function s16ax() {
   const xi = Q(C, A),
     yi = Q(C, B);
   return {
-    q: T(`Bereken de snijpunten van de lijn ${lin2(A, B)} = ${C} met de assen.`),
+    q: T(`Bereken de {{snijpunt|snijpunten}} van de lijn ${lin2(A, B)} = ${C} met de assen.`),
     fields: [
       { pre: 'x-as: (', a: qv(xi), post: ', 0)' },
       { pre: 'y-as: (0,', a: qv(yi), post: ')' },
