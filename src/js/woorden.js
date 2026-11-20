@@ -296,6 +296,12 @@ export const WOORDEN = {
       'Een waarde schatten buiten de bekende waarnemingen, dus vóór de eerste of na de laatste.',
     onderwerp: 'interpoleren-en-extrapoleren',
   },
+  'stelling-van-pythagoras': {
+    naam: 'stelling van Pythagoras',
+    uitleg:
+      'Een regel voor een rechthoekige driehoek: het kwadraat van de schuine zijde is gelijk aan de som van de kwadraten van de twee rechthoekszijden. Zijn a en b de rechthoekszijden en is c de schuine zijde, dan geldt a² + b² = c².',
+    onderwerp: 'stelling-van-pythagoras',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',

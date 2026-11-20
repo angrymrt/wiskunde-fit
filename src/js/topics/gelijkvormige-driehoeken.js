@@ -62,10 +62,12 @@ function s22factor() {
     k = pick([1.5, 2, 2.5, 3, 0.5, 1.2]);
   return {
     q: T(
-      `△DEF is een vergroting van △ABC. Er geldt AB = ${s1}, BC = ${s2}, DE = ${d(s1 * k)}. Bereken de vergrotingsfactor en EF.`,
+      `△DEF is een vergroting van △ABC. Er geldt AB = ${s1}, BC = ${s2}, DE = ${d(s1 * k)}. Bereken de {{vermenigvuldigingsfactor|vergrotingsfactor}} en EF.`,
     ),
     fields: [F('factor =', k), F('EF =', s2 * k)],
-    hint: T(`De factor is DE gedeeld door AB. Vermenigvuldig BC met de factor om EF te krijgen.`),
+    hint: T(
+      `De {{vermenigvuldigingsfactor|factor}} is DE gedeeld door AB. Vermenigvuldig BC met de factor om EF te krijgen.`,
+    ),
     steps: [
       `{DE/AB} = {${d(s1 * k)}/${s1}} = ${d(k)}, dus de vergrotingsfactor is ${d(k)}.`,
       `EF = ${d(k)}*${s2} = ${d(s2 * k)}`,
@@ -128,7 +130,9 @@ function s22note() {
         m: 'Gelijke hoeken staan op dezelfde plek in de naam. Zoek bij A, B en C steeds de hoek die even groot is.',
       },
     ],
-    hint: 'Bij gelijkvormigheid staan gelijke hoeken op dezelfde plek in de naam. De eerste letter hoort bij de eerste letter, enzovoort.',
+    hint: T(
+      'Bij {{gelijkvormig|gelijkvormigheid}} staan gelijke hoeken op dezelfde plek in de naam. De eerste letter hoort bij de eerste letter, enzovoort.',
+    ),
     steps: [`∠A = ∠${L[0]}, ∠B = ∠${L[1]} en ∠C = ∠${L[2]}.`, `Dus △ABC ∼ △${L.join('')}.`],
     // Narekenen met de hoeken in de figuur: alleen bij de keuze die goed is, zijn alle hoeken gelijk.
     v: () => mc.opts.every((o, i) => sameAngles(pts, names[opts.indexOf(o)]) === (i === mc.a)),
@@ -153,7 +157,7 @@ function s22tab() {
   ['A', 'B', 'C'].forEach((n, i) => (pts[M[i]] = abc[n].map((x) => 2 * x)));
   const mc = MC([good, ...bad], 0);
   return {
-    q: T(`Gegeven is △ABC ∼ △${M}. Welke verhoudingstabel is goed?`),
+    q: T(`Gegeven is △ABC ∼ △${M}. Welke {{verhoudingstabel|verhoudingstabel}} is goed?`),
     mc,
     traps: [
       {
@@ -209,7 +213,9 @@ function s22sides() {
       maxH: 240,
     }),
     fields: f,
-    hint: 'Schrijf eerst de verhoudingstabel op met de letters in de goede volgorde. Vul daarna de getallen in.',
+    hint: T(
+      'Schrijf eerst de {{verhoudingstabel|verhoudingstabel}} op met de letters in de goede volgorde. Vul daarna de getallen in.',
+    ),
     steps: [
       H(
         vt(['AB', 'BC', 'AC'], [s1, s2, s3]) +
@@ -259,7 +265,7 @@ function s22comm() {
     hint: '△ABC en △ADE hebben hoek A gemeenschappelijk en door de evenwijdige lijnen zijn ook de andere hoeken gelijk. Bereken eerst AB om daarna BD te vinden.',
     steps: [
       '∠A (in △ABC) = ∠A (in △ADE)',
-      '∠B = ∠D (F-hoeken)',
+      '∠B = ∠D ({{f-hoeken|F-hoeken}})',
       'Dus △ABC ∼ △ADE.',
       H(
         vt(['AB', 'BC', 'AC'], ['AD', 'DE', 'AE']) +
@@ -313,7 +319,9 @@ function s22py() {
       maxH: 270,
     }),
     fields: f,
-    hint: 'Bereken KL eerst met de stelling van Pythagoras. Daarna gebruik je △KLM ∼ △KPQ.',
+    hint: T(
+      'Bereken KL eerst met de {{stelling-van-pythagoras|stelling van Pythagoras}}. Daarna gebruik je △KLM ∼ △KPQ.',
+    ),
     steps: [
       `In △KLM is ∠L = 90°, dus KL^2 + LM^2 = KM^2`,
       `KL^2 + ${a}^2 = ${c}^2`,

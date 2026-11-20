@@ -36,11 +36,11 @@ function s24x() {
     }),
     fields: f,
     hint: T(
-      `Als AD = x, dan is AB = x + ${db}. Zet dat in de verhoudingstabel en zet x + ${db} tussen haakjes.`,
+      `Als AD = x, dan is AB = x + ${db}. Zet dat in de {{verhoudingstabel|verhoudingstabel}} en zet x + ${db} tussen haakjes.`,
     ),
     steps: [
       '∠A (in △ADE) = ∠A (in △ABC)',
-      '∠ADE = ∠B (F-hoeken)',
+      '∠ADE = ∠B ({{f-hoeken|F-hoeken}})',
       'Dus △ADE ∼ △ABC.',
       `Stel AD = x, dan is AB = x + ${db}.`,
       H(vt(['x', String(de)], [`x + ${db}`, String(bc)]) + T(` geeft ${bc}x = ${de}(x + ${db})`)),
@@ -99,7 +99,7 @@ function s24sum() {
     fields: f,
     hint: T(`Je weet dat KS + MS = ${t}. Stel KS = x, dan is MS = ${t} - x.`),
     steps: [
-      '∠K = ∠M (Z-hoeken)',
+      '∠K = ∠M ({{z-hoeken|Z-hoeken}})',
       '∠L = ∠N (Z-hoeken)',
       'Dus △KLS ∼ △MNS.',
       `Stel KS = x, dan is MS = ${t} - x.`,
@@ -176,7 +176,7 @@ function s24balk() {
     f = [RF('AT =', at)];
   return {
     q: T(
-      `Gegeven is de balk ABCD.EFGH met AB = ${ab}, BC = ${bc} en AE = ${h}. Punt S ligt op het verlengde van ribbe BA, met AS = ${as}. Lijnstuk SF snijdt ribbe AE in punt T. Bereken AT.${needRound(f)}`,
+      `Gegeven is de balk ABCD.EFGH met AB = ${ab}, BC = ${bc} en AE = ${h}. Punt S ligt op het {{verlengde|verlengde}} van ribbe BA, met AS = ${as}. Lijnstuk SF snijdt ribbe AE in punt T. Bereken AT.${needRound(f)}`,
     ),
     fig: balkFig(ab, bc, h, as, at, [
       { a: 'A', b: 'B', t: ab },
@@ -227,7 +227,7 @@ function s24balkx() {
   const f = [RF('AS =', x)];
   return {
     q: T(
-      `Gegeven is de balk ABCD.EFGH met AB = ${ab}, BC = ${bc} en AE = ${h}. Punt S ligt op het verlengde van ribbe BA. Lijnstuk SF snijdt ribbe AE in punt T, met AT = ${at}. Bereken AS.${needRound(f)}`,
+      `Gegeven is de balk ABCD.EFGH met AB = ${ab}, BC = ${bc} en AE = ${h}. Punt S ligt op het {{verlengde|verlengde}} van ribbe BA. Lijnstuk SF snijdt ribbe AE in punt T, met AT = ${at}. Bereken AS.${needRound(f)}`,
     ),
     fig: balkFig(ab, bc, h, x, at, [
       { a: 'A', b: 'B', t: ab },
@@ -317,7 +317,7 @@ function s24cube() {
     f = [RF('AS =', x), RF('SV =', sv)];
   return {
     q: T(
-      `Gegeven is de kubus ABCD.EFGH met ribben van lengte ${r}. Punt S ligt op het verlengde van ribbe BA. Lijnstuk SF snijdt ribbe AE in punt T, met AT = ${at}. Punt V ligt op het verlengde van ribbe BC, met CV = ${cv}. Bereken AS en SV.${needRound(f)}`,
+      `Gegeven is de kubus ABCD.EFGH met ribben van lengte ${r}. Punt S ligt op het {{verlengde|verlengde}} van ribbe BA. Lijnstuk SF snijdt ribbe AE in punt T, met AT = ${at}. Punt V ligt op het verlengde van ribbe BC, met CV = ${cv}. Bereken AS en SV.${needRound(f)}`,
     ),
     fig: kubusFig(r, x, at, cv),
     fields: f,
@@ -379,7 +379,7 @@ function s24rect() {
     f = [RF('RT =', rt), RF('PT =', pt)];
   return {
     q: T(
-      `PQRS is een rechthoek met PQ = ${w} en QR = ${h}. Punt U ligt op het verlengde van QR, met RU = ${c}. Lijnstuk PU snijdt zijde RS in punt T. Bereken RT en PT.${needRound(f)}`,
+      `PQRS is een rechthoek met PQ = ${w} en QR = ${h}. Punt U ligt op het {{verlengde|verlengde}} van QR, met RU = ${c}. Lijnstuk PU snijdt zijde RS in punt T. Bereken RT en PT.${needRound(f)}`,
     ),
     fig: geo({
       pts: { P: [0, 0], Q: [w, 0], R: [w, h], S: [0, h], T: [st, h], U: [w, h + c] },
@@ -399,7 +399,7 @@ function s24rect() {
     }),
     fields: f,
     hint: T(
-      `Zoek twee gelijkvormige driehoeken met een hoek bij U. QU = ${h} + ${c} = ${h + c}. Voor PT gebruik je de stelling van Pythagoras in △PST.`,
+      `Zoek twee gelijkvormige driehoeken met een hoek bij U. QU = ${h} + ${c} = ${h + c}. Voor PT gebruik je de {{stelling-van-pythagoras|stelling van Pythagoras}} in △PST.`,
     ),
     steps: [
       '∠U (in △TRU) = ∠U (in △PQU)',
@@ -454,7 +454,7 @@ function s24par() {
     f = [RF('RU =', ru)];
   return {
     q: T(
-      `PQRS is een parallellogram met PQ = ${a} en QR = ${b}. Punt T ligt op zijde RS, met ST = ${s}. Lijnstuk PT snijdt het verlengde van QR in punt U. Bereken RU.${needRound(f)}`,
+      `PQRS is een parallellogram met PQ = ${a} en QR = ${b}. Punt T ligt op zijde RS, met ST = ${s}. Lijnstuk PT snijdt het {{verlengde|verlengde}} van QR in punt U. Bereken RU.${needRound(f)}`,
     ),
     fig: geo({
       pts: {
@@ -477,11 +477,11 @@ function s24par() {
     }),
     fields: f,
     hint: T(
-      `PS is evenwijdig met RU, dus zoek Z-hoeken. Bij T zie je overstaande hoeken. RT = ${a} - ${s} = ${rt}.`,
+      `PS is {{evenwijdig|evenwijdig}} met RU, dus zoek {{z-hoeken|Z-hoeken}}. Bij T zie je {{overstaande-hoeken|overstaande hoeken}}. RT = ${a} - ${s} = ${rt}.`,
     ),
     steps: [
-      '∠SPT = ∠U (Z-hoeken)',
-      '∠STP = ∠RTU (overstaande hoeken)',
+      '∠SPT = ∠U ({{z-hoeken|Z-hoeken}})',
+      '∠STP = ∠RTU ({{overstaande-hoeken|overstaande hoeken}})',
       'Dus △PST ∼ △URT.',
       `RS = PQ = ${a}, dus RT = ${a} - ${s} = ${rt}.`,
       `In een parallellogram is PS = QR = ${b}.`,
@@ -542,7 +542,7 @@ function tableStory() {
     fields: r,
     hint: T(`Stel PS = x. De hele poot is ${L}, dus RS = ${L} - x.`),
     steps: [
-      '∠P = ∠R (Z-hoeken)',
+      '∠P = ∠R ({{z-hoeken|Z-hoeken}})',
       '∠Q = ∠T (Z-hoeken)',
       'Dus △PQS ∼ △RTS.',
       `Stel PS = x, dan is RS = ${L} - x.`,
@@ -599,7 +599,9 @@ function cableStory() {
       maxH: 240,
     }),
     fields: f,
-    hint: T(`Als KL = x, dan is KN = x + ${dist}. Zet dat in de verhoudingstabel.`),
+    hint: T(
+      `Als KL = x, dan is KN = x + ${dist}. Zet dat in de {{verhoudingstabel|verhoudingstabel}}.`,
+    ),
     steps: [
       '∠K (in △KLM) = ∠K (in △KNR)',
       '∠L = ∠N (= 90°)',

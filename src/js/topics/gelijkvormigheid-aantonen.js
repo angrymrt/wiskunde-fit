@@ -80,9 +80,9 @@ function s23kind() {
     hint: 'Overstaand: bij hetzelfde snijpunt, tegenover elkaar. F: bij twee verschillende snijpunten, aan dezelfde kant van de snijlijn en op dezelfde plek. Z: tussen de evenwijdige lijnen, aan weerskanten van de snijlijn.',
     steps: [
       [
-        'Ze zitten bij twee verschillende snijpunten op dezelfde plek. Dat zijn F-hoeken.',
-        'Ze liggen tussen de evenwijdige lijnen, aan weerskanten van de snijlijn. Dat zijn Z-hoeken.',
-        'Ze zitten bij hetzelfde snijpunt, recht tegenover elkaar. Dat zijn overstaande hoeken.',
+        'Ze zitten bij twee verschillende snijpunten op dezelfde plek. Dat zijn {{f-hoeken|F-hoeken}}.',
+        'Ze liggen tussen de evenwijdige lijnen, aan weerskanten van de snijlijn. Dat zijn {{z-hoeken|Z-hoeken}}.',
+        'Ze zitten bij hetzelfde snijpunt, recht tegenover elkaar. Dat zijn {{overstaande-hoeken|overstaande hoeken}}.',
       ][ans],
     ],
     // Narekenen met de boogjes in de figuur.
@@ -120,8 +120,8 @@ function s23why() {
       ),
       hint: 'Bij een zandloperfiguur liggen de hoeken bij C tegenover elkaar, en liggen A en E in een Z tussen de evenwijdige lijnen.',
       steps: [
-        '∠C_1 = ∠C_2 (overstaande hoeken)',
-        '∠A = ∠E (Z-hoeken)',
+        '∠C_1 = ∠C_2 ({{overstaande-hoeken|overstaande hoeken}})',
+        '∠A = ∠E ({{z-hoeken|Z-hoeken}})',
         'Twee paar gelijke hoeken, dus △ABC ∼ △EDC.',
       ],
       v: () => {
@@ -157,7 +157,7 @@ function s23why() {
       hint: T(
         'De hoek bij A zit in allebei de driehoeken. Kijk welke hoek van de kleine driehoek op dezelfde plek zit als ∠B.',
       ),
-      steps: ['∠A (in △ABC) = ∠A (in △ADE)', '∠B = ∠D (F-hoeken)', 'Dus △ABC ∼ △ADE.'],
+      steps: ['∠A (in △ABC) = ∠A (in △ADE)', '∠B = ∠D ({{f-hoeken|F-hoeken}})', 'Dus △ABC ∼ △ADE.'],
       v: () => {
         const { A, B, C, D, E } = nestedPts(...sizes);
         return (
@@ -238,10 +238,12 @@ function s23x() {
       maxH: 280,
     }),
     fields: f,
-    hint: 'Toon eerst aan dat de driehoeken gelijkvormig zijn met twee paar gelijke hoeken. Zet ze daarna in een verhoudingstabel.',
+    hint: T(
+      'Toon eerst aan dat de driehoeken {{gelijkvormig|gelijkvormig}} zijn met twee paar gelijke hoeken. Zet ze daarna in een {{verhoudingstabel|verhoudingstabel}}.',
+    ),
     steps: [
       '∠Q = ∠R (= 90°)',
-      '∠P = ∠S (Z-hoeken)',
+      '∠P = ∠S ({{z-hoeken|Z-hoeken}})',
       'Dus △PQT ∼ △SRT.',
       H(
         vt(['PQ', 'QT', 'PT'], ['SR', 'RT', 'ST']) +
@@ -372,7 +374,9 @@ function s23alt() {
       maxH: 220,
     }),
     fields: f,
-    hint: T('AB vind je met Pythagoras. Daarna gebruik je △ABC ∼ △ACD.'),
+    hint: T(
+      'AB vind je met {{stelling-van-pythagoras|Pythagoras}}. Daarna gebruik je △ABC ∼ △ACD.',
+    ),
     steps: [
       `∠C = 90°, dus AC^2 + BC^2 = AB^2`,
       `${AC}^2 + ${BC}^2 = AB^2`,

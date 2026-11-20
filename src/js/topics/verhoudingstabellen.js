@@ -31,7 +31,7 @@ function s21cross() {
     f = [RF('x =', x)];
   return {
     q:
-      T('Bereken x in de verhoudingstabel.') +
+      T('Bereken x in de {{verhoudingstabel|verhoudingstabel}}.') +
       vt([cell(tl), cell(tr)], [cell(bl), cell(br)]) +
       T(needRound(f)),
     fields: f,
@@ -72,7 +72,7 @@ function s21rest() {
   const top = ['x', `${c} - x`],
     bot = [String(p), String(q)];
   return {
-    q: T('Bereken x in de verhoudingstabel.') + vt(top, bot),
+    q: T('Bereken x in de {{verhoudingstabel|verhoudingstabel}}.') + vt(top, bot),
     fields: [F('x =', x)],
     hint: 'Kruislings vermenigvuldigen geeft een vergelijking met haakjes. Denk aan de haakjes om het tweede vakje.',
     steps: [
@@ -109,7 +109,9 @@ function s21var() {
   const c1 = `x${sg(r)}`,
     c2 = `x${sg(s)}`;
   return {
-    q: T('Bereken x in de verhoudingstabel.') + vt([c1, c2], [String(p), String(q)]),
+    q:
+      T('Bereken x in de {{verhoudingstabel|verhoudingstabel}}.') +
+      vt([c1, c2], [String(p), String(q)]),
     fields: [F('x =', x)],
     hint: 'Kruislings vermenigvuldigen geeft een vergelijking met haakjes. Werk de haakjes weg en los op.',
     steps: [
@@ -226,7 +228,9 @@ function s21story() {
       `Een stapel van ${n} dezelfde boeken is ${d(L)} cm hoog. Hoe hoog is een stapel van ${m} van die boeken?`,
     ),
     fields: books,
-    hint: 'Reken eerst uit hoe dik één boek is, of gebruik een verhoudingstabel.',
+    hint: T(
+      'Reken eerst uit hoe dik één boek is, of gebruik een {{verhoudingstabel|verhoudingstabel}}.',
+    ),
     steps: [
       H(vt([String(n), String(m)], [d(L), 'x'])),
       `x = {${d(L)}*${m}/${n}} = ${d(per * m)}`,
@@ -277,7 +281,7 @@ function s21par() {
   };
   return {
     q: T(
-      `Vier evenwijdige lijnen snijden twee andere lijnen. Bereken x en y. De figuur is niet op schaal.`,
+      `Vier {{evenwijdig|evenwijdige}} lijnen snijden twee andere lijnen. Bereken x en y. De figuur is niet op schaal.`,
     ),
     fig: geo({
       pts,
@@ -298,7 +302,9 @@ function s21par() {
     }),
     fields: [F('x =', x), F('y =', y)],
     traps: [flipTrap([{ a: x }, { a: y }], { 0: (p * q) / a, 1: (a * e) / p })],
-    hint: 'Evenwijdige lijnen snijden stukken af die in een verhoudingstabel passen.',
+    hint: T(
+      '{{evenwijdig|Evenwijdige}} lijnen snijden stukken af die in een {{verhoudingstabel|verhoudingstabel}} passen.',
+    ),
     steps: [
       H(T('Bij de figuur hoort de verhoudingstabel ') + vt([d(a), 'x', d(e)], [d(p), d(q), 'y'])),
       H(vt([d(a), 'x'], [d(p), d(q)]) + T(` geeft x = {${d(a)}*${d(q)}/${d(p)}} = ${d(x)}`)),
