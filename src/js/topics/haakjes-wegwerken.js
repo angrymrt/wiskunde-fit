@@ -26,7 +26,7 @@ function aText(a) {
 }
 const rootText = (t, name) =>
   !t
-    ? `De factor x is hetzelfde als x - 0, dus ${name} = 0.`
+    ? `De {{factor|factor}} x is hetzelfde als x - 0, dus ${name} = 0.`
     : t < 0
       ? `x + ${-t} = x - -${-t}, dus ${name} = ${t}.`
       : `In de haakjes staat x - ${t}, dus ${name} = ${t}.`;
@@ -73,7 +73,7 @@ function s34ade() {
     ],
     compact: true,
     hint: T(
-      'a is het getal vooraan. In de haakjes staat een min voor d en e: bij (x + 3) hoort -3. Een losse factor x is x - 0.',
+      'a is het getal vooraan. In de haakjes staat een min voor d en e: bij (x + 3) hoort -3. Een losse {{factor|factor}} x is x - 0.',
     ),
     steps: [
       aText(a),
@@ -133,7 +133,7 @@ function s34expand() {
     fields: [F('a =', abc[0]), F('b =', abc[1]), F('c =', abc[2])],
     compact: true,
     hint: T(
-      'Werk eerst de twee haakjes weg: elke term keer elke term. Vermenigvuldig daarna alle termen met het getal vooraan.',
+      'Werk eerst de twee haakjes weg: elke {{term|term}} keer elke term. Vermenigvuldig daarna alle termen met het getal vooraan.',
     ),
     steps,
     traps,
