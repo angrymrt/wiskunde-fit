@@ -295,13 +295,13 @@ test(
     const browser = await launch();
     try {
       const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
-      await p.goto(`${siteUrl}lineaire-grafieken-tekenen`);
+      await p.goto(`${siteUrl}lineaire-formule-opstellen`);
       await p.waitForSelector('button.term');
-      const knop = p.locator('button.term').first();
+      // Een term die in dit onderwerp wordt uitgelegd, is gewone tekst. Alleen termen uit andere
+      // onderwerpen krijgen een popup.
+      assert.equal(await p.locator('button.term[data-term="evenwijdig"]').count(), 0);
+      const knop = p.locator('button.term[data-term="richtingscoefficient"]');
       assert.equal(await knop.getAttribute('aria-expanded'), 'false');
-      // Het anker staat op de term, ook als je rechtstreeks naar het adres gaat.
-      assert.ok(await p.$('#richtingscoefficient'), 'het anker staat op de plek van de uitleg');
-
       await knop.click();
       assert.equal(await knop.getAttribute('aria-expanded'), 'true');
       assert.equal(await p.locator('.pop').count(), 1);
@@ -330,19 +330,10 @@ test(
       // Onder de uitleg staat een lijst met de termen uit dit onderwerp.
       assert.match(await p.locator('.termen').innerText(), /richtingscoëfficiënt/);
 
-      // Een link met een hash naar een term zet de focus op die knop.
-      await p.evaluate(() =>
-        window.wiskundefit.go(
-          { name: 'topic', slug: 'lineaire-grafieken-tekenen' },
-          '#richtingscoefficient',
-        ),
-      );
-      await p.waitForFunction(() => document.activeElement.id === 'richtingscoefficient');
-
       // "Meer uitleg" gaat naar de term in de woordenlijst onder de uitleg, en die komt in beeld.
       await p.evaluate(() =>
         window.wiskundefit.go(
-          { name: 'topic', slug: 'lineaire-grafieken-tekenen' },
+          { name: 'topic', slug: 'lineaire-formule-opstellen' },
           '#woord-richtingscoefficient',
         ),
       );
@@ -358,9 +349,9 @@ test(
       await p.setViewportSize({ width: 360, height: 700 });
       await p.waitForFunction(() => !document.querySelector('.pop'));
 
-      // Op de uitleg van het onderwerp zelf is "Meer uitleg" niet nodig.
+      // Een term uit een ander onderwerp heeft "Meer uitleg", naar de lijst bij dat onderwerp.
       await knop.click();
-      assert.equal(await p.locator('.pop a').count(), 0);
+      assert.equal(await p.locator('.pop a').count(), 1);
     } finally {
       await browser.close();
     }
@@ -1262,10 +1253,13 @@ test('JavaScript neemt een vooraf gebouwde pagina over zonder iets te vervangen'
             list.forEach((m) => {
               // De balk met Ga oefenen schakelt main.js zelf aan en uit.
               if (m.type === 'attributes' && m.target.matches('.practice-bar')) return;
-              // Een term wordt een knop (#39): de tekst en de plek blijven gelijk.
+              // Een term wordt een knop, of gewone tekst op de pagina van zijn eigen onderwerp (#39): de
+              // tekst en de plek blijven gelijk.
               if (
                 m.type === 'childList' &&
-                [...m.addedNodes, ...m.removedNodes].every((n) => n.matches?.('.term'))
+                [...m.addedNodes, ...m.removedNodes].every(
+                  (n) => n.nodeType === 3 || n.matches?.('.term'),
+                )
               )
                 return;
               window.vervangen.push(m.type);

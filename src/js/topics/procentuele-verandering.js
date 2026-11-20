@@ -804,7 +804,7 @@ export default {
     {
       t: 'Procenten',
       p: [
-        'Een {{#procent|procent}} is een honderdste deel. Wil je een procent van een getal weten, schrijf het procent dan als kommagetal en vermenigvuldig. Wil je weten hoeveel procent een deel is, deel het deel dan door het totaal en vermenigvuldig met 100%.',
+        'Een {{=procent|procent}} is een honderdste deel. Wil je een procent van een getal weten, schrijf het procent dan als kommagetal en vermenigvuldig. Wil je weten hoeveel procent een deel is, deel het deel dan door het totaal en vermenigvuldig met 100%.',
       ],
       ex: { q: T('Bereken 18,4% van 650.'), steps: ['18,4% van 650 is 0,184*650 = 119,6'] },
       ex2: {

@@ -234,7 +234,7 @@ export default {
     {
       t: 'a(x - d)(x - e) uitwerken',
       p: [
-        '{{#haakjes-wegwerken|Haakjes wegwerken}} is een product met haakjes schrijven als een som van {{term|termen}}. Het is het omgekeerde van {{ontbinden-in-factoren|ontbinden in factoren}}.',
+        '{{=haakjes-wegwerken|Haakjes wegwerken}} is een product met haakjes schrijven als een som van {{term|termen}}. Het is het omgekeerde van {{ontbinden-in-factoren|ontbinden in factoren}}.',
       ],
       how: [
         'Werk eerst de twee haakjes weg: vermenigvuldig elke term van de eerste haakjes met elke term van de tweede.',

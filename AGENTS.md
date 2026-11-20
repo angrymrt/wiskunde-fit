@@ -150,7 +150,7 @@ Een veld kan ook `label` krijgen, de naam voor een schermlezer als de tekst erna
 | `AC^2`, `rc_k`     | Superscript en subscript                                   |
 | `x-as`, `F-hoeken` | Koppelteken blijft staan, geen minteken                    |
 
-Een term met uitleg in een popup schrijf je als `{{id|woord}}`, met het `id` uit `woorden.js`. Schrijf `{{=id|woord}}` op de plek waar de term wordt uitgelegd, zodat de term in de woordenlijst onder de uitleg komt, waar "Meer uitleg" heen linkt. Legt de zin de term zelf direct uit, zoals "X betekent …", schrijf dan `{{#id|woord}}`: dat geeft geen popup, maar de term staat wel in de woordenlijst. Een term is nooit zichtbaar in de proeftoets.
+Een term met uitleg in een popup schrijf je als `{{id|woord}}`, met het `id` uit `woorden.js`. Schrijf `{{=id|woord}}` op de plek waar de term wordt uitgelegd, in het onderwerp dat bij `onderwerp` staat. Op de pagina van dat onderwerp krijgt de term geen popup, want de lijst "Woorden in dit onderwerp" onder de uitleg legt hem uit. Op andere pagina's en bij het oefenen krijgt hij wel een popup, met "Meer uitleg" naar die lijst. Een term is nooit zichtbaar in de proeftoets.
 
 Let op: een losse letter wordt altijd als variabele gezet, dus schrijf `meter` in plaats van `m`. Bij een andere letter dan x, zoals `a` gevolgd door `s`, zet je `​` ertussen. Anders wordt het het woord "as".
 

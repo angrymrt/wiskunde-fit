@@ -23,30 +23,11 @@ test('een term wordt één keer een knop, de rest gewone tekst', () => {
   assert.equal(uit.replace(/<[^>]+>/g, ''), 'snijpunt en nog een snijpunt');
 });
 
-test('{{=id|woord}} markeert de plek waar de term wordt uitgelegd', () => {
+test('{{=id|woord}} geeft dezelfde term als {{id|woord}}', () => {
   assert.equal(
     T('{{=snijpunt|snijpunt}}'),
-    '<span class="term" data-term="snijpunt" id="snijpunt">snijpunt</span>',
+    '<span class="term" data-term="snijpunt">snijpunt</span>',
   );
-});
-
-test('{{#id|woord}} geeft geen popup, maar telt wel mee voor de woordenlijst', () => {
-  assert.equal(
-    T('{{#snijpunt|snijpunt}}'),
-    '<span class="termdef" data-term="snijpunt">snijpunt</span>',
-  );
-  assert.deepEqual(termenIn(T('{{#snijpunt|snijpunt}}')), ['snijpunt']);
-  assert.equal(
-    termen(T('{{#snijpunt|snijpunt}} en {{snijpunt|snijpunt}}')).match(/<span class="term"/g)
-      .length,
-    1,
-  );
-});
-
-test('de plek waar een term wordt uitgelegd houdt zijn id, ook als de term er al stond', () => {
-  const uit = termen(`${T('{{snijpunt|snijpunt}}')} en ${T('{{=snijpunt|snijpunt}}')}`);
-  assert.match(uit, /id="snijpunt">snijpunt<\/span>/);
-  assert.equal(uit.match(/<span class="term"/g).length, 1);
 });
 
 test('in de proeftoets zijn termen gewone tekst', () => {
@@ -68,7 +49,7 @@ test('elke term in de stof staat in de woordenlijst, en elke term heeft een uitl
         assert.equal(
           WOORDEN[m[2]].onderwerp,
           TOPIC_VAN_BESTAND[f],
-          `${f}: {{${m[1]}${m[2]}|...}} hoort in het onderwerp ${WOORDEN[m[2]].onderwerp}`,
+          `${f}: {{=${m[2]}|...}} hoort in het onderwerp ${WOORDEN[m[2]].onderwerp}`,
         );
     }
   }

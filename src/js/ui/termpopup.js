@@ -3,7 +3,8 @@
 // Importeert niets uit de rest van de site, anders komt er een gedeeld bestand bij het eerste bezoek.
 import { WOORDEN, termenLijstHTML } from '../woorden.js';
 
-// Maakt van elke <span class="term"> een knop. Een id (de plek waar de term wordt uitgelegd) blijft.
+// Maakt van elke <span class="term"> een knop, behalve op de pagina van het onderwerp waar de term wordt
+// uitgelegd: daar legt de woordenlijst onder de uitleg hem uit, dus blijft het gewone tekst.
 // Verandert de breedte van het venster, dan staat de popup niet meer goed. Alleen de hoogte (de
 // werkbalk van een telefoon) maakt niet uit.
 let gescrold = ''; // het adres waarvoor we al naar de woordenlijst zijn gescrold
@@ -12,27 +13,27 @@ function mount(root, pathFor, state) {
   if (!ctx) luister();
   ctx = { pathFor, state };
   lijst(root);
+  const eigen = !state.view.oefen && state.view.name === 'topic' ? state.view.slug : null;
   for (const sp of root.querySelectorAll('span.term')) {
     const id = sp.dataset.term;
     if (!WOORDEN[id]) continue;
+    if (WOORDEN[id].onderwerp === eigen) {
+      sp.replaceWith(sp.textContent);
+      continue;
+    }
     const knop = document.createElement('button');
     knop.type = 'button';
     knop.className = 'term';
     knop.dataset.term = id;
     knop.setAttribute('aria-expanded', 'false');
-    if (sp.id) knop.id = sp.id;
     knop.textContent = sp.textContent;
     sp.replaceWith(knop);
   }
-  // Linkt het adres met een # naar een term, dan krijgt die knop de focus, tenzij de leerling al
-  // ergens anders is.
   const naar = document.getElementById(location.hash.slice(1));
   // "Meer uitleg" linkt naar de term in de woordenlijst onder de uitleg. Elke nieuwe tekening van het
   // scherm roept mount aan, maar naar de term scrollen we maar één keer per adres.
   if (naar?.matches('dt') && gescrold !== location.hash) naar.scrollIntoView();
   gescrold = location.hash;
-  if (naar?.matches('button.term') && /^(BODY|H1)$/.test(document.activeElement.tagName))
-    naar.focus();
 }
 
 // Onder de uitleg van een onderwerp staan de termen die erin voorkomen, uit de woordenlijst. Zo hoeft
@@ -42,9 +43,7 @@ function lijst(root) {
   if (body && !body.querySelector('.termen'))
     body.insertAdjacentHTML(
       'beforeend',
-      termenLijstHTML(
-        [...body.querySelectorAll('span.term, span.termdef')].map((x) => x.dataset.term),
-      ),
+      termenLijstHTML([...body.querySelectorAll('span.term')].map((x) => x.dataset.term)),
     );
 }
 
