@@ -229,6 +229,73 @@ export const WOORDEN = {
       'De twee hoeken die recht tegenover elkaar liggen als twee lijnen elkaar snijden. Ze zijn altijd gelijk.',
     onderwerp: 'gelijkvormigheid-aantonen',
   },
+  gemiddelde: {
+    naam: 'gemiddelde',
+    uitleg:
+      'Het totaal van alle getallen gedeeld door het aantal getallen. Het gemiddelde van 4, 6 en 11 is 21 : 3 = 7.',
+    onderwerp: 'tabellen-en-diagrammen',
+  },
+  aandeel: {
+    naam: 'aandeel',
+    uitleg: 'Het deel dat iets uitmaakt van het totaal, meestal in procenten.',
+    onderwerp: 'tabellen-en-diagrammen',
+  },
+  staafdiagram: {
+    naam: 'staafdiagram',
+    uitleg: 'Een diagram met staven. De hoogte van een staaf laat zien hoe groot een waarde is.',
+    onderwerp: 'tabellen-en-diagrammen',
+  },
+  'gestapeld-staafdiagram': {
+    naam: 'gestapeld staafdiagram',
+    uitleg:
+      'Een staafdiagram waarbij elke staaf uit verschillende delen bestaat die op elkaar zijn gestapeld. Je ziet de afzonderlijke delen en het totaal.',
+    onderwerp: 'tabellen-en-diagrammen',
+  },
+  cirkeldiagram: {
+    naam: 'cirkeldiagram',
+    uitleg:
+      'Een cirkel die is verdeeld in stukken. Elk stuk laat zien welk deel het is van het totaal.',
+    onderwerp: 'tabellen-en-diagrammen',
+  },
+  lijndiagram: {
+    naam: 'lijndiagram',
+    uitleg: 'Een diagram met een lijn die laat zien hoe iets in de tijd verandert.',
+    onderwerp: 'tabellen-en-diagrammen',
+  },
+  schaal: {
+    naam: 'schaal',
+    uitleg:
+      'De stapgrootte tussen de getallen op een as. Als de getallen steeds met 10 omhooggaan, is de schaal 10.',
+    onderwerp: 'misleidende-statistiek',
+  },
+  procentpunt: {
+    naam: 'procentpunt',
+    uitleg:
+      'Het verschil tussen twee percentages. Van 24% naar 18% is een afname van 6 procentpunt.',
+    onderwerp: 'misleidende-statistiek',
+  },
+  waarneming: {
+    naam: 'waarneming',
+    uitleg: 'Een waarde die je meet of verzamelt, zoals het aantal bezoekers in een bepaald jaar.',
+    onderwerp: 'interpoleren-en-extrapoleren',
+  },
+  'gemiddelde-verandering-per-jaar': {
+    naam: 'gemiddelde verandering per jaar',
+    uitleg:
+      'Het verschil tussen twee waarden gedeeld door het aantal jaren ertussen. Het zegt hoeveel de waarde gemiddeld per jaar toe- of afneemt.',
+    onderwerp: 'interpoleren-en-extrapoleren',
+  },
+  interpoleren: {
+    naam: 'interpoleren',
+    uitleg: 'Een waarde schatten die tussen twee bekende waarnemingen ligt.',
+    onderwerp: 'interpoleren-en-extrapoleren',
+  },
+  extrapoleren: {
+    naam: 'extrapoleren',
+    uitleg:
+      'Een waarde schatten buiten de bekende waarnemingen, dus vóór de eerste of na de laatste.',
+    onderwerp: 'interpoleren-en-extrapoleren',
+  },
   snijpunt: {
     naam: 'snijpunt',
     uitleg: 'Het punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist.',

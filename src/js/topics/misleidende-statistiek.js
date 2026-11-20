@@ -351,10 +351,10 @@ function s44points() {
   const intro = `In ${y1} was ${c.what} ${g(p1)}%.`,
     q =
       mode === 'van-naar'
-        ? `${intro} In ${y2} was dat ${g(p2)}%. Met hoeveel procentpunt is het percentage ${verb}? En met hoeveel procent?`
+        ? `${intro} In ${y2} was dat ${g(p2)}%. Met hoeveel {{procentpunt|procentpunt}} is het percentage ${verb}? En met hoeveel procent?`
         : mode === 'punten'
-          ? `${intro} In ${y2} was het percentage ${g(pp)} procentpunt ${up ? 'hoger' : 'lager'}. Bereken het percentage in ${y2} en de procentuele ${word}.`
-          : `${intro} Tot ${y2} is het percentage met ${g(r)}% ${verb}. Bereken het percentage in ${y2} en hoeveel procentpunt het is ${verb}.`;
+          ? `${intro} In ${y2} was het percentage ${g(pp)} {{procentpunt|procentpunt}} ${up ? 'hoger' : 'lager'}. Bereken het percentage in ${y2} en de procentuele ${word}.`
+          : `${intro} Tot ${y2} is het percentage met ${g(r)}% ${verb}. Bereken het percentage in ${y2} en hoeveel {{procentpunt|procentpunt}} het is ${verb}.`;
   const diff = `${g(p2)} - ${g(p1)} = ${g(sgn * pp)}, dus een ${word} van ${g(pp)} procentpunt.`,
     pctSteps = [
       'procentuele verandering = {nieuw - oud/oud} × 100%',
@@ -380,7 +380,7 @@ function s44points() {
     q: T(q + needRound(fields)),
     fields,
     hint: T(
-      'Het verschil in procentpunten is nieuw percentage − oud percentage. De procentuele verandering is {nieuw - oud/oud} × 100%.',
+      'Het verschil in {{procentpunt|procentpunten}} is nieuw percentage − oud percentage. De {{procentuele-verandering|procentuele verandering}} is {nieuw - oud/oud} × 100%.',
     ),
     steps,
     traps: [
@@ -634,7 +634,7 @@ export default {
       p: [
         'Een diagram kan de goede getallen bevatten en toch een verkeerde indruk geven. Let daarom op drie dingen.',
         'Is duidelijk waar het diagram over gaat? Kijk naar de titel, wat er langs de assen staat en de eenheden.',
-        'Geven de assen de juiste indruk? Begint de verticale as niet bij 0, dan lijken verschillen groter. Staan jaren op gelijke afstand terwijl er niet steeds evenveel jaren tussen zitten, dan lijkt de groei sneller of langzamer. Bij twee verticale assen met een verschillende schaal kun je de lijnen niet met elkaar vergelijken.',
+        'Geven de assen de juiste indruk? Begint de verticale as niet bij 0, dan lijken verschillen groter. Staan jaren op gelijke afstand terwijl er niet steeds evenveel jaren tussen zitten, dan lijkt de groei sneller of langzamer. Bij twee verticale assen met een verschillende {{=schaal|schaal}} kun je de lijnen niet met elkaar vergelijken.',
         'Helpen de plaatjes? Wordt een plaatje of staaf twee keer zo hoog en ook twee keer zo breed, dan lijkt het vier keer zo groot.',
       ],
       ex: {
@@ -663,8 +663,8 @@ export default {
       t: 'Procentpunten',
       p: [
         'Verandert een percentage, dan kun je het verschil op twee manieren geven.',
-        'In procentpunten: nieuw percentage − oud percentage. Van 24% naar 18% is een afname van 6 procentpunt.',
-        'Als procentuele verandering: {nieuw - oud/oud} × 100%, net als bij andere getallen.',
+        'In {{=procentpunt|procentpunten}}: nieuw percentage − oud percentage. Van 24% naar 18% is een afname van 6 procentpunt.',
+        'Als {{procentuele-verandering|procentuele verandering}}: {nieuw - oud/oud} × 100%, net als bij andere getallen.',
       ],
       ex: {
         q: T(
