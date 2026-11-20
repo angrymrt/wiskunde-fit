@@ -120,9 +120,11 @@ function bigShare() {
   return {
     q: T(`${c.q(t, p)} ${c.ask(u)}`),
     fields: [F(c.pre, ans, c.post(u))],
-    hint: alt
-      ? `Schrijf het procent als kommagetal en vermenigvuldig. Zet het antwoord daarna om: ${c.unit === 'miljard' ? '1 miljard = 1000 miljoen' : '1 miljoen = 1 000 000'}.`
-      : `Schrijf het procent als kommagetal en vermenigvuldig. Het woord ${c.unit} blijft erachter staan.`,
+    hint: T(
+      alt
+        ? `Schrijf het {{procent|procent}} als kommagetal en vermenigvuldig. Zet het antwoord daarna om: ${c.unit === 'miljard' ? '1 miljard = 1000 miljoen' : '1 miljoen = 1 000 000'}.`
+        : `Schrijf het {{procent|procent}} als kommagetal en vermenigvuldig. Het woord ${c.unit} blijft erachter staan.`,
+    ),
     steps: [
       `${d(p)}% van ${g(t)} ${c.unit} is ${d(p / 100)}*${g(t)} ${c.unit} = ${g(big)} ${c.unit}`,
       ...conv,
@@ -433,7 +435,7 @@ function makeBack() {
           ? `Je boodschappen kosten samen ${eu(n)} euro, {{btw|inclusief}} 9% btw. Hoeveel euro is dat zonder btw?`
           : `${name} kost ${eu(n)} euro, {{btw|inclusief}} 21% btw. Hoeveel euro is dat zonder btw?`,
         field: F('zonder btw =', o, 'euro'),
-        say: `Zonder btw is dat ${eu(o)} euro.`,
+        say: `Zonder {{btw|btw}} is dat ${eu(o)} euro.`,
       };
     }
     const up = kind === 'up',
@@ -553,7 +555,7 @@ function s42old() {
     q: T(b.q),
     fields: [b.field],
     hint: T(
-      'Bereken eerst de vermenigvuldigingsfactor. Je weet nieuw, dus gebruik oud = {nieuw/vermenigvuldigingsfactor}.',
+      'Bereken eerst de {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}}. Je weet nieuw, dus gebruik oud = {nieuw/vermenigvuldigingsfactor}.',
     ),
     steps: [...backSteps(b), b.say],
     traps: backTraps(0, b).filter(Boolean),
@@ -718,7 +720,9 @@ function s42whole() {
   return {
     q: T(w.q),
     fields: [w.field],
-    hint: 'Schrijf het procent als kommagetal. Je weet deel, dus deel het deel door dat kommagetal.',
+    hint: T(
+      'Schrijf het {{procent|procent}} als kommagetal. Je weet deel, dus deel het deel door dat kommagetal.',
+    ),
     steps: [...wholeSteps(w), w.say],
     traps: wholeTraps(0, w).filter(Boolean),
     // Reken vooruit: het procent van het totaal moet het deel geven.
@@ -793,7 +797,7 @@ function backThenOn() {
       ...backSteps(b),
       factorStep(21, true, ' btw'),
       `met 21% btw = 1,21*${eu(o)} = ${eu(x)}`,
-      `Zonder btw is het ${eu(o)} euro. Met 21% btw kosten de boodschappen ${eu(x)} euro.`,
+      `Zonder {{btw|btw}} is het ${eu(o)} euro. Met 21% btw kosten de boodschappen ${eu(x)} euro.`,
     ],
     traps: [
       ...backTraps(0, b),
@@ -953,7 +957,7 @@ function twoBack() {
     steps: [
       `${sg(p1, u1)} geeft × ${d(f1)} en ${sg(p2, u2)} geeft × ${d(f2)}`,
       H(schema([String(y), String(y + 1), String(y + 2)], [d(f1), d(f2)])),
-      `Je weet het aantal in ${y + 2}, dus reken terug: deel door de vermenigvuldigingsfactoren.`,
+      `Je weet het aantal in ${y + 2}, dus reken terug: deel door de {{vermenigvuldigingsfactor|vermenigvuldigingsfactoren}}.`,
       `${y + 1}: {${g(n)}/${d(f2)}} = ${g(mid)}`,
       `${y}: {${g(mid)}/${d(f1)}} = ${g(tot)}`,
       c.say(y, mid, tot),
@@ -993,7 +997,9 @@ function s42mixed() {
   const q = k === 0 ? backThenOn() : k === 1 ? partOfPart() : twoBack();
   return {
     ...q,
-    hint: 'Reken eerst terug: deel door de vermenigvuldigingsfactor, of door het procent als kommagetal. Reken daarna verder.',
+    hint: T(
+      'Reken eerst terug: deel door de {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}}, of door het procent als kommagetal. Reken daarna verder.',
+    ),
     traps: q.traps.filter(Boolean),
   };
 }

@@ -621,7 +621,7 @@ export default {
       t: 'Gemiddelde verandering per jaar',
       p: [
         'In een tabel staan {{=waarneming|waarnemingen}}: bij een paar jaren de waarde die toen is gemeten. Tussen twee waarnemingen zitten vaak meer jaren.',
-        'De {{=gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}} is het verschil in waarde gedeeld door het verschil in jaren. Bij een afname is die negatief.',
+        'De {{#gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}} is het verschil in waarde gedeeld door het verschil in jaren. Bij een afname is die negatief.',
       ],
       ex: {
         q:
@@ -638,7 +638,7 @@ export default {
     {
       t: 'Interpoleren',
       p: [
-        '{{=interpoleren|Interpoleren}} is een waarde schatten die tussen twee waarnemingen ligt. Inter betekent tussen.',
+        '{{#interpoleren|Interpoleren}} is een waarde schatten die tussen twee waarnemingen ligt. Inter betekent tussen.',
         'Gebruik de twee waarnemingen om het jaar heen. Bereken de gemiddelde verandering per jaar, en tel die zo vaak op als er jaren zijn verstreken.',
         'Komt de gemiddelde verandering niet precies uit, reken dan door met het getal dat niet is afgerond, zoals 1,85..., en rond pas aan het eind af.',
       ],
@@ -656,7 +656,7 @@ export default {
     {
       t: 'Extrapoleren',
       p: [
-        '{{=extrapoleren|Extrapoleren}} is een waarde schatten die buiten de waarnemingen ligt. Extra betekent buiten.',
+        '{{#extrapoleren|Extrapoleren}} is een waarde schatten die buiten de waarnemingen ligt. Extra betekent buiten.',
         'Gebruik voor een jaar na de tabel de laatste twee waarnemingen, want die passen het best bij de nieuwste ontwikkeling. Voor een jaar vóór de tabel gebruik je de eerste twee.',
         'Wees voorzichtig met extrapoleren. Je weet niet hoe het verder gaat, en ook tussen twee waarnemingen kan het flink schommelen.',
       ],

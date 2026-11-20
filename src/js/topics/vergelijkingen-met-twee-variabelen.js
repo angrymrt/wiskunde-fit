@@ -278,7 +278,7 @@ export default {
     {
       t: 'Herleiden tot y = ax + b',
       p: [
-        '{{=herleiden|Herleiden}} is de vergelijking omschrijven tot y = ax + b. Breng de term met x over naar het {{=lid|rechterlid}}. Daarbij verandert + in - en - in +. Staat er nog een getal voor y, deel dan alle termen door dat getal.',
+        '{{#herleiden|Herleiden}} is de vergelijking omschrijven tot y = ax + b. Breng de term met x over naar het {{=lid|rechterlid}}. Daarbij verandert + in - en - in +. Staat er nog een getal voor y, deel dan alle termen door dat getal.',
       ],
       ex: { q: T('4x + 3y = 12'), steps: ['3y = -4x + 12', 'y = -{4/3}x + 4'] },
     },

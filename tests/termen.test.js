@@ -64,7 +64,7 @@ test('elke term in de stof staat in de woordenlijst, en elke term heeft een uitl
         assert.equal(
           WOORDEN[m[2]].onderwerp,
           TOPIC_VAN_BESTAND[f],
-          `${f}: {{=${m[2]}|...}} hoort in het onderwerp ${WOORDEN[m[2]].onderwerp}`,
+          `${f}: {{${m[1]}${m[2]}|...}} hoort in het onderwerp ${WOORDEN[m[2]].onderwerp}`,
         );
     }
   }

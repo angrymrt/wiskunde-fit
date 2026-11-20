@@ -103,7 +103,9 @@ function partOf() {
   return {
     q: T(bare ? `Bereken ${d(p)}% van ${t}.` : `${c.whole(t)} ${c.part(p)} ${c.askN}`),
     fields,
-    hint: 'Schrijf het procent als kommagetal: deel het door 100. Vermenigvuldig dat met het totaal.',
+    hint: T(
+      'Schrijf het {{procent|procent}} als kommagetal: deel het door 100. Vermenigvuldig dat met het totaal.',
+    ),
     steps: [
       `${d(p)}% van ${t} is ${d(p / 100)}*${t} = ${d(ans)}`,
       ...(bare ? [] : [`Dat zijn ${d(ans)} ${c.unit}.`]),
@@ -242,7 +244,9 @@ function s41change() {
   return {
     q: T(`${story} Bereken de procentuele ${word}.${needRound(fields)}`),
     fields,
-    hint: T('Gebruik procentuele verandering = {nieuw - oud/oud} × 100%. Je deelt door oud.'),
+    hint: T(
+      'Gebruik {{procentuele-verandering|procentuele verandering}} = {nieuw - oud/oud} × 100%. Je deelt door oud.',
+    ),
     steps: [
       'procentuele verandering = {nieuw - oud/oud} × 100%',
       `{${show(n)} - ${show(o)}/${show(o)}}*100% ${eq(pct)}%`,
@@ -304,14 +308,16 @@ function pctToFactor() {
     f = fac(c),
     sign = up ? '+' : '-';
   return {
-    q: T(`${s} ${up ? vUp : vDown} met ${d(p)}%. Wat is de vermenigvuldigingsfactor?`),
+    q: T(
+      `${s} ${up ? vUp : vDown} met ${d(p)}%. Wat is de {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}}?`,
+    ),
     fields: [F('vermenigvuldigingsfactor =', f)],
     hint: up
       ? 'Bij een toename komt het procent bij 100% erbij. Deel het nieuwe percentage door 100.'
       : 'Bij een afname gaat het procent van 100% af. Deel het nieuwe percentage door 100.',
     steps: [
       `${d(p)}% ${up ? 'erbij' : 'eraf'} geeft 100% ${sign} ${d(p)}% = ${d(f * 100)}%, dus × ${d(f)}`,
-      `De vermenigvuldigingsfactor is ${d(f)}.`,
+      `De {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}} is ${d(f)}.`,
     ],
     traps: [
       miss('alleen-het-procent', 0, [p / 100, p], f, 1e-6, 0, ONLY_PCT),
@@ -349,10 +355,10 @@ function wordToFactor() {
       'Het aantal fietsen in een stalling',
     ]);
   return {
-    q: T(`${s} ${phrase}. Wat is de vermenigvuldigingsfactor?`),
+    q: T(`${s} ${phrase}. Wat is de {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}}?`),
     fields: [F('vermenigvuldigingsfactor =', f)],
     hint: 'Bedenk hoeveel procent het nieuwe getal is van het oude. Deel dat percentage door 100.',
-    steps: [step, `De vermenigvuldigingsfactor is ${d(f)}.`],
+    steps: [step, `De {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}} is ${d(f)}.`],
     traps: [
       p && miss('alleen-het-procent', 0, [Math.abs(p) / 100, Math.abs(p)], f, 1e-6, 0, ONLY_PCT),
       miss('factor-als-procent', 0, [f * 100], f, 1e-6, 0, FACTOR_IS_PCT),
@@ -387,7 +393,9 @@ function factorToPct() {
       { sel: ['toename', 'afname'], a, pre: 'Dat is een', label: 'Toename of afname' },
       F('van', p, '%'),
     ],
-    hint: 'Schrijf de vermenigvuldigingsfactor als percentage en vergelijk dat met 100%.',
+    hint: T(
+      'Schrijf de {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}} als percentage en vergelijk dat met 100%.',
+    ),
     steps: [
       `× ${d(f)} hoort bij ${d(f * 100)}%`,
       up ? `${d(f * 100)}% - 100% = ${d(p)}%` : `100% - ${d(f * 100)}% = ${d(p)}%`,
@@ -499,7 +507,9 @@ function s41new() {
   return {
     q: T(q),
     fields,
-    hint: 'Bereken eerst de vermenigvuldigingsfactor. Dan is nieuw = vermenigvuldigingsfactor × oud.',
+    hint: T(
+      'Bereken eerst de {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}}. Dan is nieuw = vermenigvuldigingsfactor × oud.',
+    ),
     steps,
     traps: [
       miss(
@@ -583,7 +593,9 @@ function s41chain() {
       `${s} ${chainText(ch, kind, y0)}. Met hoeveel procent is ${short} in totaal veranderd?${needRound(fields)}`,
     ),
     fields,
-    hint: 'Schrijf bij elke verandering de vermenigvuldigingsfactor. Vermenigvuldig die factoren met elkaar.',
+    hint: T(
+      'Schrijf bij elke verandering de {{vermenigvuldigingsfactor|vermenigvuldigingsfactor}}. Vermenigvuldig die factoren met elkaar.',
+    ),
     steps: [
       factorsText(ch),
       factorCalc(ch, fx),
@@ -727,7 +739,9 @@ function s41chainNew() {
   return {
     q: T(q),
     fields,
-    hint: 'Vermenigvuldig de vermenigvuldigingsfactoren van alle veranderingen. Reken met die factor zonder hem af te ronden.',
+    hint: T(
+      'Vermenigvuldig de {{vermenigvuldigingsfactor|vermenigvuldigingsfactoren}} van alle veranderingen. Reken met die factor zonder hem af te ronden.',
+    ),
     steps,
     traps: [
       miss(
@@ -790,7 +804,7 @@ export default {
     {
       t: 'Procenten',
       p: [
-        'Een {{=procent|procent}} is een honderdste deel. Wil je een procent van een getal weten, schrijf het procent dan als kommagetal en vermenigvuldig. Wil je weten hoeveel procent een deel is, deel het deel dan door het totaal en vermenigvuldig met 100%.',
+        'Een {{#procent|procent}} is een honderdste deel. Wil je een procent van een getal weten, schrijf het procent dan als kommagetal en vermenigvuldig. Wil je weten hoeveel procent een deel is, deel het deel dan door het totaal en vermenigvuldig met 100%.',
       ],
       ex: { q: T('Bereken 18,4% van 650.'), steps: ['18,4% van 650 is 0,184*650 = 119,6'] },
       ex2: {

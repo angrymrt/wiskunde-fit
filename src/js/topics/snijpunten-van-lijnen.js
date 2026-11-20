@@ -131,7 +131,7 @@ export default {
       t: 'Snijpunten met de assen',
       p: [
         T(
-          'Een {{=snijpunt|snijpunt}} is een punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist. Een punt op de x-as heeft y-coördinaat 0. Een punt op de y-as heeft x-coördinaat 0. Ligt A op de x-as, dan schrijf je y_A = 0.',
+          'Een {{#snijpunt|snijpunt}} is een punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist. Een punt op de x-as heeft y-coördinaat 0. Een punt op de y-as heeft x-coördinaat 0. Ligt A op de x-as, dan schrijf je y_A = 0.',
         ),
       ],
       ex: {
