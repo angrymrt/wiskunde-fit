@@ -30,6 +30,15 @@ test('{{=id|woord}} markeert de plek waar de term wordt uitgelegd', () => {
   );
 });
 
+test('{{#id|woord}} geeft alleen het anker, zonder popup', () => {
+  assert.equal(T('{{#snijpunt|snijpunt}}'), '<span id="snijpunt">snijpunt</span>');
+  assert.equal(
+    termen(T('{{#snijpunt|snijpunt}} en {{snijpunt|snijpunt}}')).match(/<span class="term"/g)
+      .length,
+    1,
+  );
+});
+
 test('de plek waar een term wordt uitgelegd houdt zijn id, ook als de term er al stond', () => {
   const uit = termen(`${T('{{snijpunt|snijpunt}}')} en ${T('{{=snijpunt|snijpunt}}')}`);
   assert.match(uit, /id="snijpunt">snijpunt<\/span>/);
@@ -49,7 +58,7 @@ test('elke term in de stof staat in de woordenlijst, en elke term heeft een uitl
   const dir = new URL('../src/js/topics/', import.meta.url);
   for (const f of readdirSync(dir).filter((x) => x.endsWith('.js'))) {
     const src = readFileSync(new URL(f, dir), 'utf8');
-    for (const m of src.matchAll(/\{\{(=?)([a-z-]+)\|/g)) {
+    for (const m of src.matchAll(/\{\{([=#]?)([a-z-]+)\|/g)) {
       assert.ok(WOORDEN[m[2]], `${f}: de term ${m[2]} staat niet in woorden.js`);
       if (m[1])
         assert.equal(
