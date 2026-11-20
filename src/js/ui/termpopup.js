@@ -26,6 +26,8 @@ function mount(root, pathFor, state) {
   // Linkt het adres met een # naar een term, dan krijgt die knop de focus, tenzij de leerling al
   // ergens anders is.
   const naar = document.getElementById(location.hash.slice(1));
+  // "Meer uitleg" linkt naar de term in de woordenlijst onder de uitleg.
+  if (naar?.matches('dt')) naar.scrollIntoView();
   if (naar?.matches('button.term') && /^(BODY|H1)$/.test(document.activeElement.tagName))
     naar.focus();
 }
@@ -37,7 +39,9 @@ function lijst(root) {
   if (body && !body.querySelector('.termen'))
     body.insertAdjacentHTML(
       'beforeend',
-      termenLijstHTML([...body.querySelectorAll('span.term')].map((x) => x.dataset.term)),
+      termenLijstHTML(
+        [...body.querySelectorAll('span.term, span.termdef')].map((x) => x.dataset.term),
+      ),
     );
 }
 
@@ -66,7 +70,7 @@ function zetPopup(knop, pathFor, view) {
   el.append(naam, w.uitleg);
   if (w.onderwerp && (view.oefen || view.slug !== w.onderwerp)) {
     const a = document.createElement('a');
-    a.href = `${pathFor({ name: 'topic', slug: w.onderwerp })}#${id}`;
+    a.href = `${pathFor({ name: 'topic', slug: w.onderwerp })}#woord-${id}`;
     a.textContent = 'Meer uitleg';
     el.append(' ', a);
   }

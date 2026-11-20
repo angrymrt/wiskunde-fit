@@ -16,11 +16,11 @@ function T(s) {
     if (t.startsWith('{{')) {
       // Een term met uitleg: {{id|woord}}. Met = erbij ({{=id|woord}}) is dit de plek waar de term wordt
       // uitgelegd: daar komt het anker voor "Meer uitleg". De popup komt van main.js, zie ui/termen.js.
-      // Met # erbij ({{#id|woord}}) legt de zin de term zelf direct uit: dan komt er alleen het anker, geen popup.
+      // Met # erbij ({{#id|woord}}) legt de zin de term zelf direct uit: dan komt er geen popup, maar de term staat wel in de woordenlijst.
       const alleen = t[2] === '#',
         def = t[2] === '=' || alleen,
         [id, woord] = t.slice(def ? 3 : 2, -2).split('|');
-      if (alleen) o += `<span id="${id}">${esc(woord)}</span>`;
+      if (alleen) o += `<span class="termdef" data-term="${id}">${esc(woord)}</span>`;
       else
         o += `<span class="term" data-term="${id}"${def ? ` id="${id}"` : ''}>${esc(woord)}</span>`;
     } else if (t[0] === '{' && t.length > 2) {
