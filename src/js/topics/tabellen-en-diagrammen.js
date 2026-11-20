@@ -212,7 +212,7 @@ function s43missing() {
       ),
       trap(
         'keer-en-delen-verwisseld',
-        'Bij een {{gemiddelde|gemiddelde}} deel je het totaal door het aantal. Het totaal is dus aantal keer gemiddelde, en het aantal is totaal gedeeld door gemiddelde.',
+        'Bij een gemiddelde deel je het totaal door het aantal. Het totaal is dus aantal keer gemiddelde, en het aantal is totaal gedeeld door gemiddelde.',
         miss(iA, [A.t * A.n], A.m, tA, tA),
         miss(iT, [Tt.n / Tt.m], Tt.t, 0.5),
         miss(iC, [C.t * C.m], C.n, 0.5),
@@ -360,7 +360,7 @@ function s43share() {
       mode === 'twee' &&
         trap(
           'een-groep-vergeten',
-          'Tel eerst de twee groepen bij elkaar op, in allebei de rijen. Bereken daarna de {{procentuele-verandering|procentuele verandering}}.',
+          'Tel eerst de twee groepen bij elkaar op, in allebei de rijen. Bereken daarna de procentuele verandering.',
           miss(
             2,
             S.map((i) => (Math.abs(vals[1][i] - vals[0][i]) / vals[0][i]) * 100),
