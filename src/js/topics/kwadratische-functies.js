@@ -164,14 +164,16 @@ function s31dalberg() {
     opts = [T('een dalparabool'), T('een bergparabool')],
     right = a > 0 ? 0 : 1;
   return {
-    q: T(`Is de grafiek van ${n}(x) = ${f} een dalparabool of een bergparabool?`),
+    q: T(
+      `Is de grafiek van ${n}(x) = ${f} een {{dalparabool|dalparabool}} of een {{bergparabool|bergparabool}}?`,
+    ),
     // De keuzes staan altijd in dezelfde volgorde.
     mc: { opts, a: right },
     hint: T('Kijk naar a, het getal voor x^2. Is a positief of negatief?'),
     steps: [
       ...(f !== quad(abc) ? [`Op volgorde: ${n}(x) = ${quad(abc)}`] : []),
       `a = ${d(a)}, dus a ${a > 0 ? '>' : '<'} 0.`,
-      `Dus de grafiek is een ${a > 0 ? 'dal' : 'berg'}parabool.`,
+      `Dus de grafiek is een {{${a > 0 ? 'dalparabool' : 'bergparabool'}|${a > 0 ? 'dalparabool' : 'bergparabool'}}}.`,
     ],
     traps:
       first !== a && first > 0 !== a > 0
@@ -319,7 +321,7 @@ function symPair() {
     ),
     fields: [F(`${n}(${p}) =`, fp), F(`${n}(${q}) =`, fp), F('x_top =', xt)],
     hint: T(
-      `Bereken eerst de twee functiewaarden. Zijn ze gelijk, dan ligt x_top precies in het midden van ${p} en ${q}.`,
+      `Bereken eerst de twee {{functiewaarde|functiewaarden}}. Zijn ze gelijk, dan ligt x_top precies in het midden van ${p} en ${q}.`,
     ),
     steps: [
       fill(n, abc, p),
@@ -381,7 +383,7 @@ function symTable() {
       F(`${n}(${h + 3}) =`, ys[6]),
     ],
     hint: T(
-      `Zoek in de tabel twee gelijke functiewaarden. x_top ligt daar precies tussenin. Gebruik daarna de symmetrie.`,
+      `Zoek in de tabel twee gelijke {{functiewaarde|functiewaarden}}. x_top ligt daar precies tussenin. Gebruik daarna de symmetrie.`,
     ),
     steps: [
       `${n}(${h - 1}) = ${n}(${h + 1}) = ${d(ys[2])}, dus x_top = {${h - 1}${sg(h + 1)}/2} = ${h}`,
@@ -446,10 +448,10 @@ function s31pick() {
     q: T(`Welke grafiek hoort bij ${n}(x) = ${quad(abc)}?`),
     mc,
     hint: T(
-      'Kijk of het een dalparabool of een bergparabool is, en waar de grafiek de y-as snijdt. Reken daarna nog een punt uit.',
+      'Kijk of het een {{dalparabool|dalparabool}} of een {{bergparabool|bergparabool}} is, en waar de grafiek de y-as snijdt. Reken daarna nog een punt uit.',
     ),
     steps: [
-      `a = ${a}, dus a ${a > 0 ? '>' : '<'} 0. De grafiek is een ${a > 0 ? 'dal' : 'berg'}parabool.`,
+      `a = ${a}, dus a ${a > 0 ? '>' : '<'} 0. De grafiek is een {{${a > 0 ? 'dalparabool' : 'bergparabool'}|${a > 0 ? 'dalparabool' : 'bergparabool'}}}.`,
       `${n}(0) = ${c}, dus de grafiek snijdt de y-as in (0, ${c}).`,
       `${fill(n, abc, x1)}, dus de grafiek gaat door (${x1}, ${y1}).`,
       'Alleen deze grafiek past bij alle drie:',
@@ -528,16 +530,16 @@ function s31draw() {
     ]);
   return {
     q: T(
-      `Teken de grafiek van ${n}(x) = ${quad(abc)}. Zet de top en nog twee punten van de grafiek in het rooster.`,
+      `Teken de grafiek van ${n}(x) = ${quad(abc)}. Zet de {{top|top}} en nog twee punten van de grafiek in het rooster.`,
     ),
     ...draw,
     hint: T(
-      `Bereken ${n}(0) en zoek een tweede x met dezelfde functiewaarde. x_top ligt daar precies tussenin. Maak daarna een tabel met x_top in het midden.`,
+      `Bereken ${n}(0) en zoek een tweede x met dezelfde {{functiewaarde|functiewaarde}}. x_top ligt daar precies tussenin. Maak daarna een tabel met x_top in het midden.`,
     ),
     steps: [
       `${n}(0) = ${d(c)} en ${fill(n, abc, 2 * h)}`,
       `${n}(0) = ${n}(${2 * h}), dus x_top = {0${sg(2 * h)}/2} = ${h}`,
-      `y_top = ${fill(n, abc, h)}, dus de top is (${h}, ${k}).`,
+      `y_top = ${fill(n, abc, h)}, dus de {{top|top}} is (${h}, ${k}).`,
       'Maak een tabel van zeven punten met x_top in het midden. Gebruik de symmetrie.',
       H(
         dt(
@@ -548,7 +550,7 @@ function s31draw() {
           `Tabel bij ${n}`,
         ),
       ),
-      `Zet de punten in het rooster en teken de ${a > 0 ? 'dalparabool' : 'bergparabool'} erdoor. Bijvoorbeeld de top (${h}, ${k}) en de punten (${p[0]}, ${p[1]}) en (${q[0]}, ${q[1]}).`,
+      `Zet de punten in het rooster en teken de {{${a > 0 ? 'dalparabool' : 'bergparabool'}|${a > 0 ? 'dalparabool' : 'bergparabool'}}} erdoor. Bijvoorbeeld de top (${h}, ${k}) en de punten (${p[0]}, ${p[1]}) en (${q[0]}, ${q[1]}).`,
       H(
         parabolaFig(
           abc,

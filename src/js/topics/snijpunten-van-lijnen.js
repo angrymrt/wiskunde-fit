@@ -64,7 +64,9 @@ function s14cut() {
       `De lijnen ${l1}: y = ${dlin(a, b)} en ${l2}: y = ${dlin(c, e)} snijden elkaar in het punt S. Bereken de coördinaten van S.`,
     ),
     fields: [F('x_S =', x), F('y_S =', y)],
-    hint: T('In het snijpunt zijn de twee formules gelijk. Los die vergelijking op en vul x in.'),
+    hint: T(
+      'In het {{snijpunt|snijpunt}} zijn de twee formules gelijk. Los die vergelijking op en vul x in.',
+    ),
     steps: [
       `${dlin(a, b)} = ${dlin(c, e)}`,
       `${dlin(a - c, 0)} = ${d(e - b)}`,
