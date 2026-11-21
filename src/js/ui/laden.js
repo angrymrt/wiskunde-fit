@@ -5,6 +5,7 @@ import { nameOf, titleFor } from '../routes.js';
 import { chosenTopics } from '../stof.js';
 import { TOPIC, geladen } from '../topics/index.js';
 import { esc } from '../typeset.js';
+import { klaar as aboutKlaar, laad as laadAbout } from './about.js';
 import { klaar as examKlaar, laad as laadExam } from './exam.js';
 import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
@@ -29,8 +30,12 @@ const nogTeLaden = () => nodig().filter((t) => !geladen(t));
 // Met `vooraf` is de vooraf gebouwde pagina al helemaal te lezen en blijft die staan tot het scherm
 // er is. Een schil, zoals bij de proeftoets, zegt in de tussentijd dat het laadt.
 const examen = { klaar: examKlaar, laad: laadExam };
+const about = { klaar: aboutKlaar, laad: laadAbout, vooraf: true };
 const LATER = {
   vragen: { klaar: vragenKlaar, laad: laadVragen, vooraf: true },
+  over: about,
+  privacy: about,
+  contact: about,
   toets: examen,
   toetsres: examen,
 };

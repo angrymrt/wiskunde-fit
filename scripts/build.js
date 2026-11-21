@@ -202,7 +202,14 @@ if (cijfersCode.length !== 1) throw new Error('De cijfers staan niet in een eige
 // scherm niet in een eigen bestand, dan werkt de plugin niet, en dat is een fout.
 // SCHERM_VAN zegt bij welk bestand de pagina van een scherm hoort. De proeftoets en de uitslag delen
 // er één. Een scherm dat hier ontbreekt, krijgt alleen geen modulepreload.
-const SCHERM_VAN = { vragen: 'vragen', toets: 'exam', toetsres: 'exam' };
+const SCHERM_VAN = {
+  vragen: 'vragen',
+  over: 'about',
+  privacy: 'about',
+  contact: 'about',
+  toets: 'exam',
+  toetsres: 'exam',
+};
 const schermCode = new Map();
 for (const naam of Object.keys(LATER)) {
   const hits = Object.entries(metafile.outputs).filter(
