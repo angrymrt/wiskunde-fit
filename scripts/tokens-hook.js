@@ -10,6 +10,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { genoemdeIssues } from './issue-koppeling.js';
 
 const hier = dirname(fileURLToPath(import.meta.url));
 const melding = (tekst) => {
@@ -35,10 +36,7 @@ export function prNummer(commando) {
 // pull request zijn en telt dus niet. Het nummer van de pull request zelf telt ook niet.
 export function issuesVan(pr) {
   const nummers = new Set((pr.closingIssuesReferences ?? []).map((i) => i.number));
-  for (const m of (pr.title ?? '').matchAll(/\(#(\d+)/g)) nummers.add(Number(m[1]));
-  for (const m of (pr.body ?? '').matchAll(/^(?:Refs|Fixes|Closes)\s+#(\d+)/gim)) {
-    nummers.add(Number(m[1]));
-  }
+  for (const n of genoemdeIssues(pr.title, pr.body)) nummers.add(n);
   nummers.delete(pr.number);
   return [...nummers].sort((a, b) => a - b);
 }

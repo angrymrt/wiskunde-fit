@@ -1,0 +1,38 @@
+# Elke pull request hoort bij een issue (#208). De check `issue` faalt als de titel geen `(#N)` heeft
+# en de tekst geen `Fixes #N` of `Refs #N`, of als dat nummer geen bestaand issue is. De regels staan
+# in scripts/issue-koppeling.js. De check is verplicht in de ruleset "main beschermen".
+# Pull requests van een bot (zoals Dependabot) en uit een fork hebben geen issue; voor die slaagt de
+# check meteen. De pull request van de workflow Tellen samenvatten maakt die met github.token en
+# start daardoor geen workflow: de check komt er nooit, en de eigenaar voegt hem samen door de regels
+# te omzeilen, net als bij `deploy`.
+name: Issue
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Overgeslagen voor een bot of een fork
+        if: github.event.pull_request.user.type == 'Bot' || github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "Een pull request van een bot of uit een fork hoeft geen issue te noemen."
+      - name: Noemt de pull request een issue?
+        if: github.event.pull_request.user.type != 'Bot' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          # Via env, nooit in het script zelf: de titel en tekst komen van een gebruiker.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/issue-koppeling.js
