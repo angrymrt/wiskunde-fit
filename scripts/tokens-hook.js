@@ -23,9 +23,9 @@ const melding = (tekst) => {
 
 // Het nummer van de pull request, uit `gh pr merge 205 --squash`.
 export function prNummer(commando) {
-  return (
-    Number(commando.match(/\bgh\s+pr\s+merge\s+(?:[^\s|&;]*\s+)*?#?(\d+)(?=\s|$)/)?.[1]) || null
-  );
+  // Alleen als gh pr merge zelf het commando is, niet als de tekst ervan in een commitbericht staat.
+  const m = commando.match(/(?:^|[;&|]\s*)gh\s+pr\s+merge\b([^\n;&|]*)/);
+  return Number(m?.[1].match(/(?:^|\s)#?(\d+)(?=\s|$)/)?.[1]) || null;
 }
 
 // De issues van een pull request: wat hij sluit, en wat de titel of tekst noemt als `(#N` of

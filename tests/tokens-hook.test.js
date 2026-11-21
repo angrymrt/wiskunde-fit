@@ -9,6 +9,8 @@ test('het nummer van de pull request uit gh pr merge', () => {
   assert.equal(prNummer('gh pr merge --squash 205'), 205);
   assert.equal(prNummer('cd x && gh pr merge 7 --squash && gh issue close 188'), 7);
   assert.equal(prNummer('gh pr merge --squash'), null);
+  // Tekst in een commitbericht is geen merge.
+  assert.equal(prNummer('git commit -m "Na gh pr merge 201 komt de hook"'), null);
 });
 
 test('de issues van een pull request', () => {
