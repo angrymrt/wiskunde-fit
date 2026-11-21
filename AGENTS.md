@@ -229,7 +229,13 @@ Laat elke pull request reviewen door een agent die op de achtergrond draait, met
 - **medium:** schermen, opmaak of teksten, zonder wijziging in de stof of in wat de browser bewaart.
 - **high:** de stof, de antwoordcontrole, de voortgang en de proeftoets in de browser, de anonieme tellen, de build, de regels voor Azure, en elke grote wijziging die veel bestanden raakt.
 
-De agent zet zijn bevindingen als opmerkingen bij de pull request, waar mogelijk bij de regel waar ze over gaan. Voorlopig doet hij dat met `gh` op het account van de eigenaar. Zet daarom boven elke opmerking dat die van de review-agent komt. Een eigen account voor de agent staat in [#67](https://github.com/angrymrt/wiskunde-fit/issues/67). Verwerk ze daarna met een nieuwe commit en antwoord bij elke opmerking wat je hebt gedaan. Laat je een bevinding liggen, schrijf dan waarom. Laat de agent daarna opnieuw reviewen. Hij kijkt dan naar de nieuwe commits en naar wat er met zijn opmerkingen is gebeurd.
+De agent doet de review als GitHub App `wiskundefit-review`, zodat te zien is wat van hem komt en het een echte review kan zijn ([#67](https://github.com/angrymrt/wiskunde-fit/issues/67)). Hij haalt eerst een token op, dat een uur geldig is, en gebruikt dat voor `gh`. De app mag pull requests lezen en schrijven en code lezen, en kan dus niet pushen of samenvoegen. De private key staat buiten de repository en komt nooit in git. Verlies je hem, maak dan in de instellingen van de app een nieuwe en trek de oude in.
+
+```sh
+REVIEW_APP_ID=<app id> REVIEW_APP_KEY=<pad naar de .pem> node scripts/review-token.js   # het token staat op stdout
+```
+
+In PowerShell zet je `$env:GH_TOKEN = node scripts/review-token.js`, na `$env:REVIEW_APP_ID` en `$env:REVIEW_APP_KEY`. Gebruik dat token alleen voor de review, en laat de agent het niet in een opmerking of bestand zetten. De agent zet zijn bevindingen als opmerkingen bij de pull request, waar mogelijk bij de regel waar ze over gaan, en sluit af met een review: "Request changes" als er bevindingen zijn, en "Approve" als alles is verwerkt. Verwerk de bevindingen daarna met een nieuwe commit en antwoord bij elke opmerking wat je hebt gedaan. Laat je een bevinding liggen, schrijf dan waarom. Laat de agent daarna opnieuw reviewen. Hij kijkt dan naar de nieuwe commits en naar wat er met zijn opmerkingen is gebeurd.
 
 Zo gaat het hoogstens drie rondes heen en weer. Zijn er na de derde ronde nog bevindingen, leg ze dan voor aan de eigenaar. Die besluit of de pull request zo samen mag. Voeg pas samen als de tests slagen en elke opmerking is verwerkt of beantwoord.
 
