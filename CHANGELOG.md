@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.21.2
+
+### Verbeterd
+
+- De site laadt bij het eerste bezoek iets sneller: de pagina Zo maken we de vragen wordt pas opgehaald als je er naartoe gaat.
+
 ## 1.21.1
 
 ### Hersteld

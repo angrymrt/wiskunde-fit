@@ -2525,14 +2525,22 @@ test(
 // Cijfers staan niet in het eerste bezoek, maar in een eigen bestand dat pas laadt op die pagina
 // (#184): anders groeide de code elke week. Het eerste bezoek zat al boven de oude grenzen (60 kB en
 // 166 kB zelf) door eerdere groei; nu is het 60,6 kB en 167 kB zelf, dus de grenzen zijn 61 en 168.
+// Zo maken we de vragen staat sinds #188 in een eigen bestand (16 kB zelf, 5,5 kB verstuurd). Het
+// eerste bezoek is daardoor 15 kB zelf en ongeveer 2 kB verstuurd kleiner, en de grenzen zijn 59 en 154.
+// Wat main en dat scherm samen gebruiken, staat nu in een gedeeld bestand dat main ook meteen laadt: het
+// grootste is 15,5 kB verstuurd en 43 kB zelf, dus die grens is 16 en 44. De grens voor het eerste
+// bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden
+// (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
   page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 61, own: 168, why: 'de code bij het eerste bezoek' },
+  start: { sent: 59, own: 154, why: 'de code bij het eerste bezoek' },
+  // Een scherm in een eigen bestand (scripts/later-schermen.js), dat pas laadt als het nodig is.
+  scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
-  shared: { sent: 12, own: 32, why: 'een gedeeld codebestand' },
+  shared: { sent: 16, own: 44, why: 'een gedeeld codebestand' },
   css: { sent: 8.5, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
@@ -2562,7 +2570,9 @@ test('de pagina’s en de code blijven klein', async () => {
     const ext = name.match(/\.\w+$/)?.[0];
     const code = topics.has(name.replace(/-\w+\.js$/, ''))
       ? 'topic'
-      : /^chunk-/.test(name) && 'shared';
+      : /^chunk-/.test(name)
+        ? 'shared'
+        : /^vragen-/.test(name) && 'scherm';
     const kind = ext === '.js' ? code : { '.css': 'css', '.woff2': 'font' }[ext];
     if (kind) files.push([`assets/${name}`, kind]);
   }
@@ -2618,6 +2628,62 @@ test('de pagina Cijfers laadt de cijfers apart, en blijft staan terwijl dat duur
       await p.click('[data-act=opnieuw]');
       await antwoord;
       await p.waitForSelector('#niet-zeggen');
+      assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
+      await p.close();
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
+test('Zo maken we de vragen laadt in een eigen bestand, en blijft staan terwijl dat duurt', async () => {
+  const browser = await launch();
+  try {
+    const file = '**/assets/vragen-*.js';
+    const geladen = /\/assets\/vragen-/;
+    // Rechtstreeks openen: de vooraf gebouwde pagina blijft staan, ook als het bestand laat komt.
+    {
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      let release;
+      const gate = new Promise((resolve) => (release = resolve));
+      await p.route(file, async (route) => {
+        await gate;
+        await route.continue();
+      });
+      const gevraagd = p.waitForRequest(geladen);
+      await p.goto(at('/zo-maken-we-vragen'));
+      await p.waitForFunction(() => window.wiskundefit);
+      await gevraagd;
+      await p.waitForTimeout(600);
+      assert.ok(await p.$('.vtotaal'), 'de vooraf gebouwde pagina staat er');
+      assert.equal(await p.$('#app :text("Even laden")'), null, 'geen laadmelding');
+      // Wat je opklapt terwijl het bestand laadt, blijft open als het scherm er is.
+      await p.click('[data-act=vragenopen][data-id=open]');
+      const open = () => p.$$eval('.vdomeinen details[open]', (l) => l.length);
+      assert.ok((await open()) > 0, 'alles is opengeklapt');
+      const binnen = p.waitForResponse((r) => geladen.test(r.url()) && r.ok());
+      release();
+      await binnen;
+      await p.waitForTimeout(500);
+      assert.ok((await open()) > 0, 'na het laden staat het nog open');
+      await p.close();
+    }
+    // Vanaf Home laadt het bestand pas nu, en bij een fout is er een melding met opnieuw proberen.
+    {
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      const aangevraagd = [];
+      p.on('request', (r) => geladen.test(r.url()) && aangevraagd.push(r.url()));
+      await p.goto(siteUrl);
+      await p.waitForFunction(() => window.wiskundefit);
+      assert.deepEqual(aangevraagd, [], 'Home laadt dit scherm niet');
+      await p.route(file, (route) => route.abort());
+      await p.evaluate(() => wiskundefit.go({ name: 'vragen' }));
+      await p.waitForSelector('#laadfout');
+      await p.unroute(file);
+      const antwoord = p.waitForResponse((r) => geladen.test(r.url()) && r.ok());
+      await p.click('[data-act=opnieuw]');
+      await antwoord;
+      await p.waitForSelector('.vtotaal');
       assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
       await p.close();
     }

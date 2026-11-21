@@ -7,6 +7,7 @@ import { TOPIC, geladen } from '../topics/index.js';
 import { esc } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
+import { klaar as vragenKlaar, laad as laadVragen } from './vragen.js';
 
 // De uitleg en het oefenen hebben het onderwerp nodig. Mijn stof oefenen en de proeftoets hebben
 // alle onderwerpen van de stofkeuze nodig, en een lopende proeftoets die van zijn vragen.
@@ -21,6 +22,12 @@ function nodig(v = state.view) {
   return [];
 }
 const nogTeLaden = () => nodig().filter((t) => !geladen(t));
+
+// Schermen die in de browser pas laden als ze nodig zijn (scripts/later-schermen.js, #188). In Node
+// zijn ze altijd klaar.
+const LATER = { vragen: { klaar: vragenKlaar, laad: laadVragen } };
+const wachtOpScherm = (v = state.view) => !!LATER[v.name] && !LATER[v.name].klaar();
+const laadScherm = (v = state.view) => LATER[v.name].laad();
 
 // Zoals een schil: het kruimelpad en de kop staan er al, met daaronder dat het laadt, of een
 // melding met een knop om het opnieuw te proberen. Een schermlezer hoort "Even laden…" uit
@@ -40,4 +47,4 @@ function vLaden() {
   return `${crumbs()}<div class="sheet">${pageHead(heading)}${body}</div>`;
 }
 
-export { nodig, nogTeLaden, vLaden };
+export { nodig, nogTeLaden, vLaden, wachtOpScherm, laadScherm };
