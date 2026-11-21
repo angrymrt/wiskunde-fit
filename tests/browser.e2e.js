@@ -472,6 +472,41 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
   }
 });
 
+// Een antwoordtabel in de uitslag die zijwaarts scrolt, is met het toetsenbord niet te bereiken. Dat
+// gebeurde bij een lang woord als label, zoals vermenigvuldigingsfactor (vraagsoort 107), en maakte
+// de axe-test af en toe rood (#155 en #169, want de proeftoets kiest willekeurige vragen).
+test('een lang woord in de uitslag maakt de antwoordtabel niet te breed', async () => {
+  const browser = await launch();
+  try {
+    for (const width of [320, 390]) {
+      const p = await browser.newPage({ viewport: { width, height: 700 } });
+      await p.goto(siteUrl);
+      await p.waitForFunction(() => window.wiskundefit);
+      await p.evaluate(() => {
+        wiskundefit.prog.stof = [107];
+        wiskundefit.go({ name: 'toets' });
+      });
+      await p.click('[data-act="len"][data-id="30"]');
+      await p.click('[data-act="start"]');
+      await p.click('[data-act="tfin"]');
+      await p.click('[data-act="tfin"]');
+      await p.waitForSelector('.resq');
+      const wide = await p.evaluate(
+        () =>
+          [...document.querySelectorAll('.resq .scroll')].filter(
+            (s) => s.scrollWidth > s.clientWidth,
+          ).length,
+      );
+      // De test moet het lange label ook echt hebben gezien, anders slaagt hij leeg.
+      assert.match(await p.textContent('.res'), /vermenigvuldigingsfactor/);
+      assert.equal(wide, 0, `bij ${width} pixels scrolt een antwoordtabel zijwaarts`);
+      await p.close();
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
 test(
   'op een oude telefoon van 320 pixels is geen scherm te breed',
   { timeout: 120_000 },
