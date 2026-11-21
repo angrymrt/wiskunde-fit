@@ -145,11 +145,11 @@ function s33common() {
       ),
     });
   return {
-    q: T(`Ontbind in factoren: ${poly}`),
+    q: T(`{{ontbinden-in-factoren|Ontbind in factoren}}: ${poly}`),
     fields,
     compact: true,
     hint: T(
-      `In elke term zit een ${v}. Haal ${v} buiten haakjes.${b < 0 ? ' Is een getal negatief, vul dan bijvoorbeeld -3 in.' : ''}`,
+      `In elke {{term|term}} zit een ${v}. Haal ${v} buiten haakjes.${b < 0 ? ' Is een getal negatief, vul dan bijvoorbeeld -3 in.' : ''}`,
     ),
     steps: [
       a === 1
@@ -177,7 +177,7 @@ function s33pair() {
     c = p * q;
   return {
     q: T(
-      `Je ontbindt ${quad([1, b, c], undefined, v)} met de product-som-methode. Welke twee getallen hebben als product ${c} en als som ${b}?`,
+      `Je {{ontbinden-in-factoren|ontbindt}} ${quad([1, b, c], undefined, v)} met de product-som-methode. Welke twee getallen hebben als product ${c} en als som ${b}?`,
     ),
     fields: [
       { ...F('', p), grp: 'getal', label: 'Eerste getal' },
@@ -230,7 +230,7 @@ function s33pick() {
     q: T(`Welke ontbinding hoort bij ${quad([1, b, c], undefined, v)}?`),
     mc,
     hint: T(
-      `Zoek twee getallen met product ${c} en som ${b}. Werk daarna bij een keuze de haakjes weg als je twijfelt.`,
+      `Zoek twee getallen met product ${c} en som ${b}. Werk daarna bij een keuze de {{haakjes-wegwerken|haakjes weg}} als je twijfelt.`,
     ),
     steps: pairSteps(b, c, v),
     traps: [
@@ -272,7 +272,7 @@ function s33factor() {
     c = p * q;
   return {
     q: T(
-      `Ontbind in factoren: ${quad([1, b, c], undefined, v)}. Staat er een min in de haakjes, typ dan een minteken voor het getal.`,
+      `{{ontbinden-in-factoren|Ontbind in factoren}}: ${quad([1, b, c], undefined, v)}. Staat er een min in de haakjes, typ dan een minteken voor het getal.`,
     ),
     fields: [
       { ...F(`(${v} +`, p, ')'), grp: 'factor', label: 'Getal in de eerste haakjes' },
@@ -309,9 +309,9 @@ export default {
     {
       t: 'x buiten haakjes halen',
       p: [
-        'Ontbinden in factoren betekent: een som schrijven als een product. Het is het omgekeerde van haakjes wegwerken.',
+        '{{=ontbinden-in-factoren|Ontbinden in factoren}} betekent: een som schrijven als een product van {{=factor|factoren}}. Het is het omgekeerde van {{haakjes-wegwerken|haakjes wegwerken}}.',
         T(
-          'Zit in elke term een x, dan haal je x buiten haakjes. Bij x^2 + 6x is x^2 = x*x en 6x = 6*x, dus x^2 + 6x = x(x + 6).',
+          'Zit in elke {{=term|term}} een x, dan haal je x buiten haakjes. Bij x^2 + 6x is x^2 = x*x en 6x = 6*x, dus x^2 + 6x = x(x + 6).',
         ),
       ],
       ex: {

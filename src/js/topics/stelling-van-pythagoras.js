@@ -15,7 +15,9 @@ function sPyHyp() {
       ' Rond af op 2 decimalen.',
     fig: rightTriFig(a, b, { AB: d(a), CA: d(b) }),
     fields: [{ ...RF('BC =', c, 2), round: 2, post: 'cm' }],
-    hint: 'De schuine zijde is de zijde tegenover de rechte hoek. Kwadraten van de twee rechthoekszijden optellen, daarna de wortel nemen.',
+    hint: T(
+      'De {{schuine-zijde|schuine zijde}} is de zijde tegenover de rechte hoek. {{kwadraat|Kwadraten}} van de twee {{rechthoekszijde|rechthoekszijden}} optellen, daarna de wortel nemen.',
+    ),
     steps: [
       `∠A = 90°, dus AB^2 + AC^2 = BC^2`,
       `${d(a)}^2 + ${d(b)}^2 = BC^2`,
@@ -53,7 +55,9 @@ function sPyLeg() {
       maxH: 230,
     }),
     fields: [{ ...RF('PQ =', b, 2), round: 2, post: 'cm' }],
-    hint: 'Je zoekt een rechthoekszijde. Dan trek je af: het kwadraat van de schuine zijde min het kwadraat van de andere zijde.',
+    hint: T(
+      'Je zoekt een {{rechthoekszijde|rechthoekszijde}}. Dan trek je af: het {{kwadraat|kwadraat}} van de {{schuine-zijde|schuine zijde}} min het kwadraat van de andere zijde.',
+    ),
     steps: [
       `∠Q = 90°, dus PQ^2 + QR^2 = PR^2`,
       `PQ^2 + ${d(a)}^2 = ${d(c)}^2`,
@@ -90,7 +94,7 @@ function sPyHeight() {
       f = [RF('KL =', kl, 2, 'cm')];
     return {
       q: T(
-        `△KLM is gelijkbenig met KM = LM = ${d(c)} cm. De hoogtelijn MN staat loodrecht op KL, met MN = ${d(h)} cm. Bereken KL in cm.${needRound(f)}`,
+        `△KLM is {{gelijkbenige-driehoek|gelijkbenig}} met KM = LM = ${d(c)} cm. De {{hoogtelijn|hoogtelijn}} MN staat loodrecht op KL, met MN = ${d(h)} cm. Bereken KL in cm.${needRound(f)}`,
       ),
       fig: geo({
         pts: { K: [0, 0], N: [kn, 0], L: [kl, 0], M: [kn, h] },
@@ -107,7 +111,7 @@ function sPyHeight() {
       }),
       fields: f,
       hint: T(
-        'De hoogtelijn deelt KL in twee gelijke stukken. Bereken eerst KN met de stelling van Pythagoras.',
+        'De {{hoogtelijn|hoogtelijn}} deelt KL in twee gelijke stukken. Bereken eerst KN met de {{stelling-van-pythagoras|stelling van Pythagoras}}.',
       ),
       steps: [
         ...first,
@@ -130,7 +134,7 @@ function sPyHeight() {
     f = [RF('omtrek =', o, 1, 'cm')];
   return {
     q: T(
-      `In △KLM staat de hoogtelijn MN loodrecht op KL. Gegeven is KM = ${d(c)} cm, MN = ${d(h)} cm en LN = ${d(s)} cm. Bereken de omtrek van △KLM in cm.${needRound(f)}`,
+      `In △KLM staat de {{hoogtelijn|hoogtelijn}} MN loodrecht op KL. Gegeven is KM = ${d(c)} cm, MN = ${d(h)} cm en LN = ${d(s)} cm. Bereken de omtrek van △KLM in cm.${needRound(f)}`,
     ),
     fig: geo({
       pts: { K: [0, 0], N: [kn, 0], L: [kn + s, 0], M: [kn, h] },
@@ -147,7 +151,7 @@ function sPyHeight() {
     }),
     fields: f,
     hint: T(
-      'Je mist KN en LM. Bereken ze allebei met de stelling van Pythagoras. Tel daarna alle zijden op.',
+      'Je mist KN en LM. Bereken ze allebei met de {{stelling-van-pythagoras|stelling van Pythagoras}}. Tel daarna alle zijden op.',
     ),
     steps: [
       ...first,
@@ -191,7 +195,7 @@ export default {
       t: 'De stelling van Pythagoras',
       p: [
         T(
-          'In een rechthoekige driehoek geldt: de kwadraten van de twee rechthoekszijden samen zijn gelijk aan het kwadraat van de schuine zijde. De schuine zijde ligt tegenover de rechte hoek.',
+          'In een rechthoekige driehoek geldt de {{=stelling-van-pythagoras|stelling van Pythagoras}}: de {{=kwadraat|kwadraten}} van de twee {{=rechthoekszijde|rechthoekszijden}} samen zijn gelijk aan het kwadraat van de {{=schuine-zijde|schuine zijde}}. De schuine zijde ligt tegenover de rechte hoek.',
         ),
       ],
       ex: {
@@ -209,7 +213,7 @@ export default {
     {
       t: 'Een hoogtelijn in een driehoek',
       p: [
-        'Een hoogtelijn verdeelt een driehoek in twee rechthoekige driehoeken. Daarin gebruik je de stelling van Pythagoras. In een gelijkbenige driehoek zijn de twee stukken van de basis even lang.',
+        'Een {{=hoogtelijn|hoogtelijn}} verdeelt een driehoek in twee rechthoekige driehoeken. Daarin gebruik je de stelling van Pythagoras. In een {{=gelijkbenige-driehoek|gelijkbenige driehoek}} zijn de twee stukken van de basis even lang.',
       ],
       watch: 'Rond een tussenantwoord niet af. Rond pas af bij het eindantwoord.',
     },

@@ -2,6 +2,13 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.21.0
+
+### Nieuw
+
+- Bij een wiskundewoord dat je misschien nog niet kent, zoals richtingscoëfficiënt, top of verhoudingstabel, staat nu een stippellijntje. Tik of klik erop en je ziet een korte uitleg. Dit werkt in de uitleg, in de vragen, in de hints en in de uitwerkingen. Met "Meer uitleg" ga je naar het woord in de lijst "Woorden in dit onderwerp" onder de uitleg. Op de pagina van het onderwerp zelf staat het woord zonder stippellijntje, want de lijst eronder legt het uit. In de proeftoets zie je geen uitleg bij woorden.
+- Nieuw woord: stelling van Pythagoras.
+
 ## 1.20.0
 
 ### Nieuw

@@ -64,7 +64,9 @@ function s14cut() {
       `De lijnen ${l1}: y = ${dlin(a, b)} en ${l2}: y = ${dlin(c, e)} snijden elkaar in het punt S. Bereken de coördinaten van S.`,
     ),
     fields: [F('x_S =', x), F('y_S =', y)],
-    hint: T('In het snijpunt zijn de twee formules gelijk. Los die vergelijking op en vul x in.'),
+    hint: T(
+      'In het {{snijpunt|snijpunt}} zijn de twee formules gelijk. Los die vergelijking op en vul x in.',
+    ),
     steps: [
       `${dlin(a, b)} = ${dlin(c, e)}`,
       `${dlin(a - c, 0)} = ${d(e - b)}`,
@@ -129,7 +131,7 @@ export default {
       t: 'Snijpunten met de assen',
       p: [
         T(
-          'Een punt op de x-as heeft y-coördinaat 0. Een punt op de y-as heeft x-coördinaat 0. Ligt A op de x-as, dan schrijf je y_A = 0.',
+          'Een {{=snijpunt|snijpunt}} is een punt waar twee lijnen elkaar kruisen, of waar een lijn een as kruist. Een punt op de x-as heeft y-coördinaat 0. Een punt op de y-as heeft x-coördinaat 0. Ligt A op de x-as, dan schrijf je y_A = 0.',
         ),
       ],
       ex: {

@@ -184,14 +184,14 @@ function s43missing() {
     tA = 0.5 * 10 ** -c.k,
     round = c.money
       ? ' Rond de prijs af op centen.'
-      : ` Rond het gemiddelde af op ${roundText(c.k)}.`;
+      : ` Rond het {{gemiddelde|gemiddelde}} af op ${roundText(c.k)}.`;
   return {
     q:
       T(`In de tabel ontbreekt in elke rij een getal. Bereken de ontbrekende getallen.${round}`) +
       tabel(c.title, head, body(true), `Tabel: ${c.title}`),
     fields,
     hint: T(
-      'Gebruik gemiddelde = {totaal/aantal}. Dan is totaal = aantal × gemiddelde, en aantal = {totaal/gemiddelde}.',
+      'Gebruik {{gemiddelde|gemiddelde}} = {totaal/aantal}. Dan is totaal = aantal × gemiddelde, en aantal = {totaal/gemiddelde}.',
     ),
     steps: [
       `${c.sAvg} = {${c.sTot}/${c.sCnt}}`,
@@ -323,7 +323,7 @@ function s43share() {
   const stepsA = [
     ...(withTotal ? [] : [`totaal in ${rowNames[sr]}: ${vals[sr].map(g).join(' + ')} = ${g(t)}`]),
     `{${g(p)}/${g(t)}}*100% ${eq(share)}%`,
-    `Het aandeel is ${pc(share)}%.`,
+    `Het {{aandeel|aandeel}} is ${pc(share)}%.`,
   ];
   const stepsB = [
     ...(S.length > 1 && !(mode === 'alles' && withTotal) ? [addUp(0, S), addUp(1, S)] : []),
@@ -338,7 +338,7 @@ function s43share() {
       T(`Met hoeveel procent is ${subj} veranderd van ${r0} naar ${r1}?${round}`),
     fields,
     hint: T(
-      'Een aandeel is {deel/totaal} × 100%. Voor de procentuele verandering gebruik je {nieuw - oud/oud} × 100%. Tel zo nodig eerst de getallen op die je nodig hebt.',
+      'Een {{aandeel|aandeel}} is {deel/totaal} × 100%. Voor de {{procentuele-verandering|procentuele verandering}} gebruik je {nieuw - oud/oud} × 100%. Tel zo nodig eerst de getallen op die je nodig hebt.',
     ),
     steps: [...stepsA, ...stepsB],
     traps: [
@@ -535,7 +535,7 @@ function barQuestion() {
     fig: data.fig(),
     fields,
     hint: T(
-      `Lees de getallen af bij de staven.${c.k > 1 ? ' Let op de eenheid bij de as.' : ''} Voor de procentuele verandering gebruik je {nieuw - oud/oud} × 100%.`,
+      `Lees de getallen af bij de staven.${c.k > 1 ? ' Let op de eenheid bij de as.' : ''} Voor de {{procentuele-verandering|procentuele verandering}} gebruik je {nieuw - oud/oud} × 100%.`,
     ),
     steps: [
       `samen: ${values.map(g).join(' + ')} = ${g(total)}`,
@@ -574,7 +574,9 @@ function stackQuestion() {
     q: T(c.tot(c.cats[j])) + '<br>' + T(`${c.share(c.cats[j], c.names[s])}${round}`),
     fig: fig(),
     fields,
-    hint: `In een gestapeld staafdiagram staan de delen op elkaar. Tel de delen van een staaf op voor het totaal.${c.k > 1 ? ' Let op de eenheid bij de as.' : ''}`,
+    hint: T(
+      `In een {{gestapeld-staafdiagram|gestapeld staafdiagram}} staan de delen op elkaar. Tel de delen van een staaf op voor het totaal.${c.k > 1 ? ' Let op de eenheid bij de as.' : ''}`,
+    ),
     steps: [
       `totaal: ${g(vs[0][j])} + ${g(vs[1][j])} = ${g(tot)}`,
       ...(c.k > 1 ? [`${g(tot)} × 1000 = ${g(tot * c.k)}, dus ${g(tot * c.k)} ${c.what}.`] : []),
@@ -724,7 +726,9 @@ function s43pie() {
       q: T(`${c.whole(N)} ${c.ask(cats[i][1])}`),
       fig: fig(),
       fields: [F('Dat is', x, unitPost)],
-      hint: 'Lees het percentage af in het cirkeldiagram. Neem dat percentage van het totaal.',
+      hint: T(
+        'Lees het percentage af in het {{cirkeldiagram|cirkeldiagram}}. Neem dat percentage van het totaal.',
+      ),
       steps: [`${pX}% van ${g(N)} is ${d(pX / 100)}*${g(N)} = ${g(x)}`],
       traps: [
         trap(
@@ -980,7 +984,7 @@ export default {
     {
       t: 'Gemiddelde in een tabel',
       p: [
-        'In een tabel staat vaak een totaal, een aantal en het gemiddelde. Die drie horen bij elkaar:',
+        'In een tabel staat vaak een totaal, een aantal en het {{=gemiddelde|gemiddelde}}. Die drie horen bij elkaar:',
         'gemiddelde = {totaal/aantal}',
         'Ken je er twee, dan bereken je de derde. Het totaal is aantal × gemiddelde, en het aantal is {totaal/gemiddelde}.',
       ],
@@ -1005,8 +1009,8 @@ export default {
     {
       t: 'Aandeel en procentuele verandering',
       p: [
-        'Het aandeel van een groep is welk deel van het totaal die groep is, in procenten: {deel/totaal} × 100%. Staat het totaal niet in de tabel, tel dan eerst de getallen in de rij op.',
-        'Bij twee rijen, zoals twee jaren, bereken je de procentuele verandering: {nieuw - oud/oud} × 100%.',
+        'Het {{=aandeel|aandeel}} van een groep is welk deel van het totaal die groep is, in procenten: {deel/totaal} × 100%. Staat het totaal niet in de tabel, tel dan eerst de getallen in de rij op.',
+        'Bij twee rijen, zoals twee jaren, bereken je de {{procentuele-verandering|procentuele verandering}}: {nieuw - oud/oud} × 100%.',
       ],
       ex: {
         q:
@@ -1027,8 +1031,8 @@ export default {
     {
       t: 'Soorten diagrammen',
       p: [
-        'Met een staafdiagram vergelijk je getallen snel met elkaar. In een gestapeld staafdiagram bestaat elke staaf uit delen op elkaar: je ziet de delen en het totaal van elke staaf.',
-        'Een cirkeldiagram laat zien welk deel van het geheel elk stuk is. Een lijndiagram laat zien hoe iets zich in de tijd ontwikkelt.',
+        'Met een {{=staafdiagram|staafdiagram}} vergelijk je getallen snel met elkaar. In een {{=gestapeld-staafdiagram|gestapeld staafdiagram}} bestaat elke staaf uit delen op elkaar: je ziet de delen en het totaal van elke staaf.',
+        'Een {{=cirkeldiagram|cirkeldiagram}} laat zien welk deel van het geheel elk stuk is. Een {{=lijndiagram|lijndiagram}} laat zien hoe iets zich in de tijd ontwikkelt.',
       ],
       ex: {
         q:

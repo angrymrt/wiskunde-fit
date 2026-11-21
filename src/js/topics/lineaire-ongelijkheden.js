@@ -68,7 +68,9 @@ function s15br() {
   return {
     q: T(`Los op: ${pr} ${s0} ${lin(r, dd)}`),
     fields: ineqOut(fin, k),
-    hint: 'Werk eerst de haakjes weg en los daarna op. Let op het ongelijkheidsteken als je door een negatief getal deelt.',
+    hint: T(
+      'Werk eerst de {{haakjes-wegwerken|haakjes weg}} en los daarna op. Let op het ongelijkheidsteken als je door een negatief getal deelt.',
+    ),
     steps: [
       `${lin(p, p * q)} ${s0} ${lin(r, dd)}`,
       ...(co === 1 ? [`x ${fin} ${k}`] : divide(co, s0, dd - p * q, fin, k)),
@@ -109,12 +111,12 @@ function s15gr() {
     }),
     fields: ineqOut(fin, xs),
     hint: T(
-      `Zoek het snijpunt. Kijk daarna aan welke kant lijn l ${up ? 'boven' : 'onder'} lijn m ligt.`,
+      `Zoek het {{snijpunt|snijpunt}}. Kijk daarna aan welke kant lijn l ${up ? 'boven' : 'onder'} lijn m ligt.`,
     ),
     steps: [
       `De lijnen snijden elkaar bij x = ${xs}.`,
-      `Lijn l ligt ${up ? 'boven' : 'onder'} lijn m ${right ? 'rechts' : 'links'} van het snijpunt.`,
-      `Dus x ${fin} ${xs}. Het snijpunt zelf hoort er niet bij.`,
+      `Lijn l ligt ${up ? 'boven' : 'onder'} lijn m ${right ? 'rechts' : 'links'} van het {{snijpunt|snijpunt}}.`,
+      `Dus x ${fin} ${xs}. Het {{snijpunt|snijpunt}} zelf hoort er niet bij.`,
     ],
     traps: [
       {
@@ -290,7 +292,7 @@ function s15story() {
     rhs = b2 - b1,
     fin = co < 0 ? flip[st.s0] : st.s0;
   return {
-    q: T(`${st.text} Vul de formules in en los de ongelijkheid op.`),
+    q: T(`${st.text} Vul de formules in en los de {{ongelijkheid|ongelijkheid}} op.`),
     compact: true,
     fields: [
       { ...F(`${ln}:`, a1, 'x +'), label: `Getal voor x bij ${ln}` },
@@ -371,10 +373,10 @@ export default {
       t: 'Met grafieken',
       p: [
         T(
-          'Een ongelijkheid zoals 3x - 1 < x + 3 vraagt voor welke x de grafiek van y = 3x - 1 onder de grafiek van y = x + 3 ligt. Bij > kijk je waar de grafiek boven de andere ligt.',
+          'Een {{=ongelijkheid|ongelijkheid}} zoals 3x - 1 < x + 3 vraagt voor welke x de grafiek van y = 3x - 1 onder de grafiek van y = x + 3 ligt. Bij > kijk je waar de grafiek boven de andere ligt.',
         ),
         T(
-          'Zoek het snijpunt en kijk aan welke kant de ene lijn onder of boven de andere ligt. Hier snijden de lijnen elkaar bij x = 2, dus het antwoord is x < 2. Elk getal kleiner dan 2 is een oplossing, maar 2 zelf niet. Daarom teken je op de x-as een pijl met een open bolletje bij 2.',
+          'Zoek het {{snijpunt|snijpunt}} en kijk aan welke kant de ene lijn onder of boven de andere ligt. Hier snijden de lijnen elkaar bij x = 2, dus het antwoord is x < 2. Elk getal kleiner dan 2 is een oplossing, maar 2 zelf niet. Daarom teken je op de x-as een pijl met een open bolletje bij 2.',
         ),
       ],
     },

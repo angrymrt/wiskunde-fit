@@ -268,9 +268,11 @@ function s35howshift() {
       { sel: UD, a: ud, label: 'Omhoog of omlaag' },
     ],
     compact: true,
-    hint: T('Schrijf de top van f en de top van g op. De top van a(x - p)^2 + q is (p, q).'),
+    hint: T(
+      'Schrijf de {{top|top}} van f en de top van g op. De top van a(x - p)^2 + q is (p, q).',
+    ),
     steps: [
-      `De top van f is (${p}, ${q}). De top van g is (${P}, ${R}).`,
+      `De {{top|top}} van f is (${p}, ${q}). De top van g is (${P}, ${R}).`,
       `Van x = ${p} naar x = ${P} is ${Math.abs(h)} ${lr}.`,
       `Van y = ${q} naar y = ${R} is ${Math.abs(v)} ${ud}.`,
       `Dus de grafiek van f gaat ${Math.abs(h)} ${lr} en ${Math.abs(v)} ${ud}.`,

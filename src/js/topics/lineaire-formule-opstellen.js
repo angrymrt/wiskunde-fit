@@ -94,7 +94,7 @@ function s11par() {
     px = nz(-8, 8);
     py = ri(-16, 20);
     const c = nz(-9, 9);
-    intro = `De lijn l is evenwijdig met k: y = ${lin(a, c)} en gaat door P(${px}, ${py}).`;
+    intro = `De lijn l is {{evenwijdig|evenwijdig}} met k: y = ${lin(a, c)} en gaat door P(${px}, ${py}).`;
     first = `l // k, dus a = rc_l = rc_k = ${fr(a)}.`;
   } else {
     const den = pick([2, 3, 4]),
@@ -107,14 +107,14 @@ function s11par() {
       const k = nz(-4, 4);
       px = k;
     }
-    intro = `De lijn l is evenwijdig met k: y = ${lin(a, c)} en gaat door P(${px}, ${py}).`;
+    intro = `De lijn l is {{evenwijdig|evenwijdig}} met k: y = ${lin(a, c)} en gaat door P(${px}, ${py}).`;
     first = `l // k, dus a = rc_l = rc_k = ${fr(a)}.`;
   }
   const b = qSub(py, qMul(a, px));
   return {
     q: T(`${intro} Stel de formule van l op: y = ax + b.`),
     fields: [F('a =', a), F('b =', b)],
-    hint: 'Evenwijdige lijnen hebben dezelfde a. Vul daarna P in om b te vinden.',
+    hint: T('{{evenwijdig|Evenwijdige}} lijnen hebben dezelfde a. Vul daarna P in om b te vinden.'),
     steps: [
       first,
       `y = ${lin(a, 0)} + b door P(${px}, ${py}) geeft ${fr(a)}*${px} + b = ${py}`,
@@ -171,11 +171,16 @@ function s11special() {
       y = nz(-9, 9);
     return {
       q: T(
-        `De lijn ${l} hoort bij een constant verband en gaat door het punt (${x}, ${y}). Geef de formule van ${l} in de vorm y = ax + b.`,
+        `De lijn ${l} hoort bij een {{constant-verband|constant verband}} en gaat door het punt (${x}, ${y}). Geef de formule van ${l} in de vorm y = ax + b.`,
       ),
       fields: [F('a =', 0), F('b =', y)],
-      hint: 'Bij een constant verband is a = 0. De grafiek is een horizontale lijn, dus y is overal hetzelfde.',
-      steps: [`Constant verband, dus a = 0.`, `Door (${x}, ${y}), dus ${l}: y = ${y}.`],
+      hint: T(
+        'Bij een {{constant-verband|constant verband}} is a = 0. De grafiek is een horizontale lijn, dus y is overal hetzelfde.',
+      ),
+      steps: [
+        `{{constant-verband|Constant verband}}, dus a = 0.`,
+        `Door (${x}, ${y}), dus ${l}: y = ${y}.`,
+      ],
       traps: [
         {
           id: 'x-als-b',
@@ -191,12 +196,14 @@ function s11special() {
     a = Q(y, x);
   return {
     q: T(
-      `De lijn ${l} hoort bij een recht evenredig verband en gaat door het punt (${x}, ${y}). Geef de formule van ${l} in de vorm y = ax + b.`,
+      `De lijn ${l} hoort bij een {{recht-evenredig-verband|recht evenredig verband}} en gaat door het punt (${x}, ${y}). Geef de formule van ${l} in de vorm y = ax + b.`,
     ),
     fields: [F('a =', a), F('b =', 0)],
-    hint: 'Bij een recht evenredig verband gaat de lijn door de oorsprong, dus b = 0.',
+    hint: T(
+      'Bij een {{recht-evenredig-verband|recht evenredig verband}} gaat de lijn door de {{oorsprong|oorsprong}}, dus b = 0.',
+    ),
     steps: [
-      'Recht evenredig verband, dus b = 0.',
+      '{{recht-evenredig-verband|Recht evenredig verband}}, dus b = 0.',
       `y = ax door (${x}, ${y}) geeft a*${x} = ${y}`,
       `a = {${y}/${x}}${a.d === x && a.n === y ? '' : ' = ' + fr(a)}`,
       `Dus ${l}: y = ${lin(a, 0)}.`,
@@ -437,7 +444,7 @@ export default {
       t: 'De formule opstellen uit een grafiek',
       how: [
         'Ga uit van y = ax + b.',
-        'Lees het snijpunt met de y-as af. Daaruit volgt b.',
+        'Lees het {{snijpunt|snijpunt}} met de y-as af. Daaruit volgt b.',
         T('Kies nog een roosterpunt op de lijn. Dan is a = {verticaal/horizontaal}.'),
         'Schrijf de formule op.',
       ],
@@ -450,10 +457,10 @@ export default {
       t: 'Twee bijzondere lijnen',
       p: [
         T(
-          'Bij a = 0 hoort de formule y = b. De grafiek is een horizontale lijn. Je spreekt dan van een constant verband.',
+          'Bij a = 0 hoort de formule y = b. De grafiek is een horizontale lijn. Je spreekt dan van een {{=constant-verband|constant verband}}.',
         ),
         T(
-          'Bij b = 0 hoort de formule y = ax. De grafiek gaat door de oorsprong. Je spreekt dan van een recht evenredig verband.',
+          'Bij b = 0 hoort de formule y = ax. De grafiek gaat door de {{oorsprong|oorsprong}}. Je spreekt dan van een {{=recht-evenredig-verband|recht evenredig verband}}.',
         ),
       ],
     },
@@ -479,7 +486,7 @@ export default {
       t: 'Evenwijdige lijnen',
       p: [
         T(
-          'Evenwijdige lijnen hebben dezelfde richtingscoëfficiënt. Je schrijft k // l, dus rc_k = rc_l.',
+          '{{=evenwijdig|Evenwijdige}} lijnen hebben dezelfde {{richtingscoefficient|richtingscoëfficiënt}}. Je schrijft k // l, dus rc_k = rc_l.',
         ),
       ],
       ex: {

@@ -67,7 +67,7 @@ function s16iso() {
   const a = Q(-A, B),
     b = Q(C, B);
   return {
-    q: T(`Herleid ${lin2(A, B)} = ${C} tot de vorm y = ax + b.`),
+    q: T(`{{herleiden|Herleid}} ${lin2(A, B)} = ${C} tot de vorm y = ax + b.`),
     fields: [F('a =', a), F('b =', b)],
     hint: T(
       B === 1
@@ -96,7 +96,7 @@ function s16ax() {
   const xi = Q(C, A),
     yi = Q(C, B);
   return {
-    q: T(`Bereken de snijpunten van de lijn ${lin2(A, B)} = ${C} met de assen.`),
+    q: T(`Bereken de {{snijpunt|snijpunten}} van de lijn ${lin2(A, B)} = ${C} met de assen.`),
     fields: [
       { pre: 'x-as: (', a: qv(xi), post: ', 0)' },
       { pre: 'y-as: (0,', a: qv(yi), post: ')' },
@@ -278,7 +278,7 @@ export default {
     {
       t: 'Herleiden tot y = ax + b',
       p: [
-        'Breng de term met x over naar het rechterlid. Daarbij verandert + in - en - in +. Staat er nog een getal voor y, deel dan alle termen door dat getal.',
+        '{{=herleiden|Herleiden}} is de vergelijking omschrijven tot y = ax + b. Breng de term met x over naar het {{=lid|rechterlid}}. Daarbij verandert + in - en - in +. Staat er nog een getal voor y, deel dan alle termen door dat getal.',
       ],
       ex: { q: T('4x + 3y = 12'), steps: ['3y = -4x + 12', 'y = -{4/3}x + 4'] },
     },

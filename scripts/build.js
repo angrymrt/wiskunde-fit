@@ -80,6 +80,7 @@ const { PAGES, SITE, redirects } = await import('../src/js/pages.js');
 const { screenHTML, shellHTML } = await import('../src/js/ui/screens.js');
 const { state } = await import('../src/js/ui/state.js');
 const { esc } = await import('../src/js/typeset.js');
+const { metTermenLijst } = await import('./termenlijst.js');
 
 await rm(dist, { recursive: true, force: true });
 
@@ -258,7 +259,9 @@ function pageHTML(page, body) {
 
 for (const page of PAGES) {
   state.view = page.view;
-  const body = page.shell ? shellHTML(page.title.replace(/ \| Wiskundefit$/, '')) : screenHTML();
+  const body = page.shell
+    ? shellHTML(page.title.replace(/ \| Wiskundefit$/, ''))
+    : metTermenLijst(screenHTML());
   const file = new URL(page.file, dist);
   await mkdir(new URL('./', file), { recursive: true });
   await writeFile(file, pageHTML(page, body));

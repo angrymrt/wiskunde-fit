@@ -112,6 +112,16 @@ test('axe vindt geen toegankelijkheidsfouten', { timeout: 300_000 }, async () =>
           while (await b.isVisible()) await b.click();
         }
         await check(`${id} uitleg`);
+        // Een term met zijn popup open (#39). De knoppen komen pas na het laden van de popup, dus
+        // wacht erop als de uitleg een term bevat, anders meet de test niets.
+        if (await p.locator('.term').count()) {
+          const term = p.locator('button.term:visible').first();
+          await term.waitFor();
+          await term.click();
+          assert.equal(await term.getAttribute('aria-expanded'), 'true', `${id}: de popup is open`);
+          await check(`${id} uitleg met een popup`);
+          await p.keyboard.press('Escape');
+        }
         await p.click('a.btn[href$="/oefenen"]');
         await p.click('[data-act="hint"]');
         await p.click('#pform button[type=submit]');
@@ -272,6 +282,76 @@ test(
       );
       assert.ok(await p.$('.foot a[href$="/wiskunde-fit/releases"]'));
       assert.ok(await p.$('.foot a[href="https://github.com/angrymrt/wiskunde-fit"]'));
+    } finally {
+      await browser.close();
+    }
+  },
+);
+
+test(
+  'een term opent een popup met uitleg, met tikken en met het toetsenbord',
+  { timeout: 60_000 },
+  async () => {
+    const browser = await launch();
+    try {
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      await p.goto(`${siteUrl}lineaire-formule-opstellen`);
+      await p.waitForSelector('button.term');
+      // Een term die in dit onderwerp wordt uitgelegd, is gewone tekst. Alleen termen uit andere
+      // onderwerpen krijgen een popup.
+      assert.equal(await p.locator('button.term[data-term="evenwijdig"]').count(), 0);
+      const knop = p.locator('button.term[data-term="richtingscoefficient"]');
+      assert.equal(await knop.getAttribute('aria-expanded'), 'false');
+      await knop.click();
+      assert.equal(await knop.getAttribute('aria-expanded'), 'true');
+      assert.equal(await p.locator('.pop').count(), 1);
+      assert.match(await p.locator('.pop').innerText(), /richtingscoëfficiënt/);
+      // De popup pakt de focus niet af.
+      assert.equal(await p.evaluate(() => document.activeElement.className), 'term');
+
+      // Sluit werkt, en de focus gaat terug naar de term.
+      await p.click('.pop button');
+      assert.equal(await p.locator('.pop').count(), 0);
+      assert.equal(await knop.getAttribute('aria-expanded'), 'false');
+
+      // Enter opent, Escape sluit en houdt de focus op de term.
+      await knop.focus();
+      await p.keyboard.press('Enter');
+      assert.equal(await p.locator('.pop').count(), 1);
+      await p.keyboard.press('Escape');
+      assert.equal(await p.locator('.pop').count(), 0);
+      assert.equal(await p.evaluate(() => document.activeElement.className), 'term');
+
+      // Een klik ergens anders sluit de popup.
+      await knop.click();
+      await p.click('h1');
+      assert.equal(await p.locator('.pop').count(), 0);
+
+      // Onder de uitleg staat een lijst met de termen uit dit onderwerp.
+      assert.match(await p.locator('.termen').innerText(), /richtingscoëfficiënt/);
+
+      // "Meer uitleg" gaat naar de term in de woordenlijst onder de uitleg, en die komt in beeld.
+      await p.evaluate(() =>
+        window.wiskundefit.go(
+          { name: 'topic', slug: 'lineaire-formule-opstellen' },
+          '#woord-richtingscoefficient',
+        ),
+      );
+      await p.waitForFunction(() => {
+        const r = document.getElementById('woord-richtingscoefficient')?.getBoundingClientRect();
+        return r && r.top >= 0 && r.bottom <= window.innerHeight;
+      });
+
+      // Alleen de hoogte van het venster veranderen sluit de popup niet.
+      await p.locator('button.term').first().click();
+      await p.setViewportSize({ width: 390, height: 700 });
+      assert.equal(await p.locator('.pop').count(), 1);
+      await p.setViewportSize({ width: 360, height: 700 });
+      await p.waitForFunction(() => !document.querySelector('.pop'));
+
+      // Een term uit een ander onderwerp heeft "Meer uitleg", naar de lijst bij dat onderwerp.
+      await knop.click();
+      assert.equal(await p.locator('.pop a').count(), 1);
     } finally {
       await browser.close();
     }
@@ -1173,6 +1253,15 @@ test('JavaScript neemt een vooraf gebouwde pagina over zonder iets te vervangen'
             list.forEach((m) => {
               // De balk met Ga oefenen schakelt main.js zelf aan en uit.
               if (m.type === 'attributes' && m.target.matches('.practice-bar')) return;
+              // Een term wordt een knop, of gewone tekst op de pagina van zijn eigen onderwerp (#39): de
+              // tekst en de plek blijven gelijk.
+              if (
+                m.type === 'childList' &&
+                [...m.addedNodes, ...m.removedNodes].every(
+                  (n) => n.nodeType === 3 || n.matches?.('.term'),
+                )
+              )
+                return;
               window.vervangen.push(m.type);
             }),
           ).observe(document.getElementById('app'), {

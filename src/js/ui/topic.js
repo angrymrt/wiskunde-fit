@@ -8,6 +8,7 @@ import { esc, T, stepsHTML } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
 import { fieldsHTML, meldHTML, shareHTML } from './question-form.js';
 import { state } from './state.js';
+import { termen } from './termen.js';
 import { widgetHTML } from './widgets.js';
 
 function exampleHTML(ex, key) {
@@ -34,9 +35,10 @@ function pagerHTML(s) {
 const practiceButton = (s) => `<a class="btn main" href="${practicePath(s)}">Ga oefenen</a>`;
 const vLearn = (s) =>
   s.learn
-    .map(
-      (b, i) =>
+    .map((b, i) =>
+      termen(
         `<div class="block"><h2 class="h3">${T(b.t)}</h2>${(b.p || []).map((x) => `<p>${/<span|<table/.test(x) ? x : T(x)}</p>`).join('')}${b.how ? `<ol class="how">${b.how.map((x) => `<li>${/<span/.test(x) ? x : T(x)}</li>`).join('')}</ol>` : ''}${b.widget ? `<div data-widget="${b.widget}">${widgetHTML(b.widget)}</div>` : ''}${b.ex ? exampleHTML(b.ex, i) : ''}${b.ex2 ? exampleHTML(b.ex2, `${i}b`) : ''}${b.watch ? `<p class="watch"><b>Let op:</b> ${/<span/.test(b.watch) ? b.watch : T(b.watch)}</p>` : ''}</div>`,
+      ),
     )
     .join('');
 const CHANNELS = { menno: 'Math with Menno', bob: 'Wiskunde met Bob Pruiksma' };
@@ -163,13 +165,13 @@ function vPractice(s, title) {
         .join('')}</div>`;
   const share = shareHTML(st.skill, q),
     meld = meldHTML(st.skill, q);
-  return `<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}` : ''}${share.button}${meld.button}</span></div>${share.note}</div>
+  return termen(`<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}` : ''}${share.button}${meld.button}</span></div>${share.note}</div>
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !isDrawing(q) && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
   ${st.hint && !done ? `<div class="hintb"><b>Hint:</b> ${/<span/.test(q.hint) ? q.hint : T(q.hint)}</div>` : ''}
   <div class="row">${done ? `<button class="btn main" type="submit" id="nextq" ${st.msg ? 'aria-describedby="pfb"' : ''}>Volgende vraag</button>` : `<button class="btn main" type="submit">Controleer</button>${st.hint ? '' : `<button class="btn" type="button" data-act="hint">Hint</button>`}<button class="btn quiet" type="button" data-act="show">Toon uitwerking</button>`}${st.status === 'right' && !st.sol ? `<button class="btn quiet" type="button" data-act="showsol">Bekijk uitwerking</button>` : ''}</div></form>
-  ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div>${meld.panel}</div>`;
+  ${st.status === 'shown' || st.sol ? `<div class="sol"><h2 class="h3">Uitwerking</h2>${stepsHTML(q.steps)}</div>` : ''}</div>${meld.panel}</div>`);
 }
 // Kwam je via "Uitleg bij deze vraag" uit Mijn stof oefenen, dan kun je daar weer verder.
 function backToRound(s) {
@@ -196,7 +198,7 @@ function vTopic(s) {
   return `<div class="screen-grid color-${s.domain.color}">${crumbs()}<article class="sheet topic">
   <div class="head topic-head"><h1>${T(s.title)}</h1><p class="lead">${T(s.intro)}</p>${prerequisites}</div>
   <div class="topic-side"><div class="topic-actions">${practiceButton(s)}${backToRound(s)}${done}${videos ? `<a class="small" href="#videos">Naar de video's</a>` : ''}</div></div>
-  <div class="topic-body">${vLearn(s)}${videos}</div>
+  <div class="topic-body">${vLearn(s)}${videos}<!--termen--></div>
   <div class="practice-bar away">${practiceButton(s)}</div>
   ${pagerHTML(s)}</article></div>`;
 }

@@ -71,7 +71,7 @@ function s31read() {
       fields: pointFields(L, x, y),
       compact: true,
       hint: T(
-        'Begin in de oorsprong O. Tel eerst hoeveel hokjes je naar links of rechts gaat: dat is de x-coördinaat. Tel daarna hoeveel hokjes omhoog of omlaag: dat is de y-coördinaat.',
+        'Begin in de {{oorsprong|oorsprong}} O. Tel eerst hoeveel hokjes je naar links of rechts gaat: dat is de x-coördinaat. Tel daarna hoeveel hokjes omhoog of omlaag: dat is de y-coördinaat.',
       ),
       steps: [walk, `Dus ${L}(${x}, ${y}).`],
       traps: [
@@ -127,7 +127,9 @@ function s31shift() {
     moveX = `${Math.abs(h)} ${links(h)}`,
     moveY = `${Math.abs(k)} ${omhoog(k)}`,
     moves = coin() ? `${moveX} en ${moveY}` : `eerst ${moveY} en dan ${moveX}`,
-    start = fromO ? 'Vanuit de oorsprong O' : `Je begint in ${S}(${x0}, ${y0}). Vanuit ${S}`;
+    start = fromO
+      ? 'Vanuit de {{oorsprong|oorsprong}} O'
+      : `Je begint in ${S}(${x0}, ${y0}). Vanuit ${S}`;
   const op = (a, b) => `${a} ${b < 0 ? '-' : '+'} ${Math.abs(b)} = ${a + b}`;
   return {
     q: T(
@@ -225,7 +227,7 @@ function s31axes() {
     [X, Y] = onX ? [s, 0] : [0, s];
   return {
     q: T(
-      `Punt ${L} ligt op de ${as}, ${n} ${where} de oorsprong O. Wat zijn de coördinaten van ${L}?`,
+      `Punt ${L} ligt op de ${as}, ${n} ${where} de {{oorsprong|oorsprong}} O. Wat zijn de {{coordinaat|coördinaten}} van ${L}?`,
     ),
     fields: pointFields(L, X, Y),
     compact: true,
@@ -365,12 +367,17 @@ function s31quadrant() {
       L = pick('ABCDEFGHKLMNPRSTUVW'),
       opts = SIGNS.map((s) => T(s));
     return {
-      q: TK(`Punt ${L} ligt in kwadrant ${ROMAN[k - 1]}. Wat weet je van de coördinaten van ${L}?`),
+      q: TK(
+        `Punt ${L} ligt in {{kwadrant|kwadrant}} ${ROMAN[k - 1]}. Wat weet je van de {{coordinaat|coördinaten}} van ${L}?`,
+      ),
       mc: MC(opts, k - 1),
       hint: TK(
-        'Rechtsboven is kwadrant I, linksboven II, linksonder III en rechtsonder IV. Links van de y-as is x negatief, onder de x-as is y negatief.',
+        'Rechtsboven is {{kwadrant|kwadrant}} I, linksboven II, linksonder III en rechtsonder IV. Links van de y-as is x negatief, onder de x-as is y negatief.',
       ),
-      steps: [H(TK(`Kwadrant ${ROMAN[k - 1]} ligt ${SIDE[k - 1]}.`)), `Dus ${SIGNS[k - 1]}.`],
+      steps: [
+        H(TK(`{{kwadrant|Kwadrant}} ${ROMAN[k - 1]} ligt ${SIDE[k - 1]}.`)),
+        `Dus ${SIGNS[k - 1]}.`,
+      ],
       traps: [
         ...(k % 2 === 0
           ? [{ id: 'kwadrant-met-de-klok-mee', f: (v) => v[0] === opts[5 - k], m: CLOCK }]
@@ -396,10 +403,10 @@ function s31quadrant() {
     k = x > 0 && y > 0 ? 1 : x < 0 && y > 0 ? 2 : x < 0 && y < 0 ? 3 : x > 0 && y < 0 ? 4 : 0,
     word = (c, n, neg, pos) => `${c} = ${n}, dus ${L} ligt ${n < 0 ? neg : pos}.`;
   return {
-    q: T(`In welk kwadrant ligt het punt ${L}(${x}, ${y})?`),
+    q: T(`In welk {{kwadrant|kwadrant}} ligt het punt ${L}(${x}, ${y})?`),
     mc: MC(QUAD, k ? k - 1 : 4),
     hint: TK(
-      'Kijk naar de tekens van x en y. Rechtsboven is kwadrant I, en je nummert tegen de klok in. Een punt op een as ligt in geen kwadrant.',
+      'Kijk naar de tekens van x en y. Rechtsboven is {{kwadrant|kwadrant}} I, en je nummert tegen de klok in. Een punt op een as ligt in geen kwadrant.',
     ),
     steps: k
       ? [
@@ -407,14 +414,14 @@ function s31quadrant() {
           word('y', y, 'onder de x-as', 'boven de x-as'),
           H(
             TK(
-              `${SIDE[k - 1][0].toUpperCase()}${SIDE[k - 1].slice(1)} is kwadrant ${ROMAN[k - 1]}.`,
+              `${SIDE[k - 1][0].toUpperCase()}${SIDE[k - 1].slice(1)} is {{kwadrant|kwadrant}} ${ROMAN[k - 1]}.`,
             ),
           ),
-          H(TK(`Dus ${L} ligt in kwadrant ${ROMAN[k - 1]}.`)),
+          H(TK(`Dus ${L} ligt in {{kwadrant|kwadrant}} ${ROMAN[k - 1]}.`)),
         ]
       : [
           `${x ? 'y' : 'x'} = 0, dus ${L} ligt op de ${x ? 'x' : 'y'}-as.`,
-          `Een punt op een as ligt in geen kwadrant.`,
+          `Een punt op een as ligt in geen {{kwadrant|kwadrant}}.`,
         ],
     traps: k
       ? [
@@ -530,10 +537,10 @@ export default {
       t: 'Het assenstelsel',
       p: [
         T(
-          'Een assenstelsel heeft een horizontale x-as en een verticale y-as. Die snijden elkaar in de oorsprong O, het punt (0, 0).',
+          'Een {{=assenstelsel|assenstelsel}} heeft een horizontale x-as en een verticale y-as. Die snijden elkaar in de {{=oorsprong|oorsprong}} O, het punt (0, 0).',
         ),
         T(
-          'Een punt schrijf je met een hoofdletter en twee getallen tussen haakjes, zoals P(4, -2). Het eerste getal is de x-coördinaat, het tweede de y-coördinaat.',
+          'Een punt schrijf je met een hoofdletter en twee getallen tussen haakjes, de {{=coordinaat|coördinaten}}, zoals P(4, -2). Het eerste getal is de x-coördinaat, het tweede de y-coördinaat.',
         ),
       ],
       ex: {
@@ -586,7 +593,7 @@ export default {
       t: 'Kwadranten',
       p: [
         TK(
-          'De assen verdelen het assenstelsel in vier kwadranten. Je nummert ze tegen de klok in: rechtsboven is kwadrant I, linksboven II, linksonder III en rechtsonder IV.',
+          'De assen verdelen het assenstelsel in vier {{=kwadrant|kwadranten}}. Je nummert ze tegen de klok in: rechtsboven is kwadrant I, linksboven II, linksonder III en rechtsonder IV.',
         ),
         TK(
           'In kwadrant I zijn x en y allebei positief, en in kwadrant III allebei negatief. In II is x negatief, en in IV is y negatief.',

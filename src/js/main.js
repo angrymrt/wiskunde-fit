@@ -260,9 +260,22 @@ function render(focus) {
 // render() vervangt het hele scherm en daarmee het element met de focus. Zonder dit begint wie
 // het toetsenbord of een schermlezer gebruikt na elke klik weer bovenaan de pagina.
 // Geef een selector mee om de focus ergens anders te zetten dan waar die stond.
+// De knoppen en de popup bij termen (#39) laden pas als een scherm termen bevat.
+let termpopup = null;
+const mountTermen = () =>
+  app.querySelector('.term') &&
+  import('./ui/termpopup.js').then((m) => {
+    termpopup = m;
+    m.mount(app, pathFor, state);
+  });
 function paint(focus) {
+  termpopup?.sluit(false);
   const target = focus || focusedSelector();
-  if (prebuilt) Idiomorph.morph(app, screenHTML(), { morphStyle: 'innerHTML' });
+  if (prebuilt)
+    Idiomorph.morph(app, screenHTML(), {
+      morphStyle: 'innerHTML',
+      callbacks: { beforeNodeRemoved: (n) => !n.matches?.('.termen') },
+    });
   else app.innerHTML = screenHTML();
   prebuilt = false;
   melding.textContent = state.laden === 'bezig' ? 'Even laden…' : '';
@@ -275,6 +288,7 @@ function paint(focus) {
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
   if (state.view.oefen || state.view.name === 'stofoefen') laadIconen().catch(() => {});
   mountWidgets();
+  mountTermen()?.catch(() => {});
   showDrawn();
   watchPracticeBar();
   runClock();

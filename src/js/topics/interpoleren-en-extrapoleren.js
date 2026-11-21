@@ -235,7 +235,7 @@ function s45rate() {
   return {
     q:
       T(
-        `${look} Bereken hoeveel ${c.the} van ${Ya} tot ${Yb} is veranderd, en de gemiddelde verandering per jaar. Is het een afname, zet dan een min voor het getal.${needRound(fields)}`,
+        `${look} Bereken hoeveel ${c.the} van ${Ya} tot ${Yb} is veranderd, en de {{gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}}. Is het een afname, zet dan een min voor het getal.${needRound(fields)}`,
       ) + html,
     fig,
     fields,
@@ -351,10 +351,10 @@ function s45inter() {
     fig,
     fields,
     hint: T(
-      `Gebruik de twee waarnemingen om ${Y} heen. Bereken eerst de gemiddelde verandering per jaar.`,
+      `Gebruik de twee {{waarneming|waarnemingen}} om ${Y} heen. Bereken eerst de {{gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}}.`,
     ),
     steps: [
-      `${Y} ligt tussen ${Ya} en ${Yb}, dus interpoleren met de waarnemingen van ${Ya} en ${Yb}.`,
+      `${Y} ligt tussen ${Ya} en ${Yb}, dus {{interpoleren|interpoleren}} met de {{waarneming|waarnemingen}} van ${Ya} en ${Yb}.`,
       perYear(c, Ya, va, Yb, vb, r),
       `${Y} is ${m} jaar na ${Ya}, dus de schatting voor ${Y} is ${fx(va, k)} + ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`,
     ],
@@ -442,8 +442,8 @@ function s45extra() {
     fields = [RF(`Schatting voor ${Y}:`, rd(ans, 9), k, c.post)],
     { look, html, fig } = show(D),
     first = back
-      ? `${Y} ligt vóór ${Ya}, dus extrapoleren terug in de tijd. Gebruik de eerste twee waarnemingen: ${Ya} en ${Yb}.`
-      : `${Y} komt na ${Yb}, dus extrapoleren. Gebruik de laatste twee waarnemingen: ${Ya} en ${Yb}.`,
+      ? `${Y} ligt vóór ${Ya}, dus {{extrapoleren|extrapoleren}} terug in de tijd. Gebruik de eerste twee {{waarneming|waarnemingen}}: ${Ya} en ${Yb}.`
+      : `${Y} komt na ${Yb}, dus {{extrapoleren|extrapoleren}}. Gebruik de laatste twee {{waarneming|waarnemingen}}: ${Ya} en ${Yb}.`,
     last = back
       ? `${Y} is ${m} jaar vóór ${Ya}, dus de schatting voor ${Y} is ${fx(va, k)} - ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`
       : `${Y} is ${m} jaar na ${Yb}, dus de schatting voor ${Y} is ${fx(vb, k)} + ${m}*${dots(r)} ${eq(ans, k)} ${c.post}.`;
@@ -453,8 +453,8 @@ function s45extra() {
     fields,
     hint: T(
       back
-        ? 'Ligt het jaar vóór de eerste waarneming, gebruik dan de eerste twee waarnemingen. Bereken de gemiddelde verandering per jaar en reken terug in de tijd.'
-        : 'Ligt het jaar na de laatste waarneming, gebruik dan de laatste twee waarnemingen. Bereken de gemiddelde verandering per jaar.',
+        ? 'Ligt het jaar vóór de eerste {{waarneming|waarneming}}, gebruik dan de eerste twee waarnemingen. Bereken de {{gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}} en reken terug in de tijd.'
+        : 'Ligt het jaar na de laatste {{waarneming|waarneming}}, gebruik dan de laatste twee waarnemingen. Bereken de {{gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}}.',
     ),
     steps: [first, perYear(c, Ya, va, Yb, vb, r), last],
     traps: [
@@ -547,12 +547,12 @@ function s45year() {
     fig,
     fields: [field],
     hint: T(
-      'Bereken de gemiddelde verandering per jaar. Hoeveel moet er nog bij of af? Deel dat door de verandering per jaar. Dan weet je hoeveel jaar later het is.',
+      'Bereken de {{gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}}. Hoeveel moet er nog bij of af? Deel dat door de verandering per jaar. Dan weet je hoeveel jaar later het is.',
     ),
     steps: [
       extra
-        ? `${zt} is ${more} dan ${fx(vb, k)}, de laatste waarneming. Dus extrapoleren met de laatste twee waarnemingen: ${Ya} en ${Yb}.`
-        : `${zt} ligt tussen ${fx(va, k)} (${Ya}) en ${fx(vb, k)} (${Yb}), dus interpoleren met de waarnemingen van ${Ya} en ${Yb}.`,
+        ? `${zt} is ${more} dan ${fx(vb, k)}, de laatste {{waarneming|waarneming}}. Dus {{extrapoleren|extrapoleren}} met de laatste twee waarnemingen: ${Ya} en ${Yb}.`
+        : `${zt} ligt tussen ${fx(va, k)} (${Ya}) en ${fx(vb, k)} (${Yb}), dus {{interpoleren|interpoleren}} met de {{waarneming|waarnemingen}} van ${Ya} en ${Yb}.`,
       perYear(c, Ya, va, Yb, vb, r),
       `Van ${fx(v0, k)} naar ${fx(z, k)}: ${fx(z, k)} - ${fx(v0, k)} = ${fx(dz, k)}.`,
       `{${fx(dz, k)}/${dots(r)}} ${exact ? `= ${tt}` : `≈ ${fx(t, 1)}`}, dus ${exact ? tt : fx(t, 1)} jaar na ${Y0}.`,
@@ -620,8 +620,8 @@ export default {
     {
       t: 'Gemiddelde verandering per jaar',
       p: [
-        'In een tabel staan waarnemingen: bij een paar jaren de waarde die toen is gemeten. Tussen twee waarnemingen zitten vaak meer jaren.',
-        'De gemiddelde verandering per jaar is het verschil in waarde gedeeld door het verschil in jaren. Bij een afname is die negatief.',
+        'In een tabel staan {{=waarneming|waarnemingen}}: bij een paar jaren de waarde die toen is gemeten. Tussen twee waarnemingen zitten vaak meer jaren.',
+        'De {{=gemiddelde-verandering-per-jaar|gemiddelde verandering per jaar}} is het verschil in waarde gedeeld door het verschil in jaren. Bij een afname is die negatief.',
       ],
       ex: {
         q:
@@ -638,7 +638,7 @@ export default {
     {
       t: 'Interpoleren',
       p: [
-        'Interpoleren is een waarde schatten die tussen twee waarnemingen ligt. Inter betekent tussen.',
+        '{{=interpoleren|Interpoleren}} is een waarde schatten die tussen twee waarnemingen ligt. Inter betekent tussen.',
         'Gebruik de twee waarnemingen om het jaar heen. Bereken de gemiddelde verandering per jaar, en tel die zo vaak op als er jaren zijn verstreken.',
         'Komt de gemiddelde verandering niet precies uit, reken dan door met het getal dat niet is afgerond, zoals 1,85..., en rond pas aan het eind af.',
       ],
@@ -656,7 +656,7 @@ export default {
     {
       t: 'Extrapoleren',
       p: [
-        'Extrapoleren is een waarde schatten die buiten de waarnemingen ligt. Extra betekent buiten.',
+        '{{=extrapoleren|Extrapoleren}} is een waarde schatten die buiten de waarnemingen ligt. Extra betekent buiten.',
         'Gebruik voor een jaar na de tabel de laatste twee waarnemingen, want die passen het best bij de nieuwste ontwikkeling. Voor een jaar vóór de tabel gebruik je de eerste twee.',
         'Wees voorzichtig met extrapoleren. Je weet niet hoe het verder gaat, en ook tussen twee waarnemingen kan het flink schommelen.',
       ],

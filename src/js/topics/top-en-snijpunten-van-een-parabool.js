@@ -145,7 +145,9 @@ function s31top() {
     n = pick(NAMES),
     yt = value(abc, h);
   return {
-    q: T(`Gegeven is de functie ${n}(x) = ${quad(abc)}. Bereken de coördinaten van de top.`),
+    q: T(
+      `Gegeven is de functie ${n}(x) = ${quad(abc)}. Bereken de {{coordinaat|coördinaten}} van de {{top|top}}.`,
+    ),
     fields: [F('x_top =', h), F('y_top =', yt)],
     compact: true,
     hint: T(
@@ -274,10 +276,12 @@ function s35top() {
       m: 'De top is (p, q): eerst het getal in de haakjes, dan het getal erachter.',
     });
   return {
-    q: T(`Gegeven is de functie ${n}(x) = ${f}. Wat zijn de coördinaten van de top?`),
+    q: T(
+      `Gegeven is de functie ${n}(x) = ${f}. Wat zijn de {{coordinaat|coördinaten}} van de {{top|top}}?`,
+    ),
     fields: [F('x_top =', p), F('y_top =', q)],
     compact: true,
-    hint: T('De top van f(x) = a(x - p)^2 + q is (p, q). Let op het teken van p.'),
+    hint: T('De {{top|top}} van f(x) = a(x - p)^2 + q is (p, q). Let op het teken van p.'),
     steps: [
       p
         ? p < 0
@@ -350,7 +354,7 @@ function s34top() {
     });
   return {
     q: T(
-      `Gegeven is de functie ${n}(x) = ${f}. De grafiek snijdt de x-as in A en B, met A links van B, en de y-as in C. T is de top. Bereken de coördinaten van A, B, C en T.`,
+      `Gegeven is de functie ${n}(x) = ${f}. De grafiek snijdt de x-as in A en B, met A links van B, en de y-as in C. T is de {{top|top}}. Bereken de {{coordinaat|coördinaten}} van A, B, C en T.`,
     ),
     fig: sketchFig(
       abc,
@@ -371,7 +375,7 @@ function s34top() {
     ],
     compact: true,
     hint: T(
-      'De grafiek van a(x - d)(x - e) snijdt de x-as in (d, 0) en (e, 0). Het snijpunt met de y-as is (0, f(0)). x_top ligt midden tussen d en e.',
+      'De grafiek van a(x - d)(x - e) snijdt de x-as in (d, 0) en (e, 0). Het {{snijpunt|snijpunt}} met de y-as is (0, f(0)). x_top ligt midden tussen d en e.',
     ),
     steps: [
       `d = ${dd} en e = ${ee}, dus A(${r}, 0) en B(${s}, 0).`,
@@ -506,10 +510,12 @@ function s35sketch() {
   return {
     q: T(`Welke schets hoort bij ${n}(x) = ${vertexForm(a, p, q)}?`),
     mc,
-    hint: T('Kijk naar a: dalparabool of bergparabool? De top van a(x - p)^2 + q is (p, q).'),
+    hint: T(
+      'Kijk naar a: {{dalparabool|dalparabool}} of {{bergparabool|bergparabool}}? De {{top|top}} van a(x - p)^2 + q is (p, q).',
+    ),
     steps: [
-      `a = ${d(a)}, dus a ${a > 0 ? '>' : '<'} 0. De grafiek is een ${a > 0 ? 'dal' : 'berg'}parabool.`,
-      `De top is (${p}, ${q}). Die ligt ${side}.`,
+      `a = ${d(a)}, dus a ${a > 0 ? '>' : '<'} 0. De grafiek is een {{${a > 0 ? 'dalparabool' : 'bergparabool'}|${a > 0 ? 'dalparabool' : 'bergparabool'}}}.`,
+      `De {{top|top}} is (${p}, ${q}). Die ligt ${side}.`,
       H(
         graph({
           ...SK,
@@ -608,17 +614,17 @@ function s35draw() {
   const draw = drawParabola(abc, [p, q], left, right, traps);
   return {
     q: T(
-      `Teken de grafiek van ${n}(x) = ${vertexForm(a, p, q)}. Zet de top en nog twee punten van de grafiek in het rooster.`,
+      `Teken de grafiek van ${n}(x) = ${vertexForm(a, p, q)}. Zet de {{top|top}} en nog twee punten van de grafiek in het rooster.`,
     ),
     ...draw,
     hint: T(
-      'De top van a(x - p)^2 + q is (p, q). Kijk naar a: dalparabool of bergparabool? Reken daarna twee punten uit die even ver links en rechts van de top liggen.',
+      'De {{top|top}} van a(x - p)^2 + q is (p, q). Kijk naar a: {{dalparabool|dalparabool}} of {{bergparabool|bergparabool}}? Reken daarna twee punten uit die even ver links en rechts van de top liggen.',
     ),
     steps: [
-      `a = ${A < 0 ? '-' : ''}${Math.abs(A) < 1 ? '{1/2}' : Math.abs(A)}, dus a ${A > 0 ? '>' : '<'} 0. De grafiek is een ${A > 0 ? 'dal' : 'berg'}parabool.`,
-      `De top van a(x - p)^2 + q is (p, q). Dus de top is (${p}, ${q}).`,
+      `a = ${A < 0 ? '-' : ''}${Math.abs(A) < 1 ? '{1/2}' : Math.abs(A)}, dus a ${A > 0 ? '>' : '<'} 0. De grafiek is een {{${A > 0 ? 'dalparabool' : 'bergparabool'}|${A > 0 ? 'dalparabool' : 'bergparabool'}}}.`,
+      `De {{top|top}} van a(x - p)^2 + q is (p, q). Dus de top is (${p}, ${q}).`,
       `Twee punten even ver links en rechts van de top: ${fillIn(left[0])} en ${fillIn(right[0])}`,
-      `Zet de top (${p}, ${q}) en de punten (${left[0]}, ${left[1]}) en (${right[0]}, ${right[1]}) in het rooster en teken de ${A > 0 ? 'dal' : 'berg'}parabool erdoor.`,
+      `Zet de top (${p}, ${q}) en de punten (${left[0]}, ${left[1]}) en (${right[0]}, ${right[1]}) in het rooster en teken de {{${A > 0 ? 'dalparabool' : 'bergparabool'}|${A > 0 ? 'dalparabool' : 'bergparabool'}}} erdoor.`,
       H(parabolaFig(abc, [p, q], [left, right])),
     ],
     // De top ook met x_top = −b/(2a), uit de parabool die de formule zelf geeft.
@@ -719,7 +725,7 @@ function s32max() {
         `${s.t} Voor de hoogte van ${s.wat} geldt ${n}(x) = ${quad(abc)}. Hierin is x de afstand in meter vanaf ${s.van} en ${n}(x) de hoogte in meter boven ${s.boven}. Op welke afstand is ${s.wat} het hoogst, en hoe hoog is dat?`,
       ) + T(needRound(fields)),
     fields,
-    hint: T('Het hoogste punt is de top. Bereken x_top = {-b/2a} en daarna y_top.'),
+    hint: T('Het hoogste punt is de {{top|top}}. Bereken x_top = {-b/2a} en daarna y_top.'),
     steps: [
       `a = ${d(a)} en b = ${d(b)}`,
       `${xtopText(a, b)} = ${d(h)}`,
@@ -804,7 +810,7 @@ function s34tunnel() {
       ) + T(needRound(fields)),
     fields,
     hint: T(
-      `De breedte is de afstand tussen de snijpunten met de x-as. De hoogte is y_top.${kind === 'abc' ? ` Los dus eerst ${n}(x) = 0 op.` : ''}`,
+      `De breedte is de afstand tussen de {{snijpunt|snijpunten}} met de x-as. De hoogte is y_top.${kind === 'abc' ? ` Los dus eerst ${n}(x) = 0 op.` : ''}`,
     ),
     steps: [
       ...ground,
@@ -1160,7 +1166,7 @@ export default {
       t: 'De top van f(x) = ax^2 + bx + c',
       p: [
         T(
-          'De top is het laagste punt van een dalparabool en het hoogste punt van een bergparabool. Voor elke parabool geldt x_top = {-b/2a}. Daarna is y_top = f(x_top).',
+          'De {{top|top}} is het laagste punt van een {{dalparabool|dalparabool}} en het hoogste punt van een {{bergparabool|bergparabool}}. Voor elke parabool geldt x_top = {-b/2a}. Daarna is y_top = f(x_top).',
         ),
       ],
       how: [
