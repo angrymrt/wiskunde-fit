@@ -58,6 +58,7 @@ function s31read() {
       xr: [-6, 6],
       yr: [-6, 6],
       u,
+      coords: false,
       pts: pts.map(([px, py], i) => ({ x: px, y: py, label: letters[i] })),
       label: `Assenstelsel met de punten ${[...letters].join(', ').replace(/, (\w)$/, ' en $1')}`,
     }),
@@ -299,6 +300,7 @@ function s31rect() {
       xr: [-7, 7],
       yr: [-7, 7],
       u: 20,
+      coords: false,
       pts: P.map(([x, y], i) => ({ x, y, label: names[i] })),
       extra: (Xp, Yp) =>
         `<path class="l2" d="M${P.map(([x, y]) => `${Xp(x)} ${Yp(y)}`).join('L')}Z"/>`,

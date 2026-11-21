@@ -1095,3 +1095,16 @@ test('T zet wiskunde goed om', () => {
   assert.equal(T('y_top'), '<span class="v">y</span><sub>top</sub>');
   assert.equal(T('x = -2 ∨ x = 9'), '<span class="v">x</span> = −2 ∨ <span class="v">x</span> = 9');
 });
+
+test('graph met coords: false noemt de coördinaten van de punten niet', () => {
+  const pts = [
+    { x: 2, y: -3, label: 'P' },
+    { x: 1, y: 1 },
+  ];
+  const desc = (o) => graph({ pts, ...o }).match(/aria-label="([^"]*)"/)[1];
+  assert.match(desc({}), /2, −3/, 'standaard noemt hij ze wel');
+  const zonder = desc({ coords: false });
+  assert.match(zonder, /Punt P is gemarkeerd\./);
+  assert.match(zonder, /Gemarkeerd punt\./);
+  assert.doesNotMatch(zonder, /−3|\(2|\(1/);
+});

@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.21.1
+
+### Hersteld
+
+- Bij de vragen waarin je een punt afleest uit een figuur (Coördinaten en assenstelsels) zegt de beschrijving voor een schermlezer niet meer wat de coördinaten zijn. Eerst hoorde je daarmee het antwoord.
+
 ## 1.21.0
 
 ### Nieuw

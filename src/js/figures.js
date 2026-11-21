@@ -81,7 +81,7 @@ function curveDesc(k, who, { view, xn, yn, sketch }) {
   return out.join(' ');
 }
 
-function graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, label }) {
+function graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, coords, label }) {
   const out = [label.replace(/\.$/, '') + '.'];
   if (!sketch) {
     out.push(
@@ -98,7 +98,7 @@ function graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, label }
     const n = nameOf(l, i);
     if (sketch) return out.push(cap(`${n} ${trend(l.a)}.`));
     // Eerst de gemarkeerde punten op deze lijn, daarna roosterpunten, het liefst dicht bij de y-as.
-    const marked = pts.filter((p) => !p.label && on(l, p) && !crossing(p));
+    const marked = pts.filter((p) => coords && !p.label && on(l, p) && !crossing(p));
     const grid = [];
     for (let k = xr[0]; k <= xr[1]; k++) {
       const x = k * xs,
@@ -131,9 +131,9 @@ function graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, label }
   pts.forEach((p) => {
     const ls = lines.map((l, i) => [l, i]).filter(([l]) => on(l, p)),
       names = and(ls.map(([l, i]) => nameOf(l, i))),
-      where = sketch ? '' : ` ${spot(p.x, p.y)}`;
+      where = sketch || !coords ? '' : ` ${spot(p.x, p.y)}`;
     if (p.label) {
-      const at = sketch ? '' : ` op ${spot(p.x, p.y)}`,
+      const at = sketch || !coords ? '' : ` op ${spot(p.x, p.y)}`,
         cross = ls.length > 1 ? `, waar ${names} elkaar snijden` : '';
       out.push(`Punt ${p.label} is gemarkeerd${at}${cross}.`);
     } else if (ls.length > 1)
@@ -250,10 +250,11 @@ function graph({
   ly = 1,
   extra = '',
   sketch = false, // Een schets: alleen de assen, dus zonder rooster en getallen.
+  coords = true, // Met false noemt de beschrijving de coördinaten van de punten niet: bij aflezen zijn die het antwoord.
   draw = false, // Een rooster om zelf in te tekenen, zie ui/draw.js.
   label = 'Grafiek in een assenstelsel',
 }) {
-  const desc = graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, label });
+  const desc = graphDesc({ xr, yr, lines, curves, pts, xs, ys, xn, yn, sketch, coords, label });
   const ml = 30,
     mr = 20,
     mt = 20,
