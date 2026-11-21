@@ -2529,7 +2529,8 @@ test(
 // eerste bezoek is daardoor 15 kB zelf en ongeveer 2 kB verstuurd kleiner, en de grenzen zijn 59 en 154.
 // Wat main en dat scherm samen gebruiken, staat nu in een gedeeld bestand dat main ook meteen laadt: het
 // grootste is 15,5 kB verstuurd en 43 kB zelf, dus die grens is 16 en 44. De grens voor het eerste
-// bezoek als geheel is wat telt.
+// bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden
+// (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
   page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
