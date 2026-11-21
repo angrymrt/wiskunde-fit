@@ -241,6 +241,7 @@ Bouwt een wijziging in delen op elkaar voort, zoals een hoofdstuk, maak dan een 
 
 - Begin met `gh stack init` op de integratiebranch, zoals `hoofdstuk-3`. Maak elk volgend deel met `gh stack add <branch>` en zet alles op GitHub met `gh stack submit`. Een integratiebranch krijgt geen tests en geen preview op GitHub; die geeft de draft-PR van de integratiebranch naar `main`.
 - Voeg een deel samen door de integratiebranch vooruit te zetten: `git push origin origin/<branch>:refs/heads/hoofdstuk-3`. GitHub ziet de pull request dan als samengevoegd. Draai daarna `gh stack sync`, dat de hogere delen op de nieuwe basis zet.
+- De draft-PR van de integratiebranch naar `main` voeg je samen met squash, want dat is de enige methode die de ruleset toestaat. Het hoofdstuk wordt dan één commit op `main`, met de titel van die pull request en het issue van het hoofdstuk erin (`Hoofdstuk 4 (#97)`). De delen blijven te lezen in de pull requests.
 - De basis van een pull request in een stack kun je niet wijzigen. Zet bij het bovenste deel daarom ook zijn eigen basis vooruit, zodat GitHub ook die pull request als samengevoegd ziet.
 - Stuit `gh stack sync` op een conflict, dan stopt het en verandert het niets. Los het op met `git rebase --onto` en draai `gh stack sync` opnieuw. `gh stack modify` werkt alleen interactief.
 
