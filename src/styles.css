@@ -2262,6 +2262,12 @@ html.melden-open body {
 }
 .answers tbody th {
   font-weight: 400;
+  /* Een lang woord, zoals vermenigvuldigingsfactor, breekt af in plaats van de tabel te verbreden. */
+  hyphens: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  /* Zonder minimum drukken de andere kolommen dit label tot een smalle strook. */
+  min-width: 4.5em;
 }
 .answers tr.no td:nth-last-child(2),
 .answers tr.no td:only-child {
