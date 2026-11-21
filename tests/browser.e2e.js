@@ -2722,7 +2722,11 @@ test('Over, Privacy en Contact laden in één eigen bestand, en blijven staan te
       const antwoord = p.waitForResponse((r) => geladen.test(r.url()) && r.ok());
       await p.click('[data-act=opnieuw]');
       await antwoord;
-      await p.waitForSelector('main a.mail, main h1');
+      await p.waitForFunction(
+        () =>
+          /Over/.test(document.querySelector('h1')?.textContent) &&
+          !document.querySelector('#laadfout'),
+      );
       assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
       await p.close();
     }
