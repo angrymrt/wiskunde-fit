@@ -6,6 +6,7 @@ import { chosenTopics } from '../stof.js';
 import { TOPIC, geladen } from '../topics/index.js';
 import { esc } from '../typeset.js';
 import { klaar as aboutKlaar, laad as laadAbout } from './about.js';
+import { klaar as cijfersKlaar, laad as laadCijfers } from './cijfers.js';
 import { klaar as examKlaar, laad as laadExam } from './exam.js';
 import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
@@ -33,6 +34,7 @@ const examen = { klaar: examKlaar, laad: laadExam };
 const about = { klaar: aboutKlaar, laad: laadAbout, vooraf: true };
 const LATER = {
   vragen: { klaar: vragenKlaar, laad: laadVragen, vooraf: true },
+  cijfers: { klaar: cijfersKlaar, laad: laadCijfers, vooraf: true },
   over: about,
   privacy: about,
   contact: about,

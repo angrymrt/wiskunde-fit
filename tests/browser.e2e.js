@@ -2572,6 +2572,8 @@ test(
 // 56,8 kB verstuurd, en de grenzen zijn 58 en 146.
 // Over, Privacy en Contact staan sinds #188 samen in een eigen bestand (about.js). Het eerste bezoek is
 // nu 137 kB zelf en 54 kB verstuurd, en de grenzen zijn 55 en 138.
+// Cijfers staat sinds #188 ook in een eigen bestand (cijfers.js, 9 kB), naast het bestand met de
+// tellen. Het eerste bezoek is nu 128 kB zelf en 50,6 kB verstuurd, en de grenzen zijn 52 en 130.
 // Wat main en dat scherm samen gebruiken, staat nu in een gedeeld bestand dat main ook meteen laadt: het
 // grootste is 15,5 kB verstuurd en 43 kB zelf, dus die grens is 16 en 44. De grens voor het eerste
 // bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden
@@ -2581,7 +2583,11 @@ const LIMITS = {
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 55, own: 138, why: 'de code bij het eerste bezoek' },
+  start: { sent: 52, own: 130, why: 'de code bij het eerste bezoek' },
+  // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
+  // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
+  // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd.
+  tellen: { sent: 4, own: 16, why: 'het bestand met de tellen voor Cijfers' },
   // Een scherm in een eigen bestand (scripts/later-schermen.js), dat pas laadt als het nodig is.
   scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
@@ -2617,7 +2623,9 @@ test('de pagina’s en de code blijven klein', async () => {
       ? 'topic'
       : /^chunk-/.test(name)
         ? 'shared'
-        : /^(vragen|exam|about)-/.test(name) && 'scherm';
+        : /^cijfers-data-/.test(name)
+          ? 'tellen'
+          : /^(vragen|exam|about|cijfers)-/.test(name) && 'scherm';
     const kind = ext === '.js' ? code : { '.css': 'css', '.woff2': 'font' }[ext];
     if (kind) files.push([`assets/${name}`, kind]);
   }
@@ -2661,7 +2669,8 @@ test('de pagina Cijfers laadt de cijfers apart, en blijft staan terwijl dat duur
     {
       const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
       const geladen = [];
-      p.on('request', (r) => /cijfers-data-/.test(r.url()) && geladen.push(r.url()));
+      // Zowel de tellen als het scherm zelf (cijfers-HASH.js).
+      p.on('request', (r) => /\/assets\/cijfers-/.test(r.url()) && geladen.push(r.url()));
       await p.goto(siteUrl);
       await p.waitForFunction(() => window.wiskundefit);
       assert.deepEqual(geladen, [], 'Home laadt de cijfers niet');

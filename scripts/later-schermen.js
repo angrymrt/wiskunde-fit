@@ -14,6 +14,7 @@ import { basename, dirname, resolve } from 'node:path';
 // laad. Een naam die hier niet staat, bestaat in de browser niet voor wie het scherm importeert.
 const LATER = {
   'vragen.js': ['vVragen'],
+  'cijfers.js': ['vCijfers'],
   'about.js': ['vOver', 'vPrivacy', 'vContact'],
   'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
 };
@@ -36,8 +37,8 @@ function laterSchermenPlugin() {
         return {
           contents: [
             'let m = null;',
-            `const laad = () => import('./${naam}').then((x) => { m = x; });`,
-            'const klaar = () => m !== null;',
+            `const laad = () => import('./${naam}').then((x) => { m = x; return x.laad(); });`,
+            'const klaar = () => m !== null && m.klaar();',
             'export { laad, klaar };',
             ...LATER[naam].map(aanroep),
           ].join('\n'),

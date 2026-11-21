@@ -168,18 +168,15 @@ function perOnderwerp(c) {
 }
 
 // De cijfers. In Node (de build en de tests) staan ze als globalThis.__CIJFERS__. In de browser laadt
-// laadCijfers() ze uit een eigen bestand, zodat de tellen de code bij het eerste bezoek niet groter
-// maken.
+// laad() ze uit een eigen bestand, zodat de tellen de code bij het eerste bezoek niet groter maken.
+// Dit scherm zelf laadt ook pas als het nodig is (scripts/later-schermen.js, #188), en laad() wordt
+// pas aangeroepen als dat er is. Een mislukte download mag je opnieuw proberen.
 let geladenCijfers = null;
-let lader = null;
-const cijfersKlaar = () => !lader || geladenCijfers !== null;
-// main.js geeft de browser een lader. Een mislukte download mag je opnieuw proberen.
-function laadCijfers() {
-  return lader().then((m) => {
+const klaar = () => geladenCijfers !== null || typeof document === 'undefined';
+const laad = () =>
+  import('../cijfers-data.js').then((m) => {
     geladenCijfers = m.default ?? false;
   });
-}
-const zetCijfersLader = (f) => (lader = f);
 
 function vCijfers() {
   const c =
@@ -210,4 +207,4 @@ function vCijfers() {
   ${populair(c)}${moeilijkst(c)}${fouten(c)}${leeg(c)}${perOnderwerp(c)}${about(true)}</div>`;
 }
 
-export { vCijfers, cijfersKlaar, laadCijfers, zetCijfersLader };
+export { vCijfers, klaar, laad };
