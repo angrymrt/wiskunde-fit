@@ -21,6 +21,19 @@ const LATER = {
   'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
 };
 
+// Bij welk bestand de pagina van een scherm hoort (voor de modulepreload in scripts/build.js). De
+// proeftoets en de uitslag delen er één. Het scherm staat ook in LATER in src/js/ui/laden.js;
+// tests/later-schermen.test.js ziet erop toe dat de drie lijsten gelijk blijven.
+const SCHERM_VAN = {
+  vragen: 'vragen',
+  cijfers: 'cijfers',
+  over: 'about',
+  privacy: 'about',
+  contact: 'about',
+  toets: 'exam',
+  toetsres: 'exam',
+};
+
 function laterSchermenPlugin() {
   return {
     name: 'later-schermen',
@@ -52,4 +65,4 @@ function laterSchermenPlugin() {
   };
 }
 
-export { LATER, laterSchermenPlugin };
+export { LATER, SCHERM_VAN, laterSchermenPlugin };
