@@ -58,6 +58,7 @@ function s31read() {
       xr: [-6, 6],
       yr: [-6, 6],
       u,
+      coords: false,
       pts: pts.map(([px, py], i) => ({ x: px, y: py, label: letters[i] })),
       label: `Assenstelsel met de punten ${[...letters].join(', ').replace(/, (\w)$/, ' en $1')}`,
     }),

@@ -103,6 +103,7 @@ function s15gr() {
     fig: graph({
       xr: [-2, 7],
       yr: [-5, 7],
+      coords: false,
       lines: [
         { a: a1, b: b1, name: 'l' },
         { a: a2, b: b2, name: 'm' },

@@ -14,6 +14,7 @@ function s11read() {
   return {
     q: T(`Stel de formule op van lijn ${l}. Schrijf hem als y = ax + b. Vul a en b in.`),
     fig: graph({
+      coords: false,
       lines: [{ a: qv(a), b, name: l }],
       pts: [
         { x: 0, y: b },
@@ -240,6 +241,7 @@ function s12scale() {
       xn: x,
       yn: y,
       u: 40,
+      coords: false,
       lines: [{ a: qv(a), b }],
       pts: [
         { x: 0, y: b },

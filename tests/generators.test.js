@@ -1095,3 +1095,31 @@ test('T zet wiskunde goed om', () => {
   assert.equal(T('y_top'), '<span class="v">y</span><sub>top</sub>');
   assert.equal(T('x = -2 ∨ x = 9'), '<span class="v">x</span> = −2 ∨ <span class="v">x</span> = 9');
 });
+
+test('graph met coords: false noemt geen coördinaten en geen punten op een lijn', () => {
+  const pts = [
+    { x: 2, y: -3, label: 'P' },
+    { x: 3, y: 0 },
+  ];
+  const lines = [{ a: 2, b: -1, name: 'k' }];
+  const desc = (o) => graph({ pts, lines, ...o }).match(/aria-label="([^"]*)"/)[1];
+  assert.match(desc({}), /2, −3/, 'standaard noemt hij ze wel');
+  assert.match(desc({}), /roosterpunt/);
+  const zonder = desc({ coords: false });
+  assert.match(zonder, /Punt P is gemarkeerd\./);
+  assert.match(zonder, /Gemarkeerd punt\./);
+  assert.match(zonder, /Lijn k stijgt/);
+  assert.doesNotMatch(zonder, /−3|\(\d|roosterpunt/);
+});
+
+test('de beschrijving van aflees-figuren verklapt het antwoord niet', () => {
+  // 127 punt aflezen, 5 en 12 formule uit grafiek, 28 ongelijkheid met grafieken
+  const lek = /\(−?\d|roosterpunt|y-as bij/;
+  for (const id of [127, 5, 12, 28])
+    for (let seed = 1; seed <= 20; seed++) {
+      const skill = TOPICS.flatMap((o) => o.skills).find((k) => k.id === id),
+        q = makeQuestion(skill, seed),
+        label = q.fig.match(/aria-label="([^"]*)"/)[1];
+      assert.doesNotMatch(label, lek, `vraagsoort ${id}, seed ${seed}: ${label}`);
+    }
+});
