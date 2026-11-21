@@ -10,6 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'esbuild';
 import { TARGETS } from './browsers.js';
 import { catalogusPlugin } from './catalogus.js';
+import { laterSchermenPlugin } from './later-schermen.js';
 
 const root = new URL('../', import.meta.url);
 // De cijfers voor de pagina Cijfers komen als eigen bestand in de code (src/js/cijfers-data.js), dat de
@@ -94,7 +95,7 @@ const { metafile, outputFiles } = await build({
   bundle: true,
   format: 'esm',
   splitting: true,
-  plugins: [catalogusPlugin(), cijfersPlugin()],
+  plugins: [catalogusPlugin(), laterSchermenPlugin(), cijfersPlugin()],
   write: false,
   // esbuild zet nieuwere schrijfwijzen in de code en de CSS om voor deze browsers. Functies die er
   // niet zijn, zoals Object.hasOwn, zet het niet om. Die bewaakt tests/browsers.test.js.

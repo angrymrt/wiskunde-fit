@@ -34,7 +34,7 @@ import {
 import { newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
 import { cijfersKlaar, laadCijfers, zetCijfersLader } from './ui/cijfers.js';
-import { nogTeLaden } from './ui/laden.js';
+import { laadScherm, nogTeLaden, wachtOpScherm } from './ui/laden.js';
 import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
 import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
 import { screenHTML } from './ui/screens.js';
@@ -158,6 +158,8 @@ let prebuilt = app.firstElementChild !== null;
 // Het onderwerp van de vooraf gebouwde uitleg waarmee de pagina opende, als dat zo is.
 const opened = prebuilt ? viewFor(location.pathname, '') : {};
 const prebuiltCijfers = opened.name === 'cijfers';
+// Een scherm dat in zijn eigen bestand laadt, zoals Zo maken we de vragen (#188).
+const prebuiltScherm = opened.name;
 const prebuiltTopic = opened.name === 'topic' && !opened.oefen ? opened.slug : null;
 // Een gebied dat een schermlezer voorleest als er tekst in komt, zoals "Even laden…". Het staat er
 // al voordat de tekst verschijnt, anders lezen niet alle schermlezers het voor.
@@ -223,7 +225,8 @@ function render(focus) {
   state.laden = null;
   const missing = nogTeLaden();
   const cijfers = wachtOpCijfers();
-  if (!missing.length && !cijfers) {
+  const scherm = wachtOpScherm();
+  if (!missing.length && !cijfers && !scherm) {
     if (followSoort) {
       followSoort = false;
       applySoort(TOPIC[state.view.slug], state.view.soort, state.view.seed);
@@ -238,13 +241,20 @@ function render(focus) {
     !state.view.oefen &&
     state.view.slug === prebuiltTopic;
   // De vooraf gebouwde pagina Cijfers is ook al helemaal te lezen.
-  const stil = quiet || (prebuilt && cijfers && prebuiltCijfers);
+  const stil =
+    quiet ||
+    (prebuilt && cijfers && prebuiltCijfers) ||
+    (prebuilt && scherm && state.view.name === prebuiltScherm);
   const slow = setTimeout(() => {
     if (nr !== renders || stil) return;
     state.laden = 'bezig';
     paint(focus);
   }, 300);
-  return Promise.all([laadOnderwerpen(missing), cijfers ? laadCijfers() : null]).then(
+  return Promise.all([
+    laadOnderwerpen(missing),
+    cijfers ? laadCijfers() : null,
+    scherm ? laadScherm() : null,
+  ]).then(
     () => {
       clearTimeout(slow);
       if (nr === renders) return render(focus);

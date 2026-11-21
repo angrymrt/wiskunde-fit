@@ -249,4 +249,9 @@ function vVragen() {
   <p>De code van de generatoren staat op <a href="${REPO}" target="_blank" rel="noopener">GitHub</a>, dus je kunt nakijken hoe elke vraag wordt gemaakt. De generatoren, de tests en deze pagina zijn gemaakt met hulp van AI (Claude van Anthropic). Dat staat ook op de pagina <a href="${to('over')}">Over</a>. Klopt een vraag niet? Gebruik de knop <b>Meld een probleem</b> bij de vraag.</p></div></div>`;
 }
 
-export { vVragen };
+// In de browser laadt dit scherm pas als het nodig is (scripts/later-schermen.js). In Node is het er
+// altijd, en wacht er dus niets.
+const klaar = () => true;
+const laad = () => Promise.resolve();
+
+export { vVragen, klaar, laad };
