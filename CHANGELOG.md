@@ -6,7 +6,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 
 ### Hersteld
 
-- Bij de vragen waarin je een punt afleest uit een figuur (Coördinaten en assenstelsels) zegt de beschrijving voor een schermlezer niet meer wat de coördinaten zijn. Eerst hoorde je daarmee het antwoord.
+- Bij de vragen waarin je een punt afleest uit een figuur, bij het opstellen van een formule uit een grafiek en bij het oplossen van een ongelijkheid met grafieken zegt de beschrijving voor een schermlezer niet meer wat de coördinaten zijn. Eerst hoorde je daarmee het antwoord.
 
 ## 1.21.0
 
