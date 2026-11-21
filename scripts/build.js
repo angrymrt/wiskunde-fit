@@ -204,6 +204,7 @@ if (cijfersCode.length !== 1) throw new Error('De cijfers staan niet in een eige
 // er één. Een scherm dat hier ontbreekt, krijgt alleen geen modulepreload.
 const SCHERM_VAN = {
   vragen: 'vragen',
+  cijfers: 'cijfers',
   over: 'about',
   privacy: 'about',
   contact: 'about',
