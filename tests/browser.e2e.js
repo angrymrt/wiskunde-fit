@@ -266,6 +266,11 @@ test(
         ['contact', /Contact/],
       ]) {
         await p.click(`.foot a[href="/${page}"]`);
+        // Het bestand met deze pagina's laadt pas bij de eerste keer, dus wacht op de kop.
+        await p.waitForFunction(
+          (src) => new RegExp(src).test(document.querySelector('h1')?.textContent ?? ''),
+          heading.source,
+        );
         assert.match(await p.textContent('h1'), heading);
         assert.equal(await p.evaluate(() => document.activeElement.tagName), 'H1');
         assert.equal(await wide(), false, `${page} is breder dan de telefoon`);
