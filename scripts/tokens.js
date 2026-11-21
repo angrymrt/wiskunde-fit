@@ -16,8 +16,11 @@
 //
 // Per issue: zet bovenaan de opdracht van elke agent de regels `Issue: #97` en `Rol: bouw` (of
 // `Rol: review`). De hoofdsessie is de orkestratie. Die kosten worden verdeeld over de issues van
-// de agents in dezelfde sessie, naar verhouding van wat die agents kostten. Met --bord zet het
-// script de totalen in de velden Orkestratie, Bouw en Review van het projectbord, in miljoenen.
+// de agents die op dat moment liepen, naar verhouding van wat die agents kostten. Een stap van de
+// hoofdsessie waarin geen agent liep, is werk dat de hoofdsessie zelf bouwde. Dat telt als Bouw van
+// het issue uit de eerstvolgende commit met een `#N` in het bericht, bij voorkeur `(#N)` aan het
+// eind van de titel (hooguit drie uur later). Dat is een schatting, en het script zegt dat erbij.
+// Met --bord zet het script de totalen in de velden Orkestratie, Bouw en Review van het projectbord, in miljoenen.
 // Het overschrijft wat er stond, dus geef alle sessies mee die aan de issues hebben gewerkt.
 
 import { execFileSync } from 'node:child_process';
@@ -79,6 +82,8 @@ function tel({ sessie, hoofd, pad }) {
   t.issue = null;
   // Per stap het tijdstip en het gewicht, om de orkestratie in de tijd te kunnen verdelen.
   t.beurten = [];
+  // Commits met een `#N`, om te zien aan welk issue de hoofdsessie bouwde.
+  t.commits = [];
   // Het tijdvak van een agent loopt van zijn eerste tot zijn laatste regel, dus ook vanaf de opdracht.
   const tijden = [];
   for (const regel of readFileSync(pad, 'utf8').split('\n')) {
@@ -103,6 +108,15 @@ function tel({ sessie, hoofd, pad }) {
         .replace(/[*`\s]+/g, ' ')
         .trim()
         .slice(0, 50)}`;
+    }
+    if (hoofd && Array.isArray(j.message?.content)) {
+      for (const c of j.message.content) {
+        const cmd = c.type === 'tool_use' ? c.input?.command : null;
+        if (typeof cmd !== 'string' || !/\bgit commit\b/.test(cmd)) continue;
+        // `(#188)` aan het eind van de titel is het issue; een `#205` in de titel kan een pull request zijn.
+        const issue = Number((cmd.match(/\(#(\d+)/) ?? cmd.match(/#(\d+)/))?.[1]) || null;
+        if (issue) t.commits.push({ tijd, issue });
+      }
     }
     const m = j.message;
     // Een antwoord kan in stukken in het logboek staan, met hetzelfde id en hetzelfde gebruik.
@@ -161,6 +175,8 @@ if (!perIssue) {
 const AGENTROL = (t) => !t.hoofd && t.issue && (t.rol === 'bouw' || t.rol === 'review');
 const per = new Map();
 const los = [];
+const geschat = new Set();
+const DRIE_UUR = 3 * 3600 * 1000;
 const voeg = (issue, rol, n) => {
   if (!per.has(issue)) per.set(issue, { orkestratie: 0, bouw: 0, review: 0 });
   per.get(issue)[rol] += n;
@@ -175,22 +191,26 @@ for (const sessie of sessies) {
   // dat moment bezig waren, van de start van hun eerste agent tot het einde van hun laatste. Vallen
   // er meer issues samen, dan naar verhouding van wat hun agents kostten. Een stap daarbuiten, zoals
   // werk aan het bord of aan een andere pull request, telt voor geen enkel issue.
-  const issues = new Map();
-  for (const t of hier.filter(AGENTROL)) {
-    const i = issues.get(t.issue) ?? { van: t.van, tot: t.tot, kost: 0 };
-    issues.set(t.issue, {
-      van: Math.min(i.van, t.van),
-      tot: Math.max(i.tot, t.tot),
-      kost: i.kost + t.gewogen,
-    });
-  }
+  // Elke agent heeft zijn eigen tijdvak, zodat het werk tussen twee agents in niet meetelt als
+  // orkestratie.
+  const lopend = hier.filter(AGENTROL);
   for (const hoofd of hier.filter((t) => t.hoofd)) {
     let zonder = 0;
     for (const b of hoofd.beurten) {
-      const bezig = [...issues].filter(([, i]) => b.tijd >= i.van && b.tijd <= i.tot);
-      const som = bezig.reduce((s, [, i]) => s + i.kost, 0);
-      if (!som) zonder += b.gewogen;
-      for (const [issue, i] of bezig) voeg(issue, 'orkestratie', (b.gewogen * i.kost) / som);
+      const bezig = lopend.filter((a) => b.tijd >= a.van && b.tijd <= a.tot);
+      const som = bezig.reduce((s, a) => s + a.gewogen, 0);
+      if (som) {
+        for (const a of bezig) voeg(a.issue, 'orkestratie', (b.gewogen * a.gewogen) / som);
+        continue;
+      }
+      // Geen agent bezig: de hoofdsessie bouwde zelf, voor het issue van de eerstvolgende commit.
+      const commit = hoofd.commits
+        .filter((c) => c.tijd >= b.tijd && c.tijd - b.tijd <= DRIE_UUR)
+        .sort((x, y) => x.tijd - y.tijd)[0];
+      if (commit) {
+        voeg(commit.issue, 'bouw', b.gewogen);
+        geschat.add(commit.issue);
+      } else zonder += b.gewogen;
     }
     if (zonder) los.push({ naam: 'hoofdsessie buiten de agents met een issue', gewogen: zonder });
   }
@@ -201,6 +221,12 @@ console.log('| --- | --: | --: | --: | --: |');
 for (const [issue, r] of [...per].sort((a, b) => a[0] - b[0])) {
   console.log(
     `| #${issue} | ${M(r.orkestratie)} | ${M(r.bouw)} | ${M(r.review)} | ${M(r.orkestratie + r.bouw + r.review)} |`,
+  );
+}
+if (geschat.size) {
+  const lijst = [...geschat].sort((a, b) => a - b).map((i) => `#${i}`);
+  console.log(
+    `\nBouw door de hoofdsessie is een schatting, via de #N in de commits: ${lijst.join(', ')}.`,
   );
 }
 if (los.length) {
