@@ -25,16 +25,20 @@ const melding = (tekst) => {
 export function prNummer(commando) {
   // Alleen als gh pr merge zelf het commando is, niet als de tekst ervan in een commitbericht staat.
   const m = commando.match(/(?:^|[;&|]\s*)gh\s+pr\s+merge\b([^\n;&|]*)/);
-  return Number(m?.[1].match(/(?:^|\s)#?(\d+)(?=\s|$)/)?.[1]) || null;
+  // Tekst tussen aanhalingstekens, zoals --subject "Oud #12", is geen nummer.
+  const delen = (m?.[1] ?? '').replace(/"[^"]*"|'[^']*'/g, ' ').split(/\s+/);
+  return Number(delen.find((d) => /^#?\d+$/.test(d))?.replace('#', '')) || null;
 }
 
-// De issues van een pull request: wat hij sluit, en wat de titel of tekst noemt als `(#N` of
-// `Refs #N`. Het nummer van de pull request zelf telt niet mee.
+// De issues van een pull request: wat hij sluit, wat in de titel staat als `(#N` en wat in de tekst
+// op een eigen regel met Refs, Fixes of Closes begint. Een los nummer in de tekst kan een eerdere
+// pull request zijn en telt dus niet. Het nummer van de pull request zelf telt ook niet.
 export function issuesVan(pr) {
   const nummers = new Set((pr.closingIssuesReferences ?? []).map((i) => i.number));
-  const tekst = `${pr.title ?? ''}\n${pr.body ?? ''}`;
-  for (const m of tekst.matchAll(/(?:\(|\b(?:Refs|Fixes|Closes)\s+)#(\d+)/gi))
+  for (const m of (pr.title ?? '').matchAll(/\(#(\d+)/g)) nummers.add(Number(m[1]));
+  for (const m of (pr.body ?? '').matchAll(/^(?:Refs|Fixes|Closes)\s+#(\d+)/gim)) {
     nummers.add(Number(m[1]));
+  }
   nummers.delete(pr.number);
   return [...nummers].sort((a, b) => a - b);
 }
@@ -74,15 +78,15 @@ async function main() {
     const sessies = readdirSync(map)
       .filter((f) => f.endsWith('.jsonl'))
       .map((f) => join(map, f));
-    const gedaan = [];
-    for (const issue of issues) {
-      const uit = execFileSync(
-        'node',
-        [join(hier, 'tokens.js'), '--per-issue', '--bord', `--issue=${issue}`, ...sessies],
-        { encoding: 'utf8' },
-      );
-      if (uit.includes(`#${issue} staat op het bord`)) gedaan.push(`#${issue}`);
-    }
+    // Eén keer voor alle issues, want het script leest alle logboeken in.
+    const uit = execFileSync(
+      'node',
+      [join(hier, 'tokens.js'), '--per-issue', '--bord', `--issue=${issues.join(',')}`, ...sessies],
+      { encoding: 'utf8' },
+    );
+    const gedaan = issues
+      .filter((i) => uit.includes(`#${i} staat op het bord`))
+      .map((i) => `#${i}`);
     melding(
       gedaan.length
         ? `Tokens van ${gedaan.join(', ')} staan op het projectbord (Bouw is een schatting).`

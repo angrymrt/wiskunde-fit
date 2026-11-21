@@ -4,7 +4,7 @@
 //   node scripts/tokens.js <sessie.jsonl> [nog een sessie.jsonl ...]           tabel per agent
 //   node scripts/tokens.js --per-issue <sessie.jsonl> [...]                    tabel per issue en rol
 //   node scripts/tokens.js --per-issue --bord <sessie.jsonl> [...]             en zet het op het bord
-//   node scripts/tokens.js --per-issue --bord --issue=100 <sessie.jsonl> [...] alleen dat issue op het bord
+//   node scripts/tokens.js --per-issue --bord --issue=100 <sessie.jsonl> [...] alleen dat issue op het bord (ook --issue=100,101)
 //
 // De logboeken staan in ~/.claude/projects/<map van de repo>/<sessie-id>.jsonl, en die van de agents
 // in <sessie-id>/subagents/. Het script neemt die vanzelf mee.
@@ -18,9 +18,9 @@
 // `Rol: review`). De hoofdsessie is de orkestratie. Die kosten worden verdeeld over de issues van
 // de agents die op dat moment liepen, naar verhouding van wat die agents kostten. Een stap van de
 // hoofdsessie waarin geen agent liep, is werk dat de hoofdsessie zelf bouwde. Dat telt als Bouw van
-// het issue uit de eerstvolgende commit met een `#N` in het bericht, bij voorkeur `(#N)` aan het
-// eind van de titel (hooguit drie uur later). Dat is een schatting, en het script zegt dat erbij.
-// Met --bord zet het script de totalen in de velden Orkestratie, Bouw en Review van het projectbord, in miljoenen.
+// het issue uit de eerstvolgende commit met `(#N)` aan het eind van de titel (hooguit een uur
+// later). Dat is een schatting, en het script zegt dat erbij. Met --bord zet het script de totalen
+// in de velden Orkestratie, Bouw en Review van het projectbord, in miljoenen.
 // Het overschrijft wat er stond, dus geef alle sessies mee die aan de issues hebben gewerkt.
 
 import { execFileSync } from 'node:child_process';
@@ -36,9 +36,10 @@ const args = process.argv.slice(2);
 const perIssue = args.includes('--per-issue');
 const naarBord = args.includes('--bord');
 const issueArg = args.find((a) => a.startsWith('--issue='));
-const alleen = issueArg ? Number(issueArg.slice(8)) : null;
+const alleen = issueArg ? issueArg.slice(8).split(',').map(Number) : null;
 // Een ongeldig nummer mag nooit betekenen dat alle issues naar het bord gaan.
-const slechtIssue = issueArg && (!/^\d+$/.test(issueArg.slice(8)) || alleen < 1);
+const slechtIssue =
+  issueArg && (!/^\d+(,\d+)*$/.test(issueArg.slice(8)) || alleen.some((n) => n < 1));
 const sessies = args.filter((a) => !a.startsWith('--'));
 const onbekend = args.filter(
   (a) => a.startsWith('--') && !['--per-issue', '--bord'].includes(a) && !a.startsWith('--issue='),
@@ -51,7 +52,8 @@ if (
   (issueArg && !naarBord)
 ) {
   if (onbekend.length) console.error(`Onbekende optie: ${onbekend.join(', ')}`);
-  if (slechtIssue) console.error(`Ongeldig issue: ${issueArg}. Schrijf --issue=100.`);
+  if (slechtIssue)
+    console.error(`Ongeldig issue: ${issueArg}. Schrijf --issue=100 of --issue=100,101.`);
   if (issueArg && !naarBord) console.error('--issue= werkt alleen samen met --per-issue --bord.');
   console.error(
     'Gebruik: node scripts/tokens.js [--per-issue [--bord [--issue=N]]] <sessie.jsonl> [...]',
@@ -113,8 +115,8 @@ function tel({ sessie, hoofd, pad }) {
       for (const c of j.message.content) {
         const cmd = c.type === 'tool_use' ? c.input?.command : null;
         if (typeof cmd !== 'string' || !/\bgit commit\b/.test(cmd)) continue;
-        // `(#188)` aan het eind van de titel is het issue; een `#205` in de titel kan een pull request zijn.
-        const issue = Number((cmd.match(/\(#(\d+)/) ?? cmd.match(/#(\d+)/))?.[1]) || null;
+        // Alleen `(#188)` aan het eind van de titel telt; een los `#205` kan een pull request zijn.
+        const issue = Number(cmd.match(/\(#(\d+)/)?.[1]) || null;
         if (issue) t.commits.push({ tijd, issue });
       }
     }
@@ -176,7 +178,7 @@ const AGENTROL = (t) => !t.hoofd && t.issue && (t.rol === 'bouw' || t.rol === 'r
 const per = new Map();
 const los = [];
 const geschat = new Set();
-const DRIE_UUR = 3 * 3600 * 1000;
+const VENSTER = 3600 * 1000;
 const voeg = (issue, rol, n) => {
   if (!per.has(issue)) per.set(issue, { orkestratie: 0, bouw: 0, review: 0 });
   per.get(issue)[rol] += n;
@@ -205,7 +207,7 @@ for (const sessie of sessies) {
       }
       // Geen agent bezig: de hoofdsessie bouwde zelf, voor het issue van de eerstvolgende commit.
       const commit = hoofd.commits
-        .filter((c) => c.tijd >= b.tijd && c.tijd - b.tijd <= DRIE_UUR)
+        .filter((c) => c.tijd >= b.tijd && c.tijd - b.tijd <= VENSTER)
         .sort((x, y) => x.tijd - y.tijd)[0];
       if (commit) {
         voeg(commit.issue, 'bouw', b.gewogen);
@@ -256,7 +258,7 @@ if (naarBord) {
   ).items;
   for (const [issue, r] of per) {
     // Met --issue= blijven de andere issues staan, want die hebben vaak sessies die nu niet meedoen.
-    if (alleen && issue !== alleen) continue;
+    if (alleen && !alleen.includes(issue)) continue;
     let item = items.find(
       (i) => i.content?.number === issue && i.content?.repository === BORD.repo,
     )?.id;
