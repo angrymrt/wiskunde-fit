@@ -486,7 +486,7 @@ test('een lang woord in de uitslag maakt de antwoordtabel niet te breed', async 
         wiskundefit.prog.stof = [107];
         wiskundefit.go({ name: 'toets' });
       });
-      await p.click('[data-act="len"][data-id="10"]');
+      await p.click('[data-act="len"][data-id="30"]');
       await p.click('[data-act="start"]');
       await p.click('[data-act="tfin"]');
       await p.click('[data-act="tfin"]');
@@ -498,7 +498,7 @@ test('een lang woord in de uitslag maakt de antwoordtabel niet te breed', async 
           ).length,
       );
       // De test moet het lange label ook echt hebben gezien, anders slaagt hij leeg.
-      assert.match(await p.textContent('.resq'), /vermenigvuldigingsfactor/);
+      assert.match(await p.textContent('.res'), /vermenigvuldigingsfactor/);
       assert.equal(wide, 0, `bij ${width} pixels scrolt een antwoordtabel zijwaarts`);
       await p.close();
     }
