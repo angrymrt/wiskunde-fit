@@ -24,6 +24,8 @@ test('elk bestand exporteert de namen uit LATER, en klaar en laad', async () => 
     for (const naam of [...namen, 'klaar', 'laad']) {
       assert.equal(typeof m[naam], 'function', `${bestand} exporteert ${naam} niet`);
     }
+    // Andersom: een export die niet in LATER staat, bestaat in de browser niet voor wie het importeert.
+    assert.deepEqual(Object.keys(m).sort(), [...namen, 'klaar', 'laad'].sort(), bestand);
   }
 });
 
