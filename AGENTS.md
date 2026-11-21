@@ -219,7 +219,9 @@ De repository is openbaar, en dus de issues ook. Zet er geen namen of andere geg
 
 ## Een pull request maken
 
-Push nooit rechtstreeks naar `main`. Zet elke wijziging op een eigen branch en open een pull request naar `main`. Die komt dan ook op een eigen preview-adres, zie [README.md](README.md). GitHub dwingt dit af met de ruleset "main beschermen": samenvoegen kan alleen via een pull request waarvan de check `deploy` slaagt. Een pull request van de workflow Tellen samenvatten of uit een fork krijgt die check niet. Die voegt de eigenaar samen door de regels te omzeilen, wat alleen via een pull request kan.
+Push nooit rechtstreeks naar `main`. Zet elke wijziging op een eigen branch en open een pull request naar `main`. Die komt dan ook op een eigen preview-adres, zie [README.md](README.md). GitHub dwingt dit af met de ruleset "main beschermen": samenvoegen kan alleen via een pull request waarvan de checks `deploy` en `issue` slagen. Een pull request van de workflow Tellen samenvatten of uit een fork krijgt `deploy` niet. Die voegt de eigenaar samen door de regels te omzeilen, wat alleen via een pull request kan.
+
+Elke pull request hoort bij een issue ([#208](https://github.com/angrymrt/wiskunde-fit/issues/208)). Zet `(#N)` aan het eind van de titel van de pull request, zoals `Cijfers laadt apart (#188)`, of `Fixes #N` of `Refs #N` aan het begin van een regel in de tekst. Bij een stap van een grotere klus is `Refs` de goede keuze, want `Fixes` sluit het issue bij het samenvoegen. De check `issue` (`scripts/issue-koppeling.js`) faalt als het ontbreekt, of als het nummer geen bestaand issue is. De pull request is de commit op `main`: de titel ervan is de titel van de squash-commit. Zet ook in elke commit `(#N)` aan het eind van de titel. In Claude Code weigert de hook `scripts/commit-hook.js` een commit zonder. Bestaat het issue nog niet, maak het dan eerst aan (zie hierboven).
 
 Laat elke pull request reviewen door een agent die op de achtergrond draait, met het model Sonnet. Kies de effort die bij de pull request past:
 
