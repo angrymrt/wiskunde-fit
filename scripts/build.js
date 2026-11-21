@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'esbuild';
 import { TARGETS } from './browsers.js';
 import { catalogusPlugin } from './catalogus.js';
-import { laterSchermenPlugin } from './later-schermen.js';
+import { LATER, laterSchermenPlugin } from './later-schermen.js';
 
 const root = new URL('../', import.meta.url);
 // De cijfers voor de pagina Cijfers komen als eigen bestand in de code (src/js/cijfers-data.js), dat de
@@ -197,6 +197,21 @@ const cijfersCode = Object.entries(metafile.outputs)
   .filter(([, o]) => o.entryPoint === 'src/js/cijfers-data.js')
   .map(([path]) => path.slice(out.length));
 if (cijfersCode.length !== 1) throw new Error('De cijfers staan niet in een eigen bestand.');
+// Schermen die in een eigen bestand staan (scripts/later-schermen.js), met wat ze nog meer nodig
+// hebben. Dat bestand haalt de browser op de pagina van het scherm al op terwijl main laadt. Staat een
+// scherm niet in een eigen bestand, dan werkt de plugin niet, en dat is een fout.
+const schermCode = new Map();
+for (const naam of Object.keys(LATER)) {
+  const hits = Object.entries(metafile.outputs).filter(
+    ([, o]) => o.entryPoint === `src/js/ui/${naam}`,
+  );
+  if (hits.length !== 1) throw new Error(`${naam} staat niet in een eigen bestand.`);
+  const file = hits[0][0].slice(out.length);
+  schermCode.set(
+    naam.replace(/.js$/, ''),
+    [file, ...imported(file)].filter((f) => !start.includes(f)),
+  );
+}
 const modulepreload = (list) =>
   list.map((f) => `\n    <link rel="modulepreload" href="${f}" />`).join('');
 
@@ -249,7 +264,7 @@ function pageHTML(page, body) {
   html = replace(
     html,
     /<script type="module" src="\/js\/main\.js"><\/script>/,
-    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : []), ...(page.view.name === 'cijfers' ? cijfersCode : [])])}`,
+    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : []), ...(page.view.name === 'cijfers' ? cijfersCode : []), ...(schermCode.get(page.view.name) ?? [])])}`,
   );
   return replace(
     html,

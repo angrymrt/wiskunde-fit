@@ -2656,7 +2656,15 @@ test('Zo maken we de vragen laadt in een eigen bestand, en blijft staan terwijl 
       await p.waitForTimeout(600);
       assert.ok(await p.$('.vtotaal'), 'de vooraf gebouwde pagina staat er');
       assert.equal(await p.$('#app :text("Even laden")'), null, 'geen laadmelding');
+      // Wat je opklapt terwijl het bestand laadt, blijft open als het scherm er is.
+      await p.click('[data-act=vragenopen][data-id=open]');
+      const open = () => p.$$eval('.vdomeinen details[open]', (l) => l.length);
+      assert.ok((await open()) > 0, 'alles is opengeklapt');
+      const binnen = p.waitForResponse((r) => geladen.test(r.url()) && r.ok());
       release();
+      await binnen;
+      await p.waitForTimeout(500);
+      assert.ok((await open()) > 0, 'na het laden staat het nog open');
       await p.close();
     }
     // Vanaf Home laadt het bestand pas nu, en bij een fout is er een melding met opnieuw proberen.

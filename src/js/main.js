@@ -284,7 +284,11 @@ function paint(focus) {
   if (prebuilt)
     Idiomorph.morph(app, screenHTML(), {
       morphStyle: 'innerHTML',
-      callbacks: { beforeNodeRemoved: (n) => !n.matches?.('.termen') },
+      callbacks: {
+        beforeNodeRemoved: (n) => !n.matches?.('.termen'),
+        // Wat de leerling al heeft opengeklapt terwijl de pagina nog laadde, blijft open.
+        beforeAttributeUpdated: (name, node) => !(name === 'open' && node.tagName === 'DETAILS'),
+      },
     });
   else app.innerHTML = screenHTML();
   prebuilt = false;
