@@ -12,13 +12,17 @@ import { commitIssue } from './issue-koppeling.js';
 // De eerste regel van het bericht na `-m`: `-m "Titel"`, `-m 'Titel'` of `-m "$(cat <<'EOF'` met de
 // titel op de volgende regel. Geeft null als het bericht niet uit het commando te halen is.
 export function titelVan(commando) {
-  if (!/(?:^|[;&|(]\s*|\n\s*)git\s+(?:-C\s+\S+\s+)?commit\b/.test(commando)) return undefined;
+  if (!/(?:^|[;&|(]\s*|\n\s*)git\s+(?:-C\s+\S+\s+)?commit(?![\w-])/.test(commando)) {
+    return undefined;
+  }
   const m = commando.match(/\s(?:-[a-zA-Z]*m|--message)(?:\s+|=)(["']?)(.*)/s);
   if (!m) return null;
   let rest = m[2];
   // Een bericht uit een heredoc begint met `$(cat <<'EOF'` en dan een nieuwe regel.
   const heredoc = rest.match(/^\$\(cat\s+<<-?\s*['"]?\w+['"]?\s*\n(.*)/s);
   if (heredoc) rest = heredoc[1];
+  // Tot het sluitende aanhalingsteken; in dubbele aanhalingstekens kan `\"` in de titel staan.
+  else if (m[1] === '"') rest = rest.match(/^(?:[^"\\]|\\.)*/s)[0].replace(/\\"/g, '"');
   else if (m[1]) rest = rest.split(m[1])[0];
   const titel = rest.split('\n')[0].trim();
   return titel || null;

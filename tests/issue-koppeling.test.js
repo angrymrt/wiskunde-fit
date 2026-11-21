@@ -45,6 +45,9 @@ test('de hook voor git commit', () => {
   assert.equal(titelVan('git add . && git commit -q -m "Titel (#1)" && git push'), 'Titel (#1)');
   const heredoc = 'git commit -q -m "$(cat <<\'EOF\'\nTitel (#1)\n\nTekst\nEOF\n)"';
   assert.equal(titelVan(heredoc), 'Titel (#1)');
+  assert.equal(titelVan('git commit -m "Fix \\"x\\" (#1)"'), 'Fix "x" (#1)');
+  assert.equal(beoordeel('git commit -m "Fix \\"x\\" (#1)"').ok, true);
+  assert.equal(titelVan('git commit-tree abc -m "x"'), undefined);
   // Geen commit, of een bericht dat niet uit het commando te halen is.
   assert.equal(titelVan('git status'), undefined);
   assert.equal(titelVan('echo "git commit -m x"'), undefined);
