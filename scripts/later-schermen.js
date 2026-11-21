@@ -14,6 +14,7 @@ import { basename, dirname, resolve } from 'node:path';
 // laad. Een naam die hier niet staat, bestaat in de browser niet voor wie het scherm importeert.
 const LATER = {
   'vragen.js': ['vVragen'],
+  'about.js': ['vOver', 'vPrivacy', 'vContact'],
   'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
 };
 

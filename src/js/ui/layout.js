@@ -5,6 +5,9 @@ import { opslag } from '../progress.js';
 import { state } from './state.js';
 
 const REPO = 'https://github.com/angrymrt/wiskunde-fit';
+// Het adres voor vragen en meldingen. Het staat hier en niet in about.js, want de melding bij een
+// vraag heeft het bij het eerste bezoek al nodig, en about.js laadt pas als het nodig is (#188).
+const MAIL = 'contact@wiskundefit.nl';
 // De build vult de versie en de datum in, zie scripts/build.js. Met npm run dev bestaan ze niet.
 const VERSION = typeof __VERSIE__ === 'string' ? __VERSIE__ : null;
 const DATE = typeof __DATUM__ === 'string' ? __DATUM__ : null;
@@ -70,4 +73,15 @@ const storageNotice = () =>
 const vMissing = () =>
   `${crumbs()}<div class="sheet">${pageHead('Deze pagina bestaat niet')}<p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
 
-export { REPO, VERSION, topbar, footer, crumbs, pageHead, testNotice, storageNotice, vMissing };
+export {
+  MAIL,
+  REPO,
+  VERSION,
+  topbar,
+  footer,
+  crumbs,
+  pageHead,
+  testNotice,
+  storageNotice,
+  vMissing,
+};

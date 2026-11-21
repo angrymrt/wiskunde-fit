@@ -4,8 +4,7 @@
 // de vraag (de vraagsoort en de seed), de versie van de site en wat de leerling zelf kiest of typt.
 // Bevat geen DOM-code, zodat de tests de links kunnen controleren.
 import { SITE } from '../routes.js';
-import { MAIL } from './about.js';
-import { REPO, VERSION } from './layout.js';
+import { MAIL, REPO, VERSION } from './layout.js';
 
 // De keuzes. De tekst komt als gewone tekst in het veld `wat` van .github/ISSUE_TEMPLATE/vraagmelding.yml.
 // Dat is bewust een tekstveld: GitHub vult een keuzelijst niet in via de link.
