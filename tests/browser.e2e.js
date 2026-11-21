@@ -2586,8 +2586,10 @@ const LIMITS = {
   start: { sent: 52, own: 130, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
-  // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd.
-  tellen: { sent: 4, own: 16, why: 'het bestand met de tellen voor Cijfers' },
+  // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
+  // tellen). Met 56 dagen nepcijfers (npm run dev:nep) is het 26,8 kB zelf en 6,8 kB verstuurd, dus de
+  // grens is 8 en 30.
+  tellen: { sent: 8, own: 30, why: 'het bestand met de tellen voor Cijfers' },
   // Een scherm in een eigen bestand (scripts/later-schermen.js), dat pas laadt als het nodig is.
   scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },

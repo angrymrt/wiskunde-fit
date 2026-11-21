@@ -5,9 +5,11 @@
 // bestand. Zo komt elk scherm in een eigen bestand.
 //
 // Een scherm in LATER exporteert behalve zijn functies ook `klaar()` en `laad()`. In Node zijn dat
-// `() => true` en `() => Promise.resolve()`. De browser krijgt in de plaats daarvan de versies uit
-// deze plugin: klaar() is waar zodra laad() het bestand heeft opgehaald. render() in main.js wacht
-// daarop (zie laden.js).
+// `() => true` en `() => Promise.resolve()`. Een scherm dat nog gegevens moet ophalen, zoals Cijfers,
+// doet dat in zijn eigen laad() en klaar(). De browser krijgt in de plaats daarvan de versies uit deze
+// plugin: laad() haalt het bestand op en wacht dan ook op laad() van het scherm, en klaar() is waar
+// zodra het bestand er is én het scherm zelf klaar() zegt. render() in main.js wacht daarop (zie
+// laden.js).
 import { basename, dirname, resolve } from 'node:path';
 
 // De bestanden in src/js/ui/ en de namen die andere bestanden ervan gebruiken, behalve klaar en
