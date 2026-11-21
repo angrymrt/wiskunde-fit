@@ -1,8 +1,6 @@
 // De pagina's uit de voettekst: over de site, privacy en contact.
 import { to } from '../routes.js';
-import { crumbs, pageHead, REPO } from './layout.js';
-
-const MAIL = 'contact@wiskundefit.nl';
+import { crumbs, pageHead, MAIL, REPO } from './layout.js';
 
 const mail = `<a class="mail" href="mailto:${MAIL}">${MAIL}</a>`;
 const repo = (text, path = '') =>
@@ -65,4 +63,9 @@ function vContact() {
   <p>We gebruiken je e-mailadres alleen om je te antwoorden. Lees meer over <a href="${to('privacy')}">privacy</a>.</p></div></div>`;
 }
 
-export { MAIL, vOver, vPrivacy, vContact };
+// In de browser laadt dit scherm pas als het nodig is (scripts/later-schermen.js). In Node is het er
+// altijd, en wacht er dus niets.
+const klaar = () => true;
+const laad = () => Promise.resolve();
+
+export { vOver, vPrivacy, vContact, klaar, laad };
