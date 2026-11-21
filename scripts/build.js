@@ -200,6 +200,8 @@ if (cijfersCode.length !== 1) throw new Error('De cijfers staan niet in een eige
 // Schermen die in een eigen bestand staan (scripts/later-schermen.js), met wat ze nog meer nodig
 // hebben. Dat bestand haalt de browser op de pagina van het scherm al op terwijl main laadt. Staat een
 // scherm niet in een eigen bestand, dan werkt de plugin niet, en dat is een fout.
+// Bij welk bestand de pagina van een scherm hoort. De proeftoets en de uitslag delen er één.
+const SCHERM_VAN = { vragen: 'vragen', toets: 'exam', toetsres: 'exam' };
 const schermCode = new Map();
 for (const naam of Object.keys(LATER)) {
   const hits = Object.entries(metafile.outputs).filter(
@@ -264,7 +266,7 @@ function pageHTML(page, body) {
   html = replace(
     html,
     /<script type="module" src="\/js\/main\.js"><\/script>/,
-    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : []), ...(page.view.name === 'cijfers' ? cijfersCode : []), ...(schermCode.get(page.view.name) ?? [])])}`,
+    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : []), ...(page.view.name === 'cijfers' ? cijfersCode : []), ...(schermCode.get(SCHERM_VAN[page.view.name]) ?? [])])}`,
   );
   return replace(
     html,

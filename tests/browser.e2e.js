@@ -2536,7 +2536,7 @@ const LIMITS = {
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 59, own: 154, why: 'de code bij het eerste bezoek' },
+  start: { sent: 58, own: 146, why: 'de code bij het eerste bezoek' },
   // Een scherm in een eigen bestand (scripts/later-schermen.js), dat pas laadt als het nodig is.
   scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
@@ -2572,7 +2572,7 @@ test('de pagina’s en de code blijven klein', async () => {
       ? 'topic'
       : /^chunk-/.test(name)
         ? 'shared'
-        : /^vragen-/.test(name) && 'scherm';
+        : /^(vragen|exam)-/.test(name) && 'scherm';
     const kind = ext === '.js' ? code : { '.css': 'css', '.woff2': 'font' }[ext];
     if (kind) files.push([`assets/${name}`, kind]);
   }
@@ -2687,6 +2687,32 @@ test('Zo maken we de vragen laadt in een eigen bestand, en blijft staan terwijl 
       assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
       await p.close();
     }
+  } finally {
+    await browser.close();
+  }
+});
+
+test('de proeftoets laadt in een eigen bestand, met een melding als dat niet lukt', async () => {
+  const browser = await launch();
+  try {
+    const file = '**/assets/exam-*.js';
+    const geladen = /\/assets\/exam-/;
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    const aangevraagd = [];
+    p.on('request', (r) => geladen.test(r.url()) && aangevraagd.push(r.url()));
+    await p.goto(siteUrl);
+    await p.waitForFunction(() => window.wiskundefit);
+    assert.deepEqual(aangevraagd, [], 'Home laadt de proeftoets niet');
+    await p.route(file, (route) => route.abort());
+    await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+    await p.waitForSelector('#laadfout');
+    await p.unroute(file);
+    const antwoord = p.waitForResponse((r) => geladen.test(r.url()) && r.ok());
+    await p.click('[data-act=opnieuw]');
+    await antwoord;
+    await p.waitForSelector('.setup');
+    assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
+    await p.close();
   } finally {
     await browser.close();
   }

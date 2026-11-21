@@ -17,24 +17,22 @@ import {
 } from './progress.js';
 import { pathFor, titleFor, viewFor } from './routes.js';
 import { ALL_IDS, setStof, stofTopic, toggleStof, topicOf } from './stof.js';
+import { buildTest, finishTest, toQuestion } from './ui/exam.js';
 import {
   TEST_KEY,
   RESULT_KEY,
-  buildTest,
   loadTests,
   saveTest,
   storeTest,
-  toQuestion,
   stopTest,
   forgetTests,
-  finishTest,
   pauseClock,
   clockText,
-} from './ui/exam.js';
+} from './ui/toets-opslag.js';
 import { newQuestion, applySoort } from './ui/topic.js';
 import { showDrawn, tapGrid } from './ui/draw.js';
 import { cijfersKlaar, laadCijfers, zetCijfersLader } from './ui/cijfers.js';
-import { laadScherm, nogTeLaden, wachtOpScherm } from './ui/laden.js';
+import { laadScherm, nogTeLaden, schermVooraf, wachtOpScherm } from './ui/laden.js';
 import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
 import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
 import { screenHTML } from './ui/screens.js';
@@ -244,7 +242,7 @@ function render(focus) {
   const stil =
     quiet ||
     (prebuilt && cijfers && prebuiltCijfers) ||
-    (prebuilt && scherm && state.view.name === prebuiltScherm);
+    (prebuilt && scherm && schermVooraf() && state.view.name === prebuiltScherm);
   const slow = setTimeout(() => {
     if (nr !== renders || stil) return;
     state.laden = 'bezig';

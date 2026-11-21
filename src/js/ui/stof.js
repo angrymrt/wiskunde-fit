@@ -13,7 +13,7 @@ import {
 } from '../stof.js';
 import { DOMAINS } from '../topics/index.js';
 import { esc, T } from '../typeset.js';
-import { resultText } from './exam.js';
+import { resultText } from './toets-opslag.js';
 import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
 import { topicLink, vPractice } from './topic.js';

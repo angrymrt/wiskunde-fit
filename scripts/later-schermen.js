@@ -8,21 +8,26 @@
 // `() => true` en `() => Promise.resolve()`. De browser krijgt in de plaats daarvan de versies uit
 // deze plugin: klaar() is waar zodra laad() het bestand heeft opgehaald. render() in main.js wacht
 // daarop (zie laden.js).
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 
-// De bestanden in src/js/ui/ en de namen die ze exporteren, behalve klaar en laad.
-const LATER = { 'vragen.js': ['vVragen'] };
+// De bestanden in src/js/ui/ en de namen die andere bestanden ervan gebruiken, behalve klaar en
+// laad. Een naam die hier niet staat, bestaat in de browser niet voor wie het scherm importeert.
+const LATER = {
+  'vragen.js': ['vVragen'],
+  'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
+};
 
 function laterSchermenPlugin() {
   return {
     name: 'later-schermen',
     setup(build) {
-      build.onResolve({ filter: /^\.\/[^/]+\.js$/ }, (args) => {
-        const naam = args.path.slice(2);
+      const ui = resolve(build.initialOptions.absWorkingDir ?? process.cwd(), 'src/js/ui');
+      build.onResolve({ filter: /\.js$/ }, (args) => {
         // Alleen de schermen zelf, en niet de import() in het bestand dat deze plugin maakt.
-        if (!(naam in LATER) || args.namespace === 'later-schermen') return undefined;
-        if (!/[\\/]src[\\/]js[\\/]ui$/.test(args.resolveDir)) return undefined;
-        return { path: join(args.resolveDir, naam), namespace: 'later-schermen' };
+        if (args.namespace === 'later-schermen' || !args.path.startsWith('.')) return undefined;
+        const file = resolve(args.resolveDir, args.path);
+        if (dirname(file) !== ui || !(basename(file) in LATER)) return undefined;
+        return { path: file, namespace: 'later-schermen' };
       });
       build.onLoad({ filter: /.*/, namespace: 'later-schermen' }, (args) => {
         const naam = basename(args.path);

@@ -1,110 +1,27 @@
-// De proeftoets: samenstellen, afnemen, bewaren en nakijken.
+// De proeftoets: samenstellen, afnemen en nakijken. Bewaren en de klok staan in toets-opslag.js, want
+// die zijn bij het eerste bezoek al nodig. De browser laadt dit bestand pas als het scherm nodig is
+// (scripts/later-schermen.js, #188).
 import { checkAnswer, fillState, isDrawing, matchFields, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
 import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
-import { inBrowser, opslag, rec } from '../progress.js';
+import { rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
-import { bookPath, chosenTopics, topicOf } from '../stof.js';
+import { bookPath, chosenTopics } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
 import { crumbs, pageHead } from './layout.js';
-import { fieldsHTML, meldHTML, readVals, shareHTML } from './question-form.js';
+import { fieldsHTML, meldHTML, shareHTML } from './question-form.js';
 import { state } from './state.js';
-
-// Een lopende proeftoets en de laatste uitslag blijven in de browser bewaard, los van de voortgang.
-const TEST_KEY = 'wiskundefit-proeftoets';
-const RESULT_KEY = 'wiskundefit-uitslag';
-// Verhoog dit als de vorm verandert. Wat dan nog in een browser staat, wordt niet meer gelezen.
-const STORED = 1;
-
-const elapsed = (t) => t.spent + (t.since ? Date.now() - t.since : 0);
-// De klok loopt alleen zolang de proeftoets open is, ook als je die later afmaakt.
-const pauseClock = (t) => {
-  t.spent = elapsed(t);
-  t.since = null;
-};
-function write(key, t) {
-  try {
-    localStorage.setItem(
-      key,
-      JSON.stringify({
-        ...t,
-        v: STORED,
-        spent: elapsed(t),
-        since: null,
-        items: t.items.map(({ topic, skill, ...x }) => ({ ...x, id: skill.id })),
-      }),
-    );
-    opslag.toets = false;
-  } catch (e) {
-    if (inBrowser()) opslag.toets = true;
-  }
-}
-// Of een bewaarde vraag nog na te kijken en te tekenen is. Bij de uitslag ook het nakijken zelf.
-const fine = (n) => Number.isFinite(n);
-function sound(x, result) {
-  const q = x?.q;
-  if (!q || typeof q !== 'object' || typeof q.q !== 'string' || !Array.isArray(x.vals))
-    return false;
-  const answer = q.mc
-    ? Array.isArray(q.mc.opts) && Number.isInteger(q.mc.a)
-    : Array.isArray(q.fields) && q.fields.length > 0;
-  return answer && (!result || (Array.isArray(x.c?.each) && fine(x.got) && fine(x.max)));
-}
-// Geeft null als er niets is, als een vraagsoort niet meer bestaat, of als de vragen of de
-// huidige vraag niet kloppen. Dan begint de leerling liever opnieuw dan dat de site vastloopt.
-function read(key) {
-  try {
-    const t = JSON.parse(localStorage.getItem(key));
-    if (t?.v !== STORED || !Array.isArray(t.items) || !t.items.length) return null;
-    if ('i' in t && !(Number.isInteger(t.i) && t.i >= 0 && t.i < t.items.length)) return null;
-    const result = key === RESULT_KEY;
-    if (!fine(t.spent) || (result && !(fine(t.score) && fine(t.max) && fine(t.time)))) return null;
-    if (!t.items.every((x) => sound(x, result))) return null;
-    t.items = t.items.map(({ id, ...x }) => {
-      const topic = topicOf(id);
-      return { ...x, topic, skill: topic.skills.find((k) => k.id === id) };
-    });
-    return t;
-  } catch (e) {
-    return null;
-  }
-}
-function remove(key) {
-  try {
-    localStorage.removeItem(key);
-  } catch (e) {}
-}
-// Lukte het bewaren van de proeftoets niet, dan is die in het geheugen het nieuwst.
-function loadTests() {
-  if (!opslag.toets || !state.test) state.test = read(TEST_KEY);
-  state.result = read(RESULT_KEY);
-}
-const saveTest = () => write(TEST_KEY, state.test);
-// Of deze proeftoets nog de bewaarde is. Een ander tabblad kan hem hebben ingeleverd, gestopt of
-// een nieuwe zijn begonnen. Lukte het bewaren niet, dan is wat in het geheugen staat het nieuwst.
-// Een proeftoets van voor versie 1.11.4 heeft geen id; die blijft gewoon lopen.
-function current() {
-  if (!state.test) return false;
-  if (opslag.toets) return true;
-  try {
-    const raw = localStorage.getItem(TEST_KEY);
-    return (raw === null ? null : JSON.parse(raw)?.id) === state.test.id;
-  } catch (e) {
-    return true;
-  }
-}
-// Er loopt geen proeftoets meer, dus er is ook niets meer dat niet bewaard kon worden.
-function stopTest() {
-  state.test = null;
-  opslag.toets = false;
-  remove(TEST_KEY);
-}
-function forgetTests() {
-  stopTest();
-  state.result = null;
-  remove(RESULT_KEY);
-}
+import {
+  RESULT_KEY,
+  clockText,
+  elapsed,
+  fmtT,
+  gradeOf,
+  resultText,
+  stopTest,
+  write,
+} from './toets-opslag.js';
 
 function buildTest(ids, n) {
   const groups = chosenTopics(ids),
@@ -123,9 +40,6 @@ function buildTest(ids, n) {
   out.sort((a, b) => order.indexOf(a.topic.slug) - order.indexOf(b.topic.slug));
   return out;
 }
-const gradeOf = (t) => 1 + (9 * t.score) / t.max;
-// Het resultaat in één zin, voor het overzicht, Mijn stof en het scherm Proeftoets.
-const resultText = (t) => `${t.score} van ${t.max} punten, ongeveer een ${d(rd(gradeOf(t), 1))}`;
 function vToetsSetup() {
   const n = state.len,
     groups = chosenTopics();
@@ -151,8 +65,6 @@ function vToetsSetup() {
   <div class="setup"><h2 class="h3" id="len-label">Hoeveel vragen?</h2><div class="chips" role="group" aria-labelledby="len-label">${[10, 15, 20, 30].map((k) => `<button class="chip" type="button" data-act="len" data-id="${k}" aria-pressed="${n === k}">${k} vragen</button>`).join('')}</div></div>
   <div class="row"><button class="btn main" type="button" data-act="start">Start de proeftoets</button></div>`);
 }
-const fmtT = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-const clockText = (t) => fmtT(Math.floor(elapsed(t) / 1000));
 function vToetsRun() {
   const t = state.test,
     i = t.i,
@@ -180,20 +92,6 @@ function vToetsRun() {
 function toQuestion(i) {
   state.test.i = Math.max(0, Math.min(state.test.items.length - 1, i));
   state.test.warn = false;
-}
-// Bewaart de proeftoets met wat er nu is ingevuld. Loopt die niet meer, dan neemt dit tabblad over
-// wat er nu bewaard is en geeft dit false. Zo zet een tabblad dat achterliep, bijvoorbeeld omdat
-// de browser het had stilgezet, een ingeleverde proeftoets niet terug, en telt die niet dubbel.
-function storeTest() {
-  if (!current()) {
-    loadTests();
-    return false;
-  }
-  if (globalThis.document?.getElementById('tform')) {
-    state.test.items[state.test.i].vals = readVals(state.test.items[state.test.i].q, 't');
-    saveTest();
-  }
-  return true;
 }
 function finishTest() {
   let score = 0,
@@ -338,21 +236,9 @@ function fmtAns(a) {
   return d(rd(a, 2));
 }
 
-export {
-  TEST_KEY,
-  RESULT_KEY,
-  buildTest,
-  vToetsSetup,
-  vToetsRun,
-  vToetsRes,
-  loadTests,
-  saveTest,
-  storeTest,
-  toQuestion,
-  stopTest,
-  forgetTests,
-  finishTest,
-  pauseClock,
-  clockText,
-  resultText,
-};
+// In de browser laadt dit scherm pas als het nodig is (scripts/later-schermen.js). In Node is het er
+// altijd, en wacht er dus niets.
+const klaar = () => true;
+const laad = () => Promise.resolve();
+
+export { buildTest, vToetsSetup, vToetsRun, vToetsRes, toQuestion, finishTest, klaar, laad };
