@@ -63,4 +63,4 @@ function vLaden() {
   return `${crumbs()}<div class="sheet">${pageHead(heading)}${body}</div>`;
 }
 
-export { nodig, nogTeLaden, vLaden, wachtOpScherm, laadScherm, schermVooraf };
+export { nodig, nogTeLaden, vLaden, wachtOpScherm, laadScherm, schermVooraf, LATER };

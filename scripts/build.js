@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'esbuild';
 import { TARGETS } from './browsers.js';
 import { catalogusPlugin } from './catalogus.js';
-import { LATER, laterSchermenPlugin } from './later-schermen.js';
+import { LATER, SCHERM_VAN, laterSchermenPlugin } from './later-schermen.js';
 
 const root = new URL('../', import.meta.url);
 // De cijfers voor de pagina Cijfers komen als eigen bestand in de code (src/js/cijfers-data.js), dat de
@@ -200,17 +200,8 @@ if (cijfersCode.length !== 1) throw new Error('De cijfers staan niet in een eige
 // Schermen die in een eigen bestand staan (scripts/later-schermen.js), met wat ze nog meer nodig
 // hebben. Dat bestand haalt de browser op de pagina van het scherm al op terwijl main laadt. Staat een
 // scherm niet in een eigen bestand, dan werkt de plugin niet, en dat is een fout.
-// SCHERM_VAN zegt bij welk bestand de pagina van een scherm hoort. De proeftoets en de uitslag delen
-// er één. Een scherm dat hier ontbreekt, krijgt alleen geen modulepreload.
-const SCHERM_VAN = {
-  vragen: 'vragen',
-  cijfers: 'cijfers',
-  over: 'about',
-  privacy: 'about',
-  contact: 'about',
-  toets: 'exam',
-  toetsres: 'exam',
-};
+// SCHERM_VAN (uit later-schermen.js) zegt bij welk bestand de pagina van een scherm hoort.
+// tests/later-schermen.test.js ziet erop toe dat de lijsten gelijk zijn.
 const schermCode = new Map();
 for (const naam of Object.keys(LATER)) {
   const hits = Object.entries(metafile.outputs).filter(
