@@ -497,6 +497,8 @@ test('een lang woord in de uitslag maakt de antwoordtabel niet te breed', async 
             (s) => s.scrollWidth > s.clientWidth,
           ).length,
       );
+      // De test moet het lange label ook echt hebben gezien, anders slaagt hij leeg.
+      assert.match(await p.textContent('.resq'), /vermenigvuldigingsfactor/);
       assert.equal(wide, 0, `bij ${width} pixels scrolt een antwoordtabel zijwaarts`);
       await p.close();
     }
