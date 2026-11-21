@@ -156,7 +156,7 @@ function cleanProgress(saved) {
   return out;
 }
 // Of het laatste bewaren in deze browser is mislukt, bijvoorbeeld omdat de opslag vol of
-// geblokkeerd is. Apart voor de voortgang en de proeftoets (ui/exam.js), want alleen voor de
+// geblokkeerd is. Apart voor de voortgang en de proeftoets (ui/toets-opslag.js), want alleen voor de
 // voortgang is dan wat in het geheugen staat het nieuwst. Lukt het later weer, dan gaat de vlag
 // uit. Het scherm zegt het zolang een van de twee aan staat, en gemeld zegt of een schermlezer
 // dat al heeft gehoord. Zie ui/layout.js.

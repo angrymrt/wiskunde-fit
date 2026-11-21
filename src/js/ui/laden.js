@@ -5,6 +5,7 @@ import { nameOf, titleFor } from '../routes.js';
 import { chosenTopics } from '../stof.js';
 import { TOPIC, geladen } from '../topics/index.js';
 import { esc } from '../typeset.js';
+import { klaar as examKlaar, laad as laadExam } from './exam.js';
 import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
 import { klaar as vragenKlaar, laad as laadVragen } from './vragen.js';
@@ -25,7 +26,15 @@ const nogTeLaden = () => nodig().filter((t) => !geladen(t));
 
 // Schermen die in de browser pas laden als ze nodig zijn (scripts/later-schermen.js, #188). In Node
 // zijn ze altijd klaar.
-const LATER = { vragen: { klaar: vragenKlaar, laad: laadVragen } };
+// Met `vooraf` is de vooraf gebouwde pagina al helemaal te lezen en blijft die staan tot het scherm
+// er is. Een schil, zoals bij de proeftoets, zegt in de tussentijd dat het laadt.
+const examen = { klaar: examKlaar, laad: laadExam };
+const LATER = {
+  vragen: { klaar: vragenKlaar, laad: laadVragen, vooraf: true },
+  toets: examen,
+  toetsres: examen,
+};
+const schermVooraf = (v = state.view) => LATER[v.name]?.vooraf === true;
 const wachtOpScherm = (v = state.view) => !!LATER[v.name] && !LATER[v.name].klaar();
 const laadScherm = (v = state.view) => LATER[v.name].laad();
 
@@ -47,4 +56,4 @@ function vLaden() {
   return `${crumbs()}<div class="sheet">${pageHead(heading)}${body}</div>`;
 }
 
-export { nodig, nogTeLaden, vLaden, wachtOpScherm, laadScherm };
+export { nodig, nogTeLaden, vLaden, wachtOpScherm, laadScherm, schermVooraf };

@@ -114,7 +114,8 @@ src/
         ├── home.js         Overzicht en domeinen
         ├── stof.js         Mijn stof, Kies uit je boek en de methode-indelingen
         ├── topic.js        Uitleg en oefenen bij een onderwerp
-        ├── exam.js         Proeftoets
+        ├── exam.js         Proeftoets: samenstellen, afnemen en nakijken
+        ├── toets-opslag.js Een lopende proeftoets en de uitslag bewaren, en de klok
         ├── question-form.js Invoervelden van een vraag
         ├── widgets.js      Schuifjes en hoekendemo
         ├── about.js        De pagina's Over, Privacy en Contact

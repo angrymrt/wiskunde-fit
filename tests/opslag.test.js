@@ -20,8 +20,9 @@ Object.defineProperty(globalThis, 'localStorage', {
 globalThis.window = globalThis;
 
 const { STORE, load, opslag, prog, rec } = await import('../src/js/progress.js');
-const { TEST_KEY, RESULT_KEY, buildTest, finishTest, loadTests, saveTest, stopTest, storeTest } =
-  await import('../src/js/ui/exam.js');
+const { buildTest, finishTest } = await import('../src/js/ui/exam.js');
+const { TEST_KEY, RESULT_KEY, loadTests, saveTest, stopTest, storeTest } =
+  await import('../src/js/ui/toets-opslag.js');
 const { state } = await import('../src/js/ui/state.js');
 const { storageNotice } = await import('../src/js/ui/layout.js');
 

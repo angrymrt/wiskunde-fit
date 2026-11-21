@@ -4,7 +4,7 @@ import { prog, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { bookPath, domainParagraphs, isChosen } from '../stof.js';
 import { esc, T } from '../typeset.js';
-import { resultText } from './exam.js';
+import { resultText } from './toets-opslag.js';
 import { crumbs } from './layout.js';
 import { state } from './state.js';
 import { list, mappingName } from './stof.js';
