@@ -200,7 +200,8 @@ if (cijfersCode.length !== 1) throw new Error('De cijfers staan niet in een eige
 // Schermen die in een eigen bestand staan (scripts/later-schermen.js), met wat ze nog meer nodig
 // hebben. Dat bestand haalt de browser op de pagina van het scherm al op terwijl main laadt. Staat een
 // scherm niet in een eigen bestand, dan werkt de plugin niet, en dat is een fout.
-// Bij welk bestand de pagina van een scherm hoort. De proeftoets en de uitslag delen er één.
+// SCHERM_VAN zegt bij welk bestand de pagina van een scherm hoort. De proeftoets en de uitslag delen
+// er één. Een scherm dat hier ontbreekt, krijgt alleen geen modulepreload.
 const SCHERM_VAN = { vragen: 'vragen', toets: 'exam', toetsres: 'exam' };
 const schermCode = new Map();
 for (const naam of Object.keys(LATER)) {

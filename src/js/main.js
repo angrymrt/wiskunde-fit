@@ -305,7 +305,8 @@ function paint(focus) {
   watchPracticeBar();
   runClock();
   if (target && !focusOn(target)) focusOn('h1');
-  if (state.view.name === 'toets' && state.test) {
+  // De klok loopt pas als de proeftoets er staat, en niet tijdens het laden van het scherm.
+  if (state.view.name === 'toets' && state.test && !state.laden) {
     if (!state.test.since) state.test.since = Date.now();
     if (!state.timer)
       state.timer = setInterval(() => {

@@ -2721,6 +2721,40 @@ test('de proeftoets laadt in een eigen bestand, met een melding als dat niet luk
   }
 });
 
+test('een lopende proeftoets wacht op het scherm, en de klok loopt pas als het er is', async () => {
+  const browser = await launch();
+  try {
+    const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    await p.goto(at('/'));
+    await p.waitForFunction(() => window.wiskundefit);
+    await p.evaluate(() => wiskundefit.go({ name: 'toets' }));
+    await p.click('[data-act="stofall"]');
+    await p.click('[data-act="len"][data-id="10"]');
+    await p.click('[data-act="start"]');
+    await p.waitForSelector('#tform');
+    // Herladen met een scherm dat laat komt: de proeftoets staat in de opslag, en wacht.
+    let release;
+    const gate = new Promise((resolve) => (release = resolve));
+    await p.route('**/assets/exam-*.js', async (route) => {
+      await gate;
+      await route.continue();
+    });
+    const gevraagd = p.waitForRequest(/\/assets\/exam-/);
+    await p.reload();
+    await p.waitForFunction(() => window.wiskundefit);
+    await gevraagd;
+    await p.waitForSelector('#app :text("Even laden")');
+    assert.equal(await p.evaluate(() => wiskundefit.state.test.since), null, 'de klok staat stil');
+    release();
+    await p.waitForSelector('#tform');
+    assert.ok(await p.evaluate(() => wiskundefit.state.test.since), 'de klok loopt weer');
+    assert.match(await p.textContent('main'), /Vraag 1 van 10/);
+    await p.close();
+  } finally {
+    await browser.close();
+  }
+});
+
 test('een onderwerp dat niet laadt, geeft een melding met opnieuw proberen', async () => {
   const browser = await launch();
   try {
