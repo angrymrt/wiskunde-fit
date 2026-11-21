@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.21.4
+
+### Hersteld
+
+- In de uitslag van een proeftoets werd de tabel met je antwoorden bij een lang woord, zoals vermenigvuldigingsfactor, breder dan een smal scherm. Wie met het toetsenbord werkt, kon die tabel dan niet zijwaarts schuiven. Het woord breekt nu af en de tabel past.
+
 ## 1.21.3
 
 ### Verbeterd
