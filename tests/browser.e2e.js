@@ -2527,6 +2527,9 @@ test(
 // 166 kB zelf) door eerdere groei; nu is het 60,6 kB en 167 kB zelf, dus de grenzen zijn 61 en 168.
 // Zo maken we de vragen staat sinds #188 in een eigen bestand (16 kB zelf, 5,5 kB verstuurd). Het
 // eerste bezoek is daardoor 15 kB zelf en ongeveer 2 kB verstuurd kleiner, en de grenzen zijn 59 en 154.
+// De proeftoets (exam.js) staat sinds #188 ook in een eigen bestand; het bewaren en de klok staan in
+// toets-opslag.js, want die zijn bij het eerste bezoek al nodig. Het eerste bezoek is nu 145 kB zelf en
+// 56,8 kB verstuurd, en de grenzen zijn 58 en 146.
 // Wat main en dat scherm samen gebruiken, staat nu in een gedeeld bestand dat main ook meteen laadt: het
 // grootste is 15,5 kB verstuurd en 43 kB zelf, dus die grens is 16 en 44. De grens voor het eerste
 // bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden

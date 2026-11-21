@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.21.3
+
+### Verbeterd
+
+- De site laadt bij het eerste bezoek nog iets sneller: de proeftoets wordt pas opgehaald als je er naartoe gaat. Een proeftoets die al loopt, blijft gewoon bewaard.
+
 ## 1.21.2
 
 ### Verbeterd
