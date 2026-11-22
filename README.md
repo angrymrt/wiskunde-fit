@@ -132,7 +132,7 @@ tests/                      Generatortests, adressen, schermen, pagina's, server
 
 De belangrijkste plek om te beginnen is een bestand in `src/js/topics/`. Bovenaan staan de functies die vragen maken, onderaan de uitleg en de lijst met vraagsoorten. Elke functie geeft één vraag terug, met het antwoord, een hint en de uitwerking. De schermen in `ui/` tonen die vraag alleen en weten niets van wiskunde.
 
-In [AGENTS.md](AGENTS.md) staat hoe je een vraag of onderwerp toevoegt en welke afspraken gelden. De woorden die we gebruiken staan in [BEGRIPPEN.md](BEGRIPPEN.md).
+In [AGENTS.md](AGENTS.md) staan de afspraken en hoe je een onderwerp toevoegt, en in de skill [vraag-toevoegen](.claude/skills/vraag-toevoegen/SKILL.md) hoe je een vraag toevoegt. De woorden die we gebruiken staan in [BEGRIPPEN.md](BEGRIPPEN.md).
 
 ## Laagmodel: de vraagsoort als kern
 

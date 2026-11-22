@@ -196,5 +196,9 @@ test('de onderwerpen kiezen opnieuw met until en schrijven geen eigen lus voor t
     const tekst = await readFile(new URL(f, dir), 'utf8');
     for (const [re, naam] of VORMEN) if (re.test(tekst)) gevonden.push(`${f}: ${naam}`);
   }
-  assert.deepEqual(gevonden, [], 'Gebruik until(maak, klopt) uit math.js, zie AGENTS.md.');
+  assert.deepEqual(
+    gevonden,
+    [],
+    'Gebruik until(maak, klopt) uit math.js, zie de skill vraag-toevoegen.',
+  );
 });

@@ -110,7 +110,7 @@ function assertSound(q) {
   if (q.fig) assertDescribed(q.fig, q.q);
   assert.ok(q.hint, `geen hint: ${q.q}`);
   assert.ok(q.steps.length > 0, `geen uitwerking: ${q.q}`);
-  // Elke vraag heeft een controle die het antwoord op een andere manier narekent. Zie AGENTS.md.
+  // Elke vraag heeft een controle die het antwoord op een andere manier narekent. Zie de skill vraag-toevoegen.
   assert.equal(typeof q.v, 'function', `geen controle v: ${q.q}`);
   assert.ok(q.v(), `zelfcontrole mislukt: ${q.q}`);
   // Elke valkuil heeft een vaste naam, zodat we kunnen tellen hoe vaak die voorkomt.
