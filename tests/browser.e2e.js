@@ -2160,9 +2160,29 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       assert.equal(await p.textContent('#rh-uit'), '= 0,666666666667');
       assert.equal(await p.$('#rh-neem-breuk'), null);
       // Een som die niet kan, geeft een melding en niets om over te nemen.
+      // Zolang je typt, staat er geen melding. Pas na = komt die, en bij de volgende toets is hij weg.
       await toets('C', '5', '÷', '0');
+      assert.equal(await p.textContent('#rh-uit'), '');
+      await toets('=');
       assert.equal(await p.textContent('#rh-uit'), 'Delen door 0 kan niet.');
       assert.equal(await p.isDisabled('#rh-neem'), true);
+      await toets(',', '5');
+      assert.equal(await p.textContent('#rh-uit'), '= 10', '5÷0,5 is geen fout meer');
+      await toets('C', '5', '+');
+      assert.equal(
+        await p.textContent('#rh-uit'),
+        '',
+        'een som die niet af is, geeft geen melding',
+      );
+      await toets('=');
+      assert.equal(await p.textContent('#rh-uit'), 'Dat begrijp ik niet.');
+      await toets('3');
+      assert.equal(
+        await p.textContent('#rh-uit'),
+        '= 8',
+        'de melding verdwijnt bij de volgende toets',
+      );
+      await toets('C', '5', '÷', '0', '=');
       await p.screenshot({ path: `${shotDir}rekenhulp-${naam}.png` });
       // Het gewone toetsenbord werkt als de focus in het paneel staat.
       await p.focus('#rh-titel');

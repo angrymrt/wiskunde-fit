@@ -106,8 +106,9 @@ function teken() {
   const r = uitkomst(h().som, h().ans);
   paneel.querySelector('#rh-som').textContent = h().som || '0';
   const uit = paneel.querySelector('#rh-uit');
-  uit.textContent = r ? (r.fout ?? `= ${r.tekst}`) : '';
-  uit.classList.toggle('fout', !!r?.fout);
+  // Een som die nog niet af is, zoals 5+, is geen fout. Een melding komt pas als de leerling = drukt.
+  uit.textContent = r?.tekst ? `= ${r.tekst}` : (h().fout ?? '');
+  uit.classList.toggle('fout', !r?.tekst && !!h().fout);
   const lijst = velden();
   paneel.querySelector('#rh-neem').disabled = !r?.tekst || !lijst.length;
   // Wat de leerling typte komt als tekst in het paneel, nooit als HTML.
@@ -131,6 +132,8 @@ function markeerDoel() {
 function druk(k) {
   if (k === 'SLUIT') return zet(false, true);
   if (k === 'NEEM') return neemOver();
+  // De melding van een eerdere = verdwijnt bij de volgende toets.
+  h().fout = null;
   if (k === 'C') {
     h().som = '';
     h().vers = false;
@@ -145,7 +148,10 @@ function druk(k) {
       h().som = r.tekst;
       h().vers = true;
       zeg(`Uitkomst ${r.tekst}`);
-    } else if (r?.fout) zeg(r.fout);
+    } else if (r?.fout) {
+      h().fout = r.fout;
+      zeg(r.fout);
+    }
   } else {
     // Na een uitkomst begint een getal een nieuwe som, en een teken gaat verder met de uitkomst.
     if (h().vers && !['+', '−', '×', '÷', '^', '^2'].includes(k)) h().som = '';
@@ -274,6 +280,7 @@ function synchroniseer() {
     h().vraag = form.dataset.vraag;
     h().som = '';
     h().vers = false;
+    h().fout = null;
     h().doel = 0;
   }
   if (!h().open) return;

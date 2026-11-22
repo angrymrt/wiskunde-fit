@@ -14,7 +14,16 @@ const state = {
   // De Rekenhulp (ui/rekenhulp.js): of het paneel open staat, bij welke vraag, en de som die de leerling intikt. Het staat
   // hier en niet in het paneel zelf, omdat de knop in het scherm de stand moet kennen (aria-expanded) en omdat het
   // scherm opnieuw wordt getekend terwijl het paneel blijft staan.
-  rekenhulp: { open: false, vraag: null, niveau: null, som: '', vers: false, ans: 0, doel: 0 },
+  rekenhulp: {
+    open: false,
+    vraag: null,
+    niveau: null,
+    som: '',
+    vers: false,
+    ans: 0,
+    doel: 0,
+    fout: null,
+  },
   // Of de site nu donker is, door het apparaat of door de knop in de kop. Zie main.js.
   dark: false,
   test: null,
