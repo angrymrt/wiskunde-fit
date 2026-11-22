@@ -2465,6 +2465,13 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       assert.equal(await waarde(p, 1), '1 1/2');
       await toets(p, ' ', ',', '/');
       assert.equal(await waarde(p, 1), '1 1/2');
+      // Duizendtallen met spaties, zoals 1 250 000, zijn ook te typen. Een komma kan niet direct na een spatie.
+      await toets(p, 'WIS', 'WIS', 'WIS', 'WIS', 'WIS');
+      assert.equal(await waarde(p, 1), '');
+      await toets(p, '1', ' ', ',', '2', '5', '0', ' ', '0', '0', '0');
+      assert.equal(await waarde(p, 1), '1 250 000');
+      await toets(p, 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS');
+      await toets(p, '1', ' ', '1', '/', '2');
       await toets(p, 'WIS', 'WIS');
       assert.equal(await waarde(p, 1), '1 1');
       await toets(p, 'WIS', 'WIS', ',', ',', '5');
@@ -2480,22 +2487,49 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       assert.equal(await waarde(p, 0), '−34');
       await p.keyboard.press('Backspace');
       assert.equal(await waarde(p, 0), '−3');
-      // De pijltjes wisselen van tabblad.
+      // De pijltjes wisselen van tabblad, en het tabblad met de focus heeft een ring die niet wordt weggeknipt.
       await p.focus('#rh-tab-toetsenbord');
       await p.keyboard.press('ArrowLeft');
       assert.equal(await p.getAttribute('#rh-tab-rekenen', 'aria-selected'), 'true');
       assert.equal(await p.evaluate(() => document.activeElement.id), 'rh-tab-rekenen');
+      assert.equal(
+        await p.$eval('#rh-tab-rekenen', (e) => getComputedStyle(e).outlineOffset),
+        '-3px',
+        'de ring staat binnen de knop',
+      );
       // Wat je typte telt mee bij het nakijken: −3 en 1,5 zijn fout, maar het is een gewoon antwoord.
       await p.evaluate(() => document.getElementById('pform').requestSubmit());
       assert.ok(await p.$('#pfb'), 'het antwoord wordt nagekeken');
       await p.click('#rh-tab-toetsenbord');
       await p.screenshot({ path: `${shotDir}rekenhulp-toetsenbord.png` });
-      // Sluit je de Rekenhulp, dan is het gewone toetsenbord er weer.
-      await p.keyboard.press('Escape');
-      assert.deepEqual(
-        await p.$$eval('#pform .fld input', (e) => e.map((i) => i.getAttribute('inputmode'))),
-        ['text', 'text'],
+      // Na Controleer, Toon uitwerking en een volgende vraag blijft het toetsenbord van het systeem weg, ook bij de
+      // nieuwe velden. De velden die vergrendeld zijn, krijgen niets meer.
+      const modes = () =>
+        p.$$eval('#pform .fld input', (e) => e.map((i) => i.getAttribute('inputmode')));
+      assert.deepEqual(await modes(), ['none', 'none'], 'na Controleer');
+      await p.click('[data-act="show"]');
+      await p.waitForSelector('.sol');
+      assert.deepEqual(await p.$$eval('#pform .fld input', (e) => e.map((i) => i.disabled)), [
+        true,
+        true,
+      ]);
+      await p.click('#rh-tab-toetsenbord');
+      await toets(p, '7', 'TEKEN', 'VOLGENDE');
+      assert.equal(
+        await p.$$eval(
+          '#pform .fld input',
+          (e) => e.filter((i) => i.value !== '' && i.value !== '−3' && i.value !== '1,5').length,
+        ),
+        0,
       );
+      await p.click('#nextq');
+      await p.waitForSelector('#pf0');
+      assert.deepEqual(await modes(), ['none', 'none'], 'bij een nieuwe vraag');
+      // Sluit je de Rekenhulp, dan is het gewone toetsenbord er weer.
+      await p.click('.rh-sluit');
+      assert.deepEqual(await modes(), ['text', 'text']);
+      await p.click('[data-act="rekenhulp"]');
+      assert.deepEqual(await modes(), ['none', 'none'], 'bij opnieuw openen');
       await p.close();
     }
     {

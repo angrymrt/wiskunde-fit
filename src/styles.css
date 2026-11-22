@@ -2648,6 +2648,10 @@ html.rh-open body {
   font-size: 0.95rem;
   cursor: pointer;
 }
+/* De rand van de tabbladen knipt de ring buiten de knop weg, dus de ring staat binnen. */
+.rh-tab:focus-visible {
+  outline-offset: -3px;
+}
 .rh-tab[aria-selected='true'] {
   background: var(--ink);
   color: var(--sheet);

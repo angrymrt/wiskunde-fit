@@ -111,14 +111,14 @@ function maak() {
   // Het veld waar de leerling in klikt, is het veld voor de volgende uitkomst.
   document.addEventListener('focusin', (e) => {
     const i = velden().indexOf(e.target);
-    if (i < 0 || !h().open) return;
+    if (i < 0) return;
     if (i !== h().doel) {
       h().doel = i;
       markeerDoel();
       teken();
     }
     // Op een telefoon is een tik in een veld de wens om te typen.
-    if (matchMedia('(pointer: coarse)').matches) zetTab('toetsenbord');
+    if (h().open && matchMedia('(pointer: coarse)').matches) zetTab('toetsenbord');
   });
   // Typt de leerling zelf in het veld, dan staat dat ook in de kop van het paneel.
   document.addEventListener('input', (e) => {
@@ -202,7 +202,7 @@ function druk(k) {
 }
 
 // Typt een toets van het tabblad Toetsenbord in het gekozen veld, achteraan. Een komma of breukstreep komt niet twee
-// keer in een getal, en een spatie alleen voor een gemengd getal, zoals 1 1/2.
+// keer in een getal, en een spatie alleen na een cijfer, voor een gemengd getal (1 1/2) of duizendtallen (1 250 000).
 function typ(k) {
   const lijst = velden();
   const veld = lijst[h().doel];
@@ -217,9 +217,9 @@ function typ(k) {
   const deel = t.split(' ').pop();
   if (k === 'WIS') t = t.slice(0, -1);
   else if (k === 'TEKEN') t = /^[−-]/.test(t) ? t.replace(/^[−-]/, '') : `−${t}`;
-  else if (k === ',' && /[,/]/.test(deel)) return;
+  else if (k === ',' && (/[,/]/.test(deel) || t.endsWith(' '))) return;
   else if (k === '/' && (!/\d$/.test(deel) || /[,/]/.test(deel))) return;
-  else if (k === ' ' && !(/\d$/.test(t) && !/[ /,]/.test(t.replace(/^[−-]/, '')))) return;
+  else if (k === ' ' && !(/\d$/.test(t) && !/[,/]/.test(t))) return;
   else t += k;
   veld.value = t;
   veld.dispatchEvent(new Event('input', { bubbles: true }));
