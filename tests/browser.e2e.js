@@ -2187,6 +2187,8 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       await p.waitForSelector('#pform');
       assert.equal(await p.$eval('#rekenhulp', (e) => e.hidden), false, 'het paneel blijft open');
       assert.equal(await p.textContent('#rh-som'), '0');
+      // De focus gaat naar de vraag en niet naar het veld, anders opent op een telefoon het toetsenbord over het paneel.
+      assert.equal(await p.evaluate(() => document.activeElement.id), 'pq');
       // Een scherm zonder vraag sluit het paneel.
       await p.evaluate(() => window.wiskundefit.go({ name: 'home' }));
       assert.equal(await p.$eval('#rekenhulp', (e) => e.hidden), true);
@@ -2239,6 +2241,18 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
         await p.$$eval('#pform .fld input[type="text"]', (e) => e.slice(0, 2).map((i) => i.value)),
         ['7', '7'],
       );
+      await p.close();
+    }
+    {
+      // Zonder Rekenhulp gaat de focus bij Volgende vraag naar het eerste veld, zoals altijd.
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      p.on('pageerror', (e) => errors.push(e.message));
+      await p.goto(at(link));
+      await p.waitForSelector('#pform');
+      await p.click('[data-act="show"]');
+      await p.click('#nextq');
+      await p.waitForSelector('#pf0');
+      assert.equal(await p.evaluate(() => document.activeElement.id), 'pf0');
       await p.close();
     }
     {

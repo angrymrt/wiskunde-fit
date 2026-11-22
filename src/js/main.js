@@ -723,7 +723,9 @@ app.addEventListener('submit', async (e) => {
         history.replaceState(history.state, '', pathFor(state.view));
       }
       render('#pq');
-      focusOn('#pf0');
+      // Staat de Rekenhulp open, dan wil de leerling rekenen en niet typen. De focus op het veld zou op een telefoon
+      // het toetsenbord van het systeem openen, over het paneel heen.
+      if (!state.rekenhulp.open) focusOn('#pf0');
       return;
     }
     const vals = readVals(st.q, 'p');
