@@ -81,6 +81,13 @@ test('meldingen bij een som die niet kan', () => {
   fout('√−4', 'Een wortel van een negatief getal kan niet.');
   fout('√(2−5)', 'Een wortel van een negatief getal kan niet.');
   fout('9^99', 'Dat getal is te groot.');
+  // Een som die geen getal geeft, is niet te groot.
+  fout('10^400*0', 'Dat kan niet.');
+  fout('10^400/10^400', 'Dat kan niet.');
+  // Een heel diepe som geeft een melding en geen crash.
+  fout('('.repeat(20000) + '1', 'Die som is te lang.');
+  fout('-'.repeat(20000) + '1', 'Die som is te lang.');
+  fout('√'.repeat(20000) + '1', 'Die som is te lang.');
   fout('2+', 'Dat begrijp ik niet.');
   fout('×3', 'Dat begrijp ik niet.');
   fout('()', 'Dat begrijp ik niet.');
@@ -102,8 +109,16 @@ test('een uitkomst heeft een komma, een echt minteken en op 12 cijfers na alles'
   assert.equal(toon(Math.sqrt(50)), '7,07106781187');
   assert.equal(toon(19 / 12), '1,58333333333');
   assert.equal(toon(2 / 3), '0,666666666667');
-  // Een heel klein getal komt niet met een e te staan.
+  // Een heel klein getal komt niet met een e te staan, ook niet als het kleiner is dan 1e-20.
   assert.equal(toon(0.00000000012), '0,00000000012');
+  assert.equal(toon(1e-21), '0,000000000000000000001');
+  assert.equal(toon(-1e-21), '−0,000000000000000000001');
+  assert.equal(toon(rekenUit('0,00000000001×0,00000000001')), '0,000000000000000000000' + '1');
+  assert.equal(toon(1e-200), '0');
+  // Een geheel getal van meer dan 12 cijfers wordt niet afgekapt.
+  assert.equal(toon(123456789012345), '123456789012345');
+  assert.equal(toon(999999999999.5), '999999999999,5');
+  assert.equal(toon(rekenUit('123456789012×1000')), '123456789012000');
 });
 
 test('plakken: een negatief getal gaat tussen haakjes', () => {

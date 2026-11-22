@@ -36,6 +36,8 @@ function stukken(som) {
 export function rekenUit(som, ans = 0) {
   const tok = stukken(som);
   if (!tok.length) throw new RekenFout('');
+  // Een heel lange som laat de parser te diep gaan, en niemand tikt dit in.
+  if (tok.length > 500) throw new RekenFout('Die som is te lang.');
   let i = 0;
   const getal = (t) => t !== undefined && /^[\d.]/.test(t);
   const mislukt = () => new RekenFout('Dat begrijp ik niet.');
@@ -118,17 +120,24 @@ export function rekenUit(som, ans = 0) {
 
   const v = optelling();
   if (i < tok.length) throw mislukt();
+  if (Number.isNaN(v)) throw new RekenFout('Dat kan niet.');
   if (!Number.isFinite(v) || Math.abs(v) >= 1e15) throw new RekenFout('Dat getal is te groot.');
   return v;
 }
 
 // Een uitkomst zoals de leerling die leest en overneemt: met een komma, een echt minteken, en op 12
-// cijfers. Dat haalt afrondingsruis weg (0,1 + 0,2 is 0,3), maar rondt verder niets af.
+// cijfers, of 15 bij een getal vanaf 10^11, want een geheel getal met veel cijfers mag niet worden afgekapt. Dat haalt
+// afrondingsruis weg (0,1 + 0,2 is 0,3), maar rondt verder niets af.
 export function toon(x) {
-  const g = Number(x.toPrecision(12));
+  const g = Number(x.toPrecision(Math.abs(x) >= 1e11 ? 15 : 12));
   let s = String(g);
-  // Heel kleine getallen schrijft JavaScript met een e, en dat kan de leerling niet overnemen.
-  if (/e/.test(s)) s = g.toFixed(20).replace(/0+$/, '');
+  // Heel kleine getallen schrijft JavaScript met een e, en dat kan de leerling niet overnemen. Zo klein dat het
+  // niet meer te schrijven is, tonen we als 0.
+  if (/e/.test(s))
+    s =
+      Math.abs(g) < 1e-90
+        ? '0'
+        : g.toFixed(11 - Math.floor(Math.log10(Math.abs(g)))).replace(/0+$/, '');
   return s.replace('.', ',').replace('-', '−');
 }
 
