@@ -87,6 +87,8 @@ function show(v, focus) {
   state.stopped = false;
   state.shared = null;
   state.melden = null;
+  // Een open soortmenu van een eerdere keer oefenen blijft niet open staan.
+  for (const k in state.prac) state.prac[k].menu = false;
   followSoort = !!v.oefen;
   return render(focus);
 }
@@ -298,6 +300,11 @@ function paint(focus) {
   // Op een telefoon is het oefenscherm een volledig scherm: de kop van de site gaat weg en de Rekenhulp staat er altijd.
   const oef = oefModus() && !!app.querySelector('.oef-kop');
   document.documentElement.classList.toggle('oef', oef);
+  // Hoe hoog de vaste kop is, voor scroll-padding-top en de uitleg van een term (ook zonder Rekenhulp).
+  document.documentElement.style.setProperty(
+    '--oef-kop',
+    `${oef ? (app.querySelector('.oef-kop')?.offsetHeight ?? 0) : 0}px`,
+  );
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
@@ -387,6 +394,19 @@ app.addEventListener('input', (e) => {
     gh.href = githubLink(m);
     voet.querySelector('#meldmail').href = mailLink(m);
   } else if (!!m !== !!gh) voet.innerHTML = meldVoetHTML(m);
+});
+// Het soortmenu op een telefoon sluit met Escape, en met een tik ergens anders.
+function sluitMenu() {
+  const st = state.prac[state.view.slug];
+  if (!st?.menu || !document.getElementById('pform')) return false;
+  st.vals = readVals(st.q, 'p');
+  st.menu = false;
+  render();
+  return true;
+}
+document.addEventListener('keydown', (e) => e.key === 'Escape' && sluitMenu());
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.soort-menu, .soort-knop')) sluitMenu();
 });
 // De focus blijft in het paneel zolang het open staat, en Escape sluit het.
 document.addEventListener('keydown', (e) => {

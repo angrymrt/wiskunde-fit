@@ -2986,9 +2986,10 @@ html.oef .oef-kop .sheet-head h1 {
   padding: 11px 12px 11px 0;
   font-size: 1.05rem;
   line-height: 1.25;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
   background: var(--accent-soft, var(--paper));
   border-bottom: 3px solid var(--accent);
 }
@@ -3054,9 +3055,11 @@ html.oef .soort-knop {
 .soort-knop .sn {
   flex: 1;
   min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.25;
 }
 .soort-knop .caret {
   transition: transform 0.2s;

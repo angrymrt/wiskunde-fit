@@ -242,20 +242,20 @@ const veldNodig = (el) => (el.value ? ` ${el.value}` : ' leeg');
 
 // Klapt de toetsen in of uit. Ingeklapt blijven alleen de tabbladen en de knoppen Volgende veld en Controleer over,
 // zodat de vraag meer ruimte krijgt. Alleen op een telefoon is er een knop voor.
-function klap(in_) {
+function klap(in_, stil = false) {
   h().klap = in_;
   paneel.classList.toggle('rh-ingeklapt', in_);
   const knop = paneel.querySelector('#rh-klap');
   knop.setAttribute('aria-expanded', String(!in_));
   knop.setAttribute('aria-label', in_ ? 'Klap de toetsen uit' : 'Klap de toetsen in');
-  zeg(in_ ? 'Toetsen ingeklapt.' : 'Toetsen uitgeklapt.');
+  if (!stil) zeg(in_ ? 'Toetsen ingeklapt.' : 'Toetsen uitgeklapt.');
 }
 
 // Wisselt tussen Rekenen en Toetsenbord. Beide staan in dezelfde plek, dus het paneel blijft even hoog.
 function zetTab(tab) {
   h().tab = tab;
   // Een tabblad kiezen klapt de toetsen uit.
-  if (h().klap) klap(false);
+  if (h().klap) klap(false, true);
   for (const t of ['rekenen', 'toetsenbord']) {
     const aan = t === tab;
     const knop = paneel.querySelector(`#rh-tab-${t}`);
@@ -426,11 +426,6 @@ function synchroniseer() {
     h().vraag = null;
     return;
   }
-  // Hoe hoog de vaste kop is, voor het scrollen naar een veld of een melding (styles.css, scroll-padding-top).
-  document.documentElement.style.setProperty(
-    '--oef-kop',
-    `${document.querySelector('.oef-kop')?.offsetHeight ?? 0}px`,
-  );
   const nieuw = h().vraag !== form.dataset.vraag;
   if (nieuw) {
     h().vraag = form.dataset.vraag;
@@ -444,10 +439,12 @@ function synchroniseer() {
   if (!h().open) return;
   // Bij een tekenvraag begint het paneel ingeklapt, zodat het rooster in beeld blijft. Wisselt de leerling van een
   // tekenvraag naar een andere, of andersom, dan volgt het paneel dat. Daarbinnen houdt het de keuze van de leerling.
-  const tekenen = form.hasAttribute('data-rek-klap');
+  // Alleen op een telefoon: alleen daar is er een knop om weer uit te klappen.
+  if (!oefModus() && h().klap) klap(false, true);
+  const tekenen = oefModus() && form.hasAttribute('data-rek-klap');
   if (tekenen !== h().tekenen) {
     h().tekenen = tekenen;
-    klap(tekenen);
+    klap(tekenen, true);
   }
   if (nieuw || h().niveau !== form.dataset.rek) bouwToetsen();
   zetInvoer(true);

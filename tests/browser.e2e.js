@@ -2582,6 +2582,16 @@ test('op een telefoon is het oefenen een volledig scherm met een vaste kop en vo
       assert.equal(await p.isVisible('#pform button[type="submit"]'), true);
       await p.close();
     }
+    // Een tekenvraag klapt het paneel alleen op een telefoon in: zonder dat is er geen knop om weer uit te klappen.
+    {
+      const p = await browser.newPage({ viewport: { width: 1000, height: 800 } });
+      await p.goto(at('/lineaire-grafieken-tekenen/oefenen?soort=8&seed=k3x9q'));
+      await p.waitForSelector('#pform');
+      await p.click('[data-act="rekenhulp"]');
+      await p.waitForSelector('#rekenhulp:not([hidden])');
+      assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), true);
+      await p.close();
+    }
     const ctx = await browser.newContext({
       reducedMotion: 'reduce',
       viewport: { width: 390, height: 780 },
@@ -2613,6 +2623,18 @@ test('op een telefoon is het oefenen een volledig scherm met een vaste kop en vo
     await p.tap('.soort-knop');
     assert.equal(await p.getAttribute('.soort-knop', 'aria-expanded'), 'true');
     assert.equal(await p.isVisible('.menu-open .soort-menu'), true);
+    // Het menu sluit met Escape en met een tik ergens anders.
+    await p.keyboard.press('Escape');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), false, 'Escape sluit het menu');
+    await p.tap('.soort-knop');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), true);
+    await p.tap('#rekenhulp .rh-kop', { position: { x: 250, y: 4 } });
+    assert.equal(
+      await p.isVisible('.menu-open .soort-menu'),
+      false,
+      'een tik buiten sluit het menu',
+    );
+    await p.tap('.soort-knop');
     await p.tap('[data-act="filter"][data-id=""]');
     assert.equal(await p.isVisible('.menu-open .soort-menu'), false, 'het menu sluit');
     assert.match(await p.textContent('.soort-knop'), /alles door elkaar/);
