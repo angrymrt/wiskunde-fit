@@ -135,7 +135,7 @@ export function toon(x) {
   // niet meer te schrijven is, tonen we als 0.
   if (/e/.test(s))
     s =
-      Math.abs(g) < 1e-90
+      Math.abs(g) < 1e-80
         ? '0'
         : g.toFixed(11 - Math.floor(Math.log10(Math.abs(g)))).replace(/0+$/, '');
   return s.replace('.', ',').replace('-', '−');

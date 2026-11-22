@@ -115,6 +115,10 @@ test('een uitkomst heeft een komma, een echt minteken en op 12 cijfers na alles'
   assert.equal(toon(-1e-21), '−0,000000000000000000001');
   assert.equal(toon(rekenUit('0,00000000001×0,00000000001')), '0,000000000000000000000' + '1');
   assert.equal(toon(1e-200), '0');
+  // toFixed kan hoogstens 100 cijfers aan. Net boven de grens kan het nog, net eronder wordt het 0.
+  assert.equal(toon(rekenUit('10^−79')), '0,' + '0'.repeat(78) + '1');
+  assert.equal(toon(rekenUit('10^−90')), '0');
+  assert.equal(toon(5e-90), '0');
   // Een geheel getal van meer dan 12 cijfers wordt niet afgekapt.
   assert.equal(toon(123456789012345), '123456789012345');
   assert.equal(toon(999999999999.5), '999999999999,5');
