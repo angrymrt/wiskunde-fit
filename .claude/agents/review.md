@@ -72,11 +72,11 @@ Een opmerking staat bij de regel waar hij over gaat. Is dat niet mogelijk, zet h
 ## Een volgende ronde
 
 - Controleer elke fix in de nieuwe commits zelf. Geloof de antwoorden niet zonder te kijken.
-- Klopt een fix, zet de thread dan zelf op opgelost met GraphQL. Haal eerst de threads op: `gh api graphql -f query='query { repository(owner:"angrymrt", name:"wiskunde-fit") { pullRequest(number: <nr>) { reviewThreads(first: 100) { nodes { id isResolved comments(first: 1) { nodes { body } } } } } } }'`. Los dan de thread op: `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "<id>"}) { thread { isResolved } } }'`. Wie de bevinding verwerkte antwoordt alleen, en lost niets op. Mag de app dit niet, meld dat dan in je antwoord zodat de eigenaar het weet.
+- Klopt een fix, zeg dat dan in je review, bij de thread. Je lost de thread zelf **niet** op: de app heeft daar geen recht voor, want dat vraagt Contents: write en de app mag niet kunnen pushen (zie #216). Wie de bevinding verwerkte lost de thread op nadat jij hebt goedgekeurd. Noem in je antwoord welke threads kloppen.
 - Klopt een fix niet, laat de thread open en zeg in een nieuwe opmerking waarom.
 - Heeft de ontwikkelaar een bevinding laten liggen met een reden, beoordeel die reden. Een goede reden is genoeg.
 - Na de derde ronde stop je: zijn er dan nog bevindingen, noem ze in je antwoord zodat ze aan de eigenaar kunnen worden voorgelegd.
 
 ## Wat je terugstuurt
 
-Het adres van de review, het eindoordeel, en het aantal bevindingen per ernst (fout in de stof, fout in de code, kleiner). Verder niets.
+Het adres van de review, het eindoordeel, en het aantal bevindingen per ernst (fout in de stof, fout in de code, kleiner). Noem ook welke threads volgens jou opgelost mogen worden. Verder niets.
