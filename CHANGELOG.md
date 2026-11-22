@@ -2,6 +2,19 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.22.0
+
+### Nieuw
+
+- **Rekenhulp.** Bij elke vraag kun je een paneel openen om iets uit te rekenen. Het rekent met haakjes, machten en wortels, en met "Neem over" zet je de uitkomst met alle cijfers in het veld waar je mee bezig bent. Afronden en een breuk maken doe je zelf.
+- **Toetsenbord in de Rekenhulp.** Een tweede tabblad met eigen toetsen om je antwoord in het veld te typen: cijfers, komma, min, breukstreep, spatie en wissen. Het toetsenbord van je telefoon komt dan niet meer over de vraag heen.
+- **Oefenen op een telefoon is een volledig scherm.** Bovenaan blijft de kop met de soort vraag staan, de vraag zelf scrolt, en onderaan staan de Rekenhulp en de knoppen Volgende veld en Controleer altijd in beeld. Het paneel kan inklappen. Bij een tekenvraag of meerkeuze begint het ingeklapt.
+- **Andere vraag.** Op een telefoon heb je een knop om een andere vraag te krijgen zonder je ronde kwijt te raken.
+
+### Verbeterd
+
+- Bij Delen staat nu een icoon met drie bolletjes die verbonden zijn.
+
 ## 1.21.7
 
 ### Hersteld
