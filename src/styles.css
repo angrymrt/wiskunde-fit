@@ -2633,9 +2633,65 @@ html.rh-open body {
   gap: 8px;
   margin-bottom: 6px;
 }
-.rh-titel {
-  margin: 0;
-  font: 700 1rem var(--body);
+.rh-tabs {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.rh-tab {
+  padding: 6px 12px;
+  border: 0;
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+/* De rand van de tabbladen knipt de ring buiten de knop weg, dus de ring staat binnen. */
+.rh-tab:focus-visible {
+  outline-offset: -3px;
+}
+.rh-tab[aria-selected='true'] {
+  background: var(--ink);
+  color: var(--sheet);
+  font-weight: 700;
+}
+/* De twee tabbladen staan op dezelfde plek. Het hoogste bepaalt de hoogte, zodat het paneel niet verspringt. */
+.rh-panelen {
+  display: grid;
+}
+.rh-pan {
+  grid-area: 1 / 1;
+}
+.rh-pan.weg {
+  visibility: hidden;
+}
+.rh-invoer {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 6px;
+}
+.rh-invnaam {
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+.rh-invtoetsen {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, minmax(44px, 1fr));
+  gap: 6px;
+}
+.rh-toets.breed {
+  grid-column: span 2;
+}
+.rh-toets[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+.rh-kop {
+  justify-content: space-between;
 }
 .rh-doel {
   flex: 1;
@@ -2686,6 +2742,9 @@ html.rh-open body {
   font-weight: 400;
 }
 .rh-acties {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 6px 0;
 }
 .rh-neem {
@@ -2763,8 +2822,12 @@ html.rh-open body {
     min-height: 28px;
     font-size: 1rem;
   }
-  .rh-toetsen {
+  .rh-toetsen,
+  .rh-invtoetsen {
     gap: 3px;
+  }
+  .rh-invtoetsen {
+    grid-template-rows: repeat(5, minmax(28px, 1fr));
   }
   .rh-scherm {
     min-height: 2.3em;

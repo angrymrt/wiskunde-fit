@@ -23,6 +23,7 @@ const state = {
     ans: 0,
     doel: 0,
     fout: null,
+    tab: 'rekenen',
   },
   // Of de site nu donker is, door het apparaat of door de knop in de kop. Zie main.js.
   dark: false,

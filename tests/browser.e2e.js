@@ -2110,7 +2110,11 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       ['telefoon-donker', { width: 390, height: 700 }, 'dark'],
       ['computer', { width: 1200, height: 800 }, 'light'],
     ]) {
-      const ctx = await browser.newContext({ viewport, colorScheme: kleur });
+      const ctx = await browser.newContext({
+        reducedMotion: 'reduce',
+        viewport,
+        colorScheme: kleur,
+      });
       const p = await ctx.newPage();
       p.on('pageerror', (e) => errors.push(e.message));
       p.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
@@ -2261,7 +2265,10 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
       ks.reduce((w, k) => w.then(() => p.click(`#rh-toetsen [data-k="${k}"]`)), Promise.resolve());
     {
       // Een groep: de uitkomsten gaan na elkaar in de lege velden.
-      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      const p = await browser.newPage({
+        reducedMotion: 'reduce',
+        viewport: { width: 390, height: 800 },
+      });
       p.on('pageerror', (e) => errors.push(e.message));
       await open(p, groep);
       const n = await p.$$eval('#pform .fld input[type="text"]', (e) => e.length);
@@ -2278,7 +2285,10 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
     }
     {
       // Zonder Rekenhulp gaat de focus bij Volgende vraag naar het eerste veld, zoals altijd.
-      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      const p = await browser.newPage({
+        reducedMotion: 'reduce',
+        viewport: { width: 390, height: 800 },
+      });
       p.on('pageerror', (e) => errors.push(e.message));
       await p.goto(at(link));
       await p.waitForSelector('#pform');
@@ -2290,7 +2300,10 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
     }
     {
       // Zelf in het veld typen verandert de kop van het paneel, en wat je typt is nooit HTML.
-      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      const p = await browser.newPage({
+        reducedMotion: 'reduce',
+        viewport: { width: 390, height: 800 },
+      });
       p.on('pageerror', (e) => errors.push(e.message));
       let dialoog = false;
       p.on('dialog', () => (dialoog = true));
@@ -2307,7 +2320,10 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
     }
     {
       // Na Toon uitwerking zijn de velden vergrendeld: er valt niets meer over te nemen.
-      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      const p = await browser.newPage({
+        reducedMotion: 'reduce',
+        viewport: { width: 390, height: 800 },
+      });
       p.on('pageerror', (e) => errors.push(e.message));
       await open(p, link);
       await p.click('[data-act="show"]');
@@ -2324,7 +2340,10 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
     }
     {
       // Een telefoon in landschap: het paneel staat rechts, past op het scherm en je kunt het sluiten.
-      const p = await browser.newPage({ viewport: { width: 740, height: 360 } });
+      const p = await browser.newPage({
+        reducedMotion: 'reduce',
+        viewport: { width: 740, height: 360 },
+      });
       p.on('pageerror', (e) => errors.push(e.message));
       await open(p, link);
       const r = await p.$eval('#rekenhulp', (e) => {
@@ -2350,7 +2369,10 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
     {
       // Lukt het laden niet, dan is er een melding, en een nieuwe klik probeert het opnieuw. Twee klikken na elkaar
       // tijdens het laden openen en sluiten het paneel niet meteen weer.
-      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      const p = await browser.newPage({
+        reducedMotion: 'reduce',
+        viewport: { width: 390, height: 800 },
+      });
       p.on('pageerror', (e) => errors.push(e.message));
       await p.goto(at(link));
       await p.waitForSelector('#pform');
@@ -2379,6 +2401,164 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
         'twee klikken laten het paneel open',
       );
       await p.close();
+    }
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het systeem blijft weg', async () => {
+  const browser = await launch();
+  try {
+    const errors = [];
+    const link = '/lineaire-formule-opstellen/oefenen?soort=5&seed=k3x9q';
+    const open = async (p) => {
+      await p.goto(at(link));
+      await p.waitForSelector('#pform');
+      await p.click('[data-act="rekenhulp"]');
+      await p.waitForSelector('#rekenhulp:not([hidden])');
+    };
+    const waarde = (p, i) => p.inputValue(`#pf${i}`);
+    const toets = (p, ...ks) =>
+      ks.reduce(
+        (w, k) => w.then(() => p.click(`.rh-invtoetsen [data-k="V:${k}"]`)),
+        Promise.resolve(),
+      );
+    {
+      // Met een muis: de tabbladen, de toetsen en wat er in het veld komt.
+      const p = await browser.newPage({
+        reducedMotion: 'reduce',
+        viewport: { width: 390, height: 700 },
+      });
+      p.on('pageerror', (e) => errors.push(e.message));
+      await open(p);
+      assert.equal(await p.getAttribute('#rh-tab-rekenen', 'aria-selected'), 'true');
+      assert.equal(await p.getAttribute('#rh-tab-toetsenbord', 'aria-selected'), 'false');
+      // Zolang de Rekenhulp open staat, opent een veld geen toetsenbord van het systeem.
+      assert.deepEqual(
+        await p.$$eval('#pform .fld input', (e) => e.map((i) => i.getAttribute('inputmode'))),
+        ['none', 'none'],
+      );
+      const hoogte = await p.$eval('#rekenhulp', (e) => e.offsetHeight);
+      // Een muisklik in een veld verandert het tabblad niet.
+      await p.click('#pf1');
+      assert.equal(await p.getAttribute('#rh-tab-rekenen', 'aria-selected'), 'true');
+      await p.click('#rh-tab-toetsenbord');
+      assert.equal(await p.getAttribute('#rh-tab-toetsenbord', 'aria-selected'), 'true');
+      assert.equal(
+        await p.$eval('#rekenhulp', (e) => e.offsetHeight),
+        hoogte,
+        'het paneel blijft even hoog',
+      );
+      assert.equal(await p.isVisible('.rh-invtoetsen'), true);
+      assert.equal(await p.isVisible('#rh-toetsen'), false, 'de toetsen van het rekenen zijn weg');
+      // Het doel is veld b (daar klikte je in): een negatief getal en een gemengd getal.
+      assert.equal(await p.textContent('#rh-invnaam'), 'b = (2/2)');
+      await toets(p, '5', 'TEKEN');
+      assert.equal(await waarde(p, 1), '−5');
+      assert.equal(await p.textContent('#rh-invwaarde'), '−5');
+      await toets(p, 'TEKEN');
+      assert.equal(await waarde(p, 1), '5');
+      await toets(p, 'WIS', ' ', '1', ' ', '1', '/', '/', ',', '2');
+      // Een spatie komt alleen na een cijfer, en een breukstreep of komma maar één keer.
+      assert.equal(await waarde(p, 1), '1 1/2');
+      await toets(p, ' ', ',', '/');
+      assert.equal(await waarde(p, 1), '1 1/2');
+      // Duizendtallen met spaties, zoals 1 250 000, zijn ook te typen. Een komma kan niet direct na een spatie.
+      await toets(p, 'WIS', 'WIS', 'WIS', 'WIS', 'WIS');
+      assert.equal(await waarde(p, 1), '');
+      await toets(p, '1', ' ', ',', '2', '5', '0', ' ', '0', '0', '0');
+      assert.equal(await waarde(p, 1), '1 250 000');
+      await toets(p, 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS', 'WIS');
+      await toets(p, '1', ' ', '1', '/', '2');
+      await toets(p, 'WIS', 'WIS');
+      assert.equal(await waarde(p, 1), '1 1');
+      await toets(p, 'WIS', 'WIS', ',', ',', '5');
+      assert.equal(await waarde(p, 1), '1,5');
+      // Leeg maakt het hele veld leeg.
+      await toets(p, 'LEEG');
+      assert.equal(await waarde(p, 1), '');
+      await toets(p, '1', ',', '5');
+      assert.equal(await waarde(p, 1), '1,5');
+      // Volgende gaat naar het volgende veld, en rond na het laatste weer naar het eerste.
+      await toets(p, 'VOLGENDE');
+      assert.equal(await p.textContent('#rh-invnaam'), 'a = (1/2)');
+      await toets(p, 'TEKEN', '3');
+      assert.equal(await waarde(p, 0), '−3');
+      // Het gewone toetsenbord typt ook in het veld, als de focus in het paneel staat.
+      await p.focus('#rh-titel');
+      await p.keyboard.type('4');
+      assert.equal(await waarde(p, 0), '−34');
+      await p.keyboard.press('Backspace');
+      assert.equal(await waarde(p, 0), '−3');
+      // De pijltjes wisselen van tabblad, en het tabblad met de focus heeft een ring die niet wordt weggeknipt.
+      await p.focus('#rh-tab-toetsenbord');
+      await p.keyboard.press('ArrowLeft');
+      assert.equal(await p.getAttribute('#rh-tab-rekenen', 'aria-selected'), 'true');
+      assert.equal(await p.evaluate(() => document.activeElement.id), 'rh-tab-rekenen');
+      assert.equal(
+        await p.$eval('#rh-tab-rekenen', (e) => getComputedStyle(e).outlineOffset),
+        '-3px',
+        'de ring staat binnen de knop',
+      );
+      // Wat je typte telt mee bij het nakijken: −3 en 1,5 zijn fout, maar het is een gewoon antwoord.
+      // De toets Controleer doet wat de knop in de vraag doet.
+      assert.equal(await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'), 'Controleer');
+      await p.click('#rh-tab-toetsenbord');
+      await toets(p, 'CONTROLEER');
+      assert.ok(await p.$('#pfb'), 'het antwoord wordt nagekeken');
+      await p.click('#rh-tab-toetsenbord');
+      await p.screenshot({ path: `${shotDir}rekenhulp-toetsenbord.png` });
+      // Na Controleer, Toon uitwerking en een volgende vraag blijft het toetsenbord van het systeem weg, ook bij de
+      // nieuwe velden. De velden die vergrendeld zijn, krijgen niets meer.
+      const modes = () =>
+        p.$$eval('#pform .fld input', (e) => e.map((i) => i.getAttribute('inputmode')));
+      assert.deepEqual(await modes(), ['none', 'none'], 'na Controleer');
+      await p.click('[data-act="show"]');
+      await p.waitForSelector('.sol');
+      assert.deepEqual(await p.$$eval('#pform .fld input', (e) => e.map((i) => i.disabled)), [
+        true,
+        true,
+      ]);
+      await p.click('#rh-tab-toetsenbord');
+      // Zonder velden valt er niets te typen, en is Volgende uit. Controleer is nu Volgende vraag.
+      await toets(p, '7', 'TEKEN');
+      assert.equal(await p.isDisabled('.rh-invtoetsen [data-k="V:VOLGENDE"]'), true);
+      assert.equal(await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'), 'Volgende vraag');
+      assert.equal(
+        await p.$$eval(
+          '#pform .fld input',
+          (e) => e.filter((i) => i.value !== '' && i.value !== '−3' && i.value !== '1,5').length,
+        ),
+        0,
+      );
+      await p.click('#nextq');
+      await p.waitForSelector('#pf0');
+      assert.deepEqual(await modes(), ['none', 'none'], 'bij een nieuwe vraag');
+      // Sluit je de Rekenhulp, dan is het gewone toetsenbord er weer.
+      await p.click('.rh-sluit');
+      assert.deepEqual(await modes(), ['text', 'text']);
+      await p.click('[data-act="rekenhulp"]');
+      assert.deepEqual(await modes(), ['none', 'none'], 'bij opnieuw openen');
+      await p.close();
+    }
+    {
+      // Op een telefoon brengt een tik in een veld het paneel naar het tabblad Toetsenbord.
+      const ctx = await browser.newContext({
+        reducedMotion: 'reduce',
+        viewport: { width: 390, height: 700 },
+        hasTouch: true,
+        isMobile: true,
+      });
+      const p = await ctx.newPage();
+      p.on('pageerror', (e) => errors.push(e.message));
+      await open(p);
+      assert.equal(await p.getAttribute('#rh-tab-rekenen', 'aria-selected'), 'true');
+      await p.tap('#pf0');
+      assert.equal(await p.getAttribute('#rh-tab-toetsenbord', 'aria-selected'), 'true');
+      assert.equal(await p.textContent('#rh-invnaam'), 'a = (1/2)');
+      await ctx.close();
     }
     assert.deepEqual(errors, []);
   } finally {
