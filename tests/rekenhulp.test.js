@@ -32,15 +32,21 @@ test('een vraag of onderwerp kan het niveau kiezen, of de Rekenhulp uitzetten', 
   }
 });
 
-test('meerkeuze, tekenen en alleen keuzelijsten krijgen geen Rekenhulp', () => {
-  assert.equal(rekNiveau(skill, { q: '', mc: MC(['a', 'b'], 0), seed: 'x' }), false);
-  assert.equal(rekNiveau(skill, getal({ line: { a: 1, b: 0 } })), false);
-  assert.equal(rekNiveau(skill, getal({ parabola: { a: 1, b: 0, c: 0 } })), false);
-  assert.equal(rekNiveau(skill, getal({ fields: [{ sel: ['<', '>'], a: '<' }] })), false);
-  // Een keuzelijst naast een getal is genoeg om de Rekenhulp te geven.
+test('elke vraag krijgt de Rekenhulp, en zonder getal om in te vullen begint hij ingeklapt', () => {
+  const klap = (q) => /data-rek-klap/.test(rekenhulpHTML(skill, q).attrs);
+  assert.equal(klap(getal()), false);
+  for (const q of [
+    { q: '', mc: MC(['a', 'b'], 0), seed: 'x' },
+    getal({ line: { a: 1, b: 0 } }),
+    getal({ parabola: { a: 1, b: 0, c: 0 } }),
+    getal({ fields: [{ sel: ['<', '>'], a: '<' }] }),
+  ]) {
+    assert.equal(rekNiveau(skill, q), 'uitgebreid');
+    assert.equal(klap(q), true);
+  }
+  // Een keuzelijst naast een getal heeft wel iets om in te vullen.
   assert.equal(
-    rekNiveau(
-      skill,
+    klap(
       getal({
         fields: [
           { sel: ['<', '>'], a: '<' },
@@ -48,7 +54,7 @@ test('meerkeuze, tekenen en alleen keuzelijsten krijgen geen Rekenhulp', () => {
         ],
       }),
     ),
-    'uitgebreid',
+    false,
   );
 });
 

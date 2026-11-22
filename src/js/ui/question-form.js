@@ -39,15 +39,18 @@ const unreadable = (q, vals) =>
 const empty = (q, vals) =>
   q.mc ? vals[0] === '' : q.fields.some((f, i) => !String(vals[i]).trim());
 
-// De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Dat is er niet bij meerkeuze, bij een
-// tekenvraag of als alle velden een keuzelijst zijn. Een vraag kan het zelf zeggen met `rek`, anders geldt het onderwerp,
-// en anders de uitgebreide Rekenhulp. `rek: false` zet hem uit, voor een vraag waarbij het rekenen de stof is.
+// De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Elke vraag heeft hem, ook meerkeuze en een
+// tekenvraag, zodat de knoppen Volgende veld en Controleer op een telefoon altijd onderin staan. Een vraag kan het zelf
+// zeggen met `rek`, anders geldt het onderwerp, en anders de uitgebreide Rekenhulp. `rek: false` zet hem uit, voor een
+// vraag waarbij het rekenen de stof is.
 export function rekNiveau(skill, q) {
-  if (q.mc || isDrawing(q) || !q.fields.some((f) => !f.sel)) return false;
   const rek = q.rek ?? topicOf(skill.id)?.rek ?? 'uitgebreid';
   // Een onbekende waarde, zoals een tikfout, is de uitgebreide Rekenhulp.
   return rek === false ? false : rek === 'simpel' ? 'simpel' : 'uitgebreid';
 }
+// Op een telefoon begint het paneel ingeklapt bij een vraag waar de toetsen niets te vullen hebben, of die het scherm
+// nodig heeft: meerkeuze, alleen keuzelijsten en een tekenvraag.
+const rekIngeklapt = (q) => !!q.mc || isDrawing(q) || !q.fields.some((f) => !f.sel);
 const CALC_ICON =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><rect x="3" y="1.5" width="10" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 4.8h5M5.5 8h1M9.5 8h1M5.5 11h1M9.5 11h1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 // De knop, en de gegevens die het formulier meekrijgt: het niveau en een naam voor de vraag. De Rekenhulp ziet daaraan
@@ -56,8 +59,8 @@ function rekenhulpHTML(skill, q) {
   const niveau = rekNiveau(skill, q);
   if (!niveau) return { button: '', attrs: '' };
   return {
-    button: `<button class="btn quiet share" type="button" data-act="rekenhulp" aria-expanded="${state.rekenhulp.open}">${CALC_ICON}Rekenhulp</button>`,
-    attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"`,
+    button: `<button class="btn quiet share" type="button" data-act="rekenhulp" aria-expanded="${state.rekenhulp.open}">${CALC_ICON}<span class="bt">Rekenhulp</span></button>`,
+    attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"${rekIngeklapt(q) ? ' data-rek-klap' : ''}`,
   };
 }
 
@@ -67,7 +70,7 @@ function rekenhulpHTML(skill, q) {
 // geen seed, en die kun je dus niet delen. De melding staat er altijd, ook leeg, zodat een
 // schermlezer hem voorleest zodra er iets in komt.
 const SHARE_ICON =
-  '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M8 10V2.5M5 5.2 8 2.2l3 3M4.5 7.5H3.5v6h9v-6h-1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+  '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M5.4 7.1 10.6 4.4M5.4 8.9l5.200 2.700" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><g fill="currentColor"><circle cx="12" cy="3.6" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="12.4" r="2"/></g></svg>';
 const CHECK_ICON =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>';
 function shareHTML(skill, q) {
@@ -92,8 +95,8 @@ function shareHTML(skill, q) {
       : '';
   // Na het kopiëren zegt de knop dat ook, tot je naar een andere vraag gaat.
   const label = done?.copied
-    ? `${CHECK_ICON}Gekopieerd`
-    : `${SHARE_ICON}Deel<span class="sr"> deze vraag</span>`;
+    ? `${CHECK_ICON}<span class="bt">Gekopieerd</span>`
+    : `${SHARE_ICON}<span class="bt">Deel</span><span class="sr"> deze vraag</span>`;
   return {
     button: `<button class="btn quiet share${done?.copied ? ' copied' : ''}" type="button" data-act="share" data-id="${esc(path)}">${label}</button>`,
     // De knop zegt al Gekopieerd. Een schermlezer hoort dat niet vanzelf, dus daarvoor staat de
@@ -134,7 +137,7 @@ function meldHTML(skill, q) {
     soort: skill.id,
     seed: q.seed,
   });
-  const button = `<button class="btn quiet share" type="button" data-act="meld" data-id="${esc(path)}" aria-haspopup="dialog">${FLAG_ICON}Meld een probleem</button>`;
+  const button = `<button class="btn quiet share" type="button" data-act="meld" data-id="${esc(path)}" aria-haspopup="dialog">${FLAG_ICON}<span class="bt">Meld een probleem</span></button>`;
   const open = state.melden?.open && state.melden.path === path ? state.melden : null;
   if (!open) return { button, panel: '' };
   const m = melding({ soort: skill, path, wat: open.wat, tekst: open.tekst });

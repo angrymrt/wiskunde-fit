@@ -187,7 +187,7 @@ function vStofPractice() {
   // De stof kan zijn gewijzigd sinds de vorige ronde. Past de vraag nog, dan blijft die staan.
   const st = state.prac['mijn-stof'];
   if (st?.skill && !isChosen(st.skill.id)) delete state.prac['mijn-stof'];
-  return `<div class="screen-grid">${crumbs()}${vPractice(stofTopic(), 'Mijn stof oefenen')}</div>`;
+  return `<div class="screen-grid">${crumbs()}${vPractice(stofTopic(), 'Mijn stof oefenen', to('stof'))}</div>`;
 }
 
 export { list, mappingName, vPick, vMapping, vStof, vStofPractice };

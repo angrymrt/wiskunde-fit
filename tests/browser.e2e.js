@@ -2165,7 +2165,7 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       assert.equal(await p.textContent('#rh-uit'), '= −6');
       await p.click('#rh-neem');
       assert.equal(await p.inputValue('#pf0'), '−6');
-      assert.equal(await p.textContent('#rh-doel'), '→ b = (2/2) leeg');
+      assert.equal(await p.textContent('#rh-doel'), 'b = (2/2)');
       await toets('C', '5', '+', '4');
       await p.click('#rh-neem');
       assert.equal(await p.inputValue('#pf1'), '9');
@@ -2309,11 +2309,12 @@ test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, la
       p.on('dialog', () => (dialoog = true));
       await open(p, link);
       await p.fill('#pf0', '12');
-      assert.equal(await p.textContent('#rh-doel'), '→ a = (1/2) 12');
+      assert.equal(await p.textContent('#rh-doel'), 'a = (1/2)');
+      assert.equal(await p.textContent('#rh-invwaarde'), '12');
       await p.fill('#pf0', '<img src=x onerror="alert(1)">');
       await p.waitForTimeout(100);
-      assert.equal(await p.$('#rh-doel img'), null, 'geen HTML in het paneel');
-      assert.match(await p.textContent('#rh-doel'), /<img src=x/);
+      assert.equal(await p.$('#rh-invwaarde img'), null, 'geen HTML in het paneel');
+      assert.match(await p.textContent('#rh-invwaarde'), /<img src=x/);
       assert.equal(dialoog, false);
       // Een veld met een eenheid erachter krijgt de tekst ervoor als naam, zonder de eenheid.
       await p.close();
@@ -2413,18 +2414,16 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
   try {
     const errors = [];
     const link = '/lineaire-formule-opstellen/oefenen?soort=5&seed=k3x9q';
-    const open = async (p) => {
+    // Op een telefoon (volledig scherm, #222) opent het paneel vanzelf en is er geen knop.
+    const open = async (p, telefoon = false) => {
       await p.goto(at(link));
       await p.waitForSelector('#pform');
-      await p.click('[data-act="rekenhulp"]');
+      if (!telefoon) await p.click('[data-act="rekenhulp"]');
       await p.waitForSelector('#rekenhulp:not([hidden])');
     };
     const waarde = (p, i) => p.inputValue(`#pf${i}`);
     const toets = (p, ...ks) =>
-      ks.reduce(
-        (w, k) => w.then(() => p.click(`.rh-invtoetsen [data-k="V:${k}"]`)),
-        Promise.resolve(),
-      );
+      ks.reduce((w, k) => w.then(() => p.click(`.rh [data-k="V:${k}"]`)), Promise.resolve());
     {
       // Met een muis: de tabbladen, de toetsen en wat er in het veld komt.
       const p = await browser.newPage({
@@ -2504,7 +2503,7 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       );
       // Wat je typte telt mee bij het nakijken: −3 en 1,5 zijn fout, maar het is een gewoon antwoord.
       // De toets Controleer doet wat de knop in de vraag doet.
-      assert.equal(await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'), 'Controleer');
+      assert.equal(await p.textContent('.rh [data-k="V:CONTROLEER"]'), 'Controleer');
       await p.click('#rh-tab-toetsenbord');
       await toets(p, 'CONTROLEER');
       assert.ok(await p.$('#pfb'), 'het antwoord wordt nagekeken');
@@ -2524,8 +2523,8 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       await p.click('#rh-tab-toetsenbord');
       // Zonder velden valt er niets te typen, en is Volgende uit. Controleer is nu Volgende vraag.
       await toets(p, '7', 'TEKEN');
-      assert.equal(await p.isDisabled('.rh-invtoetsen [data-k="V:VOLGENDE"]'), true);
-      assert.equal(await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'), 'Volgende vraag');
+      assert.equal(await p.isDisabled('.rh [data-k="V:VOLGENDE"]'), true);
+      assert.equal(await p.textContent('.rh [data-k="V:CONTROLEER"]'), 'Volgende vraag');
       assert.equal(
         await p.$$eval(
           '#pform .fld input',
@@ -2553,13 +2552,153 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       });
       const p = await ctx.newPage();
       p.on('pageerror', (e) => errors.push(e.message));
-      await open(p);
+      await open(p, true);
       assert.equal(await p.getAttribute('#rh-tab-rekenen', 'aria-selected'), 'true');
       await p.tap('#pf0');
       assert.equal(await p.getAttribute('#rh-tab-toetsenbord', 'aria-selected'), 'true');
       assert.equal(await p.textContent('#rh-invnaam'), 'a = (1/2)');
       await ctx.close();
     }
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('op een telefoon is het oefenen een volledig scherm met een vaste kop en voet (#222)', async () => {
+  const browser = await launch();
+  try {
+    const errors = [];
+    const link = '/lineaire-formule-opstellen/oefenen?soort=5&seed=k3x9q';
+    const oef = (p) => p.evaluate(() => document.documentElement.classList.contains('oef'));
+    // Zonder aanraken, ook op een smal scherm, blijft het oefenscherm zoals het was.
+    {
+      const p = await browser.newPage({ viewport: { width: 390, height: 780 } });
+      await p.goto(at(link));
+      await p.waitForSelector('#pform');
+      assert.equal(await oef(p), false);
+      assert.equal(await p.isVisible('.soort-knop'), false);
+      assert.equal(await p.isVisible('.oef-terug'), false);
+      assert.equal(await p.isVisible('#pform button[type="submit"]'), true);
+      await p.close();
+    }
+    // Een tekenvraag klapt het paneel alleen op een telefoon in: zonder dat is er geen knop om weer uit te klappen.
+    {
+      const p = await browser.newPage({ viewport: { width: 1000, height: 800 } });
+      await p.goto(at('/lineaire-grafieken-tekenen/oefenen?soort=8&seed=k3x9q'));
+      await p.waitForSelector('#pform');
+      await p.click('[data-act="rekenhulp"]');
+      await p.waitForSelector('#rekenhulp:not([hidden])');
+      assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), true);
+      await p.close();
+    }
+    const ctx = await browser.newContext({
+      reducedMotion: 'reduce',
+      viewport: { width: 390, height: 780 },
+      hasTouch: true,
+      isMobile: true,
+    });
+    const p = await ctx.newPage();
+    p.on('pageerror', (e) => errors.push(e.message));
+    await p.goto(at(link));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    assert.equal(await oef(p), true);
+    // De kop van de site is weg. De kop van het oefenen blijft bovenaan staan, ook als je scrolt.
+    assert.equal(await p.isVisible('header.top'), false);
+    assert.equal(await p.isVisible('.crumbs'), false);
+    assert.equal(await p.isVisible('.oef-terug'), true);
+    await p.evaluate(() => window.scrollTo(0, 400));
+    assert.equal(await p.$eval('.oef-kop', (e) => Math.round(e.getBoundingClientRect().top)), 0);
+    // De voet staat onderaan, met Volgende veld en Controleer in beeld. Controleer in de vraag zelf is weg.
+    const voet = await p.$eval('.rh-actie', (e) => {
+      const b = e.getBoundingClientRect();
+      return { top: b.top, bottom: b.bottom };
+    });
+    assert.ok(voet.top > 0 && voet.bottom <= 780, 'de knoppen staan in beeld');
+    assert.equal(await p.isVisible('#pform button[type="submit"]'), false);
+    assert.equal(await p.isVisible('#rekenhulp .rh-sluit'), false, 'geen sluitknop');
+    assert.equal(await p.isVisible('[data-act="rekenhulp"]'), false);
+    // Bij Alles door elkaar staat de soort van de vraag er toch.
+    assert.match(await p.textContent('.soort-knop'), /alleen deze soort/);
+    await p.tap('.soort-knop');
+    assert.equal(await p.getAttribute('.soort-knop', 'aria-expanded'), 'true');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), true);
+    // Het menu sluit met Escape en met een tik ergens anders.
+    await p.keyboard.press('Escape');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), false, 'Escape sluit het menu');
+    await p.tap('.soort-knop');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), true);
+    await p.tap('#rekenhulp .rh-kop', { position: { x: 250, y: 4 } });
+    assert.equal(
+      await p.isVisible('.menu-open .soort-menu'),
+      false,
+      'een tik buiten sluit het menu',
+    );
+    // Een tik op Controleer terwijl het menu open staat, sluit het menu en kijkt het antwoord ook na.
+    await p.tap('.soort-knop');
+    await p.tap('#rekenhulp .rh-con');
+    await p.waitForSelector('#pfb');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), false);
+    await p.tap('.soort-knop');
+    await p.tap('[data-act="filter"][data-id=""]');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), false, 'het menu sluit');
+    assert.match(await p.textContent('.soort-knop'), /alles door elkaar/);
+    // Een andere vraag, zonder de soort of de ronde te verliezen.
+    const vorige = await p.getAttribute('#pform', 'data-vraag');
+    await p.tap('.q-tools .andere');
+    assert.notEqual(await p.getAttribute('#pform', 'data-vraag'), vorige);
+    assert.match(await p.textContent('.soort-knop'), /alles door elkaar/);
+    // Controleer staat in het paneel en doet wat de knop in de vraag doet.
+    await p.tap('#rekenhulp .rh-con');
+    await p.waitForSelector('#pfb');
+    assert.match(await p.textContent('#pfb'), /Vul eerst alle antwoorden in/);
+    // Inklappen laat de tabbladen en de twee knoppen staan. Een tabblad kiezen klapt weer uit.
+    await p.tap('#rh-klap');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), false);
+    assert.equal(await p.isVisible('#rekenhulp .rh-con'), true);
+    assert.equal(await p.getAttribute('#rh-klap', 'aria-expanded'), 'false');
+    await p.tap('#rh-tab-toetsenbord');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), true);
+    // Volgende veld is uit bij één veld.
+    await p.goto(at('/procentuele-verandering/oefenen?soort=105&seed=k3x9q'));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    const velden = await p.$$eval('#pform .fld input[type="text"]', (e) => e.length);
+    assert.equal(await p.isDisabled('#rekenhulp .rh-vol'), velden < 2);
+    // Een tekenvraag heeft de Rekenhulp ook, maar ingeklapt, zodat het rooster in beeld blijft. Daarna volgt het paneel
+    // de keuze van de leerling.
+    await p.goto(at('/lineaire-grafieken-tekenen/oefenen?soort=8&seed=k3x9q'));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), false);
+    assert.equal(await p.isVisible('#rekenhulp .rh-con'), true);
+    await p.tap('#rh-klap');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), true);
+    // Ook meerkeuze heeft het paneel, ingeklapt, zodat Controleer altijd op dezelfde plek onderin staat.
+    await p.goto(at('/ontbinden-in-factoren/oefenen?soort=76&seed=k3x9q'));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), false);
+    assert.equal(await p.isVisible('#pform button[type="submit"]'), false);
+    assert.equal(await p.isDisabled('#rekenhulp .rh-vol'), true);
+    await p.tap('#rekenhulp .rh-con');
+    await p.waitForSelector('#pfb');
+    assert.match(await p.textContent('#pfb'), /Vul eerst alle antwoorden in/);
+    // De uitleg van een term staat tussen de kop en het paneel, niet eronder.
+    await p.goto(at('/ontbinden-in-factoren/oefenen?soort=75&seed=k3x9q'));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    await p.waitForSelector('#pq button.term');
+    await p.tap('#pq button.term');
+    await p.waitForSelector('.pop');
+    const pop = await p.$eval('.pop', (e) => {
+      const b = e.getBoundingClientRect();
+      return {
+        top: b.top,
+        bottom: b.bottom,
+        paneel: document.getElementById('rekenhulp').getBoundingClientRect().top,
+        kop: document.querySelector('.oef-kop').getBoundingClientRect().bottom,
+      };
+    });
+    assert.ok(pop.bottom <= pop.paneel + 1, 'de popup staat boven het paneel');
+    assert.ok(pop.top >= pop.kop - 1, 'de popup staat onder de kop');
+    await ctx.close();
     assert.deepEqual(errors, []);
   } finally {
     await browser.close();
@@ -3062,7 +3201,8 @@ const LIMITS = {
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  start: { sent: 52, own: 130, why: 'de code bij het eerste bezoek' },
+  // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
+  start: { sent: 53, own: 133, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
@@ -3074,7 +3214,8 @@ const LIMITS = {
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 16, own: 44, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
-  css: { sent: 9.5, why: 'de CSS' },
+  // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
+  css: { sent: 10.5, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
 const kB = (n) => `${n.toFixed(1).replace('.', ',')} kB`;
