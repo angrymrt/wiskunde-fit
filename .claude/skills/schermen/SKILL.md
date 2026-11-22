@@ -1,0 +1,18 @@
+---
+name: schermen
+description: Hoe de schermen van wiskunde-fit werken: screenHTML, render, go, data-act, routes, vooraf gebouwde pagina's, apart ladende schermen en window.wiskundefit. Gebruik bij elke wijziging aan ui/, main.js of een adres.
+---
+
+De regels voor iedereen staan in AGENTS.md (Regels). Dit is de werkwijze.
+
+# Zo werken de schermen
+
+Alle schermen zijn functies die een HTML-tekst teruggeven. `screenHTML()` in `ui/screens.js` maakt daarmee het hele scherm, en `render()` in `main.js` zet dat in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`. Heeft het scherm een onderwerp nodig dat nog niet geladen is (`nodig()` in `ui/laden.js`), dan laadt `render()` dat eerst en geeft het een Promise. Duurt dat langer, dan toont het scherm dat het laadt, en lukt het niet, dan een melding met een knop om het opnieuw te proberen. Een browsertest die `wiskundefit.go(...)` gebruikt, wacht dus op wat `go` teruggeeft.
+
+Een scherm dat Home niet nodig heeft, kan in een eigen bestand staan dat de browser pas laadt als het nodig is ([#188](https://github.com/angrymrt/wiskunde-fit/issues/188)). Zet het in `LATER` in `scripts/later-schermen.js` en in `LATER` in `ui/laden.js` (per adres van het scherm), en geef het scherm `klaar()` en `laad()` zoals `ui/vragen.js`. Staat de pagina van het scherm vooraf gebouwd en helemaal te lezen (geen schil), geef het dan `vooraf: true` in `ui/laden.js`, zodat die pagina blijft staan tot het scherm er is. Zet het adres ook in `SCHERM_VAN` in `scripts/later-schermen.js`, voor de `modulepreload`. `tests/later-schermen.test.js` faalt als die drie lijsten niet gelijk zijn. Wat bij het eerste bezoek al nodig is, zoals het bewaren van de proeftoets, hoort niet in het scherm maar in een eigen bestand (`ui/toets-opslag.js`). In Node is zo'n scherm gewoon geladen. De vooraf gebouwde pagina blijft staan tot het scherm er is. Zet een gerichte test naast die voor Zo maken we de vragen in `tests/browser.e2e.js`.
+
+Alleen Home heeft een losse kop. Op elk ander scherm staat het kruimelpad (`crumbs()`) boven het blok, en begint het eerste blok met de kop en de intro (`pageHead()`). Zet dus geen kop of tekst los tussen het kruimelpad en het blok.
+
+Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarmee je ergens heen gaat, is een gewone link met `<a href>`, zodat openen in een nieuw tabblad werkt. Een knop is voor iets dat op dit scherm gebeurt. Een nieuw eerste deel van een adres moet ook in de lijst met gereserveerde namen in `tests/generators.test.js`. De build maakt bij elk adres een vooraf gebouwde pagina of een schil (`src/js/pages.js`). Een adres zonder bestand geeft een echte 404. `staticwebapp.config.json` bevat de regels voor Azure, en `scripts/server.js` volgt die voor `npm run dev` en de browsertest. Wijzig je die regels, controleer dan ook de preview met `node scripts/controleer-site.js <adres>`.
+
+`window.wiskundefit` bestaat alleen zodat `tests/browser.e2e.js` de juiste antwoorden kan opvragen. Gebruik het niet in de site zelf.

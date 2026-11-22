@@ -56,62 +56,29 @@ De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor k
 - **Houd stof en schermen gescheiden.** `math.js`, `typeset.js`, `figures.js`, `answers.js`, `stof.js`, `routes.js`, `tel.js`, `topics/` en `mappings/` mogen geen DOM gebruiken, want de tests draaien ze in Node. DOM-code hoort in `ui/` en `main.js`. Ook `ui/` moet in Node te importeren zijn, want de build maakt met de schermen de pagina's vooraf. Gebruik de DOM daar dus alleen binnen functies die `main.js` aanroept, en laat een scherm voor dezelfde toestand steeds dezelfde HTML geven: geen toeval en geen tellers voor id's.
 - **Kleuren staan als tokens in `:root`.** Definieer elke nieuwe kleur ook voor de donkere modus. Dat gebeurt op twee plekken: in de `prefers-color-scheme`-regel en bij `[data-theme='dark']`.
 
+## Werkwijzen
+
+De werkwijze per taak staat in `.claude/skills/<naam>/SKILL.md`: gewone Markdown, die je met elke tool kunt lezen. Claude Code laadt een skill zelf als de taak erom vraagt. Met een andere tool lees je het bestand van de taak. De skills zijn `vraag-toevoegen`, `onderwerp-toevoegen`, `methode-indeling-toevoegen`, `hoofdstuk-toevoegen`, `schermen` en `release-maken`. De review staat in de agent `.claude/agents/review.md`. Een regel die voor iedereen geldt staat hier en niet in een skill.
+
 ## Een vraag toevoegen
 
 De werkwijze staat in de skill `.claude/skills/vraag-toevoegen/SKILL.md`: de stappen, de velden van een vraag, de veldhulpen en de T-notatie. Lees die bij elke wijziging aan een vraagsoort. Vaste regels: elke generator heeft een `v` die anders rekent dan het antwoord, het toeval komt uit `math.js` (nooit `Math.random`), een nummer van een vraagsoort wijzig je nooit, en een gedeelde link blijft dezelfde vraag geven (`npm test` controleert de vingerafdrukken).
 
 ## Een onderwerp toevoegen
 
-1. Kopieer een bestand in `src/js/topics/` en pas de `export default` aan. Het adres (`slug`) is de titel in kleine letters met streepjes. Kies een titel die ook later niet botst, zoals Lineaire formule opstellen in plaats van Formule opstellen. Schrijf bij `intro` in twee of drie zinnen wat de stof is en wat de leerling hier leert, zonder HTML. Schrijf bij `description` de beschrijving voor zoekmachines en linkvoorbeelden: hoogstens ongeveer 155 tekens, met de woorden waarop een leerling zoekt, en zonder iets te beloven wat de pagina niet heeft. Een domein heeft ook een `intro` en een `description`.
-2. Zet het onderwerp in een domein in `topics/index.js`, op de plek waar het in de volgorde hoort.
-3. Zet de voorkennis in `PREREQUISITES` in hetzelfde bestand. Voorkennis is een kenmerk van een onderwerp, ook als die in een boek als los stukje voor een hoofdstuk staat. Maak dus geen apart onderwerp voor voorkennis.
-
-In de browser komt elk onderwerp in een eigen bestand, dat pas laadt als het nodig is. Bij het eerste bezoek is er alleen een catalogus: de velden uit `VELDEN` in `scripts/catalogus.js` en per vraagsoort het nummer en de naam. De build maakt die uit het onderwerpbestand, dus je hoeft niets dubbel bij te houden. Krijgt een onderwerp een nieuw veld, zet het dan in `VELDEN` als Home, Mijn stof of een ander scherm zonder het onderwerp het nodig heeft, en anders in `VELDEN_LATER`. `npm test` faalt tot je kiest. Een scherm dat de generatoren of de uitleg gebruikt, moet in `nodig()` in `ui/laden.js` staan, zodat `render()` het onderwerp eerst laadt. In Node, dus in de tests, de scripts en de build, is alles meteen geladen.
-
-Een nieuw domein krijgt een kleur met een eigen klasse `.color-...` in `styles.css`. Wijzig het nummer van een vraagsoort nooit, want de opgeslagen voortgang verwijst daarnaar. De naam, de volgorde en het onderwerp van een vraagsoort mogen wel veranderen. Stopt een vraagsoort, zet dan `null` achter het nummer in `tests/vraagsoort-ids.js`, leg in `progress.js` vast waar de voortgang heen gaat en gebruik het nummer nooit opnieuw.
+Een onderwerp krijgt een eigen bestand in `src/js/topics/`, een plek in een domein en voorkennis in `PREREQUISITES`. Wijzig het nummer van een vraagsoort nooit. De werkwijze staat in de skill `.claude/skills/onderwerp-toevoegen/SKILL.md`.
 
 ## Een methode-indeling toevoegen
 
-1. Kopieer een bestand in `src/js/mappings/` en zet het in de lijst in `mappings/index.js`. Elk leerjaar krijgt per editie één bestand.
-2. Zet er alle boeken in, met volledige naam en ISBN, en alle paragrafen op nummer met een korte eigen omschrijving. Neem geen inhoudsopgave één op één over en schrijf ook geen titels over. Hoofdstuknummers zijn tekst. Voorkennis hoort er niet in.
-3. Een paragraaf is `['1.1', 'Omschrijving', [3, 4]]`. Zonder vraagsoorten is die niet gedekt. Schrijf `'deels'` als vierde waarde als er nog stof ontbreekt of als de stof niet met dit boek is vergeleken. Ontbreekt er stof, zet dan als vijfde waarde een korte zin voor de leerling over wat je hier nog niet kunt oefenen. Is de stof niet met dit boek vergeleken, leg dat dan uit in `note` van de methode-indeling.
-4. Zet het aantal paragrafen in `tests/methode-indelingen.test.js` en draai `npm test`.
+Een methode-indeling staat in `src/js/mappings/`, met eigen omschrijvingen en nooit de titels of inhoudsopgave van het boek over te nemen. De werkwijze staat in de skill `.claude/skills/methode-indeling-toevoegen/SKILL.md`.
 
 ## Een hoofdstuk toevoegen
 
-Een hoofdstuk is veel werk: hoofdstuk 3 werden 30 vraagsoorten in vier pull requests. Het meeste werk zit in de agents die de vraagsoorten bouwen. Elke stap van een agent leest de hele context opnieuw, dus de kosten zijn ongeveer het aantal stappen maal de grootte van de context. Houd agents daarom klein en gericht, zonder te bezuinigen op de controles.
-
-1. **Werkwijze uit het boek.** De eigenaar zet foto's van het hoofdstuk in `naslag/`, op de plek die `naslag/LEESMIJ.md` beschrijft. Laat agents met Sonnet de foto's per deel verwerken tot notities. Vat die zelf samen in een `werkwijze.md` naast de foto's: de notatie, de werkwijze per paragraaf en wat je bewust niet gebruikt. Controleer de notatie op een paar foto's. Daarna werkt niemand meer vanuit de foto's, want een foto kost veel meer dan een notitie.
-2. **Plan.** Schrijf in het issue van het hoofdstuk welke onderwerpen er komen, in welk domein en met welke vraagsoorten, en wat een paragraaf nog mist. Gebruik de bestaande domeinen in `topics/index.js`. Leg het plan voor aan de eigenaar.
-3. **Branches.** Maak een integratiebranch `hoofdstuk-N` vanaf `main` en open een draft-PR naar `main`. Die geeft de preview en wordt later de PR die het hoofdstuk online zet. Elk deel komt als laag in een stack, zie [Een pull request maken](#een-pull-request-maken).
-4. **Bouwen: één agent per onderwerp.** Laat elk onderwerp bouwen door een eigen agent met Opus, want het bedenken van de sommen en de controle vragen het meeste denkwerk. Geef de agent alleen wat hij nodig heeft: het issue, `werkwijze.md`, een bestaand onderwerp als voorbeeld en de vrije nummers. Laat hem `npm test` draaien en alleen de fouten bekijken. Nieuwe techniek die meer onderwerpen nodig hebben, zoals een nieuw soort figuur, bouwt een eigen agent eerst.
-5. **Review.** Laat elke laag reviewen zoals bij elke pull request. Verwerk de bevindingen met een nieuwe, kleine agent die alleen de opmerkingen en de bestanden krijgt waar ze over gaan. Stuur ze niet terug naar de agent die de laag bouwde, want die heeft dan al een grote context.
-6. **Afronden met Sonnet.** De methode-indeling, de versie, de `CHANGELOG.md` en de aantallen in README en `index.html` zijn mechanisch werk. Laat een agent met Sonnet dat doen in de laatste laag.
-7. **Meten.** Zet bovenaan de opdracht van elke agent de regels `Issue: #97` en `Rol: bouw` of `Rol: review`. Tel na de release de tokens met `node scripts/tokens.js --per-issue --bord <sessie.jsonl>`. Dat zet per issue de velden Orkestratie, Bouw en Review op het projectbord. Het werk van de hoofdsessie telt als orkestratie, voor de issues waarvan de agents op dat moment bezig waren. Bouwde de hoofdsessie zelf, dan telt dat als Bouw van het issue uit de eerstvolgende commit (`(#N)` aan het eind van de titel), als schatting. Werk daarbuiten, zoals aan het bord, telt voor geen issue. Zet de tabel per agent (`node scripts/tokens.js <sessie.jsonl>`) als opmerking bij het issue van het hoofdstuk. Zo vergelijk je issues en hoofdstukken met elkaar.
-
-Draai niet meer dan twee agents en één browsertest tegelijk, anders raakt het geheugen van de computer op.
-
-Controleer voor de release van een hoofdstuk:
-
-- Elke paragraaf van het hoofdstuk staat in de methode-indeling: gedekt, deels met een zin over wat ontbreekt, of niet gedekt.
-- Wat ontbreekt staat als sub-issue onder het issue van het hoofdstuk.
-- Elke vraagsoort volgt de notatie uit `werkwijze.md` en heeft een `v`, een hint, een uitwerking en valkuilen voor de fouten die leerlingen echt maken.
-- Nieuwe invoerkeuzes, zoals een teken in een keuzelijst, staan in `NAKIJKEN.md`.
-- `npm test` en `npm run test:browser` slagen, en je hebt de schermafbeeldingen van nieuwe figuren bekeken.
-- De code blijft onder de grens voor de grootte ([#80](https://github.com/angrymrt/wiskunde-fit/issues/80)).
-- De Lighthouse-opmerking bij de pull request van het hoofdstuk: geen score lager dan op de site die nu online staat, behalve SEO.
+Een hoofdstuk is veel werk en gaat in een stack van pull requests. De werkwijze staat in de skill. Draai niet meer dan twee agents en één browsertest tegelijk, anders raakt het geheugen van de computer op. De werkwijze staat in de skill `.claude/skills/hoofdstuk-toevoegen/SKILL.md`.
 
 ## Zo werken de schermen
 
-Alle schermen zijn functies die een HTML-tekst teruggeven. `screenHTML()` in `ui/screens.js` maakt daarmee het hele scherm, en `render()` in `main.js` zet dat in de pagina; `go({ name, ... })` wisselt van scherm en past het adres aan. Knoppen hebben een `data-act`, en één klik-handler in `main.js` verwerkt ze allemaal. Wat er op het scherm staat, volgt uit `state` in `ui/state.js`. Heeft het scherm een onderwerp nodig dat nog niet geladen is (`nodig()` in `ui/laden.js`), dan laadt `render()` dat eerst en geeft het een Promise. Duurt dat langer, dan toont het scherm dat het laadt, en lukt het niet, dan een melding met een knop om het opnieuw te proberen. Een browsertest die `wiskundefit.go(...)` gebruikt, wacht dus op wat `go` teruggeeft.
-
-Een scherm dat Home niet nodig heeft, kan in een eigen bestand staan dat de browser pas laadt als het nodig is ([#188](https://github.com/angrymrt/wiskunde-fit/issues/188)). Zet het in `LATER` in `scripts/later-schermen.js` en in `LATER` in `ui/laden.js` (per adres van het scherm), en geef het scherm `klaar()` en `laad()` zoals `ui/vragen.js`. Staat de pagina van het scherm vooraf gebouwd en helemaal te lezen (geen schil), geef het dan `vooraf: true` in `ui/laden.js`, zodat die pagina blijft staan tot het scherm er is. Zet het adres ook in `SCHERM_VAN` in `scripts/later-schermen.js`, voor de `modulepreload`. `tests/later-schermen.test.js` faalt als die drie lijsten niet gelijk zijn. Wat bij het eerste bezoek al nodig is, zoals het bewaren van de proeftoets, hoort niet in het scherm maar in een eigen bestand (`ui/toets-opslag.js`). In Node is zo'n scherm gewoon geladen. De vooraf gebouwde pagina blijft staan tot het scherm er is. Zet een gerichte test naast die voor Zo maken we de vragen in `tests/browser.e2e.js`.
-
-Alleen Home heeft een losse kop. Op elk ander scherm staat het kruimelpad (`crumbs()`) boven het blok, en begint het eerste blok met de kop en de intro (`pageHead()`). Zet dus geen kop of tekst los tussen het kruimelpad en het blok.
-
-Bij elk scherm hoort een adres, en dat staat alleen in `routes.js`. Alles waarmee je ergens heen gaat, is een gewone link met `<a href>`, zodat openen in een nieuw tabblad werkt. Een knop is voor iets dat op dit scherm gebeurt. Een nieuw eerste deel van een adres moet ook in de lijst met gereserveerde namen in `tests/generators.test.js`. De build maakt bij elk adres een vooraf gebouwde pagina of een schil (`src/js/pages.js`). Een adres zonder bestand geeft een echte 404. `staticwebapp.config.json` bevat de regels voor Azure, en `scripts/server.js` volgt die voor `npm run dev` en de browsertest. Wijzig je die regels, controleer dan ook de preview met `node scripts/controleer-site.js <adres>`.
-
-`window.wiskundefit` bestaat alleen zodat `tests/browser.e2e.js` de juiste antwoorden kan opvragen. Gebruik het niet in de site zelf.
+Schermen zijn functies die HTML teruggeven, zonder DOM bij het maken. Een adres staat alleen in `routes.js`, en alles waarmee je ergens heen gaat is een gewone `<a href>`. De uitleg staat in de skill `.claude/skills/schermen/SKILL.md`.
 
 ## Feedback en open punten bewaren
 
@@ -157,18 +124,4 @@ Bouwt een wijziging in delen op elkaar voort, zoals een hoofdstuk, maak dan een 
 
 ## Een release maken
 
-Elke merge naar `main` zet de site meteen online. Een release legt vast wat er is veranderd en ontstaat vanzelf: heeft de versie in `package.json` na een geslaagde deploy nog geen release, dan maakt de workflow `Online zetten` de tag en de release, met de notities uit `CHANGELOG.md`. Maak dus geen tags of releases met de hand.
-
-Merken leerlingen iets van je wijziging, doe dan dit in dezelfde pull request:
-
-1. Verhoog de versie zonder commit of tag: `npm version minor --no-git-tag-version` (of `patch`).
-2. Zet bovenaan in `CHANGELOG.md` een kop met het nieuwe nummer, bijvoorbeeld `## 1.1.0`, met de notities eronder. `npm test` faalt als de bovenste kop niet gelijk is aan de versie, en dan gaat er ook niets online.
-3. Commit, push de branch en open een pull request, zoals hierboven.
-
-Wijzigingen in tests, documentatie of het ontwikkelproces houden dezelfde versie en krijgen dus geen release. Meerdere kleine pull requests mogen samen één versie worden: verhoog de versie dan bij de laatste.
-
-- **Patch** (`1.0.1`): een herstelde fout of een kleine verbetering.
-- **Minor** (`1.1.0`): nieuwe stof of een nieuwe functie.
-- **Major** (`2.0.0`): een wijziging waardoor opgeslagen voortgang of bestaande links niet meer werken zoals eerst. Alleen de eigenaar van het project besluit hierover. Verhoog de major-versie dus nooit zelf. Leg zo'n wijziging eerst voor en voeg niets samen voordat de eigenaar heeft gekozen.
-
-Schrijf de notities zelf, in het Nederlands en voor leerlingen, dus zonder bestandsnamen of technische details. Gebruik de kopjes die van toepassing zijn: `Nieuw`, `Verbeterd` en `Hersteld`. Noem een fout in de wiskunde altijd onder `Hersteld`, met de paragraaf en wat er fout was, want een leerling kan dat verkeerd hebben geleerd.
+Elke merge naar `main` zet de site meteen online en de release ontstaat vanzelf: maak nooit tags of releases met de hand. Merken leerlingen iets van je wijziging, verhoog dan de versie en schrijf `CHANGELOG.md`. Verhoog de major-versie nooit zelf: alleen de eigenaar besluit dat. De werkwijze staat in de skill `.claude/skills/release-maken/SKILL.md`.
