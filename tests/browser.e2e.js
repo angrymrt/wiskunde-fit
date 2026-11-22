@@ -2645,6 +2645,15 @@ test('op een telefoon is het oefenen een volledig scherm met een vaste kop en vo
     assert.equal(await p.isVisible('#rekenhulp .rh-con'), true);
     await p.tap('#rh-klap');
     assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), true);
+    // Ook meerkeuze heeft het paneel, ingeklapt, zodat Controleer altijd op dezelfde plek onderin staat.
+    await p.goto(at('/ontbinden-in-factoren/oefenen?soort=76&seed=k3x9q'));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), false);
+    assert.equal(await p.isVisible('#pform button[type="submit"]'), false);
+    assert.equal(await p.isDisabled('#rekenhulp .rh-vol'), true);
+    await p.tap('#rekenhulp .rh-con');
+    await p.waitForSelector('#pfb');
+    assert.match(await p.textContent('#pfb'), /Vul eerst alle antwoorden in/);
     // De uitleg van een term staat tussen de kop en het paneel, niet eronder.
     await p.goto(at('/ontbinden-in-factoren/oefenen?soort=75&seed=k3x9q'));
     await p.waitForSelector('#rekenhulp:not([hidden])');

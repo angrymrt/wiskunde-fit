@@ -39,16 +39,18 @@ const unreadable = (q, vals) =>
 const empty = (q, vals) =>
   q.mc ? vals[0] === '' : q.fields.some((f, i) => !String(vals[i]).trim());
 
-// De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Dat is er niet bij meerkeuze of als alle
-// velden een keuzelijst zijn. Een tekenvraag heeft hem wel, om de punten uit te rekenen; op een telefoon staat hij dan
-// ingeklapt, zodat het rooster in beeld blijft. Een vraag kan het zelf zeggen met `rek`, anders geldt het onderwerp,
-// en anders de uitgebreide Rekenhulp. `rek: false` zet hem uit, voor een vraag waarbij het rekenen de stof is.
+// De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Elke vraag heeft hem, ook meerkeuze en een
+// tekenvraag, zodat de knoppen Volgende veld en Controleer op een telefoon altijd onderin staan. Een vraag kan het zelf
+// zeggen met `rek`, anders geldt het onderwerp, en anders de uitgebreide Rekenhulp. `rek: false` zet hem uit, voor een
+// vraag waarbij het rekenen de stof is.
 export function rekNiveau(skill, q) {
-  if (q.mc || !q.fields.some((f) => !f.sel)) return false;
   const rek = q.rek ?? topicOf(skill.id)?.rek ?? 'uitgebreid';
   // Een onbekende waarde, zoals een tikfout, is de uitgebreide Rekenhulp.
   return rek === false ? false : rek === 'simpel' ? 'simpel' : 'uitgebreid';
 }
+// Op een telefoon begint het paneel ingeklapt bij een vraag waar de toetsen niets te vullen hebben, of die het scherm
+// nodig heeft: meerkeuze, alleen keuzelijsten en een tekenvraag.
+const rekIngeklapt = (q) => !!q.mc || isDrawing(q) || !q.fields.some((f) => !f.sel);
 const CALC_ICON =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><rect x="3" y="1.5" width="10" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 4.8h5M5.5 8h1M9.5 8h1M5.5 11h1M9.5 11h1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 // De knop, en de gegevens die het formulier meekrijgt: het niveau en een naam voor de vraag. De Rekenhulp ziet daaraan
@@ -58,7 +60,7 @@ function rekenhulpHTML(skill, q) {
   if (!niveau) return { button: '', attrs: '' };
   return {
     button: `<button class="btn quiet share" type="button" data-act="rekenhulp" aria-expanded="${state.rekenhulp.open}">${CALC_ICON}<span class="bt">Rekenhulp</span></button>`,
-    attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"${isDrawing(q) ? ' data-rek-klap' : ''}`,
+    attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"${rekIngeklapt(q) ? ' data-rek-klap' : ''}`,
   };
 }
 
