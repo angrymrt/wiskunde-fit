@@ -2087,6 +2087,117 @@ test('een probleem melden opent een paneel met links naar GitHub en e-mail', asy
   }
 });
 
+test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
+  const browser = await launch();
+  try {
+    const errors = [];
+    const link = '/lineaire-formule-opstellen/oefenen?soort=5&seed=k3x9q';
+    for (const [naam, viewport, kleur] of [
+      ['telefoon', { width: 390, height: 700 }, 'light'],
+      ['telefoon-donker', { width: 390, height: 700 }, 'dark'],
+      ['computer', { width: 1200, height: 800 }, 'light'],
+    ]) {
+      const ctx = await browser.newContext({ viewport, colorScheme: kleur });
+      const p = await ctx.newPage();
+      p.on('pageerror', (e) => errors.push(e.message));
+      p.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+      await p.goto(at(link));
+      await p.waitForSelector('#pform');
+      // Het paneel is er pas als je de knop gebruikt, want de code laadt dan pas.
+      assert.equal(await p.$('#rekenhulp'), null, 'nog geen paneel');
+      assert.equal(await p.getAttribute('[data-act="rekenhulp"]', 'aria-expanded'), 'false');
+      await p.click('[data-act="rekenhulp"]');
+      await p.waitForSelector('#rekenhulp:not([hidden])');
+      assert.equal(await p.getAttribute('[data-act="rekenhulp"]', 'aria-expanded'), 'true');
+      assert.equal(
+        await p.evaluate(() => document.activeElement.id),
+        'rh-titel',
+        'focus op de kop',
+      );
+      assert.equal(
+        await p.$$eval('#rh-toetsen .rh-toets', (e) => e.length),
+        25,
+        'uitgebreid heeft 5 extra toetsen',
+      );
+      // De vraag en de velden blijven boven het paneel zichtbaar. De pagina schuift zacht, dus wacht tot ze stilstaat.
+      for (let y = -1, nu = 0; nu !== y;) {
+        y = nu;
+        await p.waitForTimeout(150);
+        nu = await p.evaluate(() => scrollY);
+      }
+      const boven = await p.$eval('#rekenhulp', (e) => e.getBoundingClientRect().top);
+      for (const bottom of await p.$$eval('#pform .fld input', (e) =>
+        e.map((i) => i.getBoundingClientRect().bottom),
+      ))
+        assert.ok(bottom <= boven, `veld boven het paneel (${bottom} <= ${boven})`);
+      if (naam === 'computer')
+        assert.ok(
+          (await p.$eval('#rekenhulp', (e) => e.getBoundingClientRect().width)) <= 900,
+          'niet breder dan de pagina',
+        );
+      // In de donkere modus gebruikt het paneel de kleuren van de site.
+      const bg = await p.$eval('#rekenhulp', (e) => getComputedStyle(e).backgroundColor);
+      assert.equal(bg, kleur === 'dark' ? 'rgb(22, 35, 58)' : 'rgb(255, 255, 255)');
+      const toets = (...ks) =>
+        ks.reduce(
+          (w, k) => w.then(() => p.click(`#rh-toetsen [data-k="${k}"]`)),
+          Promise.resolve(),
+        );
+      // 3 × −2 = −6, en de uitkomst gaat naar het eerste veld; het doel springt naar het volgende lege veld.
+      await toets('3', '×', '−', '2');
+      assert.equal(await p.textContent('#rh-uit'), '= −6');
+      await p.click('#rh-neem');
+      assert.equal(await p.inputValue('#pf0'), '−6');
+      assert.match(await p.textContent('#rh-doel'), /b/);
+      await toets('C', '5', '+', '4');
+      await p.click('#rh-neem');
+      assert.equal(await p.inputValue('#pf1'), '9');
+      // Er is geen afronden en geen breuk: een uitkomst met veel cijfers komt er met alle cijfers in.
+      await toets('C', '√', '5', '0');
+      await p.click('#rh-neem');
+      assert.equal(await p.inputValue('#pf1'), '7,07106781187');
+      await toets('C', '2', '÷', '3');
+      assert.equal(await p.textContent('#rh-uit'), '= 0,666666666667');
+      assert.equal(await p.$('#rh-neem-breuk'), null);
+      // Een som die niet kan, geeft een melding en niets om over te nemen.
+      await toets('C', '5', '÷', '0');
+      assert.equal(await p.textContent('#rh-uit'), 'Delen door 0 kan niet.');
+      assert.equal(await p.isDisabled('#rh-neem'), true);
+      await p.screenshot({ path: `${shotDir}rekenhulp-${naam}.png` });
+      // Het gewone toetsenbord werkt als de focus in het paneel staat.
+      await p.focus('#rh-titel');
+      await p.keyboard.press('Delete');
+      await p.keyboard.type('2*(3+4)');
+      assert.equal(await p.textContent('#rh-som'), '2×(3+4)');
+      await p.keyboard.press('Enter');
+      assert.equal(await p.textContent('#rh-uit'), '= 14');
+      // Escape sluit het paneel, en de focus gaat terug naar de knop.
+      await p.keyboard.press('Escape');
+      assert.equal(await p.$eval('#rekenhulp', (e) => e.hidden), true);
+      assert.equal(await p.evaluate(() => document.activeElement.dataset.act), 'rekenhulp');
+      assert.equal(
+        await p.evaluate(() => document.documentElement.classList.contains('rh-open')),
+        false,
+      );
+      // Open weer, ga naar een volgende vraag: het paneel blijft open en begint opnieuw.
+      await p.click('[data-act="rekenhulp"]');
+      await toets('7');
+      await p.click('[data-act="show"]');
+      await p.click('#nextq');
+      await p.waitForSelector('#pform');
+      assert.equal(await p.$eval('#rekenhulp', (e) => e.hidden), false, 'het paneel blijft open');
+      assert.equal(await p.textContent('#rh-som'), '0');
+      // Een scherm zonder vraag sluit het paneel.
+      await p.evaluate(() => window.wiskundefit.go({ name: 'home' }));
+      assert.equal(await p.$eval('#rekenhulp', (e) => e.hidden), true);
+      await ctx.close();
+    }
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
 test('zonder stofkeuze gaat mijn stof oefenen naar het kiezen van stof', async () => {
   const browser = await launch();
   try {
@@ -2594,7 +2705,8 @@ const LIMITS = {
   scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 16, own: 44, why: 'een gedeeld codebestand' },
-  css: { sent: 8.5, why: 'de CSS' },
+  // De Rekenhulp (#18) voegde 0,5 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9.
+  css: { sent: 9, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
 const kB = (n) => `${n.toFixed(1).replace('.', ',')} kB`;

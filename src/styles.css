@@ -2599,3 +2599,146 @@ button.term[aria-expanded='true'] {
 .termen dd {
   margin: 0;
 }
+
+/* De Rekenhulp (#18): een paneel onderaan, over de pagina. De pagina krijgt onderaan evenveel ruimte als het paneel
+   hoog is (--rh-h, gezet door ui/rekenhulp.js), zodat je er nog onderlangs kunt scrollen. Alleen kleuren uit de tokens,
+   dus het werkt ook in de donkere modus. */
+html.rh-open body {
+  padding-bottom: calc(var(--rh-h, 0px) + 16px);
+}
+.rh {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px 12px max(14px, env(safe-area-inset-bottom, 0px));
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 -6px 24px var(--shade);
+}
+.rh[hidden] {
+  display: none;
+}
+.rh-kop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.rh-titel {
+  margin: 0;
+  font: 700 1rem var(--body);
+}
+.rh-doel {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-size: 0.9rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rh-doel b {
+  padding: 1px 8px;
+  border-radius: 4px;
+  background: var(--blue-soft);
+  color: var(--ink);
+}
+.rh-sluit {
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  color: var(--ink);
+  cursor: pointer;
+}
+.rh-scherm {
+  min-height: 3.4em;
+  padding: 4px 10px;
+  text-align: right;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.rh-som {
+  min-height: 1.4em;
+  font-size: 1.3rem;
+  overflow-wrap: anywhere;
+}
+.rh-uit {
+  min-height: 1.4em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.rh-uit.fout {
+  color: var(--bad);
+  font-weight: 400;
+}
+.rh-acties {
+  margin: 6px 0;
+}
+.rh-neem {
+  padding: 8px 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--sheet);
+  font-weight: 700;
+  cursor: pointer;
+}
+.rh-neem[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+.rh-toetsen {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.rh-toets {
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.rh-toets.op {
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-weight: 700;
+}
+.rh-toets.fn {
+  background: var(--paper);
+  font-size: 1.05rem;
+}
+.rh-toets.go {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--sheet);
+  font-weight: 700;
+}
+/* Net als de velden in de vraag: het veld waar de uitkomst heen gaat. */
+.fld input.rh-doelveld {
+  outline: 3px solid var(--blue);
+  outline-offset: 1px;
+}
+@media (max-height: 760px) {
+  .rh-toets {
+    min-height: 38px;
+    font-size: 1.1rem;
+  }
+  .rh-toetsen {
+    gap: 4px;
+  }
+}

@@ -1,5 +1,5 @@
 // Invoervelden van een vraag tekenen en uitlezen, voor oefenen en proeftoets.
-import { parseNum } from '../answers.js';
+import { isDrawing, parseNum } from '../answers.js';
 import { pathFor } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T } from '../typeset.js';
@@ -38,6 +38,26 @@ const unreadable = (q, vals) =>
   !q.mc && q.fields.some((f, i) => !f.sel && vals[i].trim() && Number.isNaN(parseNum(vals[i])));
 const empty = (q, vals) =>
   q.mc ? vals[0] === '' : q.fields.some((f, i) => !String(vals[i]).trim());
+
+// De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Dat is er niet bij meerkeuze, bij een
+// tekenvraag of als alle velden een keuzelijst zijn. Een vraag kan het zelf zeggen met `rek`, anders geldt het onderwerp,
+// en anders de uitgebreide Rekenhulp. `rek: false` zet hem uit, voor een vraag waarbij het rekenen de stof is.
+export const rekNiveau = (skill, q) =>
+  q.mc || isDrawing(q) || !q.fields.some((f) => !f.sel)
+    ? false
+    : (q.rek ?? topicOf(skill.id)?.rek ?? 'uitgebreid');
+const CALC_ICON =
+  '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><rect x="3" y="1.5" width="10" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 4.8h5M5.5 8h1M9.5 8h1M5.5 11h1M9.5 11h1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+// De knop, en de gegevens die het formulier meekrijgt: het niveau en een naam voor de vraag. De Rekenhulp ziet daaraan
+// dat het een andere vraag is, en begint dan opnieuw.
+function rekenhulpHTML(skill, q) {
+  const niveau = rekNiveau(skill, q);
+  if (!niveau) return { button: '', attrs: '' };
+  return {
+    button: `<button class="btn quiet share" type="button" data-act="rekenhulp" aria-expanded="${state.rekenhulp.open}">${CALC_ICON}Rekenhulp</button>`,
+    attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"`,
+  };
+}
 
 // De knop om een vraag te delen, bijvoorbeeld om hulp te vragen aan een docent of een andere
 // leerling. De link wijst naar precies deze vraag, met de vraagsoort en de seed, op het oefenscherm
@@ -137,4 +157,13 @@ function meldHTML(skill, q) {
   return { button, panel };
 }
 
-export { fieldsHTML, readVals, unreadable, empty, shareHTML, meldHTML, meldVoetHTML };
+export {
+  fieldsHTML,
+  readVals,
+  unreadable,
+  empty,
+  shareHTML,
+  meldHTML,
+  meldVoetHTML,
+  rekenhulpHTML,
+};
