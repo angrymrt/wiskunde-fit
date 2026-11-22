@@ -12,7 +12,7 @@ Je krijgt het nummer van de pull request en het effort. Bij een tweede of derde 
 ## Rechten
 
 - Haal een token op en gebruik dat alleen voor `gh`:
-  `REVIEW_APP_ID` en `REVIEW_APP_KEY` staan in je omgeving, dus `$env:GH_TOKEN = node scripts/review-token.js` (PowerShell) of `GH_TOKEN=$(node scripts/review-token.js)` (bash).
+  `REVIEW_APP_ID` en `REVIEW_APP_KEY` staan in je omgeving, en je hebt alleen Bash (Git Bash). Elke Bash-aanroep begint met een schone shell, dus zet het token in elke aanroep opnieuw: `export GH_TOKEN=$(node scripts/review-token.js) && gh ...`.
 - Zet het token nooit in een opmerking, een bestand of je antwoord.
 - Je wijzigt niets in de code en voegt niets samen. Je schrijft alleen de review.
 
@@ -62,8 +62,8 @@ Lees eerst de diff (`gh pr diff <nr>`) en de beschrijving. Hoe diep je gaat hang
 
 Zet alles in **één review**, niet los. Een review met losse opmerkingen is niet te lezen en geeft geen "Request changes".
 
-1. Maak een bestand met JSON in de map voor tijdelijke bestanden, **zonder BOM**. In PowerShell 5.1 geeft `Out-File`, `>` en `Set-Content` wel een BOM, dus gebruik `[System.IO.File]::WriteAllText($pad, $json, (New-Object System.Text.UTF8Encoding $false))`, of schrijf het bestand met de Write-tool.
-2. De JSON heeft de vorm `{ "commit_id": "<sha van de kop van de pull request>", "event": "REQUEST_CHANGES" | "APPROVE", "body": "<samenvatting>", "comments": [{ "path": "...", "line": 12, "side": "RIGHT", "body": "..." }] }`.
+1. Schrijf de JSON met een heredoc naar een tijdelijk bestand, bijvoorbeeld `f=$(mktemp) && cat > "$f" <<'EOF' ... EOF`. Zo staat er **geen BOM** in. De Write-tool heb je niet, en PowerShell ook niet.
+2. De JSON heeft de vorm `{ "commit_id": "<sha van de kop van de pull request>", "event": "REQUEST_CHANGES" | "APPROVE", "body": "<samenvatting>", "comments": [{ "path": "...", "line": 12, "side": "RIGHT", "body": "..." }] }`. `line` moet een regel zijn die in de diff staat, anders geeft GitHub een 422. Staat de regel niet in de diff, zet de opmerking dan in de `body`.
 3. Plaats hem met `gh api repos/angrymrt/wiskunde-fit/pulls/<nr>/reviews --input <bestand>`. Gebruik geen pipe naar `--input`.
 4. `REQUEST_CHANGES` als er bevindingen zijn, `APPROVE` als alles is verwerkt. Nooit `COMMENT` als eindoordeel.
 
@@ -72,7 +72,7 @@ Een opmerking staat bij de regel waar hij over gaat. Is dat niet mogelijk, zet h
 ## Een volgende ronde
 
 - Controleer elke fix in de nieuwe commits zelf. Geloof de antwoorden niet zonder te kijken.
-- Klopt een fix, zet de thread dan zelf op opgelost met de GraphQL-mutatie `resolveReviewThread`. Wie de bevinding verwerkte antwoordt alleen, en lost niets op. Mag de app dit niet, meld dat dan in je antwoord zodat de eigenaar het weet.
+- Klopt een fix, zet de thread dan zelf op opgelost met GraphQL. Haal eerst de threads op: `gh api graphql -f query='query { repository(owner:"angrymrt", name:"wiskunde-fit") { pullRequest(number: <nr>) { reviewThreads(first: 100) { nodes { id isResolved comments(first: 1) { nodes { body } } } } } } }'`. Los dan de thread op: `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "<id>"}) { thread { isResolved } } }'`. Wie de bevinding verwerkte antwoordt alleen, en lost niets op. Mag de app dit niet, meld dat dan in je antwoord zodat de eigenaar het weet.
 - Klopt een fix niet, laat de thread open en zeg in een nieuwe opmerking waarom.
 - Heeft de ontwikkelaar een bevinding laten liggen met een reden, beoordeel die reden. Een goede reden is genoeg.
 - Na de derde ronde stop je: zijn er dan nog bevindingen, noem ze in je antwoord zodat ze aan de eigenaar kunnen worden voorgelegd.
