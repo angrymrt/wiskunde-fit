@@ -2,7 +2,7 @@
 // vingerafdruk die is veranderd, blijft staan, want dan geeft dezelfde seed een andere vraag. Noem
 // de nummers als die vraagsoort een nieuwe versie heeft gekregen:
 //   node scripts/vingerafdrukken.js 17 41
-// Zie #60 en AGENTS.md.
+// Zie #60 en de skill vraag-toevoegen.
 import { readFile, writeFile } from 'node:fs/promises';
 import { fingerprints } from '../tests/vingerafdruk.js';
 

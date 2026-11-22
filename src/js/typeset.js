@@ -1,4 +1,4 @@
-// Zet tekst om naar wiskundezetting in HTML. Zie "T-notatie" in AGENTS.md.
+// Zet tekst om naar wiskundezetting in HTML. Zie "T-notatie" in de skill vraag-toevoegen.
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 /* T zet een regel tekst om naar wiskundezetting: losse letters cursief, {a/b} is een breuk, * is een maalpunt. */

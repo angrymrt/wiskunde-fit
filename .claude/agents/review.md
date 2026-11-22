@@ -32,7 +32,7 @@ Lees eerst de diff (`gh pr diff <nr>`) en de beschrijving. Hoe diep je gaat hang
 - Het toeval komt uit `ri`, `nz`, `pick`, `coin` en `shuffle`, nooit uit `Math.random`. Opnieuw kiezen gaat met `until(maak, klopt)`, zonder eigen lus.
 - De notatie en werkwijze volgen de methode: getallen met een komma, `Door (0, 3), dus b = 3.`, bij gelijkvormigheid twee paar gelijke hoeken met de reden erbij.
 - Hint, uitwerking en valkuilen kloppen. Elke valkuil heeft een `id` in kleine letters met streepjes, en het goede antwoord valt nooit in een valkuil.
-- Een nieuwe vraagsoort heeft het volgende vrije nummer in `skills` en in `tests/vraagsoort-ids.js`, staat in `data/vragen-tellen.json` en heeft een vingerafdruk. Een bestaand nummer is niet gewijzigd. Veranderen de getallen of antwoorden bij dezelfde seed, dan moet er eerst een versie in de link zijn (zie AGENTS.md).
+- Een nieuwe vraagsoort heeft het volgende vrije nummer in `skills` en in `tests/vraagsoort-ids.js`, staat in `data/vragen-tellen.json` en heeft een vingerafdruk. Een bestaand nummer is niet gewijzigd. Veranderen de getallen of antwoorden bij dezelfde seed, dan moet er eerst een versie in de link zijn (zie de skill vraag-toevoegen).
 - Termen met uitleg gebruiken `{{id|woord}}`, en `{{=id|woord}}` op de plek waar ze worden uitgelegd.
 - Teksten zijn Nederlands, spreken de leerling aan met "je" en zijn kort en gewoon.
 

@@ -22,6 +22,6 @@ test('dezelfde seed geeft dezelfde vraag als in een gedeelde link', () => {
   assert.deepEqual(
     changed,
     [],
-    `Vraagsoort ${changed.join(', ')} geeft bij dezelfde seed een andere vraag. Een gedeelde link toont dan iets anders dan de leerling zag. Geef de vraagsoort eerst een versie in de link, zie #60 en AGENTS.md.`,
+    `Vraagsoort ${changed.join(', ')} geeft bij dezelfde seed een andere vraag. Een gedeelde link toont dan iets anders dan de leerling zag. Geef de vraagsoort eerst een versie in de link, zie #60 en de skill vraag-toevoegen.`,
   );
 });
