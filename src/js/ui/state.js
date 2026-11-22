@@ -24,6 +24,8 @@ const state = {
     doel: 0,
     fout: null,
     tab: 'rekenen',
+    // Of de toetsen zijn ingeklapt, op een telefoon: alleen de tabbladen en de knoppen Volgende veld en Controleer blijven.
+    klap: false,
   },
   // Of de site nu donker is, door het apparaat of door de knop in de kop. Zie main.js.
   dark: false,

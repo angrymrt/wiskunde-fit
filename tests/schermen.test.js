@@ -146,7 +146,7 @@ test('de knop Deel wijst naar precies deze vraag, en alleen als die een seed hee
     );
     assert.match(
       shareHTML(skill, q).button,
-      /class="btn quiet share copied"[^]*>Gekopieerd<\/button>$/,
+      /class="btn quiet share copied"[^]*>Gekopieerd<\/span><\/button>$/,
     );
     assert.match(shareHTML(skill, makeQuestion(skill, 1)).button, />Deel</);
     assert.doesNotMatch(shareHTML(skill, makeQuestion(skill, 1)).note, /gekopieerd/);

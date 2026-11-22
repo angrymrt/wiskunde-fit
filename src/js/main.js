@@ -34,6 +34,7 @@ import { showDrawn, tapGrid } from './ui/draw.js';
 import { laadScherm, nogTeLaden, schermVooraf, wachtOpScherm } from './ui/laden.js';
 import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
 import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
+import { bijWissel, oefModus } from './ui/oef-modus.js';
 import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';
 import { runClock, sent, telPoging, telToets, telValkuil } from './ui/tellen.js';
@@ -294,12 +295,20 @@ function paint(focus) {
   // Zolang het paneel open staat, scrolt de pagina eronder niet mee.
   document.documentElement.classList.toggle('melden-open', !!app.querySelector('.melden'));
   document.documentElement.classList.toggle('met-stof-bar', !!app.querySelector('.stof-bar'));
+  // Op een telefoon is het oefenscherm een volledig scherm: de kop van de site gaat weg en de Rekenhulp staat er altijd.
+  const oef = oefModus() && !!app.querySelector('.oef-kop');
+  document.documentElement.classList.toggle('oef', oef);
   document.title = titleFor(state.view);
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
   if (state.view.oefen || state.view.name === 'stofoefen') laadIconen().catch(() => {});
   mountWidgets();
   rekenhulp?.synchroniseer();
+  // In dat modus laadt de Rekenhulp vanzelf, voor een vraag die er een heeft.
+  if (oef && !rekenhulp && app.querySelector('#pform[data-rek]'))
+    laadRekenhulp()
+      .then((m) => m.synchroniseer())
+      .catch(() => {});
   mountTermen()?.catch(() => {});
   showDrawn();
   watchPracticeBar();
@@ -342,6 +351,11 @@ const onDeviceTheme = () => {
 };
 if (deviceDark.addEventListener) deviceDark.addEventListener('change', onDeviceTheme);
 else deviceDark.addListener(onDeviceTheme);
+// Een telefoon die draait gaat in of uit het volledig-schermmodus van het oefenscherm.
+bijWissel(() => {
+  keepTyped();
+  render();
+});
 // Op een telefoon verschijnt de balk met "Ga oefenen" pas als de knop onder de intro uit beeld is.
 // De balk begint verborgen, zodat hij bij het laden niet even in beeld staat.
 let barWatch;
@@ -590,9 +604,18 @@ app.addEventListener('click', (e) => {
     }
     return;
   }
+  // Op een telefoon: het menu met de soorten vragen open of dicht.
+  if (a === 'menu') {
+    const st = state.prac[state.view.slug];
+    st.vals = readVals(st.q, 'p');
+    st.menu = !st.menu;
+    render();
+    return;
+  }
   if (a === 'filter') {
     const s = TOPIC[state.view.slug],
       st = state.prac[s.slug];
+    st.menu = false;
     st.filter = id ? Number(id) : null;
     newQuestion(s);
     state.view.soort = st.filter;
@@ -605,6 +628,7 @@ app.addEventListener('click', (e) => {
   if (a === 'scope') {
     const s = TOPIC[state.view.slug],
       st = state.prac[s.slug];
+    st.menu = false;
     st.alle = !st.alle;
     st.filter = null;
     newQuestion(s);

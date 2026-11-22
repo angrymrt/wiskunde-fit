@@ -2672,19 +2672,11 @@ html.rh-open body {
   grid-template-rows: auto 1fr;
   gap: 6px;
 }
-.rh-invnaam {
-  font-size: 0.85rem;
-  color: var(--muted);
-  min-height: 1.2em;
-}
 .rh-invtoetsen {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(5, minmax(44px, 1fr));
+  grid-template-rows: repeat(4, minmax(44px, 1fr));
   gap: 6px;
-}
-.rh-toets.breed {
-  grid-column: span 2;
 }
 .rh-toets[disabled] {
   opacity: 0.5;
@@ -2692,22 +2684,6 @@ html.rh-open body {
 }
 .rh-kop {
   justify-content: space-between;
-}
-.rh-doel {
-  flex: 1;
-  min-width: 0;
-  text-align: right;
-  font-size: 0.9rem;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.rh-doel b {
-  padding: 1px 8px;
-  border-radius: 4px;
-  background: var(--blue-soft);
-  color: var(--ink);
 }
 .rh-sluit {
   min-width: 40px;
@@ -2741,24 +2717,115 @@ html.rh-open body {
   color: var(--bad);
   font-weight: 400;
 }
-.rh-acties {
+/* Links van het scherm staat het veld waar de uitkomst of het getal heen gaat, op dezelfde plek en even groot in beide
+   tabbladen: bij Rekenen de knop Neem over, bij Toetsenbord een vak dat geen knop is. */
+.rh-rij {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 6px 0;
+  gap: 6px;
+  margin-bottom: 6px;
+  align-items: stretch;
 }
-.rh-neem {
-  padding: 8px 14px;
-  border: 1.5px solid var(--ink);
+.rh-rij .rh-scherm {
+  flex: 1;
+  min-width: 0;
+  min-height: 54px;
+}
+.rh-dk {
+  flex: none;
+  width: 96px;
+  box-sizing: border-box;
+  padding: 4px 6px;
   border-radius: 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+.rh-dk span {
+  font-weight: 700;
+}
+.rh-dk small {
+  max-width: 100%;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+button.rh-neem {
+  border: 0;
   background: var(--ink);
   color: var(--sheet);
-  font-weight: 700;
   cursor: pointer;
 }
-.rh-neem[disabled] {
+button.rh-neem[disabled] {
   opacity: 0.5;
   cursor: default;
+}
+.rh-dkvak {
+  border: 2px solid var(--blue);
+  background: var(--blue-soft);
+  color: var(--ink);
+}
+/* Volgende veld en Controleer (daarna Volgende vraag) blijven onder beide tabbladen in beeld. */
+.rh-actie {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.rh-actie button {
+  min-height: 46px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.rh-vol {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1.5px solid var(--rule);
+}
+.rh-con {
+  background: var(--ink);
+  color: var(--sheet);
+  border: 1.5px solid var(--ink);
+}
+.rh-actie button[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+/* Inklappen kan alleen op een telefoon (html.oef): dan blijven de tabbladen en de twee knoppen staan. */
+.rh-klap {
+  display: none;
+  min-width: 40px;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  color: var(--ink);
+  cursor: pointer;
+}
+.rh-klap svg {
+  transition: transform 0.2s;
+}
+.rh-ingeklapt .rh-klap svg {
+  transform: rotate(180deg);
+}
+.rh-ingeklapt .rh-panelen {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rh-klap svg {
+    transition: none;
+  }
 }
 .rh-toetsen {
   display: grid;
@@ -2827,7 +2894,7 @@ html.rh-open body {
     gap: 3px;
   }
   .rh-invtoetsen {
-    grid-template-rows: repeat(5, minmax(28px, 1fr));
+    grid-template-rows: repeat(4, minmax(28px, 1fr));
   }
   .rh-scherm {
     min-height: 2.3em;
@@ -2836,7 +2903,235 @@ html.rh-open body {
     min-height: 1.2em;
     font-size: 1.1rem;
   }
-  .rh-acties {
-    margin: 4px 0;
+  .rh-rij {
+    margin-bottom: 4px;
   }
+  .rh-actie {
+    margin-top: 4px;
+  }
+  .rh-actie button {
+    min-height: 36px;
+  }
+}
+
+/* Oefenen op een telefoon in volledig scherm (#222). Alleen met aanraken, een smal scherm en rechtop (ui/oef-modus.js
+   zet html.oef). Bovenaan staat een vaste kop, daaronder scrolt de vraag, en onderaan staat de Rekenhulp met de knoppen
+   Volgende veld en Controleer. De HTML is voor iedereen hetzelfde: op een breed scherm staat alles gewoon onder elkaar. */
+.q-row {
+  justify-content: space-between;
+}
+.soort-menu {
+  display: contents;
+}
+.soort-knop,
+.oef-terug {
+  display: none;
+}
+html.oef {
+  scroll-padding-top: var(--oef-kop, 0px);
+}
+html.oef.rh-open {
+  scroll-padding-bottom: calc(var(--rh-h, 0px) + 12px);
+}
+html.oef .top,
+html.oef .crumbs,
+html.oef .foot,
+html.oef .pager {
+  display: none;
+}
+html.oef .wrap {
+  padding: 0;
+  gap: 0;
+}
+html.oef .screen-grid {
+  gap: 0;
+}
+html.oef [class*='color-'] > .practice,
+html.oef .sheet.practice {
+  padding: 0;
+  gap: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+html.oef .oef-kop {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--sheet);
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 2px 8px var(--shade);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+html.oef .oef-terug {
+  position: absolute;
+  left: 2px;
+  top: calc(env(safe-area-inset-top, 0px) + 6px);
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  border-radius: 50%;
+}
+html.oef .oef-kop .sheet-head {
+  padding: 0;
+  gap: 0;
+  border-bottom: 0;
+}
+html.oef .oef-kop .sheet-head h1 {
+  margin: 0;
+  padding: 11px 12px 11px 46px;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--accent-soft, var(--paper));
+  border-bottom: 3px solid var(--accent);
+}
+html.oef .oef-kop .sheet-head > p {
+  margin: 0;
+  padding: 6px 12px 0;
+}
+html.oef .q-head {
+  padding: 8px 10px;
+}
+html.oef .q-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 8px;
+  align-items: center;
+}
+html.oef .q-rechts {
+  display: contents;
+}
+html.oef .q-tools {
+  grid-column: 2;
+  grid-row: 1;
+  gap: 6px;
+}
+html.oef .q-stat {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-content: space-between;
+}
+html.oef .soort-knop ~ .soort-naam,
+html.oef .q-tools [data-act='rekenhulp'] {
+  display: none;
+}
+html.oef .soort-knop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 4px 12px 4px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+.soort-knop .icon {
+  flex: none;
+}
+.soort-knop .sn {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.soort-knop .caret {
+  transition: transform 0.2s;
+}
+.soort-knop[aria-expanded='true'] .caret {
+  transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .soort-knop .caret {
+    transition: none;
+  }
+}
+/* Delen en Melden zijn alleen een icoon. De tekst blijft voor een schermlezer. */
+html.oef .q-tools .share {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+}
+html.oef .q-tools .share .icon {
+  width: 18px;
+  height: 18px;
+}
+html.oef .share .bt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* De soorten vragen: een menu onder de kop, in plaats van de rij met knoppen. */
+html.oef .soort-menu {
+  display: none;
+}
+html.oef .menu-open .soort-menu {
+  display: grid;
+  gap: 10px;
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 100%;
+  max-height: calc(100vh - var(--rh-h, 0px) - 130px);
+  overflow-y: auto;
+  padding: 10px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px var(--shade);
+}
+html.oef .menu-open .chips {
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+html.oef .menu-open .chip {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-align: left;
+}
+html.oef .practice-q {
+  padding: 12px 14px 20px;
+}
+/* Op een telefoon is er geen knop om de Rekenhulp te sluiten: het paneel staat er altijd, en klapt in. */
+html.oef .rh-klap {
+  display: inline-flex;
+}
+html.oef .rh-sluit {
+  display: none;
+}
+html.oef .rh {
+  border-radius: 14px 14px 0 0;
+}
+/* De knop Controleer staat dan in het paneel. Heeft een vraag geen Rekenhulp, dan blijft hij onderaan in beeld. */
+html.oef.rh-open #pform button[type='submit'] {
+  display: none;
+}
+html.oef:not(.rh-open) #pform > .row {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  padding: 10px 0 max(10px, env(safe-area-inset-bottom, 0px));
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
 }

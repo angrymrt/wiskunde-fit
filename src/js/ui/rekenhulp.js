@@ -11,6 +11,7 @@
 //
 // Bewust niet: afronden of een breuk maken. De leerling rondt zelf af en maakt zelf een breuk.
 import { uitkomst } from '../rekenen.js';
+import { oefModus } from './oef-modus.js';
 import { state } from './state.js';
 
 const h = () => state.rekenhulp;
@@ -29,15 +30,13 @@ const EXTRA = [
 ]; // prettier-ignore
 
 // Het tabblad Toetsenbord: cijfers, komma, min, breukstreep en spatie (voor een gemengd getal). De waarde begint met V:
-// zodat het niet voor een toets van het rekenen wordt aangezien.
+// zodat het niet voor een toets van het rekenen wordt aangezien. Volgende veld en Controleer staan onder beide tabbladen.
 const INVOER = [
   ['7'], ['8'], ['9'], ['⌫', 'WIS', 'fn', 'Wis het laatste teken'],
   ['4'], ['5'], ['6'], ['±', 'TEKEN', 'op', 'Maak negatief, of weer positief'],
   ['1'], ['2'], ['3'], [',', ',', '', 'komma'],
   ['0'], ['/', '/', 'fn', 'breukstreep'], ['␣', ' ', 'fn', 'spatie, voor een gemengd getal'],
   ['Leeg', 'LEEG', 'fn', 'Maak het veld leeg'],
-  ['Volgende', 'VOLGENDE', 'fn breed', 'Naar het volgende veld'],
-  ['Controleer', 'CONTROLEER', 'go breed', 'Controleer het antwoord'],
 ].map(([tekst, waarde, soort, naam]) => [tekst, `V:${waarde ?? tekst}`, soort, naam]); // prettier-ignore
 
 let paneel = null; // Het paneel, zodra het er is.
@@ -77,27 +76,33 @@ function maak() {
         <button class="rh-tab" role="tab" id="rh-tab-rekenen" aria-controls="rh-pan-rekenen" data-k="TAB:rekenen">Rekenen</button>
         <button class="rh-tab" role="tab" id="rh-tab-toetsenbord" aria-controls="rh-pan-toetsenbord" data-k="TAB:toetsenbord">Toetsenbord</button>
       </div>
+      <button class="rh-klap" type="button" data-k="KLAP" id="rh-klap" aria-expanded="true" aria-label="Klap de toetsen in"><svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M4 6.500 8 10.500l4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="rh-sluit" type="button" data-k="SLUIT" aria-label="Sluit de rekenhulp">✕</button>
     </div>
     <div class="rh-panelen">
       <div class="rh-pan" role="tabpanel" id="rh-pan-rekenen" aria-labelledby="rh-tab-rekenen">
-        <div class="rh-scherm">
-          <div class="rh-som" id="rh-som"></div>
-          <div class="rh-uit" id="rh-uit"></div>
-        </div>
-        <div class="rh-acties">
-          <button class="rh-neem" type="button" data-k="NEEM" id="rh-neem">Neem over</button>
-          <span class="rh-doel" id="rh-doel"></span>
+        <div class="rh-rij">
+          <button class="rh-dk rh-neem" type="button" data-k="NEEM" id="rh-neem"><span>Neem over</span><small id="rh-doel"></small></button>
+          <div class="rh-scherm">
+            <div class="rh-som" id="rh-som"></div>
+            <div class="rh-uit" id="rh-uit"></div>
+          </div>
         </div>
         <div class="rh-toetsen" id="rh-toetsen"></div>
       </div>
       <div class="rh-pan rh-invoer" role="tabpanel" id="rh-pan-toetsenbord" aria-labelledby="rh-tab-toetsenbord">
-        <div class="rh-scherm">
-          <div class="rh-invnaam" id="rh-invnaam"></div>
-          <div class="rh-som" id="rh-invwaarde"></div>
+        <div class="rh-rij">
+          <div class="rh-dk rh-dkvak"><span>Typ in</span><small id="rh-invnaam"></small></div>
+          <div class="rh-scherm">
+            <div class="rh-som" id="rh-invwaarde"></div>
+          </div>
         </div>
         <div class="rh-invtoetsen">${INVOER.map(toets).join('')}</div>
       </div>
+    </div>
+    <div class="rh-actie">
+      <button class="rh-vol" type="button" data-k="V:VOLGENDE" aria-label="Naar het volgende veld">Volgende veld</button>
+      <button class="rh-con" type="button" data-k="V:CONTROLEER">Controleer</button>
     </div>`;
   document.body.append(paneel);
   // Buiten het paneel, want een gebied in een verborgen paneel wordt niet voorgelezen, ook niet "Rekenhulp dicht."
@@ -149,9 +154,11 @@ function teken() {
   paneel.querySelector('#rh-neem').disabled = !r?.tekst || !lijst.length;
   // Wat de leerling typte komt als tekst in het paneel, nooit als HTML.
   const veld = lijst[h().doel];
-  paneel.querySelector('#rh-invnaam').textContent = veld
+  const doel = veld
     ? `${veldNaam(veld)}${lijst.length > 1 ? ` (${h().doel + 1}/${lijst.length})` : ''}`
     : '';
+  paneel.querySelector('#rh-doel').textContent = doel;
+  paneel.querySelector('#rh-invnaam').textContent = doel;
   paneel.querySelector('#rh-invwaarde').textContent = veld?.value || '';
   // Volgende heeft alleen zin als er nog een ander veld is. Controleer volgt de knop van de vraag.
   paneel.querySelector('[data-k="V:VOLGENDE"]').disabled = lijst.length < 2;
@@ -160,16 +167,6 @@ function teken() {
   controleer.disabled = !ok;
   controleer.textContent = ok?.textContent.trim() || 'Controleer';
   controleer.setAttribute('aria-label', controleer.textContent);
-  const doel = paneel.querySelector('#rh-doel');
-  doel.textContent = '';
-  if (veld) {
-    const waarde = document.createElement('b');
-    waarde.textContent = veld.value || 'leeg';
-    doel.append(
-      `→ ${veldNaam(veld)}${lijst.length > 1 ? ` (${h().doel + 1}/${lijst.length})` : ''} `,
-      waarde,
-    );
-  }
 }
 function markeerDoel() {
   velden().forEach((el, i) => el.classList.toggle('rh-doelveld', h().open && i === h().doel));
@@ -179,6 +176,7 @@ function markeerDoel() {
 function druk(k) {
   if (k === 'SLUIT') return zet(false, true);
   if (k === 'NEEM') return neemOver();
+  if (k === 'KLAP') return klap(!h().klap);
   if (k.startsWith('TAB:')) return zetTab(k.slice(4));
   if (k.startsWith('V:')) return typ(k.slice(2));
   // De melding van een eerdere = verdwijnt bij de volgende toets.
@@ -242,9 +240,22 @@ function typ(k) {
 }
 const veldNodig = (el) => (el.value ? ` ${el.value}` : ' leeg');
 
+// Klapt de toetsen in of uit. Ingeklapt blijven alleen de tabbladen en de knoppen Volgende veld en Controleer over,
+// zodat de vraag meer ruimte krijgt. Alleen op een telefoon is er een knop voor.
+function klap(in_) {
+  h().klap = in_;
+  paneel.classList.toggle('rh-ingeklapt', in_);
+  const knop = paneel.querySelector('#rh-klap');
+  knop.setAttribute('aria-expanded', String(!in_));
+  knop.setAttribute('aria-label', in_ ? 'Klap de toetsen uit' : 'Klap de toetsen in');
+  zeg(in_ ? 'Toetsen ingeklapt.' : 'Toetsen uitgeklapt.');
+}
+
 // Wisselt tussen Rekenen en Toetsenbord. Beide staan in dezelfde plek, dus het paneel blijft even hoog.
 function zetTab(tab) {
   h().tab = tab;
+  // Een tabblad kiezen klapt de toetsen uit.
+  if (h().klap) klap(false);
   for (const t of ['rekenen', 'toetsenbord']) {
     const aan = t === tab;
     const knop = paneel.querySelector(`#rh-tab-${t}`);
@@ -286,9 +297,10 @@ function neemOver() {
 // Het gewone toetsenbord, als de focus in de rekenhulp staat.
 function toetsenbord(e) {
   if (e.key === 'Escape') {
-    // Alleen de Rekenhulp sluit. Een Melden-paneel dat er ook open staat, blijft open.
+    // Alleen de Rekenhulp sluit. Een Melden-paneel dat er ook open staat, blijft open. Op een telefoon is er geen knop
+    // om hem weer te openen, dus daar klapt hij in.
     e.stopPropagation();
-    return zet(false, true);
+    return oefModus() ? klap(!h().klap) : zet(false, true);
   }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   // De tabbladen: met de pijltjes naar het andere tabblad.
@@ -355,23 +367,27 @@ function zetRuimte(opnieuw = false) {
     const lijst = velden();
     const vraag = document.getElementById('pq');
     if (!lijst.length || !vraag) return;
+    // In het volledig-schermmodus staat de vaste kop bovenaan: wat daaronder komt telt als boven.
+    const kop = oefModus()
+      ? (document.querySelector('.oef-kop')?.getBoundingClientRect().bottom ?? 0)
+      : 0;
     const vrij = window.innerHeight - hoogte - 8;
     const boven = vraag.getBoundingClientRect().top;
     const onder = lijst[lijst.length - 1].getBoundingClientRect().bottom;
     const veld = (lijst[h().doel] || lijst[0]).getBoundingClientRect();
     let dy = 0;
-    if (onder - boven <= vrij) {
-      // De vraag en alle velden passen boven het paneel.
-      if (opnieuw || onder > vrij || boven < 0) dy = boven - 8;
+    if (onder - boven <= vrij - kop) {
+      // De vraag en alle velden passen tussen de kop en het paneel.
+      if (opnieuw || onder > vrij || boven < kop) dy = boven - 8 - kop;
     } else if (veld.bottom > vrij) dy = veld.bottom - vrij + 12;
-    else if (veld.top < 0) dy = veld.top - 8;
+    else if (veld.top < kop) dy = veld.top - 8 - kop;
     if (Math.abs(dy) > 1) window.scrollBy({ top: dy, behavior: rustig() ? 'auto' : 'smooth' });
   });
 }
 
 // Opent of sluit het paneel. Sluit de leerling het zelf, dan gaat de focus terug naar de knop en zegt een schermlezer
 // dat het dicht is. Gaat het dicht omdat het scherm verandert, dan blijft dat stil.
-function zet(open, focusTerug = false) {
+function zet(open, focusTerug = false, stil = false) {
   if (!paneel) maak();
   h().open = open;
   paneel.hidden = !open;
@@ -392,13 +408,16 @@ function zet(open, focusTerug = false) {
   }
   zetTab(h().tab);
   synchroniseer();
-  paneel.querySelector('#rh-titel').focus();
+  // Een paneel dat vanzelf opent, in het volledig-schermmodus, laat de focus waar die is.
+  if (!stil) paneel.querySelector('#rh-titel').focus();
   zetRuimte(true);
 }
 
 // Na elke render(): hoort het paneel nog bij een vraag, en is het dezelfde vraag? Bij een andere vraag begint de som
 // opnieuw, en gaat de volgende uitkomst naar het eerste veld.
 function synchroniseer() {
+  // Op een telefoon maakt de eerste vraag met een Rekenhulp het paneel, zonder dat de leerling een knop gebruikt.
+  if (!paneel && oefModus() && document.querySelector('#pform[data-rek]')) maak();
   if (!paneel) return;
   const form = document.getElementById('pform');
   if (!form?.dataset.vraag) {
@@ -407,6 +426,11 @@ function synchroniseer() {
     h().vraag = null;
     return;
   }
+  // Hoe hoog de vaste kop is, voor het scrollen naar een veld of een melding (styles.css, scroll-padding-top).
+  document.documentElement.style.setProperty(
+    '--oef-kop',
+    `${document.querySelector('.oef-kop')?.offsetHeight ?? 0}px`,
+  );
   const nieuw = h().vraag !== form.dataset.vraag;
   if (nieuw) {
     h().vraag = form.dataset.vraag;
@@ -415,6 +439,8 @@ function synchroniseer() {
     h().fout = null;
     h().doel = 0;
   }
+  // Op een telefoon staat de Rekenhulp er altijd, voor een vraag die er een heeft.
+  if (!h().open && oefModus()) zet(true, false, true);
   if (!h().open) return;
   if (nieuw || h().niveau !== form.dataset.rek) bouwToetsen();
   zetInvoer(true);

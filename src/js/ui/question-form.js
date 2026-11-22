@@ -56,7 +56,7 @@ function rekenhulpHTML(skill, q) {
   const niveau = rekNiveau(skill, q);
   if (!niveau) return { button: '', attrs: '' };
   return {
-    button: `<button class="btn quiet share" type="button" data-act="rekenhulp" aria-expanded="${state.rekenhulp.open}">${CALC_ICON}Rekenhulp</button>`,
+    button: `<button class="btn quiet share" type="button" data-act="rekenhulp" aria-expanded="${state.rekenhulp.open}">${CALC_ICON}<span class="bt">Rekenhulp</span></button>`,
     attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"`,
   };
 }
@@ -92,8 +92,8 @@ function shareHTML(skill, q) {
       : '';
   // Na het kopiëren zegt de knop dat ook, tot je naar een andere vraag gaat.
   const label = done?.copied
-    ? `${CHECK_ICON}Gekopieerd`
-    : `${SHARE_ICON}Deel<span class="sr"> deze vraag</span>`;
+    ? `${CHECK_ICON}<span class="bt">Gekopieerd</span>`
+    : `${SHARE_ICON}<span class="bt">Deel</span><span class="sr"> deze vraag</span>`;
   return {
     button: `<button class="btn quiet share${done?.copied ? ' copied' : ''}" type="button" data-act="share" data-id="${esc(path)}">${label}</button>`,
     // De knop zegt al Gekopieerd. Een schermlezer hoort dat niet vanzelf, dus daarvoor staat de
@@ -134,7 +134,7 @@ function meldHTML(skill, q) {
     soort: skill.id,
     seed: q.seed,
   });
-  const button = `<button class="btn quiet share" type="button" data-act="meld" data-id="${esc(path)}" aria-haspopup="dialog">${FLAG_ICON}Meld een probleem</button>`;
+  const button = `<button class="btn quiet share" type="button" data-act="meld" data-id="${esc(path)}" aria-haspopup="dialog">${FLAG_ICON}<span class="bt">Meld een probleem</span></button>`;
   const open = state.melden?.open && state.melden.path === path ? state.melden : null;
   if (!open) return { button, panel: '' };
   const m = melding({ soort: skill, path, wat: open.wat, tekst: open.tekst });

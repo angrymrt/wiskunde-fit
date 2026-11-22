@@ -77,7 +77,7 @@ test('het paneel staat er alleen bij de vraag die je meldt, en de knoppen wachte
   const open = meldHTML(skill, q);
   assert.match(
     open.button,
-    /data-act="meld"[^>]*aria-haspopup="dialog">[^]*Meld een probleem<\/button>$/,
+    /data-act="meld"[^>]*aria-haspopup="dialog">[^]*Meld een probleem<\/span><\/button>$/,
   );
   assert.equal(open.panel, '');
   // Een vraag uit een proeftoets van voor de seed kun je niet melden.

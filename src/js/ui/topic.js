@@ -114,6 +114,16 @@ function scopeSwitch(s) {
 // de CSS de beweging eenmaal zien en blijft er voor dezelfde toestand dezelfde HTML. Zonder
 // beweging staat de balk meteen goed en staat het plaatje even stil. De tekst voor een schermlezer
 // zegt altijd hoe de reeks er na de poging voor staat.
+const SVG = (d) =>
+  `<svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+// Alles door elkaar: twee pijlen die kruisen. Eén soort: een doel.
+const MIX_ICON = SVG(
+  'M2 4.5h2.5c3 0 4 7 7 7H14M2 11.5h2.5c1 0 1.800-1.100 2.500-2.300M9 6.800c.700-1.300 1.500-2.300 2.500-2.300H14M12 2.500l2 2-2 2M12 9.500l2 2-2 2',
+);
+const SOORT_ICON = SVG(
+  'M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zM8 5.500a2.500 2.500 0 1 0 0 5 2.500 2.500 0 0 0 0-5z',
+);
+const CARET_ICON = SVG('M4 6.500 8 10.500l4-4').replace('class="icon"', 'class="icon caret"');
 const REEKS = 5;
 function reeksHTML(st) {
   const n = st.streak || 0,
@@ -145,7 +155,7 @@ function chipGetal(id, roll) {
 }
 // Oefenen in één blok: bovenaan de kop met de soorten vragen, daaronder de vraag. Alleen de vraag
 // komt met een korte animatie in beeld, de kop blijft staan.
-function vPractice(s, title) {
+function vPractice(s, title, terug) {
   const st = practiceState(s);
   // De stofkeuze kan veranderd zijn (ook in een ander tabblad): een soort die niet meer meedoet, vervalt.
   const act = activeSkills(s);
@@ -155,18 +165,23 @@ function vPractice(s, title) {
     done = st.status === 'right' || st.status === 'shown';
   const chips = s.mixed
     ? `<p class="small">Uitleg bij deze vraag: ${topicLink(topicOf(st.skill.id))}</p>`
-    : `${scopeSwitch(s)}<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${activeSkills(
+    : `<div class="soort-menu">${scopeSwitch(s)}<div class="chips"><button class="chip" type="button" data-act="filter" data-id="" aria-pressed="${!st.filter}">Alles door elkaar</button>${activeSkills(
         s,
       )
         .map(
           (k) =>
             `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? chipGetal(k.id, st.roll) : ''}</button>`,
         )
-        .join('')}</div>`;
+        .join('')}</div></div>`;
   const share = shareHTML(st.skill, q),
     meld = meldHTML(st.skill, q),
     rek = rekenhulpHTML(st.skill, q);
-  return termen(`<div class="sheet practice">${pageHead(title, chips)}<div class="practice-q fade"><div class="q-head"><div class="row small muted" style="justify-content:space-between"><span>${T(st.skill.name)}</span><span class="row">${st.total ? `<span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}` : ''}${rek.button}${share.button}${meld.button}</span></div>${share.note}</div>
+  // Op een telefoon is dit de vaste kop van het volledig-schermmodus (zie styles.css, html.oef). Op een breed scherm
+  // staat alles gewoon onder elkaar. De knop met de soort is alleen daar; de chips zijn dan het menu eronder.
+  const knop = s.mixed
+    ? ''
+    : `<button class="soort-knop" type="button" data-act="menu" aria-expanded="${!!st.menu}">${st.filter ? SOORT_ICON : MIX_ICON}<span class="sn"><span class="sr">Soort vraag, ${st.filter ? 'alleen deze soort' : 'alles door elkaar'}: </span>${T(st.skill.name)}</span>${CARET_ICON}</button>`;
+  return termen(`<div class="sheet practice${st.menu ? ' menu-open' : ''}"><div class="oef-kop"><a class="oef-terug" href="${terug}"><svg class="icon" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Terug naar het onderwerp</span></a>${pageHead(title, chips)}<div class="q-head"><div class="row small muted q-row">${knop}<span class="soort-naam">${T(st.skill.name)}</span><span class="row q-rechts">${st.total ? `<span class="row q-stat"><span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}</span>` : ''}<span class="row q-tools">${rek.button}${share.button}${meld.button}</span></span></div>${share.note}</div></div><div class="practice-q fade">
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate${rek.attrs}>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !isDrawing(q) && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
@@ -186,7 +201,7 @@ function backToRound(s) {
 // die knop uit beeld is (zie main.js).
 function vTopic(s) {
   if (state.view.oefen) {
-    return `<div class="screen-grid color-${s.domain.color}">${crumbs()}${vPractice(s, `${T(s.title)} oefenen`)}${pagerHTML(s)}</div>`;
+    return `<div class="screen-grid color-${s.domain.color}">${crumbs()}${vPractice(s, `${T(s.title)} oefenen`, topicPath(s))}${pagerHTML(s)}</div>`;
   }
   const p = Math.round(topicPct(s) * 100),
     videos = vVideos(s);
