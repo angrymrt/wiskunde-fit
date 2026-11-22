@@ -2637,6 +2637,14 @@ test('op een telefoon is het oefenen een volledig scherm met een vaste kop en vo
     await p.waitForSelector('#rekenhulp:not([hidden])');
     const velden = await p.$$eval('#pform .fld input[type="text"]', (e) => e.length);
     assert.equal(await p.isDisabled('#rekenhulp .rh-vol'), velden < 2);
+    // Een tekenvraag heeft de Rekenhulp ook, maar ingeklapt, zodat het rooster in beeld blijft. Daarna volgt het paneel
+    // de keuze van de leerling.
+    await p.goto(at('/lineaire-grafieken-tekenen/oefenen?soort=8&seed=k3x9q'));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), false);
+    assert.equal(await p.isVisible('#rekenhulp .rh-con'), true);
+    await p.tap('#rh-klap');
+    assert.equal(await p.isVisible('#rekenhulp .rh-panelen'), true);
     // De uitleg van een term staat tussen de kop en het paneel, niet eronder.
     await p.goto(at('/ontbinden-in-factoren/oefenen?soort=75&seed=k3x9q'));
     await p.waitForSelector('#rekenhulp:not([hidden])');

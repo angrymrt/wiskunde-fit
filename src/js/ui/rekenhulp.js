@@ -442,6 +442,13 @@ function synchroniseer() {
   // Op een telefoon staat de Rekenhulp er altijd, voor een vraag die er een heeft.
   if (!h().open && oefModus()) zet(true, false, true);
   if (!h().open) return;
+  // Bij een tekenvraag begint het paneel ingeklapt, zodat het rooster in beeld blijft. Wisselt de leerling van een
+  // tekenvraag naar een andere, of andersom, dan volgt het paneel dat. Daarbinnen houdt het de keuze van de leerling.
+  const tekenen = form.hasAttribute('data-rek-klap');
+  if (tekenen !== h().tekenen) {
+    h().tekenen = tekenen;
+    klap(tekenen);
+  }
   if (nieuw || h().niveau !== form.dataset.rek) bouwToetsen();
   zetInvoer(true);
   markeerDoel();

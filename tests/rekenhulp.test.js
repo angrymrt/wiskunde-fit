@@ -32,10 +32,12 @@ test('een vraag of onderwerp kan het niveau kiezen, of de Rekenhulp uitzetten', 
   }
 });
 
-test('meerkeuze, tekenen en alleen keuzelijsten krijgen geen Rekenhulp', () => {
+test('meerkeuze en alleen keuzelijsten krijgen geen Rekenhulp, een tekenvraag wel (ingeklapt)', () => {
   assert.equal(rekNiveau(skill, { q: '', mc: MC(['a', 'b'], 0), seed: 'x' }), false);
-  assert.equal(rekNiveau(skill, getal({ line: { a: 1, b: 0 } })), false);
-  assert.equal(rekNiveau(skill, getal({ parabola: { a: 1, b: 0, c: 0 } })), false);
+  assert.equal(rekNiveau(skill, getal({ line: { a: 1, b: 0 } })), 'uitgebreid');
+  assert.equal(rekNiveau(skill, getal({ parabola: { a: 1, b: 0, c: 0 } })), 'uitgebreid');
+  assert.match(rekenhulpHTML(skill, getal({ line: { a: 1, b: 0 } })).attrs, /data-rek-klap/);
+  assert.doesNotMatch(rekenhulpHTML(skill, getal()).attrs, /data-rek-klap/);
   assert.equal(rekNiveau(skill, getal({ fields: [{ sel: ['<', '>'], a: '<' }] })), false);
   // Een keuzelijst naast een getal is genoeg om de Rekenhulp te geven.
   assert.equal(

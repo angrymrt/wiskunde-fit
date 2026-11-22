@@ -39,11 +39,12 @@ const unreadable = (q, vals) =>
 const empty = (q, vals) =>
   q.mc ? vals[0] === '' : q.fields.some((f, i) => !String(vals[i]).trim());
 
-// De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Dat is er niet bij meerkeuze, bij een
-// tekenvraag of als alle velden een keuzelijst zijn. Een vraag kan het zelf zeggen met `rek`, anders geldt het onderwerp,
+// De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Dat is er niet bij meerkeuze of als alle
+// velden een keuzelijst zijn. Een tekenvraag heeft hem wel, om de punten uit te rekenen; op een telefoon staat hij dan
+// ingeklapt, zodat het rooster in beeld blijft. Een vraag kan het zelf zeggen met `rek`, anders geldt het onderwerp,
 // en anders de uitgebreide Rekenhulp. `rek: false` zet hem uit, voor een vraag waarbij het rekenen de stof is.
 export function rekNiveau(skill, q) {
-  if (q.mc || isDrawing(q) || !q.fields.some((f) => !f.sel)) return false;
+  if (q.mc || !q.fields.some((f) => !f.sel)) return false;
   const rek = q.rek ?? topicOf(skill.id)?.rek ?? 'uitgebreid';
   // Een onbekende waarde, zoals een tikfout, is de uitgebreide Rekenhulp.
   return rek === false ? false : rek === 'simpel' ? 'simpel' : 'uitgebreid';
@@ -57,7 +58,7 @@ function rekenhulpHTML(skill, q) {
   if (!niveau) return { button: '', attrs: '' };
   return {
     button: `<button class="btn quiet share" type="button" data-act="rekenhulp" aria-expanded="${state.rekenhulp.open}">${CALC_ICON}<span class="bt">Rekenhulp</span></button>`,
-    attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"`,
+    attrs: ` data-rek="${niveau}" data-vraag="${skill.id}-${q.seed}"${isDrawing(q) ? ' data-rek-klap' : ''}`,
   };
 }
 
