@@ -2525,10 +2525,7 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       // Zonder velden valt er niets te typen, en is Volgende uit. Controleer is nu Volgende vraag.
       await toets(p, '7', 'TEKEN');
       assert.equal(await p.isDisabled('.rh-invtoetsen [data-k="V:VOLGENDE"]'), true);
-      assert.equal(
-        await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'),
-        'Volgende vraag',
-      );
+      assert.equal(await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'), 'Volgende vraag');
       assert.equal(
         await p.$$eval(
           '#pform .fld input',
