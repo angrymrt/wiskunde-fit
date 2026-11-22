@@ -2476,6 +2476,11 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       assert.equal(await waarde(p, 1), '1 1');
       await toets(p, 'WIS', 'WIS', ',', ',', '5');
       assert.equal(await waarde(p, 1), '1,5');
+      // Leeg maakt het hele veld leeg.
+      await toets(p, 'LEEG');
+      assert.equal(await waarde(p, 1), '');
+      await toets(p, '1', ',', '5');
+      assert.equal(await waarde(p, 1), '1,5');
       // Volgende gaat naar het volgende veld, en rond na het laatste weer naar het eerste.
       await toets(p, 'VOLGENDE');
       assert.equal(await p.textContent('#rh-invnaam'), 'a = (1/2)');
@@ -2498,7 +2503,10 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
         'de ring staat binnen de knop',
       );
       // Wat je typte telt mee bij het nakijken: −3 en 1,5 zijn fout, maar het is een gewoon antwoord.
-      await p.evaluate(() => document.getElementById('pform').requestSubmit());
+      // De toets Controleer doet wat de knop in de vraag doet.
+      assert.equal(await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'), 'Controleer');
+      await p.click('#rh-tab-toetsenbord');
+      await toets(p, 'CONTROLEER');
       assert.ok(await p.$('#pfb'), 'het antwoord wordt nagekeken');
       await p.click('#rh-tab-toetsenbord');
       await p.screenshot({ path: `${shotDir}rekenhulp-toetsenbord.png` });
@@ -2514,7 +2522,13 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
         true,
       ]);
       await p.click('#rh-tab-toetsenbord');
-      await toets(p, '7', 'TEKEN', 'VOLGENDE');
+      // Zonder velden valt er niets te typen, en is Volgende uit. Controleer is nu Volgende vraag.
+      await toets(p, '7', 'TEKEN');
+      assert.equal(await p.isDisabled('.rh-invtoetsen [data-k="V:VOLGENDE"]'), true);
+      assert.equal(
+        await p.textContent('.rh-invtoetsen [data-k="V:CONTROLEER"]'),
+        'Volgende vraag',
+      );
       assert.equal(
         await p.$$eval(
           '#pform .fld input',

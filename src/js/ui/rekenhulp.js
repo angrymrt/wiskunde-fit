@@ -35,7 +35,9 @@ const INVOER = [
   ['4'], ['5'], ['6'], ['±', 'TEKEN', 'op', 'Maak negatief, of weer positief'],
   ['1'], ['2'], ['3'], [',', ',', '', 'komma'],
   ['0'], ['/', '/', 'fn', 'breukstreep'], ['␣', ' ', 'fn', 'spatie, voor een gemengd getal'],
-  ['Volgende', 'VOLGENDE', 'go', 'Naar het volgende veld'],
+  ['Leeg', 'LEEG', 'fn', 'Maak het veld leeg'],
+  ['Volgende', 'VOLGENDE', 'fn breed', 'Naar het volgende veld'],
+  ['Controleer', 'CONTROLEER', 'go breed', 'Controleer het antwoord'],
 ].map(([tekst, waarde, soort, naam]) => [tekst, `V:${waarde ?? tekst}`, soort, naam]); // prettier-ignore
 
 let paneel = null; // Het paneel, zodra het er is.
@@ -151,6 +153,13 @@ function teken() {
     ? `${veldNaam(veld)}${lijst.length > 1 ? ` (${h().doel + 1}/${lijst.length})` : ''}`
     : '';
   paneel.querySelector('#rh-invwaarde').textContent = veld?.value || '';
+  // Volgende heeft alleen zin als er nog een ander veld is. Controleer volgt de knop van de vraag.
+  paneel.querySelector('[data-k="V:VOLGENDE"]').disabled = lijst.length < 2;
+  const ok = document.querySelector('#pform button[type="submit"]');
+  const controleer = paneel.querySelector('[data-k="V:CONTROLEER"]');
+  controleer.disabled = !ok;
+  controleer.textContent = ok?.textContent.trim() || 'Controleer';
+  controleer.setAttribute('aria-label', controleer.textContent);
   const doel = paneel.querySelector('#rh-doel');
   doel.textContent = '';
   if (veld) {
@@ -204,10 +213,14 @@ function druk(k) {
 // Typt een toets van het tabblad Toetsenbord in het gekozen veld, achteraan. Een komma of breukstreep komt niet twee
 // keer in een getal, en een spatie alleen na een cijfer, voor een gemengd getal (1 1/2) of duizendtallen (1 250 000).
 function typ(k) {
+  // Dezelfde knop als in de vraag: Controleer, of na het nakijken Volgende vraag. De knop zelf klikken werkt ook op
+  // een oude telefoon, anders dan requestSubmit.
+  if (k === 'CONTROLEER') return document.querySelector('#pform button[type="submit"]')?.click();
   const lijst = velden();
   const veld = lijst[h().doel];
   if (!veld) return;
   if (k === 'VOLGENDE') {
+    if (lijst.length < 2) return;
     h().doel = (h().doel + 1) % lijst.length;
     markeerDoel();
     teken();
@@ -216,6 +229,7 @@ function typ(k) {
   let t = veld.value;
   const deel = t.split(' ').pop();
   if (k === 'WIS') t = t.slice(0, -1);
+  else if (k === 'LEEG') t = '';
   else if (k === 'TEKEN') t = /^[−-]/.test(t) ? t.replace(/^[−-]/, '') : `−${t}`;
   else if (k === ',' && (/[,/]/.test(deel) || t.endsWith(' '))) return;
   else if (k === '/' && (!/\d$/.test(deel) || /[,/]/.test(deel))) return;
@@ -308,7 +322,7 @@ function toetsenbord(e) {
       ',': ',',
       '/': '/',
       Backspace: 'WIS',
-      Enter: 'VOLGENDE',
+      Enter: 'CONTROLEER',
     }[e.key];
     if (/^[0-9]$/.test(e.key) || t) {
       e.preventDefault();
