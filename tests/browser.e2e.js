@@ -1890,6 +1890,19 @@ test('5 goede antwoorden achter elkaar geven een plaatje, en een fout begint opn
       await answer(p, true);
       assert.equal(await reeks(p), `${n} van 5 achter elkaar goed`);
       assert.equal(await p.$('.icoon'), null, `${n}: nog geen plaatje`);
+      // Na de animatie is elk vakje weer klein. De algemene klasse pop van de popup met uitleg maakte het nieuwe
+      // vakje 28 bij 24 pixels groot, met een rand (#218).
+      await p.waitForTimeout(700);
+      assert.deepEqual(
+        await p.$$eval('.reeks .seg', (e) =>
+          e.map((x) => [
+            Math.round(x.getBoundingClientRect().width),
+            Math.round(x.getBoundingClientRect().height),
+          ]),
+        ),
+        Array(5).fill([11, 7]),
+        `${n}: alle vakjes zijn 11 bij 7`,
+      );
       await p.click('#nextq');
     }
     // De vijfde: het plaatje verschijnt, de balk begint opnieuw en het wordt bewaard.

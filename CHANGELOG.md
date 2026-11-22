@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
 
+## 1.21.7
+
+### Hersteld
+
+- De balk die laat zien hoeveel vragen je achter elkaar goed hebt, bleef na een goed antwoord een groot blauw vakje tonen. Nu is het weer een smal streepje.
+
 ## 1.21.6
 
 ### Verbeterd
