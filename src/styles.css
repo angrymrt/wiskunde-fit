@@ -1622,7 +1622,7 @@ ol.how {
 }
 /* De reeks van goede eerste pogingen naast "x van y goed deze ronde": 5 smalle vakjes. Bij 5 komt er
    een plaatje uit het laatste vakje omhoog (zie reeksHTML in ui/topic.js). Alleen de render direct
-   na een poging heeft de klassen pop, klaar en leeg; daarna staat de balk gewoon stil. */
+   na een poging heeft de klassen puls, klaar en leeg; daarna staat de balk gewoon stil. */
 .reeks {
   position: relative;
   display: inline-flex;
@@ -1651,7 +1651,7 @@ ol.how {
   transform-origin: 50% 60%;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .reeks .seg.pop {
+  .reeks .seg.puls {
     animation: seg-pop 0.32s ease-out;
   }
   .reeks.klaar .seg,
@@ -1665,7 +1665,7 @@ ol.how {
   .reeks.leeg .seg {
     animation-delay: calc(var(--i) * 45ms);
   }
-  .reeks.klaar .seg.pop {
+  .reeks.klaar .seg.puls {
     animation:
       seg-pop 0.32s ease-out,
       seg-leeg 0.35s ease-out 1s both;

@@ -125,7 +125,7 @@ function reeksHTML(st) {
     vakjes = Array.from(
       { length: REEKS },
       (_, i) =>
-        `<span class="seg${i < aan ? ' aan' : ''}${a && i === aan - 1 && !leeg ? ' pop' : ''}" style="--i:${REEKS - 1 - i}"></span>`,
+        `<span class="seg${i < aan ? ' aan' : ''}${a && i === aan - 1 && !leeg ? ' puls' : ''}" style="--i:${REEKS - 1 - i}"></span>`,
     ).join('');
   const icoon = klaar
     ? `<svg class="icoon toon" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${a.icoon}</svg>`
