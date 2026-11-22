@@ -31,9 +31,17 @@ const toets = ([tekst, waarde, soort, naam]) =>
   `<button class="rh-toets${soort ? ` ${soort}` : ''}" type="button" data-k="${waarde ?? tekst}"${naam ? ` aria-label="${naam}"` : ''}>${tekst}</button>`;
 
 // De velden van de vraag waar de uitkomst in kan: de tekstvelden, in de volgorde van het scherm.
-const velden = () => [...document.querySelectorAll('#pform .fld input[type="text"]')];
-const veldNaam = (el) =>
-  (el.getAttribute('aria-label') || el.closest('label')?.textContent || '').trim();
+// Een vergrendeld veld, na Toon uitwerking, telt niet mee.
+const velden = () => [
+  ...document.querySelectorAll('#pform .fld input[type="text"]:not(:disabled)'),
+];
+// De naam van een veld: de label voor een schermlezer, anders de tekst ervoor (zonder de eenheid erachter).
+function veldNaam(el) {
+  const pre = [...(el.closest('label')?.children ?? [])].find(
+    (c) => c.tagName === 'SPAN' && !c.classList.contains('fin'),
+  );
+  return (el.getAttribute('aria-label') || pre?.textContent || '').trim();
+}
 
 function zeg(tekst) {
   // Eerst leeg, zodat dezelfde tekst twee keer achter elkaar ook twee keer wordt voorgelezen.
@@ -57,10 +65,13 @@ function maak() {
       <div class="rh-uit" id="rh-uit"></div>
     </div>
     <div class="rh-acties"><button class="rh-neem" type="button" data-k="NEEM" id="rh-neem">Neem over</button></div>
-    <div class="rh-toetsen" id="rh-toetsen"></div>
-    <p class="sr" id="rh-melding" role="status"></p>`;
+    <div class="rh-toetsen" id="rh-toetsen"></div>`;
   document.body.append(paneel);
-  melding = paneel.querySelector('#rh-melding');
+  // Buiten het paneel, want een gebied in een verborgen paneel wordt niet voorgelezen, ook niet "Rekenhulp dicht."
+  melding = document.createElement('p');
+  melding.className = 'sr';
+  melding.setAttribute('role', 'status');
+  document.body.append(melding);
   paneel.addEventListener('click', (e) => {
     const b = e.target.closest('button[data-k]');
     if (b) druk(b.dataset.k);
@@ -75,12 +86,16 @@ function maak() {
       teken();
     }
   });
+  // Typt de leerling zelf in het veld, dan staat dat ook in de kop van het paneel.
+  document.addEventListener('input', (e) => {
+    if (velden().includes(e.target)) teken();
+  });
   // Verandert de hoogte, bijvoorbeeld door een ander niveau, dan krijgt de pagina meer of minder ruimte.
   if (window.ResizeObserver) new ResizeObserver(() => h().open && zetRuimte()).observe(paneel);
 }
 
 function bouwToetsen() {
-  h().niveau = document.getElementById('pform')?.dataset.rek || 'uitgebreid';
+  h().niveau = document.getElementById('pform')?.dataset.rek === 'simpel' ? 'simpel' : 'uitgebreid';
   paneel.querySelector('#rh-toetsen').innerHTML =
     `${h().niveau === 'uitgebreid' ? EXTRA.map(toets).join('') : ''}${BASIS.map(toets).join('')}`;
   paneel.classList.toggle('rh-uitgebreid', h().niveau === 'uitgebreid');
@@ -93,12 +108,20 @@ function teken() {
   const uit = paneel.querySelector('#rh-uit');
   uit.textContent = r ? (r.fout ?? `= ${r.tekst}`) : '';
   uit.classList.toggle('fout', !!r?.fout);
-  paneel.querySelector('#rh-neem').disabled = !r?.tekst;
-  const veld = velden()[h().doel];
-  const n = velden().length;
-  paneel.querySelector('#rh-doel').innerHTML = veld
-    ? `→ ${veldNaam(veld)}${n > 1 ? ` (${h().doel + 1}/${n})` : ''} <b>${veld.value || 'leeg'}</b>`
-    : '';
+  const lijst = velden();
+  paneel.querySelector('#rh-neem').disabled = !r?.tekst || !lijst.length;
+  // Wat de leerling typte komt als tekst in het paneel, nooit als HTML.
+  const veld = lijst[h().doel];
+  const doel = paneel.querySelector('#rh-doel');
+  doel.textContent = '';
+  if (veld) {
+    const waarde = document.createElement('b');
+    waarde.textContent = veld.value || 'leeg';
+    doel.append(
+      `→ ${veldNaam(veld)}${lijst.length > 1 ? ` (${h().doel + 1}/${lijst.length})` : ''} `,
+      waarde,
+    );
+  }
 }
 function markeerDoel() {
   velden().forEach((el, i) => el.classList.toggle('rh-doelveld', h().open && i === h().doel));
@@ -153,7 +176,11 @@ function neemOver() {
 
 // Het gewone toetsenbord, als de focus in de rekenhulp staat.
 function toetsenbord(e) {
-  if (e.key === 'Escape') return zet(false, true);
+  if (e.key === 'Escape') {
+    // Alleen de Rekenhulp sluit. Een Melden-paneel dat er ook open staat, blijft open.
+    e.stopPropagation();
+    return zet(false, true);
+  }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   // Een knop doet zelf iets met Enter en spatie.
   if (e.target.closest('button') && (e.key === 'Enter' || e.key === ' ')) return;
@@ -179,9 +206,15 @@ function toetsenbord(e) {
 // Op een telefoon komt het paneel over de vraag. Daarom krijgt de pagina onderaan net zoveel ruimte als het paneel
 // hoog is, en schuift ze zo dat de vraag en de velden erboven blijven staan.
 const rustig = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Op een telefoon in landschap is er te weinig hoogte voor een paneel onderaan. Dan staat het rechts, over de volle
+// hoogte, en maakt de pagina ruimte aan de zijkant.
+const zijkant = () => matchMedia('(max-height: 520px) and (orientation: landscape)').matches;
 function zetRuimte(opnieuw = false) {
-  const hoogte = paneel.offsetHeight;
-  document.documentElement.style.setProperty('--rh-h', `${hoogte}px`);
+  const kant = zijkant();
+  const hoogte = kant ? 0 : paneel.offsetHeight;
+  const root = document.documentElement.style;
+  root.setProperty('--rh-h', `${hoogte}px`);
+  root.setProperty('--rh-w', `${kant ? paneel.offsetWidth : 0}px`);
   requestAnimationFrame(() => {
     const lijst = velden();
     const vraag = document.getElementById('pq');
@@ -212,6 +245,7 @@ function zet(open, focusTerug = false) {
     .forEach((b) => b.setAttribute('aria-expanded', String(open)));
   if (!open) {
     document.documentElement.style.removeProperty('--rh-h');
+    document.documentElement.style.removeProperty('--rh-w');
     markeerDoel();
     if (focusTerug) {
       document.querySelector('[data-act="rekenhulp"]')?.focus();

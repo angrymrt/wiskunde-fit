@@ -2605,6 +2605,7 @@ button.term[aria-expanded='true'] {
    dus het werkt ook in de donkere modus. */
 html.rh-open body {
   padding-bottom: calc(var(--rh-h, 0px) + 16px);
+  padding-right: var(--rh-w, 0px);
 }
 .rh {
   position: fixed;
@@ -2620,6 +2621,8 @@ html.rh-open body {
   border-bottom: 0;
   border-radius: 10px 10px 0 0;
   box-shadow: 0 -6px 24px var(--shade);
+  max-height: 100vh;
+  overflow-y: auto;
 }
 .rh[hidden] {
   display: none;
@@ -2740,5 +2743,37 @@ html.rh-open body {
   }
   .rh-toetsen {
     gap: 4px;
+  }
+}
+/* Een telefoon in landschap: het paneel staat rechts over de volle hoogte, met kleinere toetsen. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .rh {
+    left: auto;
+    top: 0;
+    width: min(360px, 55vw);
+    max-width: none;
+    margin: 0;
+    padding-top: 6px;
+    border-bottom: 1px solid var(--rule);
+    border-right: 0;
+    border-radius: 10px 0 0 10px;
+    box-shadow: -6px 0 24px var(--shade);
+  }
+  .rh-toets {
+    min-height: 28px;
+    font-size: 1rem;
+  }
+  .rh-toetsen {
+    gap: 3px;
+  }
+  .rh-scherm {
+    min-height: 2.3em;
+  }
+  .rh-som {
+    min-height: 1.2em;
+    font-size: 1.1rem;
+  }
+  .rh-acties {
+    margin: 4px 0;
   }
 }

@@ -441,6 +441,8 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'rekenhulp') {
+    // Een tweede klik tijdens het laden zou het paneel meteen weer sluiten.
+    if (rekenhulpLaden && !rekenhulp) return;
     laadRekenhulp()
       .then((m) => m.zet(!state.rekenhulp.open))
       .catch(() => {

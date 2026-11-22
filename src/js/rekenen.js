@@ -148,8 +148,9 @@ export const plakbaar = (tekst) => (tekst.startsWith('−') ? `(${tekst})` : tek
 // De uitkomst van een som voor in de Rekenhulp: het getal in tekst, of een melding. Een lege som geeft null.
 export function uitkomst(som, ans = 0) {
   try {
-    const v = rekenUit(som, ans);
-    return { v, tekst: toon(v) };
+    // Het getal is wat de leerling ziet, dus ANS na 0,1 + 0,2 is 0,3 en niet 0,30000000000000004.
+    const tekst = toon(rekenUit(som, ans));
+    return { v: Number(tekst.replace(',', '.').replace('−', '-')), tekst };
   } catch (e) {
     if (!(e instanceof RekenFout)) throw e;
     return e.message ? { fout: e.message } : null;

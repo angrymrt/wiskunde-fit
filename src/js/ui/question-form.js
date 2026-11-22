@@ -42,10 +42,12 @@ const empty = (q, vals) =>
 // De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Dat is er niet bij meerkeuze, bij een
 // tekenvraag of als alle velden een keuzelijst zijn. Een vraag kan het zelf zeggen met `rek`, anders geldt het onderwerp,
 // en anders de uitgebreide Rekenhulp. `rek: false` zet hem uit, voor een vraag waarbij het rekenen de stof is.
-export const rekNiveau = (skill, q) =>
-  q.mc || isDrawing(q) || !q.fields.some((f) => !f.sel)
-    ? false
-    : (q.rek ?? topicOf(skill.id)?.rek ?? 'uitgebreid');
+export function rekNiveau(skill, q) {
+  if (q.mc || isDrawing(q) || !q.fields.some((f) => !f.sel)) return false;
+  const rek = q.rek ?? topicOf(skill.id)?.rek ?? 'uitgebreid';
+  // Een onbekende waarde, zoals een tikfout, is de uitgebreide Rekenhulp.
+  return rek === false ? false : rek === 'simpel' ? 'simpel' : 'uitgebreid';
+}
 const CALC_ICON =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><rect x="3" y="1.5" width="10" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 4.8h5M5.5 8h1M9.5 8h1M5.5 11h1M9.5 11h1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 // De knop, en de gegevens die het formulier meekrijgt: het niveau en een naam voor de vraag. De Rekenhulp ziet daaraan

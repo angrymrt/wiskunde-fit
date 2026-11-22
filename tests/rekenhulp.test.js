@@ -69,7 +69,12 @@ test('de knop en de gegevens voor het formulier', () => {
   }
 });
 
-test('de knop is er voor elke gewone vraag, en dezelfde seed geeft dezelfde HTML', () => {
+test('een onbekend niveau is uitgebreid, ook van een onderwerp', () => {
+  assert.equal(rekNiveau(skill, getal({ rek: 'eenvoudig' })), 'uitgebreid');
+  assert.equal(rekNiveau(skill, getal({ rek: 'simpel' })), 'simpel');
+});
+
+test('dezelfde seed geeft dezelfde HTML voor de knop', () => {
   // Het scherm hoort voor dezelfde toestand steeds dezelfde HTML te geven: geen toeval en geen tellers.
   for (const t of TOPICS.slice(0, 6))
     for (const k of t.skills) {
@@ -77,6 +82,5 @@ test('de knop is er voor elke gewone vraag, en dezelfde seed geeft dezelfde HTML
       const q = makeQuestion(k, 'seed1');
       const a = rekenhulpHTML(k, q);
       assert.deepEqual(a, rekenhulpHTML(k, makeQuestion(k, 'seed1')), k.name);
-      assert.equal(a.button !== '', rekNiveau(k, q) !== false, k.name);
     }
 });

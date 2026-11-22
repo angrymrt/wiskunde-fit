@@ -2148,7 +2148,7 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       assert.equal(await p.textContent('#rh-uit'), '= −6');
       await p.click('#rh-neem');
       assert.equal(await p.inputValue('#pf0'), '−6');
-      assert.match(await p.textContent('#rh-doel'), /b/);
+      assert.equal(await p.textContent('#rh-doel'), '→ b = (2/2) leeg');
       await toets('C', '5', '+', '4');
       await p.click('#rh-neem');
       assert.equal(await p.inputValue('#pf1'), '9');
@@ -2191,6 +2191,147 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       await p.evaluate(() => window.wiskundefit.go({ name: 'home' }));
       assert.equal(await p.$eval('#rekenhulp', (e) => e.hidden), true);
       await ctx.close();
+    }
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('de Rekenhulp houdt zich aan de velden: groep, typen, vergrendeld, HTML, landschap en laden', async () => {
+  const browser = await launch();
+  try {
+    const errors = [];
+    // Een vraag met een groep velden, zoals x = −2 ∨ x = 9.
+    let groep = null;
+    for (const t of TOPICS) {
+      for (const k of t.skills) {
+        if (!k.gen || groep) continue;
+        for (const seed of ['a1', 'b2', 'c3', 'd4']) {
+          const q = makeQuestion(k, seed);
+          if (!groep && q.fields?.some((f) => f.grp != null))
+            groep = `/${t.slug}/oefenen?soort=${k.id}&seed=${seed}`;
+        }
+      }
+    }
+    assert.ok(groep, 'er is een vraag met een groep velden');
+    const link = '/lineaire-formule-opstellen/oefenen?soort=5&seed=k3x9q';
+    const open = async (p, url) => {
+      await p.goto(at(url));
+      await p.waitForSelector('#pform');
+      await p.click('[data-act="rekenhulp"]');
+      await p.waitForSelector('#rekenhulp:not([hidden])');
+    };
+    const toets = (p, ...ks) =>
+      ks.reduce((w, k) => w.then(() => p.click(`#rh-toetsen [data-k="${k}"]`)), Promise.resolve());
+    {
+      // Een groep: de uitkomsten gaan na elkaar in de lege velden.
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      p.on('pageerror', (e) => errors.push(e.message));
+      await open(p, groep);
+      const n = await p.$$eval('#pform .fld input[type="text"]', (e) => e.length);
+      assert.ok(n >= 2, 'een groep heeft meer dan één veld');
+      await toets(p, '4', '+', '3');
+      await p.click('#rh-neem');
+      await toets(p, 'C', '8', '−', '1');
+      await p.click('#rh-neem');
+      assert.deepEqual(
+        await p.$$eval('#pform .fld input[type="text"]', (e) => e.slice(0, 2).map((i) => i.value)),
+        ['7', '7'],
+      );
+      await p.close();
+    }
+    {
+      // Zelf in het veld typen verandert de kop van het paneel, en wat je typt is nooit HTML.
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      p.on('pageerror', (e) => errors.push(e.message));
+      let dialoog = false;
+      p.on('dialog', () => (dialoog = true));
+      await open(p, link);
+      await p.fill('#pf0', '12');
+      assert.equal(await p.textContent('#rh-doel'), '→ a = (1/2) 12');
+      await p.fill('#pf0', '<img src=x onerror="alert(1)">');
+      await p.waitForTimeout(100);
+      assert.equal(await p.$('#rh-doel img'), null, 'geen HTML in het paneel');
+      assert.match(await p.textContent('#rh-doel'), /<img src=x/);
+      assert.equal(dialoog, false);
+      // Een veld met een eenheid erachter krijgt de tekst ervoor als naam, zonder de eenheid.
+      await p.close();
+    }
+    {
+      // Na Toon uitwerking zijn de velden vergrendeld: er valt niets meer over te nemen.
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      p.on('pageerror', (e) => errors.push(e.message));
+      await open(p, link);
+      await p.click('[data-act="show"]');
+      await p.waitForSelector('.sol');
+      await toets(p, '7');
+      assert.equal(await p.isDisabled('#rh-neem'), true, 'geen veld om in te vullen');
+      assert.equal(await p.textContent('#rh-doel'), '');
+      assert.equal(
+        await p.$$eval('#pform .fld input', (e) => e.filter((i) => i.value).length),
+        0,
+        'er is niets ingevuld',
+      );
+      await p.close();
+    }
+    {
+      // Een telefoon in landschap: het paneel staat rechts, past op het scherm en je kunt het sluiten.
+      const p = await browser.newPage({ viewport: { width: 740, height: 360 } });
+      p.on('pageerror', (e) => errors.push(e.message));
+      await open(p, link);
+      const r = await p.$eval('#rekenhulp', (e) => {
+        const b = e.getBoundingClientRect();
+        const s = e.querySelector('.rh-sluit').getBoundingClientRect();
+        return {
+          top: b.top,
+          bottom: b.bottom,
+          left: b.left,
+          right: b.right,
+          sluit: [s.top, s.bottom, s.left, s.right],
+        };
+      });
+      assert.equal(Math.round(r.top), 0);
+      assert.ok(r.bottom <= 360 + 1, 'past in de hoogte');
+      assert.ok(r.right <= 740 + 1 && r.left > 200, 'staat rechts');
+      assert.ok(r.sluit[0] >= 0 && r.sluit[1] <= 360, 'de sluitknop is te zien');
+      await p.screenshot({ path: `${shotDir}rekenhulp-landschap.png` });
+      await p.click('.rh-sluit');
+      assert.equal(await p.$eval('#rekenhulp', (e) => e.hidden), true);
+      await p.close();
+    }
+    {
+      // Lukt het laden niet, dan is er een melding, en een nieuwe klik probeert het opnieuw. Twee klikken na elkaar
+      // tijdens het laden openen en sluiten het paneel niet meteen weer.
+      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+      p.on('pageerror', (e) => errors.push(e.message));
+      await p.goto(at(link));
+      await p.waitForSelector('#pform');
+      const bestand = '**/assets/rekenhulp-*.js';
+      await p.route(bestand, (route) => route.abort());
+      await p.click('[data-act="rekenhulp"]');
+      await p.waitForFunction(() =>
+        /kon niet worden geladen/.test(document.getElementById('laadmelding').textContent),
+      );
+      assert.equal(await p.$('#rekenhulp'), null, 'geen paneel');
+      await p.unroute(bestand);
+      let loslaten;
+      const poort = new Promise((resolve) => (loslaten = resolve));
+      await p.route(bestand, async (route) => {
+        await poort;
+        await route.continue();
+      });
+      await p.click('[data-act="rekenhulp"]');
+      await p.click('[data-act="rekenhulp"]');
+      loslaten();
+      await p.waitForSelector('#rekenhulp:not([hidden])');
+      await p.waitForTimeout(200);
+      assert.equal(
+        await p.$eval('#rekenhulp', (e) => e.hidden),
+        false,
+        'twee klikken laten het paneel open',
+      );
+      await p.close();
     }
     assert.deepEqual(errors, []);
   } finally {
@@ -2705,8 +2846,8 @@ const LIMITS = {
   scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   shared: { sent: 16, own: 44, why: 'een gedeeld codebestand' },
-  // De Rekenhulp (#18) voegde 0,5 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9.
-  css: { sent: 9, why: 'de CSS' },
+  // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
+  css: { sent: 9.5, why: 'de CSS' },
   font: { sent: 25, why: 'een lettertype' },
 };
 const kB = (n) => `${n.toFixed(1).replace('.', ',')} kB`;
@@ -2739,7 +2880,7 @@ test('de pagina’s en de code blijven klein', async () => {
         ? 'shared'
         : /^cijfers-data-/.test(name)
           ? 'tellen'
-          : /^(vragen|exam|about|cijfers)-/.test(name) && 'scherm';
+          : /^(vragen|exam|about|cijfers|rekenhulp)-/.test(name) && 'scherm';
     const kind = ext === '.js' ? code : { '.css': 'css', '.woff2': 'font' }[ext];
     if (kind) files.push([`assets/${name}`, kind]);
   }
