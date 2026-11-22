@@ -2572,9 +2572,11 @@ button.term:hover,
 button.term[aria-expanded='true'] {
   background: var(--blue-soft);
 }
+/* Boven de vaste kop (30) en het paneel van de Rekenhulp (40): past de uitleg tussen die twee niet, dan staat hij er liever
+   overheen dan erachter. */
 .pop {
   position: absolute;
-  z-index: 20;
+  z-index: 45;
   max-width: min(22rem, calc(100vw - 16px));
   padding: 10px 12px;
   background: var(--sheet);
