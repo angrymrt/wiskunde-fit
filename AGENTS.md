@@ -74,7 +74,7 @@ Een methode-indeling staat in `src/js/mappings/`, met eigen omschrijvingen en no
 
 ## Een hoofdstuk toevoegen
 
-Een hoofdstuk is veel werk en gaat in een stack van pull requests. De werkwijze staat in de skill. Draai niet meer dan twee agents en één browsertest tegelijk, anders raakt het geheugen van de computer op. De werkwijze staat in de skill `.claude/skills/hoofdstuk-toevoegen/SKILL.md`.
+Een hoofdstuk is veel werk en gaat in een stack van pull requests. Draai niet meer dan twee agents en één browsertest tegelijk, anders raakt het geheugen van de computer op. De werkwijze staat in de skill `.claude/skills/hoofdstuk-toevoegen/SKILL.md`.
 
 ## Zo werken de schermen
 

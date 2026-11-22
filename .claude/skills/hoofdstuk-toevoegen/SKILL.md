@@ -17,8 +17,6 @@ Een hoofdstuk is veel werk: hoofdstuk 3 werden 30 vraagsoorten in vier pull requ
 6. **Afronden met Sonnet.** De methode-indeling, de versie, de `CHANGELOG.md` en de aantallen in README en `index.html` zijn mechanisch werk. Laat een agent met Sonnet dat doen in de laatste laag.
 7. **Meten.** Zet bovenaan de opdracht van elke agent de regels `Issue: #97` en `Rol: bouw` of `Rol: review`. Tel na de release de tokens met `node scripts/tokens.js --per-issue --bord <sessie.jsonl>`. Dat zet per issue de velden Orkestratie, Bouw en Review op het projectbord. Het werk van de hoofdsessie telt als orkestratie, voor de issues waarvan de agents op dat moment bezig waren. Bouwde de hoofdsessie zelf, dan telt dat als Bouw van het issue uit de eerstvolgende commit (`(#N)` aan het eind van de titel), als schatting. Werk daarbuiten, zoals aan het bord, telt voor geen issue. Zet de tabel per agent (`node scripts/tokens.js <sessie.jsonl>`) als opmerking bij het issue van het hoofdstuk. Zo vergelijk je issues en hoofdstukken met elkaar.
 
-Draai niet meer dan twee agents en één browsertest tegelijk, anders raakt het geheugen van de computer op.
-
 Controleer voor de release van een hoofdstuk:
 
 - Elke paragraaf van het hoofdstuk staat in de methode-indeling: gedekt, deels met een zin over wat ontbreekt, of niet gedekt.

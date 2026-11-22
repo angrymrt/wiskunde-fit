@@ -13,7 +13,7 @@ Merken leerlingen iets van je wijziging, doe dan dit in dezelfde pull request:
 
 1. Verhoog de versie zonder commit of tag: `npm version minor --no-git-tag-version` (of `patch`).
 2. Zet bovenaan in `CHANGELOG.md` een kop met het nieuwe nummer, bijvoorbeeld `## 1.1.0`, met de notities eronder. `npm test` faalt als de bovenste kop niet gelijk is aan de versie, en dan gaat er ook niets online.
-3. Commit, push de branch en open een pull request, zoals hierboven.
+3. Commit, push de branch en open een pull request, zoals in [Een pull request maken](../../../AGENTS.md#een-pull-request-maken).
 
 Wijzigingen in tests, documentatie of het ontwikkelproces houden dezelfde versie en krijgen dus geen release. Meerdere kleine pull requests mogen samen één versie worden: verhoog de versie dan bij de laatste.
 
