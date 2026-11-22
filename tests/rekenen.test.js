@@ -63,6 +63,16 @@ test('wortel en macht', () => {
   assert.ok(Math.abs(rekenUit('√2×√2') - 2) < 1e-12);
 });
 
+test('ANS is de uitkomst zoals de leerling die ziet', () => {
+  // 0,1 + 0,2 toont 0,3, dus ANS − 0,3 is 0 en geen 5,5e-17.
+  const eerst = uitkomst('0,1+0,2');
+  assert.equal(eerst.tekst, '0,3');
+  assert.equal(eerst.v, 0.3);
+  assert.equal(rekenUit('ANS−0,3', eerst.v), 0);
+  assert.equal(uitkomst('2÷3').v, 0.666666666667);
+  assert.equal(uitkomst('−2×1,5').v, -3);
+});
+
 test('ANS en π', () => {
   is('ANS+1', 8, 7);
   is('ANS', 0);

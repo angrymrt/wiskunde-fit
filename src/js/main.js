@@ -183,6 +183,17 @@ let iconen = null;
 let iconenLaden = null;
 // Eén poging per bezoek: lukt het laden niet, dan loopt de balk gewoon leeg (zie reeksPoging).
 const laadIconen = () => (iconenLaden ||= import('./iconen.js').then((m) => (iconen = m)));
+// De Rekenhulp (#18) staat ook in een eigen bestand, dat pas laadt als de leerling de knop gebruikt. Daarna roept
+// render() het aan om het paneel bij de vraag te houden. Lukt het laden niet, dan kan een volgende klik het opnieuw.
+let rekenhulp = null;
+let rekenhulpLaden = null;
+const laadRekenhulp = () =>
+  (rekenhulpLaden ||= import('./ui/rekenhulp.js')
+    .then((m) => (rekenhulp = m))
+    .catch((e) => {
+      rekenhulpLaden = null;
+      throw e;
+    }));
 // Houdt de reeks van goede eerste pogingen bij. Geeft de beweging voor de volgende render() terug,
 // of null als er niets te zien is. Bij de vijfde goede in een reeks kiest dit een plaatje en telt
 // het dat je het zag.
@@ -288,6 +299,7 @@ function paint(focus) {
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
   if (state.view.oefen || state.view.name === 'stofoefen') laadIconen().catch(() => {});
   mountWidgets();
+  rekenhulp?.synchroniseer();
   mountTermen()?.catch(() => {});
   showDrawn();
   watchPracticeBar();
@@ -426,6 +438,17 @@ app.addEventListener('click', (e) => {
   if (a === 'opnieuw') {
     keepTyped();
     location.reload();
+    return;
+  }
+  if (a === 'rekenhulp') {
+    // Een tweede klik tijdens het laden zou het paneel meteen weer sluiten.
+    if (rekenhulpLaden && !rekenhulp) return;
+    laadRekenhulp()
+      .then((m) => m.zet(!state.rekenhulp.open))
+      .catch(() => {
+        melding.textContent =
+          'De rekenhulp kon niet worden geladen. Controleer je verbinding en probeer het opnieuw.';
+      });
     return;
   }
   if (a === 'thema') {
@@ -700,7 +723,9 @@ app.addEventListener('submit', async (e) => {
         history.replaceState(history.state, '', pathFor(state.view));
       }
       render('#pq');
-      focusOn('#pf0');
+      // Staat de Rekenhulp open, dan wil de leerling rekenen en niet typen. De focus op het veld zou op een telefoon
+      // het toetsenbord van het systeem openen, over het paneel heen.
+      if (!state.rekenhulp.open) focusOn('#pf0');
       return;
     }
     const vals = readVals(st.q, 'p');

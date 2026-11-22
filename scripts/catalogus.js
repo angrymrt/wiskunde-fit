@@ -16,7 +16,7 @@ const INDEX = fileURLToPath(new URL('../src/js/topics/index.js', import.meta.url
 // velden (VELDEN_LATER) komen pas met het onderwerp zelf. description en oldSlugs gebruikt alleen
 // de build, voor de pagina's en de doorverwijzingen.
 const VELDEN = ['slug', 'title', 'intro'];
-const VELDEN_LATER = ['description', 'oldSlugs', 'videos', 'learn'];
+const VELDEN_LATER = ['description', 'oldSlugs', 'videos', 'learn', 'rek'];
 
 // De catalogus van één onderwerp, uit het onderwerp zoals topics/index.js het maakt.
 function catalogus(topic) {
