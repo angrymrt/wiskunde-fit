@@ -93,8 +93,14 @@ function zetPopup(knop, pathFor, view) {
       Math.max(8, r.left),
       document.documentElement.clientWidth - el.offsetWidth - 8,
     );
-  // Past de popup niet onder de term, dan komt hij erboven.
-  const boven = r.bottom + 6 + el.offsetHeight > window.innerHeight && r.top > el.offsetHeight + 12;
+  // Past de popup niet onder de term, dan komt hij erboven. Het paneel van de Rekenhulp onderaan en de vaste kop
+  // bovenaan (ui/rekenhulp.js) horen er niet bij: de popup moet in het stuk ertussen blijven.
+  const root = document.documentElement,
+    maat = (klasse, naam) =>
+      root.classList.contains(klasse) ? parseFloat(root.style.getPropertyValue(naam)) || 0 : 0,
+    onder = window.innerHeight - maat('rh-open', '--rh-h'),
+    kop = maat('oef', '--oef-kop');
+  const boven = r.bottom + 6 + el.offsetHeight > onder && r.top - kop > el.offsetHeight + 12;
   el.style.left = `${links - basis.left}px`;
   el.style.top = `${(boven ? r.top - el.offsetHeight - 6 : r.bottom + 6) - basis.top}px`;
   knop.setAttribute('aria-expanded', 'true');

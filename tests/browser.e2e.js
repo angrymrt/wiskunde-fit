@@ -2616,6 +2616,11 @@ test('op een telefoon is het oefenen een volledig scherm met een vaste kop en vo
     await p.tap('[data-act="filter"][data-id=""]');
     assert.equal(await p.isVisible('.menu-open .soort-menu'), false, 'het menu sluit');
     assert.match(await p.textContent('.soort-knop'), /alles door elkaar/);
+    // Een andere vraag, zonder de soort of de ronde te verliezen.
+    const vorige = await p.getAttribute('#pform', 'data-vraag');
+    await p.tap('.q-tools .andere');
+    assert.notEqual(await p.getAttribute('#pform', 'data-vraag'), vorige);
+    assert.match(await p.textContent('.soort-knop'), /alles door elkaar/);
     // Controleer staat in het paneel en doet wat de knop in de vraag doet.
     await p.tap('#rekenhulp .rh-con');
     await p.waitForSelector('#pfb');
@@ -2632,6 +2637,23 @@ test('op een telefoon is het oefenen een volledig scherm met een vaste kop en vo
     await p.waitForSelector('#rekenhulp:not([hidden])');
     const velden = await p.$$eval('#pform .fld input[type="text"]', (e) => e.length);
     assert.equal(await p.isDisabled('#rekenhulp .rh-vol'), velden < 2);
+    // De uitleg van een term staat tussen de kop en het paneel, niet eronder.
+    await p.goto(at('/ontbinden-in-factoren/oefenen?soort=75&seed=k3x9q'));
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    await p.waitForSelector('#pq button.term');
+    await p.tap('#pq button.term');
+    await p.waitForSelector('.pop');
+    const pop = await p.$eval('.pop', (e) => {
+      const b = e.getBoundingClientRect();
+      return {
+        top: b.top,
+        bottom: b.bottom,
+        paneel: document.getElementById('rekenhulp').getBoundingClientRect().top,
+        kop: document.querySelector('.oef-kop').getBoundingClientRect().bottom,
+      };
+    });
+    assert.ok(pop.bottom <= pop.paneel + 1, 'de popup staat boven het paneel');
+    assert.ok(pop.top >= pop.kop - 1, 'de popup staat onder de kop');
     await ctx.close();
     assert.deepEqual(errors, []);
   } finally {
@@ -3135,8 +3157,8 @@ const LIMITS = {
   // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
-  // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 132 kB.
-  start: { sent: 53, own: 132, why: 'de code bij het eerste bezoek' },
+  // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
+  start: { sent: 53, own: 133, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen

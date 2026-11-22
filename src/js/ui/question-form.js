@@ -67,7 +67,7 @@ function rekenhulpHTML(skill, q) {
 // geen seed, en die kun je dus niet delen. De melding staat er altijd, ook leeg, zodat een
 // schermlezer hem voorleest zodra er iets in komt.
 const SHARE_ICON =
-  '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M8 10V2.5M5 5.2 8 2.2l3 3M4.5 7.5H3.5v6h9v-6h-1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+  '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M5.4 7.1 10.6 4.4M5.4 8.9l5.200 2.700" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><g fill="currentColor"><circle cx="12" cy="3.6" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="12.4" r="2"/></g></svg>';
 const CHECK_ICON =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>';
 function shareHTML(skill, q) {

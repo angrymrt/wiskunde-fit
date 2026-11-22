@@ -604,6 +604,16 @@ app.addEventListener('click', (e) => {
     }
     return;
   }
+  // Een andere vraag van dezelfde soort of mix, zonder dat de ronde verloren gaat.
+  if (a === 'andere') {
+    const s = state.view.name === 'stofoefen' ? stofTopic() : TOPIC[state.view.slug];
+    state.prac[s.slug].menu = false;
+    newQuestion(s);
+    delete state.view.seed;
+    history.replaceState(history.state, '', pathFor(state.view));
+    render('#pq');
+    return;
+  }
   // Op een telefoon: het menu met de soorten vragen open of dicht.
   if (a === 'menu') {
     const st = state.prac[state.view.slug];

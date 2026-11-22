@@ -124,6 +124,8 @@ const SOORT_ICON = SVG(
   'M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zM8 5.500a2.500 2.500 0 1 0 0 5 2.500 2.500 0 0 0 0-5z',
 );
 const CARET_ICON = SVG('M4 6.500 8 10.500l4-4').replace('class="icon"', 'class="icon caret"');
+// Een andere vraag, zonder de ronde te verliezen. Op een breed scherm doen de chips dat al; op een telefoon is dit het icoon.
+const ANDERE_KNOP = `<button class="btn quiet share andere" type="button" data-act="andere">${SVG('M13.500 3v3.500H10M2.500 13V9.500H6M3.200 7a5 5 0 0 1 9.100-1.500M12.800 9a5 5 0 0 1-9.100 1.500')}<span class="bt">Andere vraag</span></button>`;
 const REEKS = 5;
 function reeksHTML(st) {
   const n = st.streak || 0,
@@ -181,7 +183,7 @@ function vPractice(s, title, terug) {
   const knop = s.mixed
     ? ''
     : `<button class="soort-knop" type="button" data-act="menu" aria-expanded="${!!st.menu}">${st.filter ? SOORT_ICON : MIX_ICON}<span class="sn"><span class="sr">Soort vraag, ${st.filter ? 'alleen deze soort' : 'alles door elkaar'}: </span>${T(st.skill.name)}</span>${CARET_ICON}</button>`;
-  return termen(`<div class="sheet practice${st.menu ? ' menu-open' : ''}"><div class="oef-kop"><a class="oef-terug" href="${terug}"><svg class="icon" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Terug naar het onderwerp</span></a>${pageHead(title, chips)}<div class="q-head"><div class="row small muted q-row">${knop}<span class="soort-naam">${T(st.skill.name)}</span><span class="row q-rechts">${st.total ? `<span class="row q-stat"><span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}</span>` : ''}<span class="row q-tools">${rek.button}${share.button}${meld.button}</span></span></div>${share.note}</div></div><div class="practice-q fade">
+  return termen(`<div class="sheet practice${st.menu ? ' menu-open' : ''}"><div class="oef-kop"><a class="oef-terug" href="${terug}"><svg class="icon" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Terug naar het onderwerp</span></a>${pageHead(title, chips)}<div class="q-head"><div class="row small muted q-row">${knop}<span class="soort-naam">${T(st.skill.name)}</span><span class="row q-rechts">${st.total ? `<span class="row q-stat"><span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}</span>` : ''}<span class="row q-tools">${rek.button}${ANDERE_KNOP}${share.button}${meld.button}</span></span></div>${share.note}</div></div><div class="practice-q fade">
   <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate${rek.attrs}>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !isDrawing(q) && q.fields.some((f) => !f.sel) ? `<p class="small muted">Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
