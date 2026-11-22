@@ -2634,6 +2634,11 @@ test('op een telefoon is het oefenen een volledig scherm met een vaste kop en vo
       false,
       'een tik buiten sluit het menu',
     );
+    // Een tik op Controleer terwijl het menu open staat, sluit het menu en kijkt het antwoord ook na.
+    await p.tap('.soort-knop');
+    await p.tap('#rekenhulp .rh-con');
+    await p.waitForSelector('#pfb');
+    assert.equal(await p.isVisible('.menu-open .soort-menu'), false);
     await p.tap('.soort-knop');
     await p.tap('[data-act="filter"][data-id=""]');
     assert.equal(await p.isVisible('.menu-open .soort-menu'), false, 'het menu sluit');

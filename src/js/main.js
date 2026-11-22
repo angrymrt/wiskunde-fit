@@ -395,16 +395,18 @@ app.addEventListener('input', (e) => {
     voet.querySelector('#meldmail').href = mailLink(m);
   } else if (!!m !== !!gh) voet.innerHTML = meldVoetHTML(m);
 });
-// Het soortmenu op een telefoon sluit met Escape, en met een tik ergens anders.
-function sluitMenu() {
+// Het soortmenu op een telefoon sluit met Escape, en met een tik ergens anders. Het scherm wordt hier niet opnieuw
+// getekend: dat zou midden in een klik de knop weghalen waar de leerling op tikte, zoals Controleer.
+function sluitMenu(terug = false) {
   const st = state.prac[state.view.slug];
-  if (!st?.menu || !document.getElementById('pform')) return false;
-  st.vals = readVals(st.q, 'p');
+  if (!st?.menu) return;
   st.menu = false;
-  render();
-  return true;
+  app.querySelector('.practice')?.classList.remove('menu-open');
+  const knop = app.querySelector('.soort-knop');
+  knop?.setAttribute('aria-expanded', 'false');
+  if (terug) knop?.focus();
 }
-document.addEventListener('keydown', (e) => e.key === 'Escape' && sluitMenu());
+document.addEventListener('keydown', (e) => e.key === 'Escape' && sluitMenu(true));
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.soort-menu, .soort-knop')) sluitMenu();
 });
