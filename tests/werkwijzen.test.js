@@ -91,13 +91,18 @@ test('elke verwijzing naar een skill of agent wijst naar een bestand dat bestaat
 });
 
 test('een skill noemt in de tekst alleen skills die bestaan', () => {
-  // "de skill vraag-toevoegen" of "de skill `release-maken`"
+  // "de skill vraag-toevoegen" (met koppelteken) of "de skill `schermen`" (met backticks)
   const bestanden = ['AGENTS.md', 'README.md', 'CHANGELOG.md'];
   for (const naam of skills) bestanden.push(`.claude/skills/${naam}/SKILL.md`);
   for (const bestand of agents) bestanden.push(`.claude/agents/${bestand}`);
   for (const pad of bestanden) {
-    for (const m of lees(pad).matchAll(/\bskill `?([a-z]+(?:-[a-z]+)+)`?/g)) {
-      assert.ok(skills.includes(m[1]), `${pad} noemt de skill ${m[1]}, maar die bestaat niet.`);
+    for (const m of lees(pad).matchAll(
+      /\bskill (?:`([a-z]+(?:-[a-z]+)*)`|([a-z]+(?:-[a-z]+)+))/g,
+    )) {
+      assert.ok(
+        skills.includes(m[1] || m[2]),
+        `${pad} noemt de skill ${m[1] || m[2]}, maar die bestaat niet.`,
+      );
     }
   }
 });
