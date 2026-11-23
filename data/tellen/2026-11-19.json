@@ -1,0 +1,11 @@
+{
+  "poging": [
+    {"soort":56,"uitkomst":"fout","duur":116,"hint":false,"aantal":1},
+    {"soort":56,"uitkomst":"fout","duur":235,"hint":false,"aantal":1},
+    {"soort":57,"uitkomst":"uitwerking","duur":10,"hint":false,"aantal":1},
+    {"soort":57,"uitkomst":"uitwerking","duur":13,"hint":false,"aantal":1}
+  ],
+  "valkuil": [
+    {"soort":56,"valkuil":"verhouding-omgedraaid","aantal":1}
+  ]
+}

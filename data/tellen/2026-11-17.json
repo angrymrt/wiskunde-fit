@@ -1,0 +1,31 @@
+{
+  "poging": [
+    {"soort":16,"uitkomst":"goed","duur":29,"hint":false,"aantal":1},
+    {"soort":53,"uitkomst":"goed","duur":25,"hint":false,"aantal":1},
+    {"soort":54,"uitkomst":"goed","duur":33,"hint":true,"aantal":1},
+    {"soort":54,"uitkomst":"uitwerking","duur":179,"hint":true,"aantal":1},
+    {"soort":55,"uitkomst":"fout","duur":259,"hint":false,"aantal":1},
+    {"soort":55,"uitkomst":"goed","duur":113,"hint":false,"aantal":1},
+    {"soort":55,"uitkomst":"goed","duur":496,"hint":false,"aantal":1},
+    {"soort":56,"uitkomst":"fout","duur":242,"hint":false,"aantal":1},
+    {"soort":56,"uitkomst":"goed","duur":265,"hint":false,"aantal":1},
+    {"soort":57,"uitkomst":"uitwerking","duur":17,"hint":false,"aantal":1},
+    {"soort":57,"uitkomst":"uitwerking","duur":62,"hint":false,"aantal":1},
+    {"soort":57,"uitkomst":"uitwerking","duur":401,"hint":true,"aantal":1},
+    {"soort":107,"uitkomst":"fout","duur":22,"hint":false,"aantal":1},
+    {"soort":107,"uitkomst":"goed","duur":3,"hint":false,"aantal":1},
+    {"soort":107,"uitkomst":"goed","duur":4,"hint":false,"aantal":1},
+    {"soort":107,"uitkomst":"goed","duur":5,"hint":false,"aantal":2},
+    {"soort":107,"uitkomst":"goed","duur":7,"hint":false,"aantal":2},
+    {"soort":107,"uitkomst":"goed","duur":8,"hint":false,"aantal":4},
+    {"soort":107,"uitkomst":"goed","duur":11,"hint":false,"aantal":1},
+    {"soort":107,"uitkomst":"goed","duur":14,"hint":false,"aantal":1},
+    {"soort":107,"uitkomst":"goed","duur":15,"hint":false,"aantal":2},
+    {"soort":107,"uitkomst":"goed","duur":16,"hint":false,"aantal":1},
+    {"soort":107,"uitkomst":"goed","duur":18,"hint":false,"aantal":1}
+  ],
+  "valkuil": [
+    {"soort":55,"valkuil":"volgorde-in-tabel","aantal":1},
+    {"soort":107,"valkuil":"toename-afname-omgedraaid","aantal":1}
+  ]
+}
