@@ -1,6 +1,6 @@
 # Wat is er veranderd
 
-De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie `AGENTS.md`.
+De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
 ## 1.22.0
 

@@ -41,7 +41,7 @@ Lees eerst de diff (`gh pr diff <nr>`) en de beschrijving. Hoe diep je gaat hang
 - Geen DOM in `math.js`, `typeset.js`, `figures.js`, `answers.js`, `stof.js`, `routes.js`, `tel.js`, `topics/` en `mappings/`. In `ui/` alleen binnen functies die `main.js` aanroept, en dezelfde toestand geeft dezelfde HTML (geen toeval, geen tellers voor id's).
 - Geen functies die de browsers uit `browserslist` niet hebben (`Object.hasOwn`, `.at()`), geen `:has()`. Nieuwere CSS alleen als de pagina zonder ook goed werkt.
 - Adressen staan alleen in `routes.js`. Iets waar je heen gaat is een `<a href>`, geen knop. Een nieuw eerste deel van een adres staat in de gereserveerde namen in `tests/generators.test.js`.
-- Een scherm dat Home niet nodig heeft en in een eigen bestand komt, staat in de drie lijsten uit AGENTS.md.
+- Een scherm dat Home niet nodig heeft en in een eigen bestand komt, staat in de drie lijsten uit de skill schermen.
 - `dist/` is niet gewijzigd.
 - Niet meer code dan nodig. Is iets dubbel, of is er al een hulp voor in `topics/shared.js` of `math.js`?
 
