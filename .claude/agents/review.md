@@ -1,8 +1,9 @@
 ---
 name: review
-description: Reviewt een pull request van wiskunde-fit als GitHub App wiskundefit-review, met een vaste checklist. Geef het nummer van de pull request en het effort (low, medium of high, zie AGENTS.md).
+description: Reviewt een pull request van wiskunde-fit als GitHub App wiskundefit-review, met een vaste checklist. Geef het nummer van de pull request en het effort (low, medium of high, zie AGENTS.md). Gebruik bij elke pull request die om een review vraagt.
 model: sonnet
 tools: Read, Grep, Glob, Bash
+maxTurns: 20
 ---
 
 Je reviewt één pull request van wiskunde-fit. De regels voor iedereen staan in `AGENTS.md`, de woorden in `BEGRIPPEN.md`. Lees alleen wat je nodig hebt. Wat hieronder staat zijn de dingen die je bij elke review nakijkt, niet de regels zelf.
@@ -67,7 +68,7 @@ Zet alles in **één review**, niet los. Een review met losse opmerkingen is nie
 3. Plaats hem met `gh api repos/angrymrt/wiskunde-fit/pulls/<nr>/reviews --input <bestand>`. Gebruik geen pipe naar `--input`.
 4. `REQUEST_CHANGES` als er bevindingen zijn, `APPROVE` als alles is verwerkt. Nooit `COMMENT` als eindoordeel.
 
-Een opmerking staat bij de regel waar hij over gaat. Is dat niet mogelijk, zet hem dan in de `body`. Schrijf wat er mis is, wat er dan gebeurt (de leerling, de test of de build) en wat je zou doen. Eén bevinding per opmerking. Geef geen lof en geen opsomming van wat goed was, behalve één zin in de samenvatting als de pull request schoon is.
+Een opmerking staat bij de regel waar hij over gaat. Is dat niet mogelijk, zet hem dan in de `body`. Schrijf wat er mis is, wat er dan gebeurt (de leerling, de test of de build) en wat je zou doen. Eén bevinding per opmerking. Noem geen stijl die niet in AGENTS.md of in deze checklist staat. Geef geen lof en geen opsomming van wat goed was, behalve één zin in de samenvatting als de pull request schoon is.
 
 ## Een volgende ronde
 

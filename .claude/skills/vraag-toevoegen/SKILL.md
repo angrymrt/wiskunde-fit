@@ -1,6 +1,6 @@
 ---
 name: vraag-toevoegen
-description: Een vraagsoort (generator) toevoegen of wijzigen in src/js/topics/ van wiskunde-fit: de stappen, de velden van een vraag, de veldhulpen in shared.js, valkuilen en de T-notatie. Gebruik bij elke wijziging aan een vraagsoort.
+description: Een vraagsoort (generator) toevoegen of wijzigen in src/js/topics/ van wiskunde-fit: de stappen, de velden van een vraag, de veldhulpen in shared.js (F, RF, orFields, drawLine), valkuilen (traps), seed, v-controle, vingerafdrukken en de T-notatie. Gebruik bij elke wijziging aan een vraagsoort of generator.
 ---
 
 De regels voor iedereen staan in AGENTS.md (Regels). Dit is de werkwijze voor een vraagsoort.
