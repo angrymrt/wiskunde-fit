@@ -618,7 +618,8 @@ sub {
 .fig .gl.gr {
   stroke: var(--rule);
 }
-.fig .fout {
+.fig .fout,
+.fig .a1.fout {
   stroke: var(--bad);
   stroke-width: 3;
   fill: none;

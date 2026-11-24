@@ -31,7 +31,7 @@ const same = (p, q) => !!p && !!q && p[0] === q[0] && p[1] === q[1];
 
 // Letters bij de hoekpunten: eerst het grondvlak, dan het bovenvlak, tegen de klok in vanaf linksvoor. Zonder
 // de I en de O, die lijken op 1 en 0.
-const LETTERS = ['ABCDEFGH', 'KLMNPQRS', 'EFGHJKLM', 'PQRSTUVW', 'CDEFGHJK'];
+const LETTERS = ['DEFGRSTU', 'GHJKVWXY', 'LMNPWXYZ', 'MNPQVWXY', 'STUVDEFG'];
 // Hoeveel hokjes een schuine ribbe naar rechts en omhoog gaat. Altijd korter dan de ribbe zelf.
 const SCHUIN = [
   [1, 1],
@@ -183,7 +183,7 @@ function kubusAfmaken() {
 // ---------------------------------------------------------------------------------------------
 // 183: een driehoek tekenen als de drie zijden bekend zijn, met een passer.
 
-const DRIEHOEKEN = ['KLM', 'PQR', 'DEF', 'STU', 'ABC', 'GHJ'];
+const DRIEHOEKEN = ['GHJ', 'RST', 'XYZ', 'MNP', 'VWX', 'DEG'];
 const ZIJDEN = [2.5, 3, 3.5, 4, 4.5, 5, 5.5];
 // Een driehoek die goed te tekenen is: het derde hoekpunt ligt tussen 1,5 en 4,5 cm boven de eerste zijde, en
 // de hoeken bij die zijde zijn tussen 25° en 115°. Dan vallen de boogjes in het rooster.
@@ -213,7 +213,7 @@ function driehoekPasser() {
   const near = (x, y) => Math.abs(x - y) < 1e-9;
   return {
     q: T(
-      `Teken △${L} met ${PQ} = ${d(ab)} cm, ${PR} = ${d(ac)} cm en ${QR} = ${d(bc)} cm. Zijde ${PQ} staat er al. Gebruik de passer, en laat de boogjes staan.`,
+      `Teken △${L} met ${PQ} = ${d(ab)} cm, ${PR} = ${d(ac)} cm en ${QR} = ${d(bc)} cm. Zijde ${PQ} staat er al. Gebruik de passer, en gum de boogjes niet weg.`,
     ),
     fig: tekenFig(t),
     teken: t,
@@ -223,7 +223,7 @@ function driehoekPasser() {
       `Zijde ${PQ} = ${d(ab)} cm staat er al.`,
       `Stel de passer in op ${PR} = ${d(ac)} cm. Zet de punt in ${P} en teken een boogje.`,
       `Stel de passer in op ${QR} = ${d(bc)} cm. Zet de punt in ${Q} en teken een boogje dat het eerste boogje snijdt. Het snijpunt is ${R}.`,
-      `Teken de zijden ${PR} en ${QR}. Laat de boogjes staan.`,
+      `Teken de zijden ${PR} en ${QR}. Gum de boogjes niet weg.`,
       H(tekenAf(t, a, `△${L} is getekend, met de boogjes.`)),
     ],
     traps: [
@@ -249,7 +249,7 @@ function driehoekPasser() {
           const st = lees(v);
           return cGoed(st) && (!st.ra || !st.rb);
         },
-        m: `${R} ligt goed. Maar teken de boogjes met de passer, en laat ze staan. Daaraan zie je hoe je ${R} hebt gevonden.`,
+        m: `${R} ligt goed. Maar teken de boogjes met de passer, en gum ze niet weg. Daaraan zie je hoe je ${R} hebt gevonden.`,
       },
       {
         id: 'niet-op-snijpunt',
@@ -392,8 +392,8 @@ function uitslagTekenen() {
 // ---------------------------------------------------------------------------------------------
 // De voorbeelden in de uitleg.
 
-const VB_KUBUS = kubusVraag('ABCDEFGH', 4, [2, 1], true, 2);
-const VB_DRIEHOEK = { soort: 'passer', ab: 5, ac: 4, bc: 3, L: 'KLM', x1: 6, y1: 6 };
+const VB_KUBUS = kubusVraag('MNPQVWXY', 4, [2, 1], true, 2);
+const VB_DRIEHOEK = { soort: 'passer', ab: 5, ac: 4, bc: 3, L: 'RST', x1: 6, y1: 6 };
 const VB_UITSLAG = {
   soort: 'uitslag',
   W,
@@ -441,13 +441,13 @@ export default {
       ],
       ex: {
         q:
-          T('Maak kubus ABCD EFGH af. Zijvlak ABFE en ribbe BC staan er al.') +
-          tekenAf(VB_KUBUS, '', 'Nog zonder D, G en H.'),
+          T('Maak kubus MNPQ VWXY af. Zijvlak MNWV en ribbe NP staan er al.') +
+          tekenAf(VB_KUBUS, '', 'Nog zonder Q, X en Y.'),
         steps: [
-          'Ribbe BC gaat 2 hokjes naar rechts en 1 omhoog.',
-          'Zo ligt D 2 hokjes naar rechts en 1 omhoog van A, G van F en H van E.',
-          'De ribben AD, CD en DH zie je niet. Die teken je gestippeld.',
-          H(tekenAf(VB_KUBUS, vbKubus, 'Kubus ABCD EFGH is af.')),
+          'Ribbe NP gaat 2 hokjes naar rechts en 1 omhoog.',
+          'Zo ligt Q 2 hokjes naar rechts en 1 omhoog van M, X van W en Y van V.',
+          'De ribben MQ, PQ en QY zie je niet. Die teken je gestippeld.',
+          H(tekenAf(VB_KUBUS, vbKubus, 'Kubus MNPQ VWXY is af.')),
         ],
       },
       watch:
@@ -463,20 +463,20 @@ export default {
         'Teken de eerste zijde op ware grootte.',
         'Teken een boogje met het ene eindpunt als middelpunt en de tweede zijde als straal.',
         'Teken een boogje met het andere eindpunt als middelpunt en de derde zijde als straal. Het snijpunt van de boogjes is het derde hoekpunt.',
-        'Maak de driehoek af, zet de letters erbij en laat de boogjes staan.',
+        'Maak de driehoek af, zet de letters erbij en gum de boogjes niet weg.',
       ],
       ex: {
-        q: T('Teken △KLM met KL = 5 cm, KM = 4 cm en LM = 3 cm.'),
+        q: T('Teken △RST met RS = 5 cm, RT = 4 cm en ST = 3 cm.'),
         steps: [
-          'Teken zijde KL = 5 cm.',
-          'Stel de passer in op KM = 4 cm. Zet de punt in K en teken een boogje.',
-          'Stel de passer in op LM = 3 cm. Zet de punt in L en teken een boogje. Het snijpunt van de boogjes is M.',
-          'Teken de zijden KM en LM. Laat de boogjes staan.',
-          H(tekenAf(VB_DRIEHOEK, vbDriehoek, '△KLM is getekend, met de boogjes.')),
+          'Teken zijde RS = 5 cm.',
+          'Stel de passer in op RT = 4 cm. Zet de punt in R en teken een boogje.',
+          'Stel de passer in op ST = 3 cm. Zet de punt in S en teken een boogje. Het snijpunt van de boogjes is T.',
+          'Teken de zijden RT en ST. Gum de boogjes niet weg.',
+          H(tekenAf(VB_DRIEHOEK, vbDriehoek, '△RST is getekend, met de boogjes.')),
         ],
       },
       watch:
-        'Laat de boogjes staan. Daaraan zie je hoe je de driehoek hebt getekend. Op het scherm stel je de passer in met − en +, en zet je hem neer met de knop bij het hoekpunt.',
+        'Gum de boogjes niet weg. Daaraan zie je hoe je de driehoek hebt getekend. Op het scherm stel je de passer in met − en +, en zet je hem neer met de knop bij het hoekpunt.',
     },
     {
       t: 'Een uitslag van een kubus tekenen',

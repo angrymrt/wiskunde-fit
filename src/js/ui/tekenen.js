@@ -83,10 +83,7 @@ function knoppenHTML(g) {
     uitleg = `<p class="sr" id="${p}tk-uitleg"></p>`;
   if (g.t.soort === 'passer')
     return `${stap}<div class="row" role="group" aria-labelledby="${p}tk-pl"><span id="${p}tk-pl">Passer</span>${knop(g, 'kleiner', '−', 'Passer kleiner')}<b id="${p}tk-straal"></b>${knop(g, 'groter', '+', 'Passer groter')}</div><div class="row">${knop(g, 'a', `Passer in ${L[0]}`)}${knop(g, 'b', `Passer in ${L[1]}`)}${knop(g, 'c', `${L[2]} op het snijpunt`)}</div>${wis}<p class="small muted">${HULP.passer(L)}</p>${uitleg}`;
-  const pijlen =
-    g.t.soort === 'kubus'
-      ? `<div class="row" role="group" aria-label="Cursor in het rooster">${knop(g, 'links', '←', 'Cursor naar links')}${knop(g, 'omhoog', '↑', 'Cursor omhoog')}${knop(g, 'omlaag', '↓', 'Cursor omlaag')}${knop(g, 'rechts', '→', 'Cursor naar rechts')}${knop(g, 'zet', 'Zet punt')}</div>`
-      : '';
+  const pijlen = `<div class="row" role="group" aria-label="Cursor in het rooster">${knop(g, 'links', '←', 'Cursor naar links')}${knop(g, 'omhoog', '↑', 'Cursor omhoog')}${knop(g, 'omlaag', '↓', 'Cursor omlaag')}${knop(g, 'rechts', '→', 'Cursor naar rechts')}${knop(g, 'zet', g.t.soort === 'kubus' ? 'Zet punt' : 'Kleur hokje')}</div>`;
   return `${stap}${pijlen}${wis}<p class="small muted">${HULP[g.t.soort]}</p>${uitleg}`;
 }
 
@@ -110,8 +107,17 @@ function bijwerken(g) {
     deel('straal').textContent = `${String(ui.straal).replace('.', ',')} cm`;
     deel('c').disabled = !g.S.snijpunt(g.t, st);
   }
-  if (g.t.soort === 'kubus')
-    deel('zet').textContent = cursor && g.S.bezet(g.t, st, cursor) ? 'Haal weg' : 'Zet punt';
+  if (metRooster(g)) {
+    const bezet = cursor && g.S.bezet(g.t, st, cursor);
+    deel('zet').textContent =
+      g.t.soort === 'kubus'
+        ? bezet
+          ? 'Haal weg'
+          : 'Zet punt'
+        : bezet
+          ? 'Maak hokje leeg'
+          : 'Kleur hokje';
+  }
 }
 
 // Na elke render(): het scherm is opnieuw opgebouwd, dus de knoppen en de tekening komen er weer bij. De eerste keer

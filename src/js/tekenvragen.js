@@ -312,14 +312,22 @@ const passer = {
       [st.ra, A, 0.17, 2.1, ok[0]],
       [st.rb, B, 1.05, 2.97, ok[1]],
     ];
-    let paden = '';
+    let paden = '',
+      kruisjes = '';
     for (const [r, O, a0, a1, goedBoog] of bogen) {
       if (!r) continue;
       const mid = S && Math.atan2(S[1] - O[1], S[0] - O[0]);
+      if (fout && !goedBoog) {
+        // Een kruisje bij het midden van het foute boogje, binnen het rooster.
+        const h = S ? mid : (a0 + a1) / 2,
+          x = Math.min(Math.max(m.X(O[0] + r * Math.cos(h)), PAD + 8), m.w - PAD - 8),
+          y = Math.min(Math.max(m.Y(O[1] + r * Math.sin(h)), PAD + 8), m.h - PAD - 8);
+        kruisjes += kruis(x, y - 14, 5);
+      }
       paden += `<path class="a1${fout && !goedBoog ? ' fout' : ''}" d="${S ? boog(m, O, r, mid - 0.4, mid + 0.4) : boog(m, O, r, a0, a1)}"/>`;
     }
     // Een boogje dat buiten het rooster komt, valt weg aan de rand, net als in graph() in figures.js.
-    o += `<svg x="${PAD}" y="${PAD}" width="${m.w - 2 * PAD}" height="${m.h - 2 * PAD}" viewBox="${PAD} ${PAD} ${m.w - 2 * PAD} ${m.h - 2 * PAD}">${paden}</svg>`;
+    o += `<svg x="${PAD}" y="${PAD}" width="${m.w - 2 * PAD}" height="${m.h - 2 * PAD}" viewBox="${PAD} ${PAD} ${m.w - 2 * PAD} ${m.h - 2 * PAD}">${paden}</svg>${kruisjes}`;
     if (S && !st.c) o += `<circle class="a2" cx="${r2(m.X(S[0]))}" cy="${r2(m.Y(S[1]))}" r="7"/>`;
     if (st.c) {
       const c = st.c;

@@ -122,7 +122,7 @@ test('een uitslag afmaken: de hokjes die er al staan tellen mee, en blijven staa
 });
 
 test('het snijpunt van de boogjes, en een marge bij het derde hoekpunt', () => {
-  const t = { soort: 'passer', ab: 5, ac: 4, bc: 3, L: 'KLM', x1: 6, y1: 6 };
+  const t = { soort: 'passer', ab: 5, ac: 4, bc: 3, L: 'RST', x1: 6, y1: 6 };
   const [x, y] = snijpunt(5, 4, 3);
   assert.ok(Math.abs(x - 3.2) < 1e-9 && Math.abs(y - 2.4) < 1e-9);
   assert.equal(snijpunt(5, 1, 2), null, 'boogjes die elkaar niet raken');
@@ -141,22 +141,22 @@ test('het snijpunt van de boogjes, en een marge bij het derde hoekpunt', () => {
 });
 
 test('een tik bij de passer: neerzetten, het snijpunt vangen en een veranderd boogje', () => {
-  const t = { soort: 'passer', ab: 5, ac: 4, bc: 3, L: 'KLM', x1: 6, y1: 6 };
+  const t = { soort: 'passer', ab: 5, ac: 4, bc: 3, L: 'RST', x1: 6, y1: 6 };
   let st = passer.lees(t, '');
   st = passer.tik(t, st, [0.2, -0.1], 4).st;
-  assert.equal(st.ra, 4, 'een tik bij K zet de passer in K');
+  assert.equal(st.ra, 4, 'een tik bij R zet de passer in R');
   st = passer.tik(t, st, [5.1, 0.3], 3).st;
-  assert.equal(st.rb, 3, 'een tik bij L zet de passer in L');
-  // Vlak bij het snijpunt komt M precies op het snijpunt.
+  assert.equal(st.rb, 3, 'een tik bij S zet de passer in S');
+  // Vlak bij het snijpunt komt T precies op het snijpunt.
   st = passer.tik(t, st, [3.5, 2.2], 3).st;
   assert.deepEqual(st.c, [3.2, 2.4]);
   assert.deepEqual(passer.nakijken(t, st), [true, true, true]);
-  // Met een ander boogje vanuit K valt M weg, met hetzelfde boogje niet.
+  // Met een ander boogje vanuit R valt T weg, met hetzelfde boogje niet.
   assert.deepEqual(passer.boog(t, st, 0, 4).st.c, [3.2, 2.4]);
   const anders = passer.boog(t, st, 0, 4.5);
   assert.equal(anders.st.c, null);
-  assert.match(anders.zin, /M is weggehaald/);
-  // Ver van het snijpunt blijft M waar je tikt.
+  assert.match(anders.zin, /T is weggehaald/);
+  // Ver van het snijpunt blijft T waar je tikt.
   assert.deepEqual(passer.tik(t, st, [1, 4], 3).st.c, [1, 4]);
 });
 
@@ -168,7 +168,7 @@ test('een kubus afmaken: de punten op volgorde, en wat een tik doet', () => {
     o: [1, 1],
     W: 8,
     H: 8,
-    L: 'ABCDEFGH',
+    L: 'MNPQVWXY',
     geg: [0, 1, 5, 4, 2],
     zet: [3, 6, 7],
   };
@@ -192,7 +192,7 @@ test('een kubus afmaken: de punten op volgorde, en wat een tik doet', () => {
   );
   assert.match(
     kubus.tik(t, st, [7, 6]).zin,
-    /Punt G gezet, 6 hokjes naar rechts en 5 omhoog van A/,
+    /Punt X gezet, 6 hokjes naar rechts en 5 omhoog van M/,
   );
 });
 
