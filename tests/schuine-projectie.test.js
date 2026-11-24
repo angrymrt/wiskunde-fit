@@ -342,6 +342,11 @@ test('een fout in de opties geeft een duidelijke fout', () => {
       }),
     /convex/,
   );
+  // Een pentagram draait steeds linksaf, maar is geen convexe veelhoek. Een gewone vijfhoek wel.
+  const pent = (order) =>
+    order.map((i) => [4 * Math.cos((2 * Math.PI * i) / 5), 4 * Math.sin((2 * Math.PI * i) / 5)]);
+  assert.throws(() => solid({ kind: 'prisma', base: pent([0, 2, 4, 1, 3]) }), /geen ster/);
+  assert.doesNotThrow(() => solid({ kind: 'prisma', base: pent([0, 1, 2, 3, 4]) }));
   assert.throws(() => solid({ kind: 'kubus', len: { AG: 3 } }), /geen ribbe/);
   assert.throws(() => solid({ kind: 'kubus', fill: 'ABGH' }), /geen zijvlak/);
   assert.throws(() => solid({ kind: 'piramide', lying: true }), /niet liggen/);
