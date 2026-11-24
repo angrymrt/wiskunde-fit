@@ -7,6 +7,7 @@ import { esc } from './typeset.js';
 import { boxFaces } from './ruimte.js';
 import { num, and, cap, attr } from './figures.js';
 
+// Een uitslag van een kubus of een balk, zie ruimte.js. cells zijn de vlakken als hokjes [x, y],
 // met x naar rechts en y naar beneden. Opties:
 //  - dims: [l, b, h], de maten van een balk in hokjes van het rooster. Elk vlak wordt dan een
 //    rechthoek met de goede maten (boxFaces), en de vorm moet een uitslag zijn. Zijn de drie maten
