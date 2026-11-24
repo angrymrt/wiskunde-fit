@@ -132,9 +132,9 @@ const WRONG_NAME = {
       'Een cirkel is een platte figuur. Hier is de cirkel het platte zijvlak van een ruimtefiguur.',
     ],
     [
-      'feesthoedje',
+      'trechter',
       'dagelijkse-naam',
-      'Feesthoedje is geen wiskundige naam. Heeft een ruimtefiguur één cirkel en een gebogen zijvlak dat naar een top loopt, dan heet hij een kegel.',
+      'Trechter is geen wiskundige naam. Heeft een ruimtefiguur één cirkel en een gebogen zijvlak dat naar een top loopt, dan heet hij een kegel.',
     ],
   ],
   bol: [
