@@ -25,6 +25,10 @@ import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
 import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
+import ruimtefiguren from './ruimtefiguren-herkennen.js';
+import vierkantRechthoek from './vierkant-en-rechthoek.js';
+import blokjes from './blokjes-tellen.js';
+import kubusBalk from './kubus-en-balk.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -93,7 +97,17 @@ const DOMAINS = [
     description:
       'Meetkunde oefenen: stelling van Pythagoras, verhoudingstabellen en gelijkvormige driehoeken. Gratis met uitleg, hints en uitwerkingen.',
     color: 'orange',
-    topics: [pythagoras, verhoudingen, gelijkvormig, aantonen, lengtes],
+    topics: [
+      ruimtefiguren,
+      vierkantRechthoek,
+      kubusBalk,
+      blokjes,
+      pythagoras,
+      verhoudingen,
+      gelijkvormig,
+      aantonen,
+      lengtes,
+    ],
   },
   {
     slug: 'statistiek',
@@ -124,6 +138,8 @@ const PREREQUISITES = new Map([
   [gelijkvormig, [verhoudingen, pythagoras]],
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],
+  [blokjes, [vierkantRechthoek]],
+  [kubusBalk, [ruimtefiguren, vierkantRechthoek]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],

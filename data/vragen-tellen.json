@@ -590,6 +590,83 @@
     "142": {
       "aantal": 588,
       "exact": true
+    },
+    "143": {
+      "aantal": 110,
+      "exact": true
+    },
+    "144": {
+      "aantal": 12,
+      "exact": true
+    },
+    "145": {
+      "aantal": 4974954,
+      "ondergrens": true,
+      "exact": false
+    },
+    "146": {
+      "aantal": 2208,
+      "exact": true
+    },
+    "147": {
+      "aantal": 4280,
+      "exact": true
+    },
+    "148": {
+      "aantal": 2720,
+      "exact": true
+    },
+    "149": {
+      "aantal": 15,
+      "exact": true
+    },
+    "150": {
+      "aantal": 411,
+      "exact": true
+    },
+    "151": {
+      "aantal": 68,
+      "exact": true
+    },
+    "152": {
+      "aantal": 12096,
+      "exact": true
+    },
+    "153": {
+      "aantal": 54,
+      "exact": true
+    },
+    "154": {
+      "aantal": 384,
+      "exact": true
+    },
+    "155": {
+      "aantal": 167616,
+      "exact": true
+    },
+    "156": {
+      "aantal": 3092,
+      "exact": true
+    },
+    "157": {
+      "aantal": 21168,
+      "exact": true
+    },
+    "158": {
+      "aantal": 816,
+      "exact": true
+    },
+    "159": {
+      "aantal": 608,
+      "exact": true
+    },
+    "160": {
+      "aantal": 32256,
+      "exact": true
+    },
+    "161": {
+      "aantal": 46080,
+      "exact": true
     }
   }
 }
