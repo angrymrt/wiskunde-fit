@@ -3198,11 +3198,14 @@ test(
 // (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
   page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
-  // Alleen Zo maken we de vragen: alle 142 vraagsoorten en drie roosters staan erin.
+  // Alleen Zo maken we de vragen: alle 161 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
-  start: { sent: 53, own: 133, why: 'de code bij het eerste bezoek' },
+  // Hoofdstuk 1 van havo/vwo 1 (#232) voegde vier onderwerpen met 19 vraagsoorten toe. Van elk onderwerp staat de
+  // catalogus (naam, adres, intro en de namen van de vraagsoorten) bij het eerste bezoek in de code: samen 2 kB zelf
+  // en 0,3 kB verstuurd. De grens ging van 53 naar 54, en onverpakt van 133 naar 136 kB.
+  start: { sent: 54, own: 136, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
