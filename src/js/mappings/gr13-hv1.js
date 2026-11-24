@@ -1,5 +1,5 @@
 // Getal & Ruimte, 13e editie, havo/vwo 1. De koppelingen komen uit de titels en de generatoren.
-// De boekpagina's ontbreken nog, dus de werkwijze is niet vergeleken. Daarom is alles hier deels gedekt.
+// Hoofdstuk 1 is gemaakt met de foto's van het boek erbij, de andere hoofdstukken nog niet. Daarom is alles hier deels gedekt.
 export default {
   id: 'gr13-hv1',
   slug: 'getal-en-ruimte-13-havo-vwo-1',
