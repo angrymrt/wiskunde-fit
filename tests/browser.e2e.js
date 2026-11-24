@@ -396,7 +396,7 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     await p.click('.crumbs a[href="/meetkunde"]');
     assert.equal(new URL(p.url()).pathname, '/meetkunde');
     assert.equal(await p.textContent('h1'), 'Meetkunde');
-    assert.equal(await p.locator('main a.par').count(), 9);
+    assert.equal(await p.locator('main a.par').count(), 14);
     assert.ok(await p.$('main a[href="/methode-indeling/getal-en-ruimte-13-havo-3"]'));
     await p.screenshot({ path: `${shotDir}domein.png`, fullPage: true });
 
@@ -3197,16 +3197,17 @@ test(
 // bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden
 // (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
-  // De pagina Cijfers noemt alle vraagsoorten (#232: 181). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 6,8 kB.
-  page: { sent: 7, why: 'een vooraf gebouwde pagina' },
-  // Alleen Zo maken we de vragen: alle 181 vraagsoorten en drie roosters staan erin.
-  lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
+  // De pagina Cijfers noemt alle vraagsoorten (#232: 181). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 7,2 kB, dus de grens ging van 7 naar 7,5.
+  page: { sent: 7.5, why: 'een vooraf gebouwde pagina' },
+  // Alleen Zo maken we de vragen: alle 181 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
+  lijst: { sent: 10.5, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
   // Hoofdstuk 1 van havo/vwo 1 (#232) voegde vier onderwerpen met 19 vraagsoorten toe. Van elk onderwerp staat de
   // catalogus (naam, adres, intro en de namen van de vraagsoorten) bij het eerste bezoek in de code: samen 2 kB zelf
-  // en 0,3 kB verstuurd. De grens ging van 53 naar 54, en onverpakt van 133 naar 136 kB.
-  start: { sent: 54, own: 136, why: 'de code bij het eerste bezoek' },
+  // en 0,3 kB verstuurd. Laag 3 voegde er vijf toe (nu 9 onderwerpen). De grens ging van 53 naar 55, en onverpakt van 133 naar 139 kB.
+  // Kleiner maken kan met #206 (de catalogus niet meer bij het eerste bezoek laden).
+  start: { sent: 55, own: 139, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
@@ -3219,7 +3220,8 @@ const LIMITS = {
   // De figuren voor ruimtefiguren (src/js/ruimtefiguren.js en ruimte.js, #232) worden door vier onderwerpen gedeeld en
   // staan daarom in een eigen gedeeld bestand: 16,2 kB verstuurd en 46,3 kB zelf. Dat bestand laadt alleen bij die
   // onderwerpen, niet bij het eerste bezoek. De grens ging van 16 naar 17 en van 44 naar 48 kB.
-  shared: { sent: 17, own: 48, why: 'een gedeeld codebestand' },
+  // Laag 3 van #232 zette gedeelde figuurcode in topics/shared.js: 17,0 kB verstuurd, dus de grens ging van 17 naar 17,5, en onverpakt van 48 naar 49 kB.
+  shared: { sent: 17.5, own: 49, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
   // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
   css: { sent: 10.5, why: 'de CSS' },
