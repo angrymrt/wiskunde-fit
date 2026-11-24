@@ -10,7 +10,7 @@ const en = (xs) =>
 
 // Letters bij de hoekpunten: een rij opeenvolgende letters, tegen de klok in. Elke vraag begint bij
 // een andere letter. Met een rij van 8 letters past elk begin nog in het alfabet.
-const BEGIN = ['D', 'F', 'G', 'H', 'L', 'M', 'R', 'S'];
+const BEGIN = ['B', 'C', 'G', 'H', 'L', 'M', 'R', 'S'];
 const reeksVan = (n) => reeks(BEGIN, n);
 // De naam van een lijnstuk tussen twee hoekpunten, op alfabet: KM, niet MK.
 const lijn = (p, q) => [p, q].sort().join('');
@@ -753,14 +753,14 @@ const s169 = () => pick([eigenschappen, lengtes])();
 // De uitleg.
 
 // Een vaste vijfhoek met zijn diagonalen, voor het voorbeeld.
-const VB = 'FGHIJ',
+const VB = 'GHIJK',
   VB_PTS = punten(VB, 0, 1);
 const VB_FIG = geo({
   pts: VB_PTS,
   segs: [...rand(VB), ...diagonalenVan(VB)],
   w: 220,
   maxH: 180,
-  desc: 'Vijfhoek FGHIJ met de diagonalen FH, FI, GI, GJ en HJ.',
+  desc: 'Vijfhoek GHIJK met de diagonalen GI, GJ, HJ, HK en IK.',
 });
 
 export default {
@@ -782,7 +782,7 @@ export default {
       t: 'Veelhoeken',
       p: [
         'Een veelhoek is een figuur met rechte zijden. Hij heet naar het aantal hoekpunten: een driehoek heeft 3 hoekpunten, een vierhoek 4, een vijfhoek 5, een zeshoek 6, een zevenhoek 7 en een achthoek 8. Een veelhoek heeft evenveel zijden als hoekpunten.',
-        'Je zet hoofdletters bij de hoekpunten, tegen de klok in, zoals bij vijfhoek FGHIJ. Een zijde noem je met de twee hoekpunten aan de uiteinden, zoals FG. De laatste zijde gaat van J terug naar F: dat is zijde FJ.',
+        'Je zet hoofdletters bij de hoekpunten, tegen de klok in, zoals bij vijfhoek GHIJK. Een zijde noem je met de twee hoekpunten aan de uiteinden, zoals GH. De laatste zijde gaat van K terug naar G: dat is zijde GK.',
       ],
       ex: {
         q: T('Welke zijden heeft zeshoek DEFGHI?'),
@@ -797,15 +797,15 @@ export default {
     {
       t: 'Diagonalen',
       p: [
-        'Een diagonaal is een lijnstuk tussen twee hoekpunten die geen buren zijn. Je noemt een diagonaal met de twee hoekpunten, zoals FH.',
+        'Een diagonaal is een lijnstuk tussen twee hoekpunten die geen buren zijn. Je noemt een diagonaal met de twee hoekpunten, zoals GI.',
         'Vanuit een hoekpunt kun je geen diagonaal tekenen naar dat hoekpunt zelf, en ook niet naar de twee buren: daar loopt al een zijde naartoe. In een vijfhoek gaan er dus vanuit elk hoekpunt 5 - 3 = 2 diagonalen.',
       ],
       ex: {
-        q: T('Hoeveel diagonalen heeft vijfhoek FGHIJ?') + VB_FIG,
+        q: T('Hoeveel diagonalen heeft vijfhoek GHIJK?') + VB_FIG,
         steps: [
           'Vanuit elk hoekpunt gaan 2 diagonalen. Voor 5 hoekpunten is dat 5 * 2 = 10.',
-          'Zo tel je elke diagonaal twee keer: FH tel je vanuit F en ook vanuit H. Dus 10 : 2 = 5.',
-          'De diagonalen zijn FH, FI, GI, GJ en HJ.',
+          'Zo tel je elke diagonaal twee keer: GI tel je vanuit G en ook vanuit I. Dus 10 : 2 = 5.',
+          'De diagonalen zijn GI, GJ, HJ, HK en IK.',
         ],
       },
       watch:
@@ -835,11 +835,11 @@ export default {
       ],
       ex: {
         q: T(
-          'Rechthoek GHIJ heeft diagonaal GI = 9 cm. De diagonalen snijden elkaar in S. Hoe lang zijn HJ en HS?',
+          'Rechthoek LMNO heeft diagonaal LN = 9 cm. De diagonalen snijden elkaar in S. Hoe lang zijn MO en MS?',
         ),
         steps: [
-          'In een rechthoek zijn de diagonalen even lang. Dus HJ = GI = 9 cm.',
-          'S ligt in het midden van HJ. Dus HS = 9 : 2 = 4,5 cm.',
+          'In een rechthoek zijn de diagonalen even lang. Dus MO = LN = 9 cm.',
+          'S ligt in het midden van MO. Dus MS = 9 : 2 = 4,5 cm.',
         ],
       },
       watch:

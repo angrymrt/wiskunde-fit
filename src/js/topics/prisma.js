@@ -12,7 +12,7 @@ const som = (xs) => xs.reduce((t, x) => t + x, 0);
 
 // Letters bij de hoekpunten: een rij opeenvolgende letters, eerst het grondvlak en dan het
 // bovenvlak, tegen de klok in. Zo staat de naam van een ribbe uit solidFacts al op volgorde.
-const BEGIN = ['C', 'D', 'E', 'H', 'K', 'M'];
+const BEGIN = ['B', 'C', 'H', 'I', 'J'];
 const reeksVan = (n) => reeks(BEGIN, 2 * n);
 // De naam van een prisma, zoals 'DEFGH IJKLM': het grondvlak, een spatie en het bovenvlak.
 const naam = (L, n) => `${L.slice(0, n)} ${L.slice(n)}`;

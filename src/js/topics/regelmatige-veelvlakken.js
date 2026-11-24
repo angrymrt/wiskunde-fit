@@ -173,7 +173,7 @@ const VEELHOEKEN = [
     },
   },
   {
-    // Een ruit met een gelijkzijdige driehoek op een zijde: vijf even lange zijden.
+    // Een vijfhoek met vijf even lange zijden en hoeken die niet gelijk zijn.
     soort: 'hoeken',
     maak: () => {
       const s = pick([2, 3, 4]);
@@ -210,7 +210,7 @@ function lopen(zijden, hoeken) {
   }
   return pts;
 }
-const BEGIN = ['D', 'F', 'G', 'H', 'L', 'M', 'R', 'S'];
+const BEGIN = ['B', 'C', 'G', 'H', 'L', 'M', 'R', 'S'];
 
 function regelmatigeVeelhoek() {
   const soort = pick(['regelmatig', 'regelmatig', 'zijden', 'hoeken', 'beide']),

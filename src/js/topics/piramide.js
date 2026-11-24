@@ -25,7 +25,7 @@ const EEN = { zijvlakken: 'zijvlak', ribben: 'ribbe', hoekpunten: 'hoekpunt' };
 
 // Letters bij de hoekpunten: eerst de top, dan het grondvlak, tegen de klok in. Het grondvlak staat
 // op alfabetische volgorde, zodat de naam van een ribbe uit solidFacts al op volgorde staat.
-const LETTERS = ['TGHIJKL', 'TKLMNOP', 'SDEFGHI', 'TPQRSUV', 'MFGHIJK', 'EKLMNOP', 'TBCDEFG'];
+const LETTERS = ['TGHIJKL', 'TLMNOPQ', 'SHIJKLM', 'MQRSTUV', 'EOPQRST', 'TBCDEFG'];
 
 // De aantallen van een piramide en een prisma met een n-hoek als grondvlak.
 const piramideTal = (n) => ({ zijvlakken: n + 1, ribben: 2 * n, hoekpunten: n + 1 });
@@ -1032,7 +1032,7 @@ function s177() {
 }
 
 // De figuren in de uitleg.
-const VOORBEELD = 'TFGHI';
+const VOORBEELD = 'TGHIJ';
 const voorbeeldNet = () => letterNet(piramideNet(regelmatig(4, 3), 3), VOORBEELD, false).fig;
 
 export default {
@@ -1056,16 +1056,16 @@ export default {
         'Een piramide heeft één grondvlak. Dat is een veelhoek, zoals een driehoek, een vierkant of een zeshoek.',
         'Bij elke zijde van het grondvlak hoort een driehoek. Die driehoeken heten de opstaande zijvlakken. Ze komen samen in één punt: de top.',
         'De ribben van de top naar het grondvlak heten de opstaande ribben.',
-        'Je noemt een piramide met de top voorop, en daarna de hoekpunten van het grondvlak rondom, tegen de klok in. Zo krijg je piramide TFGHI.',
+        'Je noemt een piramide met de top voorop, en daarna de hoekpunten van het grondvlak rondom, tegen de klok in. Zo krijg je piramide TGHIJ.',
       ],
       ex: {
         q:
-          T('Wat is de top en wat is het grondvlak van piramide TFGHI?') +
+          T('Wat is de top en wat is het grondvlak van piramide TGHIJ?') +
           solid({ kind: 'piramide', n: 4, h: 3, letters: VOORBEELD }),
         steps: [
           'De top staat voorop in de naam, dus de top is T.',
-          'Het grondvlak is FGHI.',
-          'De opstaande ribben zijn TF, TG, TH en TI.',
+          'Het grondvlak is GHIJ.',
+          'De opstaande ribben zijn TG, TH, TI en TJ.',
         ],
       },
       watch: T(
@@ -1118,9 +1118,9 @@ export default {
         'Elke opstaande ribbe zie je in de uitslag van een piramide twee keer, aan twee driehoeken. Die zijden komen tegen elkaar als je vouwt, dus ze zijn even lang.',
       ],
       ex: {
-        q: T('Hoe vaak staat de letter T in de uitslag van piramide TFGHI?') + voorbeeldNet(),
+        q: T('Hoe vaak staat de letter T in de uitslag van piramide TGHIJ?') + voorbeeldNet(),
         steps: [
-          'Aan elke zijde van het grondvlak FGHI zit een driehoek. Dat zijn 4 driehoeken.',
+          'Aan elke zijde van het grondvlak GHIJ zit een driehoek. Dat zijn 4 driehoeken.',
           'Bij elke driehoek staat T, dus T staat er 4 keer.',
         ],
       },

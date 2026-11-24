@@ -501,11 +501,8 @@ function s12short() {
     // Het gevraagde zijvlak: liggend (grond- of bovenvlak) of staand opzij.
     w = faceName(pick(f.faces.filter((x) => planeOf(f, x) === (lying ? OMHOOG : RECHTS)))),
     sides = [...w].map((k, i) => [k, w[(i + 1) % 4]].sort().join('')),
-    // Een ribbe naar achteren in het zijvlak, maar niet de ribbe met de lengte erbij, en een
-    // ribbe in een andere richting die eraan vastzit.
-    rec = sides.find((e) => dirOf(f, e) === ACHTER && e !== lab[ACHTER]),
-    other = sides.find((e) => dirOf(f, e) !== ACHTER && [...e].some((k) => rec.includes(k))),
-    yes = dims[ACHTER] === dims[dirOf(f, other)] ? 'ja' : 'nee';
+    // Een ribbe naar achteren in het zijvlak, maar niet de ribbe met de lengte erbij.
+    rec = sides.find((e) => dirOf(f, e) === ACHTER && e !== lab[ACHTER]);
   const fields = [
     { sel: opts, a: back, pre: 'Korter getekend zijn de ribben', label: 'Korter getekende ribben' },
     {
@@ -513,25 +510,17 @@ function s12short() {
       label: `Echte lengte van ${rec}`,
       br: true,
     },
-    {
-      sel: ['ja', 'nee'],
-      a: yes,
-      pre: `Is zijvlak ${w} in werkelijkheid een vierkant?`,
-      label: `Is zijvlak ${w} in werkelijkheid een vierkant?`,
-      br: true,
-    },
   ];
   return {
     q: T(
-      `Hieronder staat ${kind} ${naam(L)}. Alle maten staan in cm. Welke ribben zijn korter getekend dan ze in werkelijkheid zijn? Hoe lang is ribbe ${rec} in werkelijkheid? Is zijvlak ${w} in werkelijkheid een vierkant?`,
+      `Hieronder staat ${kind} ${naam(L)}. Alle maten staan in cm. Welke ribben zijn korter getekend dan ze in werkelijkheid zijn? Hoe lang is ribbe ${rec} in werkelijkheid?`,
     ),
     fig: solid(shape),
     fields,
-    hint: `De voorkant staat op ware grootte. Ribben die schuin naar achteren lopen, teken je korter. Kijk voor zijvlak ${w} naar de echte lengtes van de ribben.`,
+    hint: `De voorkant staat op ware grootte. Ribben die schuin naar achteren lopen, teken je korter. Bij een kubus zijn alle ribben even lang.`,
     steps: [
       `De ribben ${back} lopen schuin naar achteren. Die zijn korter getekend.`,
-      `Bij een kubus zijn alle ribben even lang, dus ${rec} en ${other} zijn allebei ${l} cm.`,
-      `In de tekening lijkt zijvlak ${w} geen vierkant. Maar in werkelijkheid zijn alle zijden even lang, dus het is een vierkant.`,
+      `Bij een kubus zijn alle ribben even lang. ${rec} is in de tekening korter, maar in werkelijkheid ${l} cm, net als ${lab[RECHTS]}.`,
     ],
     traps: [
       {
@@ -554,26 +543,19 @@ function s12short() {
         f: (x) => near(x[1], dims[ACHTER] / 2),
         m: `In de tekening is ${rec} korter, maar in werkelijkheid is ${rec} even lang als ${lab[ACHTER]} en de andere ribben.`,
       },
-      {
-        id: 'korter-getekend-vergeten',
-        f: (x) => x[2] === 'nee',
-        m: `In de tekening lijkt zijvlak ${w} geen vierkant, want ${rec} is korter getekend. Maar in werkelijkheid zijn ${rec} en ${other} even lang.`,
-      },
     ],
     // In schuine projectie is een punt (x, y, z) getekend op (x + y/2, z + y/2). Een ribbe is korter
-    // getekend als de getekende lengte kleiner is dan de echte. Een vierkant: vier gelijke zijden.
+    // getekend als de getekende lengte kleiner is dan de echte.
     v: () => {
       const drawn = (e) => {
           const [p, q] = [f.pts[e[0]], f.pts[e[1]]];
           return Math.hypot(q[0] - p[0] + (q[1] - p[1]) / 2, q[2] - p[2] + (q[1] - p[1]) / 2);
         },
-        shorter = f.edges.filter((e) => drawn(e) < realLen(f, e) - 1e-9),
-        s = sidesOf(f, w);
+        shorter = f.edges.filter((e) => drawn(e) < realLen(f, e) - 1e-9);
       return (
         list(shorter) === back &&
         near(realLen(f, rec), dims[ACHTER], 1e-9) &&
-        new Set(opts).size === 4 &&
-        (yes === 'ja') === s.every((x) => near(x, s[0], 1e-9))
+        new Set(opts).size === 4
       );
     },
   };

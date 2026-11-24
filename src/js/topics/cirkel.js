@@ -573,7 +573,7 @@ function binnenOfBuiten() {
       `Een cirkel heeft middelpunt ${M} en een diameter van ${cm(D)}. Punt ${P} ligt op de cirkel. Punt ${Q} ligt op ${cm(x)} van ${M}. Hoe ver ligt ${P} van ${M} af? Ligt ${Q} binnen de cirkel, op de cirkel of buiten de cirkel?`,
     ),
     fields,
-    hint: 'Elk punt op de cirkel heeft dezelfde afstand tot het middelpunt: de straal. Vergelijk de afstand van het punt met de straal.',
+    hint: 'Een punt op de cirkel ligt precies een straal van het middelpunt. Reken eerst de straal uit en kijk dan of de afstand van het punt groter, kleiner of gelijk is.',
     steps: [
       `Een punt op de cirkel ligt een straal van het middelpunt. De straal is ${d(D)} : 2 = ${cm(r)}. Dus ${P} ligt op ${cm(r)} van ${M}.`,
       geval === 0
