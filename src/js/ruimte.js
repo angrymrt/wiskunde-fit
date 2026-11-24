@@ -1,13 +1,13 @@
-// Ruimtefiguren: uitslagen van een kubus en een balk. Alleen rekenwerk, geen DOM, zodat de tests
-// het in Node draaien. Een figuur van een uitslag tekent net() in figures.js.
+// Ruimtefiguren: uitslagen van een kubus en van een balk. Alleen rekenwerk, geen DOM, zodat de tests
+// het in Node draaien. Een figuur van zo'n uitslag van een kubus of balk tekent net() in figures.js.
 //
-// Een uitslag is een lijst hokjes [x, y] op een rooster, met x naar rechts en y naar beneden. Elk
+// Een uitslag van een kubus is een lijst hokjes [x, y] op een rooster, met x naar rechts en y naar beneden. Elk
 // hokje is een vlak. Twee hokjes met een gemeenschappelijke zijde zitten aan elkaar vast.
 //
 // Kubus: alles hieronder werkt voor een kubus. Balk: een uitslag van een balk heeft dezelfde vorm
 // als een uitslag van een kubus, alleen zijn de vlakken rechthoeken. boxFaces rekent bij een vorm en
 // de maten van de balk uit hoe groot elk vlak is en waar het ligt. Niet ondersteund: een
-// bijna-uitslag van een balk met vlakken die niet passen (de vorm klopt, maar de maten niet), en een
+// vorm die bijna een uitslag van een kubus is, met vlakken die niet passen (de vorm klopt, maar de maten niet), en een
 // uitslag van een balk met een vorm die geen uitslag van een kubus is. Zo'n uitslag bestaat niet,
 // want vouwen hangt alleen van de vorm af, niet van de maten.
 import { pick } from './math.js';
@@ -83,15 +83,15 @@ function fold(cells) {
 // Is dit een uitslag van een kubus? Zes hokjes, één stuk, en elk hokje een eigen zijvlak.
 const isCubeNet = (cells) => cells.length === 6 && fold(cells) !== null;
 
-// Het zijvlak (0 tot en met 5) van elk hokje als je de uitslag vouwt, of null als het geen uitslag
+// Het zijvlak (0 tot en met 5) van elk hokje als je de uitslag van een kubus vouwt, of null als het geen uitslag van een kubus
 // is. Zijvlak f ligt tegenover zijvlak f ^ 1: 0 en 1, 2 en 3, 4 en 5.
 function cubeFaces(cells) {
   if (!isCubeNet(cells)) return null;
   return fold(cells).info.map((v) => v.face);
 }
 
-// Het hokje (de plek in cells) dat tegenover hokje i komt als je de uitslag vouwt, of -1 als het
-// geen uitslag is.
+// Het hokje (de plek in cells) dat tegenover hokje i komt als je de uitslag van een kubus vouwt, of -1 als het
+// geen uitslag van een kubus is.
 function opposite(cells, i) {
   const faces = cubeFaces(cells);
   return faces ? faces.indexOf(faces[i] ^ 1) : -1;
@@ -118,7 +118,7 @@ function normalize(cells) {
 const text = (cells) => cells.map(key).join(' ');
 
 // Een vaste stand van een vorm, hetzelfde na draaien, spiegelen of schuiven. Zo zie je of twee
-// uitslagen dezelfde vorm hebben, en welke van de elf het is.
+// uitslagen van een kubus dezelfde vorm hebben, en welke van de elf het is.
 function canonicalNet(cells) {
   let best = null;
   for (const s of SYMMETRIES) {
@@ -194,7 +194,7 @@ function connected(cells) {
   }
   return seen.size === cells.length;
 }
-// Vier hokjes in een vierkant van 2 bij 2: dat is meteen te zien als geen uitslag.
+// Vier hokjes in een vierkant van 2 bij 2: dat is meteen te zien als geen uitslag van een kubus.
 const hasBlock = (cells) => {
   const at = new Set(cells.map(key));
   return cells.some(([x, y]) =>
@@ -206,7 +206,7 @@ const hasBlock = (cells) => {
   );
 };
 
-// Alle bijna-uitslagen bij een uitslag: verschuif één hokje naar een andere plek naast de rest, zodat
+// Alle vormen die bijna een uitslag van een kubus zijn: verschuif één hokje naar een andere plek naast de rest, zodat
 // de vorm één stuk blijft maar geen uitslag van een kubus meer is. Als je hem vouwt, komen twee
 // hokjes op hetzelfde zijvlak, en blijft er een zijvlak open. Een vorm met een vierkant van 2 bij 2
 // telt niet mee, want die is te makkelijk. Elke vorm staat er één keer in, ook na draaien of
@@ -237,7 +237,7 @@ function notCubeNets(cells) {
   });
   return out;
 }
-// Eén bijna-uitslag bij een uitslag, gekozen met het toeval van de vraag.
+// Eén vorm die bijna een uitslag van een kubus is, gekozen met het toeval van de vraag.
 const notCubeNet = (cells) => pick(notCubeNets(cells));
 
 // De vlakken van een uitslag van een balk met maten [l, b, h]: per hokje { x, y, w, h }, de plek

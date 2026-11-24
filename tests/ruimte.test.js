@@ -1,4 +1,4 @@
-// Uitslagen van een kubus en een balk (ruimte.js) en de figuur ervan (net in figures.js).
+// Uitslagen van een kubus en van een balk (ruimte.js) en de figuur ervan (net in figures.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -85,7 +85,7 @@ test('de elf uitslagen van een kubus zijn verschillend en isCubeNet herkent ze i
     }
 });
 
-test('van alle 35 vormen van zes hokjes zijn er precies 11 een uitslag, en dat zijn CUBE_NETS', () => {
+test('van alle 35 vormen van zes hokjes zijn er precies 11 een uitslag van een kubus, en dat zijn CUBE_NETS', () => {
   const all = hexominoes();
   assert.equal(all.length, 35);
   const nets = all.filter(isCubeNet);
@@ -164,7 +164,7 @@ test('tegenover: de uiteinden van een rij van drie liggen tegenover elkaar', () 
   assert.equal(opposite([[0, 0]], 0), -1);
 });
 
-test('een bijna-uitslag is één stuk, scheelt één hokje en is geen uitslag', () => {
+test('een vorm die bijna een uitslag van een kubus is, is één stuk, scheelt één hokje en is geen uitslag van een kubus', () => {
   const oneBlock = (cells) => {
     const at = new Set(cells.map(K));
     return cells.some(([x, y]) =>
@@ -204,7 +204,7 @@ test('een bijna-uitslag is één stuk, scheelt één hokje en is geen uitslag', 
         assert.ok(!CUBE_NETS.some((n) => same(n, a)), 'staat niet in de lijst van elf');
         assert.ok(!oneBlock(a));
         assert.ok(oneGroup(a), JSON.stringify(a));
-        // Vijf hokjes staan nog op hun plek. De bijna-uitslag begint bij 0, dus het kan zijn dat
+        // Vijf hokjes staan nog op hun plek. Die vorm begint bij 0, dus het kan zijn dat
         // alles één hokje is opgeschoven.
         const x0 = Math.min(...turned.map((p) => p[0])),
           y0 = Math.min(...turned.map((p) => p[1])),
@@ -287,7 +287,7 @@ test('boxFaces: een balk van 2 bij 3 bij 4 vouwt dicht', () => {
   );
 });
 
-test('net tekent een uitslag en de beschrijving noemt alles', () => {
+test('net tekent een uitslag van een kubus en de beschrijving noemt alles', () => {
   const cross = [
     [1, 0],
     [0, 1],
@@ -341,7 +341,7 @@ test('net tekent een uitslag en de beschrijving noemt alles', () => {
   );
 });
 
-test('verschillende uitslagen en standen geven een verschillende beschrijving', () => {
+test('verschillende uitslagen van een kubus en standen geven een verschillende beschrijving', () => {
   const seen = new Map();
   for (const c of [...CUBE_NETS, ...CUBE_NETS.flatMap(notCubeNets)])
     for (const s of SYMS) {

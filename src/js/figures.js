@@ -587,7 +587,7 @@ const rightTriFig = (a, b, labels = {}, L = 'ABC') => {
 // met x naar rechts en y naar beneden. Opties:
 //  - dims: [l, b, h], de maten van een balk in hokjes van het rooster. Elk vlak wordt dan een
 //    rechthoek met de goede maten (boxFaces), en de vorm moet een uitslag zijn. Zijn de drie maten
-//    gelijk, dan is het een kubus met die ribbe, en mag de vorm ook een bijna-uitslag zijn. Zonder
+//    gelijk, dan is het een kubus met die ribbe, en mag de vorm ook bijna een uitslag van een kubus zijn. Zonder
 //    dims is elk vlak één hokje.
 //  - u: pixels per hokje. Maak een uitslag als keuze bij meerkeuze klein, met u: 16 en grid: false.
 //  - grid: het rooster, met een rand van één hokje rond de uitslag.
@@ -1005,10 +1005,21 @@ function solidModel({
   const turn = () => (poly = [poly[0], ...poly.slice(1).reverse()]);
   const area = poly.reduce((t, p, i) => t + flat([0, 0], p, poly[(i + 1) % n]), 0);
   if (area < 0) turn();
+  // Elke bocht gaat linksaf, en de bochten samen zijn precies één rondje (2π). Een sterveelhoek
+  // draait ook steeds linksaf, maar dan is het totaal een groter veelvoud van 2π.
+  let turned = 0;
   poly.forEach((p, i) => {
-    if (flat(p, poly[(i + 1) % n], poly[(i + 2) % n]) <= 1e-9)
+    const q = poly[(i + 1) % n],
+      r = poly[(i + 2) % n];
+    if (flat(p, q, r) <= 1e-9)
       throw new Error('Het grondvlak moet convex zijn, zonder drie punten op een lijn.');
+    turned += Math.atan2(
+      flat(p, q, r),
+      (q[0] - p[0]) * (r[0] - q[0]) + (q[1] - p[1]) * (r[1] - q[1]),
+    );
   });
+  if (!near(turned, 2 * Math.PI, 1e-6))
+    throw new Error('Het grondvlak moet convex zijn, geen ster.');
   if (cw) turn();
   const pyr = kind === 'piramide',
     abc = 'ABCDEFGHIJKLMNOP',
