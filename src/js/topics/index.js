@@ -29,6 +29,11 @@ import ruimtefiguren from './ruimtefiguren-herkennen.js';
 import vierkantRechthoek from './vierkant-en-rechthoek.js';
 import blokjes from './blokjes-tellen.js';
 import kubusBalk from './kubus-en-balk.js';
+import cirkel from './cirkel.js';
+import veelhoeken from './veelhoeken-en-diagonalen.js';
+import prisma from './prisma.js';
+import piramide from './piramide.js';
+import veelvlakken from './regelmatige-veelvlakken.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -102,6 +107,11 @@ const DOMAINS = [
       vierkantRechthoek,
       kubusBalk,
       blokjes,
+      cirkel,
+      veelhoeken,
+      prisma,
+      piramide,
+      veelvlakken,
       pythagoras,
       verhoudingen,
       gelijkvormig,
@@ -140,6 +150,11 @@ const PREREQUISITES = new Map([
   [lengtes, [pythagoras, gelijkvormig]],
   [blokjes, [vierkantRechthoek]],
   [kubusBalk, [ruimtefiguren, vierkantRechthoek]],
+  [cirkel, [vierkantRechthoek]],
+  [veelhoeken, [vierkantRechthoek]],
+  [prisma, [kubusBalk]],
+  [piramide, [kubusBalk]],
+  [veelvlakken, [kubusBalk]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],

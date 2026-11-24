@@ -3197,9 +3197,9 @@ test(
 // bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden
 // (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
-  // De pagina Cijfers noemt alle vraagsoorten (#232: 161). Hoofdstuk 1 van havo/vwo 1 voegde er 19 aan toe: 6,8 kB.
+  // De pagina Cijfers noemt alle vraagsoorten (#232: 181). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 6,8 kB.
   page: { sent: 7, why: 'een vooraf gebouwde pagina' },
-  // Alleen Zo maken we de vragen: alle 161 vraagsoorten en drie roosters staan erin.
+  // Alleen Zo maken we de vragen: alle 181 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
