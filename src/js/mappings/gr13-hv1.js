@@ -7,7 +7,7 @@ export default {
   edition: 13,
   level: 'havo/vwo',
   year: 1,
-  note: 'Deze vragen zijn gemaakt voor havo 3 en nog niet met dit boek vergeleken.',
+  note: 'Hoofdstuk 1 is gemaakt met dit boek erbij. De andere vragen zijn gemaakt voor havo 3 en nog niet (helemaal) met dit boek vergeleken.',
   // De leerboeken komen uit de webshop van Noordhoff, de FLEX-boeken uit de bestandsnamen bij Noordhoff.
   books: [
     {
@@ -37,12 +37,55 @@ export default {
       part: 'deel 1',
       description: 'Ruimtefiguren en hun kenmerken',
       paragraphs: [
-        ['1.1', 'Ruimtefiguren herkennen en uitslagen ervan'],
-        ['1.2', 'Eigenschappen van vierkant en kubus'],
-        ['1.3', 'Eigenschappen van rechthoek en balk'],
-        ['1.4', 'Eigenschappen van cirkel en cilinder'],
-        ['1.5', 'Eigenschappen van veelhoek en prisma'],
-        ['1.6', 'Eigenschappen van de piramide'],
+        [
+          '1.1',
+          'Ruimtefiguren herkennen en uitslagen ervan',
+          [143, 144, 145, 146, 184],
+          'deels',
+          'Een uitslag knippen en vouwen kun je hier niet doen, en cilinder en kegel komen alleen als naam voorbij.',
+        ],
+        [
+          '1.2',
+          'Eigenschappen van vierkant en kubus',
+          [147, 148, 149, 151, 152, 153, 154, 158, 159, 160, 161, 182],
+          'deels',
+          'Tekenen met de geodriehoek op papier kun je hier niet oefenen.',
+        ],
+        [
+          '1.3',
+          'Eigenschappen van rechthoek en balk',
+          [150, 155, 156, 157],
+          'deels',
+          'Een rechthoek of balk tekenen en een uitslag van een balk tekenen kun je hier niet oefenen.',
+        ],
+        [
+          '1.4',
+          'Eigenschappen van cirkel en cilinder',
+          [162, 163, 164, 165],
+          'deels',
+          'Een cirkel tekenen met de passer en de eigenschappen van een cilinder kun je hier niet oefenen.',
+        ],
+        [
+          '1.5',
+          'Eigenschappen van veelhoek en prisma',
+          [166, 167, 168, 169, 170, 171, 172, 173, 183],
+          'deels',
+          'Diagonalen en een prisma tekenen op papier kun je hier niet oefenen.',
+        ],
+        [
+          '1.6',
+          'Eigenschappen van de piramide',
+          [174, 175, 176, 177],
+          'deels',
+          'Een uitslag van een piramide tekenen met de passer kun je hier niet oefenen.',
+        ],
+        [
+          '1.7',
+          'Onderzoek aan het eind: regelmatige veelvlakken',
+          [178, 179, 180, 181],
+          'deels',
+          'Knippen en vouwen van de veelvlakken kun je hier niet doen.',
+        ],
       ],
     },
     {

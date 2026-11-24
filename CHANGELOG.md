@@ -2,6 +2,14 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.23.0
+
+### Nieuw
+
+- **Hoofdstuk 1 van havo/vwo 1: Figuren.** Tien nieuwe onderwerpen met 42 soorten vragen: ruimtefiguren en uitslagen, vierkant en rechthoek, kubus en balk, blokjes tellen, cirkel, veelhoeken en diagonalen, prisma, piramide, regelmatige veelvlakken en tekenopdrachten. Bij elk onderwerp staat uitleg, en bij een fout antwoord zie je wat er mis ging.
+- **Tekenopdrachten.** Je maakt een kubus af door de hoekpunten aan te tikken, tekent een driehoek met een passer die je instelt en zet de boogjes neer, en tekent een uitslag van een kubus door hokjes te kleuren. Het werkt met aanraken, met het toetsenbord en met knoppen.
+- **Methode-indeling.** In Getal & Ruimte, 13e editie, havo/vwo 1, staat hoofdstuk 1 nu bij de vragen. Bij elke paragraaf staat wat je hier nog niet kunt oefenen, zoals tekenen op papier met de geodriehoek.
+
 ## 1.22.0
 
 ### Nieuw
