@@ -1,36 +1,17 @@
 // Onderwerp: Veelhoeken en diagonalen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { geo } from '../figures.js';
 import { ri, pick, coin, d } from '../math.js';
-import { F, MC, H } from './shared.js';
+import { F, MC, H, HOEK as NAAM, groot, reeks } from './shared.js';
 import { T, dt } from '../typeset.js';
 
 // Een lijst als zin: 'A, B en C'.
 const en = (xs) =>
   xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} en ${xs[xs.length - 1]}`;
-const groot = (s) => s[0].toUpperCase() + s.slice(1);
-
-// De naam van een veelhoek, naar het aantal hoekpunten.
-const NAAM = {
-  3: 'driehoek',
-  4: 'vierhoek',
-  5: 'vijfhoek',
-  6: 'zeshoek',
-  7: 'zevenhoek',
-  8: 'achthoek',
-  9: 'negenhoek',
-  10: 'tienhoek',
-  11: 'elfhoek',
-  12: 'twaalfhoek',
-};
 
 // Letters bij de hoekpunten: een rij opeenvolgende letters, tegen de klok in. Elke vraag begint bij
 // een andere letter. Met een rij van 8 letters past elk begin nog in het alfabet.
-const ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const BEGIN = ['A', 'D', 'E', 'G', 'K', 'L', 'P', 'R'];
-function reeks(n) {
-  const b = ALFABET.indexOf(pick(BEGIN));
-  return ALFABET.slice(b, b + n);
-}
+const BEGIN = ['D', 'F', 'G', 'H', 'L', 'M', 'R', 'S'];
+const reeksVan = (n) => reeks(BEGIN, n);
 // De naam van een lijnstuk tussen twee hoekpunten, op alfabet: KM, niet MK.
 const lijn = (p, q) => [p, q].sort().join('');
 // De zijden van een veelhoek, rondom. De laatste gaat van de laatste letter terug naar de eerste.
@@ -68,7 +49,7 @@ function punten(L, vorm, draai) {
   return pts;
 }
 const veelhoek = (n) => {
-  const L = reeks(n);
+  const L = reeksVan(n);
   return { L, pts: punten(L, ri(0, 2), ri(0, 7)) };
 };
 // De zijden zoals geo ze tekent: van elke letter naar de volgende.
@@ -167,7 +148,7 @@ function naamBijFiguur() {
 
 function zijdenNoemen() {
   const n = ri(4, 7),
-    L = reeks(n),
+    L = reeksVan(n),
     zijden = zijdenVan(L),
     slot = zijden[n - 1],
     // Vier rijen: alle zijden, zonder de laatste zijde, met een diagonaal in plaats van de laatste
@@ -373,7 +354,7 @@ const s167 = () => pick([diagonalenTellen, diagonalenTellen, diagonalenVanuit])(
 // 168: het aantal diagonalen van een veelhoek, ook terugredeneren.
 
 function aantalDiagonalen() {
-  const n = ri(7, 12),
+  const n = pick([7, 8, 9, 11, 12]),
     metNaam = coin(),
     wie = metNaam ? `een ${NAAM[n]}` : `een veelhoek met ${n} hoekpunten`,
     per = n - 3,
@@ -461,7 +442,7 @@ function tabelAfmaken() {
 }
 
 function terugredeneren() {
-  const n = ri(5, 12),
+  const n = pick([5, 6, 7, 8, 9, 11, 12]),
     D = (n * (n - 3)) / 2,
     rij = Array.from({ length: n - 2 }, (_, i) => i + 3),
     // Wie vergeet te delen door 2, zoekt een aantal hoekpunten m met m * (m - 3) = D.
@@ -529,7 +510,7 @@ const s168 = () => pick([aantalDiagonalen, tabelAfmaken, terugredeneren])();
 // staat recht, met de eerste letter linksonder. Een ruit staat op een punt, met de eerste letter
 // links. ac en bd zijn de lengtes van de diagonalen in cm.
 function vierhoekMetDiagonalen(soort, ac, bd) {
-  const L = reeks(4),
+  const L = reeksVan(4),
     S = L.includes('S') ? 'M' : 'S',
     [A, B, C, D] = [...L];
   let pts;
@@ -772,14 +753,14 @@ const s169 = () => pick([eigenschappen, lengtes])();
 // De uitleg.
 
 // Een vaste vijfhoek met zijn diagonalen, voor het voorbeeld.
-const VB = 'KLMNO',
+const VB = 'FGHIJ',
   VB_PTS = punten(VB, 0, 1);
 const VB_FIG = geo({
   pts: VB_PTS,
   segs: [...rand(VB), ...diagonalenVan(VB)],
   w: 220,
   maxH: 180,
-  desc: 'Vijfhoek KLMNO met de diagonalen KM, KN, LN, LO en MO.',
+  desc: 'Vijfhoek FGHIJ met de diagonalen FH, FI, GI, GJ en HJ.',
 });
 
 export default {
@@ -801,7 +782,7 @@ export default {
       t: 'Veelhoeken',
       p: [
         'Een veelhoek is een figuur met rechte zijden. Hij heet naar het aantal hoekpunten: een driehoek heeft 3 hoekpunten, een vierhoek 4, een vijfhoek 5, een zeshoek 6, een zevenhoek 7 en een achthoek 8. Een veelhoek heeft evenveel zijden als hoekpunten.',
-        'Je zet hoofdletters bij de hoekpunten, tegen de klok in, zoals bij vijfhoek KLMNO. Een zijde noem je met de twee hoekpunten aan de uiteinden, zoals KL. De laatste zijde gaat van O terug naar K: dat is zijde KO.',
+        'Je zet hoofdletters bij de hoekpunten, tegen de klok in, zoals bij vijfhoek FGHIJ. Een zijde noem je met de twee hoekpunten aan de uiteinden, zoals FG. De laatste zijde gaat van J terug naar F: dat is zijde FJ.',
       ],
       ex: {
         q: T('Welke zijden heeft zeshoek DEFGHI?'),
@@ -816,15 +797,15 @@ export default {
     {
       t: 'Diagonalen',
       p: [
-        'Een diagonaal is een lijnstuk tussen twee hoekpunten die geen buren zijn. Je noemt een diagonaal met de twee hoekpunten, zoals KM.',
+        'Een diagonaal is een lijnstuk tussen twee hoekpunten die geen buren zijn. Je noemt een diagonaal met de twee hoekpunten, zoals FH.',
         'Vanuit een hoekpunt kun je geen diagonaal tekenen naar dat hoekpunt zelf, en ook niet naar de twee buren: daar loopt al een zijde naartoe. In een vijfhoek gaan er dus vanuit elk hoekpunt 5 - 3 = 2 diagonalen.',
       ],
       ex: {
-        q: T('Hoeveel diagonalen heeft vijfhoek KLMNO?') + VB_FIG,
+        q: T('Hoeveel diagonalen heeft vijfhoek FGHIJ?') + VB_FIG,
         steps: [
           'Vanuit elk hoekpunt gaan 2 diagonalen. Voor 5 hoekpunten is dat 5 * 2 = 10.',
-          'Zo tel je elke diagonaal twee keer: KM tel je vanuit K en ook vanuit M. Dus 10 : 2 = 5.',
-          'De diagonalen zijn KM, KN, LN, LO en MO.',
+          'Zo tel je elke diagonaal twee keer: FH tel je vanuit F en ook vanuit H. Dus 10 : 2 = 5.',
+          'De diagonalen zijn FH, FI, GI, GJ en HJ.',
         ],
       },
       watch:
@@ -837,11 +818,11 @@ export default {
         'Met de tabel kun je ook terugredeneren. Heeft een veelhoek 14 diagonalen, dan zoek je 14 in de tabel. Daar horen 7 hoekpunten bij.',
       ],
       ex: {
-        q: T('Hoeveel diagonalen heeft een tienhoek?'),
+        q: T('Hoeveel diagonalen heeft een negenhoek?'),
         steps: [
-          'Vanuit één hoekpunt gaan 10 - 3 = 7 diagonalen.',
-          '10 hoekpunten met elk 7 diagonalen: 10 * 7 = 70.',
-          'Elke diagonaal heb je twee keer geteld. Dus 70 : 2 = 35.',
+          'Vanuit één hoekpunt gaan 9 - 3 = 6 diagonalen.',
+          '9 hoekpunten met elk 6 diagonalen: 9 * 6 = 54.',
+          'Elke diagonaal heb je twee keer geteld. Dus 54 : 2 = 27.',
         ],
       },
     },
@@ -854,11 +835,11 @@ export default {
       ],
       ex: {
         q: T(
-          'Rechthoek KLMN heeft diagonaal KM = 9 cm. De diagonalen snijden elkaar in S. Hoe lang zijn LN en LS?',
+          'Rechthoek GHIJ heeft diagonaal GI = 9 cm. De diagonalen snijden elkaar in S. Hoe lang zijn HJ en HS?',
         ),
         steps: [
-          'In een rechthoek zijn de diagonalen even lang. Dus LN = KM = 9 cm.',
-          'S ligt in het midden van LN. Dus LS = 9 : 2 = 4,5 cm.',
+          'In een rechthoek zijn de diagonalen even lang. Dus HJ = GI = 9 cm.',
+          'S ligt in het midden van HJ. Dus HS = 9 : 2 = 4,5 cm.',
         ],
       },
       watch:

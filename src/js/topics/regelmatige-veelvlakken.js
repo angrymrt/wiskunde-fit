@@ -1,6 +1,6 @@
 // Onderwerp: Regelmatige veelvlakken. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { pick, coin, near, d } from '../math.js';
-import { F, MC } from './shared.js';
+import { F, MC, groot, reeks } from './shared.js';
 import { T, tabel } from '../typeset.js';
 import { geo, and } from '../figures.js';
 
@@ -29,7 +29,6 @@ const EEN_VORM = {
   5: 'een regelmatige vijfhoek',
 };
 const KEUZE_VORMEN = [3, 4, 5, 6].map((k) => VORMEN[k]);
-const groot = (s) => s[0].toUpperCase() + s.slice(1);
 
 // Voor de controle: de vijf lichamen met echte hoekpunten in de ruimte. Daaruit tellen we de
 // ribben (de kortste afstanden), de zijvlakken (de platte vlakken waar alle hoekpunten aan één
@@ -174,11 +173,11 @@ const VEELHOEKEN = [
     },
   },
   {
-    // Een huisje: een vierkant met een gelijkzijdige driehoek erop, alle vijf de zijden even lang.
+    // Een ruit met een gelijkzijdige driehoek op een zijde: vijf even lange zijden.
     soort: 'hoeken',
     maak: () => {
       const s = pick([2, 3, 4]);
-      return { zijden: Array(5).fill(s), hoeken: [90, 90, 150, 60, 150] };
+      return { zijden: Array(5).fill(s), hoeken: [140, 60, 160, 80, 100] };
     },
   },
   {
@@ -211,15 +210,13 @@ function lopen(zijden, hoeken) {
   }
   return pts;
 }
-const BEGIN = ['A', 'D', 'K', 'P', 'R'];
-const ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const BEGIN = ['D', 'F', 'G', 'H', 'L', 'M', 'R', 'S'];
 
 function regelmatigeVeelhoek() {
   const soort = pick(['regelmatig', 'regelmatig', 'zijden', 'hoeken', 'beide']),
     { zijden, hoeken } = pick(VEELHOEKEN.filter((v) => v.soort === soort)).maak(),
     n = zijden.length,
-    b = ALFABET.indexOf(pick(BEGIN)),
-    L = ALFABET.slice(b, b + n),
+    L = reeks(BEGIN, n),
     loop = lopen(zijden, hoeken),
     pts = Object.fromEntries([...L].map((c, i) => [c, loop[i]])),
     zij = [...L].map((c, i) => c + L[(i + 1) % n]),
@@ -230,6 +227,7 @@ function regelmatigeVeelhoek() {
     sides: zij.map((g, i) => ({ a: g[0], b: g[1], t: `${d(zijden[i])} cm` })),
     w: 260,
     maxH: 220,
+    pad: 48,
   });
   // Vier keuzes: ja of nee, met de reden erbij. Precies één past bij de veelhoek.
   const keuze = (k) => `${k === 'regelmatig' ? 'Ja' : 'Nee'}, ${REDEN[k]}.`,
@@ -529,7 +527,7 @@ function veelvlakTellen() {
       },
       ![Hp, R].includes(samen) && {
         id: 'hoekpunten-niet-gedeeld',
-        f: (x) => x[h] === samen || x[h] === 2 * R,
+        f: (x) => x[h] === samen,
         m: `Zo tel je elk hoekpunt ${s.per} keer, want er komen ${s.per} ribben in samen. Deel nog door ${s.per}.`,
       },
       R / s.per !== Hp && {
@@ -610,7 +608,7 @@ function veelvlakTellen() {
 // ---------------------------------------------------------------------------------------------
 // 181: de controle hoekpunten + zijvlakken − ribben = 2.
 
-const WIE = ['Noor', 'Daan', 'Fenna', 'Milan', 'Isa', 'Jesse', 'Lotte', 'Sem'];
+const WIE = ['Noor', 'Daan', 'Fenna', 'Milan', 'Rens', 'Jesse', 'Lotte', 'Sem'];
 const EULER = 'hoekpunten + zijvlakken - ribben = 2';
 
 function eulerControle() {
@@ -758,10 +756,11 @@ function eulerControle() {
 // ---------------------------------------------------------------------------------------------
 // De uitleg.
 
-// Het huisje uit het voorbeeld: vijf zijden van 3 cm.
-const HUIS = lopen(Array(5).fill(3), [90, 90, 150, 60, 150]);
-const HUIS_PTS = Object.fromEntries([...'ABCDE'].map((c, i) => [c, HUIS[i]]));
-const HUIS_ZIJ = [...'ABCDE'].map((c, i) => c + 'ABCDE'[(i + 1) % 5]);
+// De vijfhoek uit het voorbeeld: vijf zijden van 3 cm.
+const VIJF = 'MNOPQ';
+const HUIS = lopen(Array(5).fill(3), [140, 60, 160, 80, 100]);
+const HUIS_PTS = Object.fromEntries([...VIJF].map((c, i) => [c, HUIS[i]]));
+const HUIS_ZIJ = [...VIJF].map((c, i) => c + VIJF[(i + 1) % 5]);
 
 export default {
   slug: 'regelmatige-veelvlakken',
@@ -788,7 +787,7 @@ export default {
       ex: {
         q:
           T(
-            'Vijfhoek ABCDE heeft vijf zijden van 3 cm. De hoeken bij A, B, C, D en E zijn 90°, 90°, 150°, 60° en 150°. Is vijfhoek ABCDE regelmatig?',
+            'Vijfhoek MNOPQ heeft vijf zijden van 3 cm. De hoeken bij M, N, O, P en Q zijn 140°, 60°, 160°, 80° en 100°. Is vijfhoek MNOPQ regelmatig?',
           ) +
           geo({
             pts: HUIS_PTS,
@@ -800,7 +799,7 @@ export default {
         steps: [
           'Alle zijden zijn 3 cm. Ze zijn even lang.',
           'De hoeken zijn niet allemaal even groot.',
-          'Dus vijfhoek ABCDE is geen regelmatige veelhoek.',
+          'Dus vijfhoek MNOPQ is geen regelmatige veelhoek.',
         ],
       },
       watch: T(
@@ -819,11 +818,11 @@ export default {
           T('Welke vorm hebben de zijvlakken van de vijf regelmatige veelvlakken?') +
           tabel(
             '',
-            ['naam', 'zijvlakken', 'vorm van een zijvlak', 'zijvlakken per hoekpunt'],
+            ['veelvlak', 'vorm van een zijvlak', 'aantal zijvlakken', 'zijvlakken per hoekpunt'],
             VEELVLAKKEN.map((s) => [
               s.naam,
-              String(s.zv),
               VORMEN[s.vorm].replace(/en$/, ''),
+              String(s.zv),
               String(s.per),
             ]),
             'Tabel: de vijf regelmatige veelvlakken',
@@ -866,12 +865,12 @@ export default {
           T('Controleer de getallen in de tabel.') +
           tabel(
             '',
-            ['naam', 'hoekpunten', 'zijvlakken', 'ribben'],
+            ['veelvlak', 'zijvlakken', 'ribben', 'hoekpunten'],
             VEELVLAKKEN.map((s) => [
               s.naam,
-              String(hoekpuntenVan(s)),
               String(s.zv),
               String(ribbenVan(s)),
+              String(hoekpuntenVan(s)),
             ]),
             'Tabel: hoekpunten, zijvlakken en ribben',
           ),

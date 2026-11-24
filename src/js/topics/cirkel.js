@@ -61,8 +61,8 @@ const VERHALEN = [
     r: false,
     w: [22, 24, 26, 28, 30],
     q: (x) =>
-      `Een ronde taart heeft een diameter van ${cm(x)}. Je snijdt een punt vanuit het midden van de taart. Hoe lang is een snijkant van de punt?`,
-    pre: 'Een snijkant is',
+      `Een ronde onderzetter heeft een diameter van ${cm(x)}. Een gekleurde streep loopt van het midden naar de rand. Hoe lang is de streep?`,
+    pre: 'De streep is',
     post: 'cm',
   },
   {
@@ -573,7 +573,7 @@ function binnenOfBuiten() {
       `Een cirkel heeft middelpunt ${M} en een diameter van ${cm(D)}. Punt ${P} ligt op de cirkel. Punt ${Q} ligt op ${cm(x)} van ${M}. Hoe ver ligt ${P} van ${M} af? Ligt ${Q} binnen de cirkel, op de cirkel of buiten de cirkel?`,
     ),
     fields,
-    hint: 'Alle punten op de cirkel liggen even ver van het middelpunt: een straal. Vergelijk de afstand van het punt met de straal.',
+    hint: 'Elk punt op de cirkel heeft dezelfde afstand tot het middelpunt: de straal. Vergelijk de afstand van het punt met de straal.',
     steps: [
       `Een punt op de cirkel ligt een straal van het middelpunt. De straal is ${d(D)} : 2 = ${cm(r)}. Dus ${P} ligt op ${cm(r)} van ${M}.`,
       geval === 0
@@ -617,11 +617,11 @@ const DOZEN = [
   },
   {
     t: (L, B) =>
-      `Je zet blikken rechtop in een doos van ${cm(L)} bij ${cm(B)}. Van boven zie je elk blik als een cirkel.`,
-    rij: 'De blikken staan in rechte rijen tegen elkaar aan.',
-    elk: 'Elk blik',
-    een: 'blik',
-    veel: 'blikken',
+      `Je zet bekers rechtop in een krat van ${cm(L)} bij ${cm(B)}. Van boven zie je elke beker als een cirkel.`,
+    rij: 'De bekers staan in rechte rijen tegen elkaar aan.',
+    elk: 'Elke beker',
+    een: 'beker',
+    veel: 'bekers',
   },
   {
     t: (L, B) => `Je legt ronde koekjes op een bakplaat van ${cm(L)} bij ${cm(B)}.`,
@@ -802,7 +802,7 @@ export default {
   slug: 'cirkel',
   title: 'Cirkel',
   intro:
-    'Alle punten van een cirkel liggen even ver van het middelpunt. Hier leer je wat de straal, de diameter en een cirkelboog zijn, en hoe je een cirkel met letters beschrijft. Ook zoek je de grootste cirkel in een rechthoek of vierkant, en reken je met afstanden tot het middelpunt.',
+    'Een cirkel bestaat uit alle punten die dezelfde afstand tot één punt hebben. Hier leer je wat de straal, de diameter en een cirkelboog zijn, en hoe je een cirkel met letters beschrijft. Ook zoek je de grootste cirkel in een rechthoek of vierkant, en reken je met afstanden tot het middelpunt.',
   description:
     'Cirkel oefenen: middelpunt, straal, diameter en cirkelboog, de grootste cirkel in een rechthoek en cirkels in een rij. Havo/vwo 1, gratis met uitleg en hints.',
   videos: {},
@@ -816,7 +816,7 @@ export default {
     {
       t: 'Middelpunt, straal en diameter',
       p: [
-        'Alle punten van een cirkel liggen even ver van één punt: het middelpunt. Die afstand heet de straal.',
+        'Een cirkel bestaat uit alle punten die dezelfde afstand hebben tot één punt: het middelpunt. Die afstand heet de straal.',
         'Een diameter (of middellijn) is een lijnstuk van de cirkel door het middelpunt naar de overkant. Een diameter is 2 keer zo lang als de straal.',
         'Een stuk van de cirkel zelf heet een cirkelboog.',
         T(

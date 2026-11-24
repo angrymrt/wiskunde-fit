@@ -1,37 +1,19 @@
 // Onderwerp: Prisma. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { pick, coin, shuffle, until, near, d } from '../math.js';
-import { F, MC, trap } from './shared.js';
+import { F, MC, trap, HOEK, groot, reeks } from './shared.js';
 import { T } from '../typeset.js';
 import { and } from '../figures.js';
 import { solid, solidFacts } from '../ruimtefiguren.js';
 
-// De naam van een veelhoek, naar het aantal hoekpunten.
-const HOEK = {
-  3: 'driehoek',
-  4: 'vierhoek',
-  5: 'vijfhoek',
-  6: 'zeshoek',
-  7: 'zevenhoek',
-  8: 'achthoek',
-  9: 'negenhoek',
-  10: 'tienhoek',
-  11: 'elfhoek',
-  12: 'twaalfhoek',
-};
 const WOORD = { 3: 'drie', 4: 'vier', 5: 'vijf', 6: 'zes', 7: 'zeven', 8: 'acht' };
-const groot = (s) => s[0].toUpperCase() + s.slice(1);
 // Een lijst van namen op alfabetische volgorde, zoals 'DI, EJ en FK'.
 const list = (xs) => and([...xs].sort());
 const som = (xs) => xs.reduce((t, x) => t + x, 0);
 
 // Letters bij de hoekpunten: een rij opeenvolgende letters, eerst het grondvlak en dan het
 // bovenvlak, tegen de klok in. Zo staat de naam van een ribbe uit solidFacts al op volgorde.
-const ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const BEGIN = ['C', 'D', 'E', 'H', 'K', 'M'];
-function reeks(n) {
-  const b = ALFABET.indexOf(pick(BEGIN));
-  return ALFABET.slice(b, b + 2 * n);
-}
+const reeksVan = (n) => reeks(BEGIN, 2 * n);
 // De naam van een prisma, zoals 'DEFGH IJKLM': het grondvlak, een spatie en het bovenvlak.
 const naam = (L, n) => `${L.slice(0, n)} ${L.slice(n)}`;
 
@@ -305,7 +287,7 @@ function prismaHerkennen() {
   }
   // Een naam geven: het grondvlak, een spatie en het bovenvlak.
   const n = pick([3, 5, 6]),
-    L = reeks(n),
+    L = reeksVan(n),
     B = L.slice(0, n),
     U = L.slice(n),
     shape = { kind: 'prisma', n, h: 3, letters: L },
@@ -604,7 +586,7 @@ const GROEP = {
 function ribbenFiguur() {
   const regelmatig = coin(),
     n = regelmatig ? pick([3, 5, 6]) : 3,
-    L = reeks(n),
+    L = reeksVan(n),
     h = pick([3, 4, 5, 6, 7.5]),
     // Een regelmatig grondvlak met zijde x, of een rechthoekige driehoek van 3, 4 en 5 keer k.
     x = regelmatig ? pick([2, 2.5, 3, 4]) : 0,

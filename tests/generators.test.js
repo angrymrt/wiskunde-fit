@@ -1086,6 +1086,9 @@ test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
 
 test('T zet wiskunde goed om', () => {
   assert.match(T('y = ax + b'), /<span class="v">ax<\/span>/);
+  // Een naam van vijf letters, zoals bij prisma DEFGH, is net zo cursief als ABCD.
+  assert.equal(T('DEFGH'), '<span class="v">DEFGH</span>');
+  assert.equal(T('TABCDE'), '<span class="v">TABCDE</span>');
   assert.match(T('x - 3'), /−/);
   assert.match(T('de x-as'), /-as/);
   assert.match(T('{3/4}'), /class="f"/);
