@@ -396,7 +396,7 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     await p.click('.crumbs a[href="/meetkunde"]');
     assert.equal(new URL(p.url()).pathname, '/meetkunde');
     assert.equal(await p.textContent('h1'), 'Meetkunde');
-    assert.equal(await p.locator('main a.par').count(), 5);
+    assert.equal(await p.locator('main a.par').count(), 9);
     assert.ok(await p.$('main a[href="/methode-indeling/getal-en-ruimte-13-havo-3"]'));
     await p.screenshot({ path: `${shotDir}domein.png`, fullPage: true });
 
@@ -3197,7 +3197,8 @@ test(
 // bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden
 // (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
-  page: { sent: 6.5, why: 'een vooraf gebouwde pagina' },
+  // De pagina Cijfers noemt alle vraagsoorten (#232: 161). Hoofdstuk 1 van havo/vwo 1 voegde er 19 aan toe: 6,8 kB.
+  page: { sent: 7, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 161 vraagsoorten en drie roosters staan erin.
   lijst: { sent: 10, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
@@ -3215,7 +3216,10 @@ const LIMITS = {
   // Een scherm in een eigen bestand (scripts/later-schermen.js), dat pas laadt als het nodig is.
   scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
   topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
-  shared: { sent: 16, own: 44, why: 'een gedeeld codebestand' },
+  // De figuren voor ruimtefiguren (src/js/ruimtefiguren.js en ruimte.js, #232) worden door vier onderwerpen gedeeld en
+  // staan daarom in een eigen gedeeld bestand: 16,2 kB verstuurd en 46,3 kB zelf. Dat bestand laadt alleen bij die
+  // onderwerpen, niet bij het eerste bezoek. De grens ging van 16 naar 17 en van 44 naar 48 kB.
+  shared: { sent: 17, own: 48, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
   // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
   css: { sent: 10.5, why: 'de CSS' },
