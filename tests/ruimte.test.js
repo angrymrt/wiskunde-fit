@@ -1,4 +1,4 @@
-// Uitslagen van een kubus en van een balk (ruimte.js) en de figuur ervan (net in figures.js).
+// Uitslagen van een kubus en van een balk (ruimte.js) en de figuur ervan (net in ruimtefiguren.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -11,7 +11,7 @@ import {
   notCubeNet,
   boxFaces,
 } from '../src/js/ruimte.js';
-import { net } from '../src/js/figures.js';
+import { net } from '../src/js/ruimtefiguren.js';
 import { withSeed } from '../src/js/math.js';
 
 const K = ([x, y]) => `${x},${y}`;
