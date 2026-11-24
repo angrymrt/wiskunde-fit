@@ -609,9 +609,36 @@ sub {
   height: auto;
   display: block;
 }
-.fig[data-draw] {
+.fig[data-draw],
+.fig.tekenbaar {
   cursor: crosshair;
   touch-action: manipulation;
+}
+/* Tekenvragen (#232, ui/tekenen.js): het rooster om op te tikken, wat fout is, en de cursor van het toetsenbord. */
+.fig .gl.gr {
+  stroke: var(--rule);
+}
+.fig .fout {
+  stroke: var(--bad);
+  stroke-width: 3;
+  fill: none;
+}
+.fig .cursor {
+  stroke: var(--orange);
+  stroke-width: 2.5;
+  fill: none;
+}
+.teken-knoppen {
+  flex-basis: 100%;
+  display: grid;
+  gap: 8px;
+}
+.teken-knoppen .btn {
+  min-width: 44px;
+  min-height: 44px;
+}
+.teken-knoppen p {
+  margin: 0;
 }
 .fig text {
   font-family: var(--math);

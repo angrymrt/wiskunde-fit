@@ -183,4 +183,7 @@ export default {
   179: 'vijfVeelvlakken',
   180: 'veelvlakTellen',
   181: 'eulerControle',
+  182: 'kubusAfmaken',
+  183: 'driehoekPasser',
+  184: 'uitslagTekenen',
 };

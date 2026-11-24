@@ -318,6 +318,11 @@ function paint(focus) {
       .catch(() => {});
   mountTermen()?.catch(() => {});
   showDrawn();
+  // Het tekenen bij een tekenvraag met q.teken (#232), zoals een kubus afmaken, staat in een eigen bestand. Dat laadt
+  // pas als zo'n vraag op het scherm staat, en zet daarna na elke render() de knoppen en de tekening erbij. Lukt het
+  // laden niet, dan probeert de volgende render() het opnieuw.
+  if (app.querySelector('input[data-teken]'))
+    import('./ui/tekenen.js').then((m) => m.synchroniseer()).catch(() => {});
   watchPracticeBar();
   runClock();
   if (target && !focusOn(target)) focusOn('h1');

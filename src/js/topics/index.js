@@ -34,6 +34,7 @@ import veelhoeken from './veelhoeken-en-diagonalen.js';
 import prisma from './prisma.js';
 import piramide from './piramide.js';
 import veelvlakken from './regelmatige-veelvlakken.js';
+import tekenen from './tekenopdrachten.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -112,6 +113,7 @@ const DOMAINS = [
       prisma,
       piramide,
       veelvlakken,
+      tekenen,
       pythagoras,
       verhoudingen,
       gelijkvormig,
@@ -155,6 +157,7 @@ const PREREQUISITES = new Map([
   [prisma, [kubusBalk]],
   [piramide, [kubusBalk]],
   [veelvlakken, [kubusBalk]],
+  [tekenen, [kubusBalk, veelhoeken, cirkel]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],

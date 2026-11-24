@@ -132,7 +132,23 @@ function assertSound(q) {
     return;
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
-  for (const f of q.fields) if (!f.sel) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+  for (const f of q.fields)
+    if (!f.sel && !f.teken) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+  // Een tekening (q.teken) heeft één veld, met een goede tekening als tekst. Zonder het laatste deel is die
+  // niet af of fout.
+  if (q.teken) {
+    assert.equal(q.fields.length, 1, `een tekening heeft één veld: ${q.q}`);
+    assert.ok(q.fields[0].teken && typeof q.fields[0].a === 'string', `geen tekening: ${q.q}`);
+    assert.match(q.fig ?? '', / data-teken="/, `geen figuur om in te tekenen: ${q.q}`);
+    const right = [q.fields[0].a],
+      wrong = [q.fields[0].a.split(' ').slice(0, -1).join(' ')];
+    assert.ok(checkAnswer(q, right).ok, `goede tekening afgekeurd (${right}): ${q.q}`);
+    assert.ok(checkAnswer(stored(q), right).ok, `bewaard goede tekening afgekeurd: ${q.q}`);
+    assertNoTrap(q, right);
+    assert.ok(!checkAnswer(q, wrong).ok, `foute tekening goedgekeurd (${wrong}): ${q.q}`);
+    assert.ok(!checkAnswer(stored(q), ['999']).ok, `onleesbare tekening goedgekeurd: ${q.q}`);
+    return;
+  }
   // Een groep velden wordt zonder volgorde nagekeken. Dat kan alleen bij getallen, en met
   // hoogstens vier velden, want het nakijken probeert alle volgordes.
   const groups = q.fields.filter((f) => f.grp != null);

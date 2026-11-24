@@ -52,7 +52,7 @@ const answerOf = `(q) => {
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {
@@ -62,11 +62,15 @@ const answerOf = `(q) => {
   return { mc: q.mc ? q.mc.a : null, vals };
 }`;
 
+// Een tekening (#232) staat in een verborgen veld. Dat vult de test zoals tikken het zou vullen. Het tikken zelf test
+// 'een tekenvraag werkt met tikken, het toetsenbord en de knoppen'.
 async function fill(page, prefix, vals, numericOverride) {
   for (let i = 0; i < vals.length; i++) {
     const el = await page.$(`#${prefix}f${i}`);
-    const isSelect = (await el.evaluate((e) => e.tagName)) === 'SELECT';
-    if (isSelect) await el.selectOption(vals[i]);
+    const [tag, type] = await el.evaluate((e) => [e.tagName, e.type]);
+    if (tag === 'SELECT') await el.selectOption(vals[i]);
+    else if (type === 'hidden')
+      await el.evaluate((e, v) => (e.value = v), numericOverride ?? vals[i]);
     else await el.fill(numericOverride ?? vals[i]);
   }
 }
@@ -396,7 +400,7 @@ test('kruimelpad, menu en meldingen wijzen de weg', { timeout: 120_000 }, async 
     await p.click('.crumbs a[href="/meetkunde"]');
     assert.equal(new URL(p.url()).pathname, '/meetkunde');
     assert.equal(await p.textContent('h1'), 'Meetkunde');
-    assert.equal(await p.locator('main a.par').count(), 14);
+    assert.equal(await p.locator('main a.par').count(), 15);
     assert.ok(await p.$('main a[href="/methode-indeling/getal-en-ruimte-13-havo-3"]'));
     await p.screenshot({ path: `${shotDir}domein.png`, fullPage: true });
 
@@ -674,6 +678,174 @@ test('een parabool tekenen werkt met tikken en met typen', { timeout: 60_000 }, 
     await browser.close();
   }
 });
+
+// Tekenvragen (#232): een kubus afmaken, een driehoek met de passer en een uitslag van een kubus. Wat een tik precies
+// doet, staat in tests/tekenvragen.test.js. Hier: dat tikken, het toetsenbord en de knoppen het verborgen veld vullen,
+// dat het nakijken werkt en dat de tekening er na een hint nog staat, op een telefoon, smal en donker.
+test(
+  'een tekenvraag werkt met tikken, het toetsenbord en de knoppen',
+  { timeout: 90_000 },
+  async () => {
+    const browser = await launch();
+    try {
+      await mkdir(shotDir, { recursive: true });
+      const errors = [];
+      const context = await browser.newContext({ viewport: { width: 390, height: 1300 } });
+      const p = await context.newPage();
+      p.on('pageerror', (e) => errors.push(e.message));
+      const open = async (soort, seed = 'k3x9q') => {
+        await p.goto(at(`/tekenopdrachten/oefenen?soort=${soort}&seed=${seed}`));
+        await p.waitForSelector('.teken-knoppen button');
+      };
+      const vraag = () => p.evaluate(() => wiskundefit.state.prac.tekenopdrachten.q);
+      const veld = () => p.$eval('#pf0', (e) => e.value);
+      // Tikt op een plek in de figuur, in de eenheden van de viewBox, ook als de figuur geschaald is.
+      const tik = async (sx, sy) => {
+        const svg = await p.$('svg[data-teken]');
+        const box = await svg.boundingBox();
+        const w = await svg.evaluate((s) => s.viewBox.baseVal.width);
+        await p.mouse.click(box.x + (sx * box.width) / w, box.y + (sy * box.width) / w);
+      };
+      const controleer = async () => {
+        await p.click('#pform button[type=submit]');
+        return p.textContent('.fb');
+      };
+
+      // 182: een kubus afmaken. Het rooster heeft 34 per hokje en een rand van 16, met y omhoog.
+      await open(182);
+      let q = await vraag();
+      assert.equal(await p.getAttribute('svg[data-teken]', 'role'), 'application');
+      // Met het toetsenbord: de focus op het rooster, een pijltje en Enter zetten het eerste punt.
+      await p.focus('svg[data-teken]');
+      await p.keyboard.press('ArrowRight');
+      await p.keyboard.press('Enter');
+      assert.equal(await veld(), q.teken.zet.map((_, k) => (k ? '?' : '2,1')).join(' '));
+      assert.match(await p.textContent('body > p.sr[aria-live]:not(#laadmelding)'), /gezet/);
+      await p.keyboard.press('Enter');
+      assert.equal(await veld(), '', 'nog een keer Enter haalt het punt weg');
+      // Met tikken: elk goed punt.
+      for (const pt of q.fields[0].a.split(' ').map((s) => s.split(',').map(Number)))
+        await tik(16 + pt[0] * 34, 16 + (q.teken.H - pt[1]) * 34);
+      assert.equal(await veld(), q.fields[0].a);
+      // Na een hint staat de tekening er nog.
+      await p.click('[data-act="hint"]');
+      assert.equal(await veld(), q.fields[0].a);
+      // ui/tekenen.js tekent na render() opnieuw, zodra het geladen bestand dat kan.
+      await p.waitForFunction(
+        () => document.querySelectorAll('svg[data-teken] .getekend circle.dot').length >= 3,
+      );
+      await p.screenshot({ path: `${shotDir}teken-kubus.png`, fullPage: true });
+      assert.match(await controleer(), /Goed gedaan/);
+
+      // 183: een driehoek met de passer, met de knoppen.
+      await open(183);
+      q = await vraag();
+      const straal = async (r) => {
+        const nu = Number(
+          (await p.textContent('#ptk-straal')).replace(',', '.').replace(' cm', ''),
+        );
+        for (let k = 0; k < Math.abs(r - nu) / 0.5; k++)
+          await p.click(r > nu ? '#ptk-groter' : '#ptk-kleiner');
+      };
+      assert.equal(await p.isDisabled('#ptk-c'), true, 'zonder boogjes is er geen snijpunt');
+      await straal(q.teken.ac);
+      await p.click('#ptk-a');
+      await straal(q.teken.bc);
+      await p.click('#ptk-b');
+      assert.equal(await p.isDisabled('#ptk-c'), false);
+      await p.click('#ptk-c');
+      assert.equal(await veld(), q.fields[0].a);
+      await p.screenshot({ path: `${shotDir}teken-passer.png`, fullPage: true });
+      assert.match(await controleer(), /Goed gedaan/);
+      // Een tik op het eerste hoekpunt zet de passer daar. Het rooster heeft 36 per cm, vanaf x = −1.
+      await open(183, 'abc12');
+      await tik(16 + 36, 16 + q.teken.y1 * 36);
+      assert.match(await veld(), /^3 0 \?$/);
+
+      // 184: een uitslag van een kubus. Eerst een hokje te veel, dan de goede hokjes.
+      await open(184);
+      q = await vraag();
+      const hokje = (x, y) => tik(16 + x * 44 + 22, 16 + y * 44 + 22);
+      const cells = q.fields[0].a.split(' ').map((s) => s.split(',').map(Number));
+      for (const [x, y] of cells) await hokje(x, y);
+      const vrij = [...Array(30).keys()]
+        .map((i) => [i % 6, Math.floor(i / 6)])
+        .find(([x, y]) => ![...cells, ...q.teken.geg].some((c) => c[0] === x && c[1] === y));
+      await hokje(...vrij);
+      assert.match(await controleer(), /meer dan zes/);
+      await hokje(...vrij);
+      assert.equal(await veld(), q.fields[0].a);
+      // Met het toetsenbord kleur je een hokje en maak je het weer leeg. De cursor begint linksboven.
+      await p.focus('svg[data-teken]');
+      for (let k = 0; k < vrij[0]; k++) await p.keyboard.press('ArrowRight');
+      for (let k = 0; k < vrij[1]; k++) await p.keyboard.press('ArrowDown');
+      await p.keyboard.press(' ');
+      assert.notEqual(await veld(), q.fields[0].a);
+      await p.keyboard.press(' ');
+      assert.equal(await veld(), q.fields[0].a);
+      assert.match(await controleer(), /Goed gedaan/);
+
+      // Smal en donker: niets steekt buiten het scherm, en de schermafbeeldingen om zelf te bekijken.
+      for (const [naam, soort] of [
+        ['kubus', 182],
+        ['passer', 183],
+        ['uitslag', 184],
+      ]) {
+        const d = await browser.newPage({
+          viewport: { width: 320, height: 1000 },
+          colorScheme: 'dark',
+        });
+        d.on('pageerror', (e) => errors.push(e.message));
+        await d.goto(at(`/tekenopdrachten/oefenen?soort=${soort}&seed=k3x9q`));
+        await d.waitForSelector('.teken-knoppen button');
+        const wide = await d.evaluate(
+          () => document.documentElement.scrollWidth > window.innerWidth + 1,
+        );
+        assert.equal(wide, false, `${naam}: niets steekt buiten een scherm van 320 px`);
+        // Elke knop is minstens 44 bij 44 px.
+        const klein = await d.$$eval('.teken-knoppen button', (bs) =>
+          bs.filter((b) => b.offsetWidth < 44 || b.offsetHeight < 44).map((b) => b.textContent),
+        );
+        assert.deepEqual(klein, [], `${naam}: knoppen van minstens 44 px`);
+        await d.screenshot({ path: `${shotDir}teken-${naam}-smal-donker.png`, fullPage: true });
+        await d.close();
+      }
+
+      // In een proeftoets: alles goed, en in het resultaat de tekening.
+      await p.evaluate(() => {
+        wiskundefit.prog.stof = [182, 183, 184];
+        return wiskundefit.go({ name: 'toets' });
+      });
+      await p.click('[data-act="len"][data-id="10"]');
+      await p.click('[data-act="start"]');
+      for (let i = 0; i < 10; i++) {
+        await p.waitForSelector('#tform .teken-knoppen button');
+        const a = await p.evaluate(() => wiskundefit.state.test.items[wiskundefit.state.test.i].q);
+        await fill(p, 't', [i ? a.fields[0].a : '']);
+        if (i < 9) await p.click('#tform button[type=submit]');
+      }
+      await p.click('[data-act="tfin"]');
+      await p.click('[data-act="tfin"]');
+      await p.waitForSelector('.resq');
+      const [score, max] = await p.evaluate(() => [
+        wiskundefit.state.result.score,
+        wiskundefit.state.result.max,
+      ]);
+      assert.ok(score < max && score > 0, 'de eerste vraag was leeg');
+      assert.equal(await p.locator('.resq .figbox > svg').count(), 10);
+      assert.equal(
+        await p.locator('.resq svg[data-teken]').count(),
+        0,
+        'in het resultaat kun je niet tekenen',
+      );
+      await p.screenshot({ path: `${shotDir}teken-proeftoets-resultaat.png`, fullPage: true });
+      assert.deepEqual(errors, []);
+      await context.close();
+    } finally {
+      await browser.close();
+    }
+  },
+);
 
 test(
   'een groep velden en schetsen als keuzes werken bij oefenen en in de proeftoets',
@@ -1589,9 +1761,15 @@ test('Enter op de laatste vraag van een proeftoets laat de site niet vastlopen',
     await p.click('[data-act="goto"][data-id="9"]');
     // Een veld, een keuzelijst of meerkeuze. Enter verstuurt het formulier, net als requestSubmit.
     const sel = (await p.$('#tf0')) ? '#tf0' : '#tm0';
-    const kind = await p.$eval(sel, (el) => (el.type === 'radio' ? 'radio' : el.tagName));
+    const kind = await p.$eval(sel, (el) =>
+      el.type === 'radio' || el.type === 'hidden' ? el.type : el.tagName,
+    );
     let kept;
-    if (kind === 'radio') {
+    if (kind === 'hidden') {
+      // Een tekening (#232): de test vult het veld zoals tikken het zou doen.
+      await p.$eval(sel, (el) => (el.value = '1,1'));
+      kept = async () => (await p.inputValue(sel)) === '1,1';
+    } else if (kind === 'radio') {
       await p.check(sel);
       kept = () => p.isChecked(sel);
     } else if (kind === 'SELECT') {
@@ -1647,6 +1825,12 @@ test('Enter op de laatste vraag van een proeftoets laat de site niet vastlopen',
       if (j === k) continue;
       await p.click(`[data-act="goto"][data-id="${j}"]`);
       if (await p.$('#tm0')) await p.check('#tm0');
+      // Een tekening (#232) vult de test zoals tikken het zou doen.
+      else if (await p.$('#tf0[data-teken]'))
+        await p.$eval(
+          '#tf0',
+          (e) => (e.value = wiskundefit.state.test.items[wiskundefit.state.test.i].q.fields[0].a),
+        );
       else
         for (const el of await p.$$('#tform select, #tform input[type="text"]'))
           (await el.evaluate((e) => e.tagName)) === 'SELECT'
@@ -3197,9 +3381,9 @@ test(
 // bezoek als geheel is wat telt. Dezelfde grens geldt ook voor de gedeelde code die alleen onderwerpen laden
 // (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
-  // De pagina Cijfers noemt alle vraagsoorten (#232: 181). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 7,2 kB, dus de grens ging van 7 naar 7,5.
+  // De pagina Cijfers noemt alle vraagsoorten (#232: 184). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 7,2 kB, dus de grens ging van 7 naar 7,5.
   page: { sent: 7.5, why: 'een vooraf gebouwde pagina' },
-  // Alleen Zo maken we de vragen: alle 181 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
+  // Alleen Zo maken we de vragen: alle 184 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
   lijst: { sent: 10.5, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
@@ -3257,7 +3441,7 @@ test('de pagina’s en de code blijven klein', async () => {
         ? 'shared'
         : /^cijfers-data-/.test(name)
           ? 'tellen'
-          : /^(vragen|exam|about|cijfers|rekenhulp)-/.test(name) && 'scherm';
+          : /^(vragen|exam|about|cijfers|rekenhulp|tekenen)-/.test(name) && 'scherm';
     const kind = ext === '.js' ? code : { '.css': 'css', '.woff2': 'font' }[ext];
     if (kind) files.push([`assets/${name}`, kind]);
   }

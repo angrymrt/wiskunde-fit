@@ -83,6 +83,36 @@ function fold(cells) {
 // Is dit een uitslag van een kubus? Zes hokjes, één stuk, en elk hokje een eigen zijvlak.
 const isCubeNet = (cells) => cells.length === 6 && fold(cells) !== null;
 
+// De twee hokjes (plekken in cells) die bij het vouwen op hetzelfde zijvlak komen, of null als dat
+// niet gebeurt. Vouwt net als fold, maar stopt bij het eerste hokje dat op een zijvlak komt waar al
+// een hokje ligt. Voor de feedback als een leerling zelf een uitslag van een kubus tekent.
+function sameFace(cells) {
+  const at = new Map(cells.map((c, i) => [key(c), i]));
+  if (!cells.length || at.size !== cells.length) return null;
+  const stand = [
+      [
+        [0, 1, 2, 3, 4, 5],
+        [0, 1, 2],
+      ],
+    ],
+    op = new Map([[1, 0]]),
+    order = [0];
+  for (let k = 0; k < order.length; k++) {
+    const i = order[k],
+      [x, y] = cells[i];
+    for (const [dir, dx, dy] of DIRS) {
+      const j = at.get(key([x + dx, y + dy]));
+      if (j === undefined || stand[j]) continue;
+      stand[j] = roll(...stand[i], dir);
+      const face = stand[j][0][1];
+      if (op.has(face)) return [op.get(face), j];
+      op.set(face, j);
+      order.push(j);
+    }
+  }
+  return null;
+}
+
 // Het zijvlak (0 tot en met 5) van elk hokje als je de uitslag van een kubus vouwt, of null als het geen uitslag van een kubus
 // is. Zijvlak f ligt tegenover zijvlak f ^ 1: 0 en 1, 2 en 3, 4 en 5.
 function cubeFaces(cells) {
@@ -285,6 +315,7 @@ function boxFaces(cells, dims) {
 
 export {
   isCubeNet,
+  sameFace,
   cubeFaces,
   opposite,
   canonicalNet,

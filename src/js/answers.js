@@ -1,5 +1,5 @@
 // Antwoorden lezen en nakijken. Bevat geen DOM-code, dus goed los te testen.
-import { near, isNice, rd, roundText } from './math.js';
+import { near, isNice, rd, roundText, TEKEN } from './math.js';
 
 function parseNum(s) {
   s = String(s).trim().replace(/[−–]/g, '-').replace(/\s+/g, ' ');
@@ -102,8 +102,9 @@ function checkParabola({ a, b, c }, v) {
     third = on(v[4], v[5]) && !near(v[4], h) && !(near(v[4], v[2]) && near(v[5], v[3]));
   return [top, top, second, second, third, third];
 }
-// Een tekenvraag: een lijn of een parabool in een rooster.
-const isDrawing = (q) => !!(q.line || q.parabola);
+// Een tekenvraag: een lijn of een parabool in een rooster, of een tekening met q.teken, zoals een
+// kubus afmaken (zie tekenvragen.js).
+const isDrawing = (q) => !!(q.line || q.parabola || q.teken);
 // Velden met dezelfde groep (grp), zoals de twee velden bij x = −2 ∨ x = 9, worden zonder volgorde
 // nagekeken: elk ingevuld getal mag bij een antwoord van de groep horen dat nog niet is gebruikt.
 // Geeft per veld het veld waarvan het antwoord erbij hoort. Van alle manieren om de getallen bij de
@@ -140,11 +141,13 @@ function checkAnswer(q, vals) {
     return { each: [hit], ok: hit };
   }
   const nums = () => q.fields.map((f, i) => parseNum(vals[i] ?? ''));
-  const each = q.line
-    ? checkLine(q.line, nums())
-    : q.parabola
-      ? checkParabola(q.parabola, nums())
-      : matchFields(q.fields, vals).map((j, i) => checkField(q.fields[j], vals[i] ?? ''));
+  const each = q.teken
+    ? TEKEN.nakijken(q.teken, vals[0] ?? '')
+    : q.line
+      ? checkLine(q.line, nums())
+      : q.parabola
+        ? checkParabola(q.parabola, nums())
+        : matchFields(q.fields, vals).map((j, i) => checkField(q.fields[j], vals[i] ?? ''));
   return { each, ok: each.every(Boolean) };
 }
 // Of een vraag leeg, half of helemaal is ingevuld. Alleen spaties telt als leeg, en bij een
@@ -163,7 +166,7 @@ function findTrap(q, vals) {
   if (!q.traps) return null;
   const v = q.mc
     ? [q.mc.opts[+vals[0]]]
-    : q.fields.map((f, i) => (f.sel ? vals[i] : parseNum(vals[i])));
+    : q.fields.map((f, i) => (f.sel || f.teken ? vals[i] : parseNum(vals[i])));
   for (const t of q.traps) {
     try {
       if (t.f(v)) return t;

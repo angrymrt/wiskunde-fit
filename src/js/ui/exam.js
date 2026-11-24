@@ -9,6 +9,7 @@ import { rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { bookPath, chosenTopics } from '../stof.js';
 import { esc, T, stepsHTML } from '../typeset.js';
+import { tekenResultaat, tekenRijen } from '../tekenvragen.js';
 import { crumbs, pageHead } from './layout.js';
 import { fieldsHTML, meldHTML, shareHTML } from './question-form.js';
 import { state } from './state.js';
@@ -98,9 +99,11 @@ function finishTest() {
     max = 0;
   const t = state.test;
   t.items.forEach((x) => {
-    const c = x.vals.length
-      ? checkAnswer(x.q, x.vals)
-      : { each: x.q.mc ? [false] : x.q.fields.map(() => false), ok: false };
+    // Een tekening kijkt ook leeg na, zodat ze steeds even veel punten waard is: een punt per deel.
+    const c =
+      x.vals.length || x.q.teken
+        ? checkAnswer(x.q, x.vals)
+        : { each: x.q.mc ? [false] : x.q.fields.map(() => false), ok: false };
     x.c = c;
     x.got = c.each.filter(Boolean).length;
     x.max = c.each.length;
@@ -140,6 +143,8 @@ const rightField = (f) =>
 function answerRows({ q, vals, c }) {
   if (q.mc)
     return [[null, filled(vals[0]) ? q.mc.opts[vals[0]] : typed(''), c.each[0], q.mc.opts[q.mc.a]]];
+  // Een tekening (#232): een regel per deel, zoals elk punt van een kubus. Zie tekenvragen.js.
+  if (q.teken) return tekenRijen(q.teken, vals[0] ?? '', c.each);
   // Bij een parabool is het eerste punt de top.
   if (isDrawing(q))
     return points(q).map((k) => {
@@ -172,7 +177,7 @@ function answersHTML(x) {
     labels = rows.some(([l]) => l),
     wrong = !x.c.ok;
   // Bij een tekenvraag is elk punt op de grafiek goed, dus het goede antwoord is een voorbeeld.
-  const right = isDrawing(x.q) ? 'Een goed punt' : 'Goed antwoord';
+  const right = x.q.teken ? 'Goed antwoord' : isDrawing(x.q) ? 'Een goed punt' : 'Goed antwoord';
   const head = `<tr>${labels ? '<th><span class="sr">Deel</span></th>' : ''}<th>Jouw antwoord</th>${wrong ? `<th>${right}</th>` : ''}</tr>`;
   const row = ([l, given, ok, right]) =>
     `<tr class="${ok ? 'ok' : 'no'}">${labels ? (l ? `<th scope="row">${l}</th>` : '<td></td>') : ''}<td>${mark(ok)}${given}</td>${wrong ? `<td>${ok ? '' : right}</td>` : ''}</tr>`;
@@ -183,6 +188,8 @@ const points = (q) => (q.parabola ? [0, 1, 2] : [0, 1]);
 // Een tekenvraag toont wat de leerling tekende, en bij een fout ook de goede lijn of parabool.
 function resultFig(x) {
   if (!x.q.fig) return '';
+  if (x.q.teken)
+    return `<div class="figbox">${tekenResultaat(x.q.teken, x.vals[0] ?? '', x.c.ok)}</div>${x.c.ok || x.q.teken.soort === 'uitslag' ? '' : '<p class="small legend"><span><span class="key mine"></span> Jouw tekening</span><span><span class="key good"></span> De goede tekening, gestippeld</span></p>'}`;
   if (!isDrawing(x.q)) return `<div class="figbox">${x.q.fig}</div>`;
   const pts = points(x.q).map((k) =>
     [2 * k, 2 * k + 1].map((i) => parseNum(String(x.vals[i] ?? ''))),
