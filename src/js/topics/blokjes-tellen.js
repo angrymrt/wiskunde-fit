@@ -4,7 +4,18 @@ import { F, H } from './shared.js';
 import { T, dt } from '../typeset.js';
 import { solid } from '../ruimtefiguren.js';
 
-const NAMEN = ['Lieke', 'Omar', 'Floor', 'Jesse', 'Nina', 'Thijs', 'Sara', 'Milan'];
+const NAMEN = [
+  'Zeynep',
+  'Kofi',
+  'Dewi',
+  'Tomas',
+  'Amara',
+  'Ravi',
+  'Ilse',
+  'Mateo',
+  'Fenna',
+  'Idris',
+];
 // '1 blokje' of '5 blokjes'.
 const stuks = (n, een = 'blokje', meer = 'blokjes') => `${n} ${n === 1 ? een : meer}`;
 const som = (xs) => xs.reduce((t, x) => t + x, 0);
@@ -26,7 +37,7 @@ function valkuil(id, m, paren) {
 const BOUW = {
   vierkant: () => ({
     tekst:
-      'Elke laag is een vierkant van blokjes. De bovenste laag is 1 blokje. Elke laag eronder is 1 blokje langer en 1 blokje breder dan de laag erboven.',
+      'Het is een piramide van blokjes. Elke laag is een vierkant. De bovenste laag is 1 blokje. Elke laag eronder is 1 blokje langer en 1 blokje breder dan de laag erboven.',
     laag: (k) => k * k,
     reken: (k) => `Laag ${k} is ${k} bij ${k}, dus ${k}*${k} = ${k * k} blokjes.`,
     zichtbaar: (k) => k * k - Math.max(0, k - 2) ** 2,
@@ -35,7 +46,7 @@ const BOUW = {
       'Je hebt alleen de blokjes aan de rand van een laag geteld. In een grote laag zitten ook blokjes binnenin. Die zie je niet, maar ze tellen wel mee.',
   }),
   rechthoek: (c) => ({
-    tekst: `Elke laag is een rechthoek van blokjes. De bovenste laag is 1 bij ${1 + c}. Elke laag eronder is 1 blokje langer en 1 blokje breder dan de laag erboven.`,
+    tekst: `Het is een podium van blokjes. Elke laag is een rechthoek. De bovenste laag is 1 bij ${1 + c}. Elke laag eronder is 1 blokje langer en 1 blokje breder dan de laag erboven.`,
     laag: (k) => k * (k + c),
     reken: (k) => `Laag ${k} is ${k} bij ${k + c}, dus ${k}*${k + c} = ${k * (k + c)} blokjes.`,
     zichtbaar: (k) => k * (k + c) - Math.max(0, k - 2) * Math.max(0, k + c - 2),
@@ -43,21 +54,21 @@ const BOUW = {
     zicht:
       'Je hebt alleen de blokjes aan de rand van een laag geteld. In een grote laag zitten ook blokjes binnenin. Die zie je niet, maar ze tellen wel mee.',
   }),
-  trap: (c, w) => ({
-    tekst: `Het is een trap, ${w} blokjes breed. De bovenste laag is 1 rij van ${w} blokjes. Elke laag eronder heeft 1 rij van ${w} blokjes meer.`,
+  tribune: (c, w) => ({
+    tekst: `Het is een tribune, ${w} blokjes breed. De bovenste laag is 1 rij van ${w} blokjes. Elke laag eronder heeft 1 rij van ${w} blokjes meer.`,
     laag: (k) => k * w,
     reken: (k) => `Laag ${k} heeft ${k} rijen van ${w} blokjes, dus ${k}*${w} = ${k * w} blokjes.`,
     zichtbaar: (k) => k,
     kolommen: (n) => vak(n, w).map(([i]) => i + 1),
-    zicht: `Je hebt alleen de blokjes aan de zijkant van de trap geteld. Elke rij is ${w} blokjes breed, dus achter elk blokje dat je ziet zitten er nog meer.`,
+    zicht: `Je hebt alleen de blokjes aan de zijkant van de tribune geteld. Elke rij is ${w} blokjes breed, dus achter elk blokje dat je ziet zitten er nog meer.`,
   }),
 };
 
 function inLagen() {
   const naam = pick(NAMEN),
-    soort = pick(['vierkant', 'rechthoek', 'trap']),
+    soort = pick(['vierkant', 'rechthoek', 'tribune']),
     c = soort === 'rechthoek' ? ri(1, 2) : 0,
-    w = soort === 'trap' ? ri(2, 4) : 0,
+    w = soort === 'tribune' ? ri(2, 4) : 0,
     b = BOUW[soort](c, w),
     k = ri(5, 6),
     n = ri(5, 7),
@@ -71,7 +82,7 @@ function inLagen() {
   return {
     q:
       T(
-        `${naam} bouwt een bouwwerk van gelijke blokjes. ${b.tekst} In de tabel zie je hoeveel blokjes er in de bovenste vier lagen zitten. Hoeveel blokjes zitten er in laag ${k}? Hoeveel blokjes zijn het samen als het bouwwerk ${n} lagen heeft? En hoeveel lagen heeft het bouwwerk als er precies ${doel} blokjes in zitten?`,
+        `${naam} bouwt een model van gelijke blokjes. ${b.tekst} In de tabel zie je hoeveel blokjes er in de bovenste vier lagen zitten. Hoeveel blokjes zitten er in laag ${k}? Hoeveel blokjes zijn het samen als het bouwwerk ${n} lagen heeft? En hoeveel lagen heeft het bouwwerk als er precies ${doel} blokjes in zitten?`,
       ) +
       dt(
         [
@@ -325,7 +336,7 @@ const ophoog = (n, stap) => som(tot(n).map(stap));
 const PATRONEN = {
   trap: () => ({
     tekst:
-      'Elke figuur is een trap van blokjes. Figuur 1 is 1 blokje. Bij elke volgende figuur komt er rechts een stapel bij die 1 blokje hoger is dan de vorige.',
+      'Elke figuur is een tribune van blokjes. Figuur 1 is 1 blokje. Bij elke volgende figuur komt er rechts een stapel bij die 1 blokje hoger is dan de vorige.',
     waarde: (n) => ophoog(n, (j) => j),
     na: (n) => (n * (n + 1)) / 2,
     reken: (n) => `Figuur ${n}: ${tot(n).join(' + ')} = ${ophoog(n, (j) => j)}`,
@@ -335,7 +346,7 @@ const PATRONEN = {
   }),
   plaat: () => ({
     tekst:
-      'Elke figuur is een vierkante plaat van één laag blokjes. Bij elke volgende figuur is de plaat 1 blokje langer en 1 blokje breder.',
+      'Elke figuur is een vloer van één laag blokjes, in de vorm van een vierkant. Bij elke volgende figuur is de plaat 1 blokje langer en 1 blokje breder.',
     waarde: (n) => n * n,
     // De oneven getallen optellen: 1 + 3 + 5 + ... geeft de kwadraten.
     na: (n) => ophoog(n, (j) => 2 * j - 1),

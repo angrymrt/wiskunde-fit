@@ -348,7 +348,8 @@ const s147 = () => pick([wieHeeftGelijk, wieHeeftGelijk, welkeEigenschap, welkeV
 
 // Een vierkant of rechthoek met letters. De hoeken heten in deze volgorde, tegen de klok in.
 const PLEK = ['linksonder', 'rechtsonder', 'rechtsboven', 'linksboven'];
-const WOORDEN = ['ABCD', 'KLMN', 'PQRS', 'EFGH', 'TUVW'];
+// Elke vraag kiest een andere reeks letters.
+const WOORDEN = ['WXYZ', 'DEFG', 'HIJK', 'MNOP', 'QRST', 'STUV', 'BCDE', 'FGHI', 'UVWX', 'LMNO'];
 // De maten in cm, en bij welke hoek de eerste letter staat.
 function vierhoek() {
   const vk = coin(),
@@ -394,7 +395,7 @@ function figuur({ vk, w, h, woord, start }, klok = false) {
   };
 }
 // De naam van zijde i, van letter i naar letter i + 1, met de letters in de volgorde van het
-// woord: AB, BC, CD en AD.
+// woord: bij WXYZ zijn dat WX, XY, YZ en WZ.
 const zijde = (woord, i) => {
   const [p, q] = [i % 4, (i + 1) % 4].sort((x, y) => x - y);
   return woord[p] + woord[q];
@@ -423,7 +424,7 @@ const ERNAAST = {
   id: 'lengte-van-zijde-ernaast',
   m: 'Dat is de lengte van een zijde ernaast. Zijden die tegenover elkaar liggen, zijn even lang.',
 };
-// Hoe de vierhoek in de vraag staat: rechthoek KLMN met KL = 6 cm en LM = 3 cm.
+// Hoe de vierhoek in de vraag staat: rechthoek DEFG met DE = 6 cm en EF = 3 cm.
 const metMaten = (r, ks) =>
   `${r.soort} ${r.woord} met ${en((r.vk ? ks.slice(0, 1) : ks).map((k) => `${zijde(r.woord, k)} = ${lengte(r, k)} cm`))}`;
 
@@ -807,7 +808,9 @@ function rechthoeken(n) {
   for (let r = 1; r * r <= n; r++) if (n % r === 0) uit.push([r, n / r]);
   return uit;
 }
-const AANTALLEN = [12, 16, 18, 20, 24, 28, 30, 32, 36, 40, 42, 45, 48];
+// Elk aantal heeft minstens twee delers van 2 tot en met 9, zodat rijenVanVierkantjes altijd een
+// keuze heeft voor een aantal rijen dat wel en een dat niet past.
+const AANTALLEN = [14, 15, 21, 27, 35, 44, 50, 54, 56, 63, 64, 81];
 function hoeveelRechthoeken() {
   const n = pick(AANTALLEN),
     rh = rechthoeken(n),
@@ -960,17 +963,17 @@ export default {
       t: 'Hoekpunten en zijden',
       p: [
         T(
-          'Hoekpunten krijgen een hoofdletter. Je noemt ze tegen de klok in, zoals bij rechthoek KLMN: K linksonder, L rechtsonder, M rechtsboven en N linksboven.',
+          'Hoekpunten krijgen een hoofdletter. Je noemt ze tegen de klok in, zoals bij rechthoek WXYZ: W linksonder, X rechtsonder, Y rechtsboven en Z linksboven.',
         ),
         T(
-          'Een zijde noem je met de twee hoekpunten aan de uiteinden, zoals KL. Tegenover KL ligt zijde MN. Tegenover hoekpunt K ligt hoekpunt M.',
+          'Een zijde noem je met de twee hoekpunten aan de uiteinden, zoals WX. Tegenover WX ligt zijde YZ. Tegenover hoekpunt W ligt hoekpunt Y.',
         ),
       ],
       ex: {
         q: T(
-          'Je noemt rechthoek KLMN tegen de klok in, maar je begint bij M. Welke naam krijg je?',
+          'Je noemt rechthoek WXYZ tegen de klok in, maar je begint bij Y. Welke naam krijg je?',
         ),
-        steps: ['Na M komt N, dan K en dan L.', 'Dus de naam is MNKL.'],
+        steps: ['Na Y komt Z, dan W en dan X.', 'Dus de naam is YZWX.'],
       },
     },
     {

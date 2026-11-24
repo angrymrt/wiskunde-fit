@@ -3,7 +3,15 @@ import { pick, coin, shuffle, until, near } from '../math.js';
 import { H, F, MC } from './shared.js';
 import { T } from '../typeset.js';
 import { net, solid, solidFacts } from '../ruimtefiguren.js';
-import { isCubeNet, cubeFaces, CUBE_NETS, canonicalNet, notCubeNets, boxFaces } from '../ruimte.js';
+import {
+  isCubeNet,
+  cubeFaces,
+  CUBE_NETS,
+  canonicalNet,
+  notCubeNets,
+  boxFaces,
+  turned,
+} from '../ruimte.js';
 
 const HOEK = { 3: 'driehoek', 4: 'vierhoek', 5: 'vijfhoek', 6: 'zeshoek' };
 const WORD = { 3: 'drie', 4: 'vier', 5: 'vijf', 6: 'zes' };
@@ -46,9 +54,9 @@ const WRONG_NAME = {
     ],
     ['piramide', 'prisma-en-piramide-verwisseld', PIRAMIDE_HEEFT_TOP],
     [
-      'doos',
+      'kist',
       'dagelijkse-naam',
-      'Een doos heeft vaak deze vorm, maar doos is geen wiskundige naam. De wiskundige naam is balk.',
+      'Een kist heeft vaak deze vorm, maar kist is geen wiskundige naam. De wiskundige naam is balk.',
     ],
   ],
   prisma: [
@@ -124,9 +132,9 @@ const WRONG_NAME = {
       'Een cirkel is een platte figuur. Hier is de cirkel het platte zijvlak van een ruimtefiguur.',
     ],
     [
-      'punthoed',
+      'ijshoorntje',
       'dagelijkse-naam',
-      'Punthoed is geen wiskundige naam. Een ruimtefiguur met een cirkel en een gebogen zijvlak naar een top heet een kegel.',
+      'IJshoorntje is geen wiskundige naam. Een ruimtefiguur met een cirkel en een gebogen zijvlak naar een top heet een kegel.',
     ],
   ],
   bol: [
@@ -571,21 +579,6 @@ function s11faces() {
   };
 }
 
-// De acht standen van een vorm: draaien en spiegelen.
-const TURNS = [
-  ([x, y]) => [x, y],
-  ([x, y]) => [-y, x],
-  ([x, y]) => [-x, -y],
-  ([x, y]) => [y, -x],
-  ([x, y]) => [-x, y],
-  ([x, y]) => [y, x],
-  ([x, y]) => [x, -y],
-  ([x, y]) => [-y, -x],
-];
-const turned = (cells) => {
-  const t = pick(TURNS);
-  return cells.map(t);
-};
 // De elf uitslagen van een kubus als tekst, in hun vaste stand.
 const shapeKey = (cells) =>
   canonicalNet(cells)

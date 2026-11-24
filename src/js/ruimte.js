@@ -97,8 +97,9 @@ function opposite(cells, i) {
   return faces ? faces.indexOf(faces[i] ^ 1) : -1;
 }
 
-// De acht standen van een vorm: vier keer een kwartslag draaien, en dat ook gespiegeld.
-const SYMMETRIES = [
+// De acht standen van een vorm: vier keer een kwartslag draaien, en dat ook gespiegeld. Een stand is
+// een functie die een hokje [x, y] verplaatst.
+const TURNS = [
   ([x, y]) => [x, y],
   ([x, y]) => [-y, x],
   ([x, y]) => [-x, -y],
@@ -116,12 +117,17 @@ function normalize(cells) {
   return cells.map(([x, y]) => [x - x0, y - y0]).sort((p, q) => p[1] - q[1] || p[0] - q[0]);
 }
 const text = (cells) => cells.map(key).join(' ');
+// Een uitslag in een willekeurige van de acht standen, gekozen met het toeval van de vraag.
+const turned = (cells) => {
+  const t = pick(TURNS);
+  return cells.map(t);
+};
 
 // Een vaste stand van een vorm, hetzelfde na draaien, spiegelen of schuiven. Zo zie je of twee
 // uitslagen van een kubus dezelfde vorm hebben, en welke van de elf het is.
 function canonicalNet(cells) {
   let best = null;
-  for (const s of SYMMETRIES) {
+  for (const s of TURNS) {
     const c = normalize(cells.map(s));
     if (!best || text(c) < text(best)) best = c;
   }
@@ -286,4 +292,6 @@ export {
   notCubeNets,
   notCubeNet,
   boxFaces,
+  TURNS,
+  turned,
 };

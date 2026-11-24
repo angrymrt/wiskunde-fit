@@ -4,13 +4,25 @@ import { F, MC, trap } from './shared.js';
 import { T } from '../typeset.js';
 import { and } from '../figures.js';
 import { net, solid, solidFacts } from '../ruimtefiguren.js';
-import { boxFaces, opposite, CUBE_NETS } from '../ruimte.js';
+import { boxFaces, opposite, CUBE_NETS, TURNS } from '../ruimte.js';
 
-// Letters bij de hoekpunten: eerst het grondvlak, dan het bovenvlak, tegen de klok in. A ligt
-// linksvoor, E staat boven A. Elke reeks staat op alfabetische volgorde, zodat de naam van een
-// ribbe uit solidFacts al op volgorde staat.
-const LETTERS = ['ABCDEFGH', 'ABCDEFGH', 'PQRSTUVW', 'KLMNPQRS'];
-// De naam van een kubus of balk, zoals 'ABCD EFGH'.
+// Letters bij de hoekpunten: eerst het grondvlak, dan het bovenvlak, tegen de klok in. De eerste
+// letter ligt linksvoor, de vijfde staat boven de eerste. Elke reeks staat op alfabetische volgorde,
+// zodat de naam van een ribbe uit solidFacts al op volgorde staat. Elke vraag kiest een andere reeks.
+const LETTERS = [
+  'DEFGHIJK',
+  'MNOPQRST',
+  'STUVWXYZ',
+  'BCDEFGHI',
+  'FGHIJKLM',
+  'HIJKMNOP',
+  'CDEFQRST',
+  'RSTUVWXY',
+  'NOPQSTUV',
+];
+// De reeks in de uitleg.
+const VOORBEELD = 'DEFGHIJK';
+// De naam van een kubus of balk, zoals 'DEFG HIJK'.
 const naam = (L) => `${L.slice(0, 4)} ${L.slice(4)}`;
 // De richtingen van de ribben: naar rechts (de lengte), naar achteren (de breedte) en omhoog
 // (de hoogte), net als de coördinaten in solidFacts.
@@ -69,7 +81,7 @@ const VOORWERPEN = [
   ['kubus', 'Een suikerklontje heeft de vorm van een kubus.', 'een suikerklontje'],
   ['kubus', 'Een houten speelblok heeft de vorm van een kubus.', 'het speelblok'],
   ['balk', 'Een baksteen heeft de vorm van een balk.', 'een baksteen'],
-  ['balk', 'Een pak hagelslag heeft de vorm van een balk.', 'het pak hagelslag'],
+  ['balk', 'Een blok nougat heeft de vorm van een balk.', 'het blok nougat'],
   ['balk', 'Een gum heeft de vorm van een balk.', 'de gum'],
 ];
 
@@ -128,7 +140,7 @@ function s12count() {
         {
           id: 'ribben-dubbel-geteld',
           f: (x) => x[0] === hp * 3,
-          m: `Elk balletje heeft 3 prikkers, maar ${hp} * 3 = ${hp * 3} telt elke prikker twee keer: een prikker zit aan twee balletjes. Dus je hebt ${hp * 3} : 2 = ${rb} prikkers nodig.`,
+          m: `Met ${hp * 3} prikkers heb je er te veel: je hebt sommige prikkers twee keer geteld. Tel liever in groepen. Er zijn drie richtingen (breed, diep en hoog), en in elke richting zitten 4 prikkers. Dus je hebt 3 * 4 = ${rb} prikkers nodig.`,
         },
         {
           id: 'hoekpunten-en-ribben-verwisseld',
@@ -175,7 +187,7 @@ function s12count() {
       {
         id: 'ribben-dubbel-geteld',
         f: (x) => x[at('ribben')] === hp * 3,
-        m: `In elk hoekpunt komen 3 ribben samen, maar ${hp} * 3 = ${hp * 3} telt elke ribbe twee keer: een ribbe heeft twee hoekpunten. Dus er zijn ${hp * 3} : 2 = ${rb} ribben.`,
+        m: `Met ${hp * 3} ribben tel je er te veel: je hebt sommige ribben twee keer geteld. Tel liever in groepen. Er zijn drie richtingen (breed, diep en hoog), en in elke richting lopen 4 ribben. Dus er zijn 3 * 4 = ${rb} ribben.`,
       },
       {
         id: 'grond-of-bovenvlak-vergeten',
@@ -482,7 +494,7 @@ function s12short() {
               !(l === b && b === h) &&
               (lying ? (l === b) === square && l !== h : (b === h) === square && l !== b),
           ),
-    // De ribben met een lengte erbij, op de omtrek van de tekening: AB, BC en AE.
+    // De ribben met een lengte erbij, op de omtrek van de tekening: de eerste en tweede letter, de tweede en derde, en de eerste en vijfde.
     lab = { [RECHTS]: L[0] + L[1], [ACHTER]: L[1] + L[2], [OMHOOG]: L[0] + L[4] },
     dims = { [RECHTS]: l, [ACHTER]: b, [OMHOOG]: h },
     len =
@@ -528,7 +540,7 @@ function s12short() {
         : `${e} is even lang als ${lab[dirOf(f, e)]}, dus ${e} = ${dims[dirOf(f, e)]} cm`;
   return {
     q: T(
-      `Hieronder staat ${kind} ${naam(L)}. De afmetingen zijn in cm. Welke ribben zijn korter getekend dan ze in werkelijkheid zijn? Hoe lang is ribbe ${rec} in werkelijkheid? Is zijvlak ${w} in werkelijkheid een vierkant?`,
+      `Hieronder staat ${kind} ${naam(L)}. Alle maten staan in cm. Welke ribben zijn korter getekend dan ze in werkelijkheid zijn? Hoe lang is ribbe ${rec} in werkelijkheid? Is zijvlak ${w} in werkelijkheid een vierkant?`,
     ),
     fig: solid(shape),
     fields,
@@ -654,7 +666,7 @@ function s13same() {
   const dimWords = `${d(l)} cm lang, ${d(b)} cm breed en ${d(h)} cm hoog`;
   return {
     q: T(
-      `Hieronder staat balk ${naam(L)}. De afmetingen zijn in cm. Hoeveel ribben zijn even lang als ${e}? Tel ${e} zelf ook mee. Welke zijvlakken zijn een vierkant? Hoeveel zijvlakken zijn even groot als zijvlak ${w}? Tel ${w} zelf ook mee.`,
+      `Hieronder staat balk ${naam(L)}. Alle maten staan in cm. Hoeveel ribben zijn even lang als ${e}? Tel ${e} zelf ook mee. Welke zijvlakken zijn een vierkant? Hoeveel zijvlakken zijn even groot als zijvlak ${w}? Tel ${w} zelf ook mee.`,
     ),
     fig: solid(shape),
     fields,
@@ -821,7 +833,7 @@ function s13edges() {
         ),
         trap(
           'ribben-dubbel-geteld',
-          'Je hebt elke ribbe twee keer geteld, want een ribbe zit aan twee hoekpunten. Een kubus heeft 12 ribben.',
+          'Je komt op 24 uit: 6 zijvlakken met elk 4 ribben. Maar elke ribbe hoort bij twee zijvlakken, dus je hebt elke ribbe twee keer geteld. Een kubus heeft 12 ribben.',
           (x) => x[0] === 24,
           (x) => near(x[1], 24 * r),
         ),
@@ -861,7 +873,7 @@ function s13edges() {
   return {
     q: T(
       drawn
-        ? `Hieronder staat balk ${naam(L)}. De afmetingen zijn in cm. Hoeveel ribben zijn ${d(x)} cm lang? Hoe lang zijn alle ribben samen?`
+        ? `Hieronder staat balk ${naam(L)}. Alle maten staan in cm. Hoeveel ribben zijn ${d(x)} cm lang? Hoe lang zijn alle ribben samen?`
         : `${model.t} De balk is ${d(l)} cm lang, ${d(b)} cm breed en ${d(h)} cm hoog. Hoeveel ${stuk} zijn ${d(x)} cm lang? Hoeveel cm zijn alle ribben samen?`,
     ),
     ...(drawn ? { fig: solid(shape) } : {}),
@@ -907,17 +919,6 @@ function s13edges() {
 // ---------------------------------------------------------------------------------------------
 // 157: de maten in een uitslag van een balk.
 
-// De acht standen van een vorm: draaien en spiegelen.
-const TURNS = [
-  ([x, y]) => [x, y],
-  ([x, y]) => [-y, x],
-  ([x, y]) => [-x, -y],
-  ([x, y]) => [y, -x],
-  ([x, y]) => [-x, y],
-  ([x, y]) => [y, x],
-  ([x, y]) => [x, -y],
-  ([x, y]) => [-y, -x],
-];
 const VLAK = ['A', 'B', 'C', 'D', 'E'];
 
 function s13net() {
@@ -1078,7 +1079,7 @@ export default {
   slug: 'kubus-en-balk',
   title: 'Kubus en balk',
   intro:
-    'Een kubus en een balk hebben zes zijvlakken, acht hoekpunten en twaalf ribben. Hier leer je die tellen en benoemen met letters, zoals zijvlak EFGH en ribbe AB. Ook leer je waarom sommige ribben gestippeld of korter getekend zijn, en reken je met de ribben en een uitslag van een balk.',
+    'Een kubus en een balk hebben zes zijvlakken, acht hoekpunten en twaalf ribben. Hier leer je die tellen en benoemen met letters, zoals zijvlak EFJI en ribbe DE. Ook leer je waarom sommige ribben gestippeld of korter getekend zijn, en reken je met de ribben en een uitslag van een balk.',
   description:
     'Kubus en balk oefenen: hoekpunten, ribben en zijvlakken tellen en benoemen, gestippelde ribben en de uitslag van een balk. Gratis met uitleg en hints.',
   videos: {},
@@ -1097,19 +1098,19 @@ export default {
       p: [
         'Een kubus heeft zes zijvlakken. Dat zijn even grote vierkanten. Een balk heeft zes rechthoeken als zijvlakken.',
         'Een kubus en een balk hebben allebei 8 hoekpunten en 12 ribben. In elk hoekpunt komen 3 ribben samen.',
-        'Je geeft de hoekpunten letters: eerst het grondvlak, dan het bovenvlak, allebei tegen de klok in. Zo krijg je kubus ABCD EFGH. Een zijvlak noem je met vier letters, zoals zijvlak BCGF. Een ribbe noem je met twee letters, zoals ribbe AB.',
+        'Je geeft de hoekpunten letters: eerst het grondvlak, dan het bovenvlak, allebei tegen de klok in. Zo krijg je kubus DEFG HIJK. Een zijvlak noem je met vier letters, zoals zijvlak EFJI. Een ribbe noem je met twee letters, zoals ribbe DE.',
       ],
       ex: {
         q:
-          T('Welke ribben komen samen in hoekpunt B van kubus ABCD EFGH?') +
-          solid({ kind: 'kubus', l: 3 }),
+          T('Welke ribben komen samen in hoekpunt E van kubus DEFG HIJK?') +
+          solid({ kind: 'kubus', l: 3, letters: VOORBEELD }),
         steps: [
-          'Vanuit B gaan drie ribben: naar A, naar C en naar F.',
-          'Dus de ribben AB, BC en BF.',
+          'Vanuit E gaan drie ribben: naar D, naar F en naar I.',
+          'Dus de ribben DE, EF en EI.',
         ],
       },
       watch: T(
-        'In elk hoekpunt komen 3 ribben samen, maar 8 * 3 = 24 telt elke ribbe twee keer. Een kubus heeft dus 24 : 2 = 12 ribben.',
+        'Tel je 6 zijvlakken met elk 4 ribben, dan kom je op 24. Maar elke ribbe hoort bij twee zijvlakken, dus je telt elke ribbe twee keer. Een kubus heeft 12 ribben. Je kunt ook tellen in drie richtingen met elk 4 ribben: 3 * 4 = 12.',
       ),
     },
     {
@@ -1121,10 +1122,10 @@ export default {
       ],
       ex: {
         q:
-          T('Welke ribben van balk ABCD EFGH zijn korter getekend?') +
-          solid({ kind: 'balk', l: 5, b: 3, h: 2 }),
+          T('Welke ribben van balk DEFG HIJK zijn korter getekend?') +
+          solid({ kind: 'balk', l: 5, b: 3, h: 2, letters: VOORBEELD }),
         steps: [
-          'De ribben AD, BC, EH en FG lopen schuin naar achteren.',
+          'De ribben DG, EF, HK en IJ lopen schuin naar achteren.',
           'Die zijn korter getekend dan ze in werkelijkheid zijn.',
         ],
       },
