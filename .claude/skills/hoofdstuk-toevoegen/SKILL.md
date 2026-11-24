@@ -1,6 +1,7 @@
 ---
 name: hoofdstuk-toevoegen
 description: Een hoofdstuk toevoegen aan wiskunde-fit: werkwijze uit het boek, plan, branches en stack, agents per onderwerp, review, afronden, tokens meten en de controle voor de release. Gebruik bij een nieuw hoofdstuk.
+disable-model-invocation: true
 ---
 
 De regels voor iedereen staan in AGENTS.md (Regels). Dit is de werkwijze.

@@ -1,6 +1,6 @@
 ---
 name: schermen
-description: Hoe de schermen van wiskunde-fit werken: screenHTML, render, go, data-act, routes, vooraf gebouwde pagina's, apart ladende schermen en window.wiskundefit. Gebruik bij elke wijziging aan ui/, main.js of een adres.
+description: Hoe de schermen van wiskunde-fit werken: screenHTML, render, go, data-act, state, routes.js, vooraf gebouwde pagina's, apart ladende schermen en window.wiskundefit. Gebruik bij elke wijziging aan ui/, main.js, een scherm, een knop, een link of een adres.
 ---
 
 De regels voor iedereen staan in AGENTS.md (Regels). Dit is de werkwijze.
