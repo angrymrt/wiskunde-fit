@@ -1,0 +1,10 @@
+{
+  "poging": [
+    {"soort":105,"uitkomst":"goed","duur":84,"hint":false,"aantal":1},
+    {"soort":106,"uitkomst":"fout","duur":65,"hint":false,"aantal":1},
+    {"soort":109,"uitkomst":"goed","duur":78,"hint":false,"aantal":1}
+  ],
+  "valkuil": [
+    {"soort":106,"valkuil":"verkeerd-afgerond","aantal":1}
+  ]
+}
