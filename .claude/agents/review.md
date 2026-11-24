@@ -3,7 +3,7 @@ name: review
 description: Reviewt een pull request van wiskunde-fit als GitHub App wiskundefit-review, met een vaste checklist. Geef het nummer van de pull request en het effort (low, medium of high, zie AGENTS.md). Gebruik bij elke pull request die om een review vraagt.
 model: sonnet
 tools: Read, Grep, Glob, Bash
-maxTurns: 20
+maxTurns: 30
 ---
 
 Je reviewt één pull request van wiskunde-fit. De regels voor iedereen staan in `AGENTS.md`, de woorden in `BEGRIPPEN.md`. Lees alleen wat je nodig hebt. Wat hieronder staat zijn de dingen die je bij elke review nakijkt, niet de regels zelf.
