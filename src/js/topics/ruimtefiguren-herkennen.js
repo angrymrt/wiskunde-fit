@@ -132,9 +132,9 @@ const WRONG_NAME = {
       'Een cirkel is een platte figuur. Hier is de cirkel het platte zijvlak van een ruimtefiguur.',
     ],
     [
-      'ijshoorntje',
+      'feesthoedje',
       'dagelijkse-naam',
-      'IJshoorntje is geen wiskundige naam. Een ruimtefiguur met een cirkel en een gebogen zijvlak naar een top heet een kegel.',
+      'Feesthoedje is geen wiskundige naam. Heeft een ruimtefiguur één cirkel en een gebogen zijvlak dat naar een top loopt, dan heet hij een kegel.',
     ],
   ],
   bol: [
@@ -193,10 +193,10 @@ const ROUND = {
     curved: 1,
     circles: 0,
     top: false,
-    text: 'Een ruimtefiguur heeft maar één zijvlak, en dat is gebogen. Elk punt van dat zijvlak ligt even ver van het middelpunt.',
+    text: 'Een ruimtefiguur heeft maar één zijvlak, en dat is gebogen. Het zijvlak is overal even rond en heeft geen rand of hoek.',
     steps: [
       'Er zijn geen platte zijvlakken.',
-      'Het gebogen zijvlak ligt overal even ver van het middelpunt.',
+      'Het gebogen zijvlak is overal even rond.',
       'Dus het is een bol.',
     ],
   },
@@ -928,7 +928,7 @@ export default {
       p: [
         'Een uitslag van een kubus is een platte figuur waaruit je een kubus kunt vouwen, zonder plakrandjes. Er zitten zes vierkanten in, één voor elk zijvlak.',
         'Niet elke figuur van zes vierkanten is een uitslag van een kubus. Vouw de figuur in gedachten. Komen twee vierkanten op dezelfde plek, dan blijft er een zijvlak open. Dan is het geen uitslag van een kubus.',
-        'Er zijn elf verschillende uitslagen van een kubus.',
+        'Er zijn precies elf verschillende uitslagen van een kubus. Dat zijn er meer dan je denkt.',
       ],
       ex: {
         q:

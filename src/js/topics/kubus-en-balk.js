@@ -105,9 +105,9 @@ function s12count() {
           [...w].some((k, i) => f.hidden.includes([k, w[(i + 1) % 4]].sort().join(''))),
         ).length,
     ];
-  // De controle telt op een andere manier: grondvlak en bovenvlak hebben elk vier hoekpunten,
-  // elk hoekpunt heeft drie ribben en elke ribbe twee hoekpunten, en hoekpunten + zijvlakken −
-  // ribben is 2.
+  // De controle rekent via de figuur zelf: de ribben die bij een hoekpunt samenkomen worden
+  // geteld, ribben zijn de helft van al die uiteinden, en daarna moet het aantal vlakken
+  // kloppen met het verband tussen hoekpunten, ribben en vlakken.
   const v = () => {
     const per = f.vertices.map((k) => f.edges.filter((e) => e.includes(k)).length);
     return (

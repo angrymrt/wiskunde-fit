@@ -810,7 +810,7 @@ function rechthoeken(n) {
 }
 // Elk aantal heeft minstens twee delers van 2 tot en met 9, zodat rijenVanVierkantjes altijd een
 // keuze heeft voor een aantal rijen dat wel en een dat niet past.
-const AANTALLEN = [14, 15, 21, 27, 35, 44, 50, 54, 56, 63, 64, 81];
+const AANTALLEN = [14, 15, 21, 27, 35, 44, 50, 54, 56, 63, 64, 72];
 function hoeveelRechthoeken() {
   const n = pick(AANTALLEN),
     rh = rechthoeken(n),

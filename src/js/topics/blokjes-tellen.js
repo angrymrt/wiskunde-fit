@@ -37,7 +37,7 @@ function valkuil(id, m, paren) {
 const BOUW = {
   vierkant: () => ({
     tekst:
-      'Het is een piramide van blokjes. Elke laag is een vierkant. De bovenste laag is 1 blokje. Elke laag eronder is 1 blokje langer en 1 blokje breder dan de laag erboven.',
+      'Het is een bruiloftstaart van blokjes. Elke laag is een vierkant. De bovenste laag is 1 blokje. Elke zijde van een laag is 1 blokje langer dan een zijde van de laag erboven.',
     laag: (k) => k * k,
     reken: (k) => `Laag ${k} is ${k} bij ${k}, dus ${k}*${k} = ${k * k} blokjes.`,
     zichtbaar: (k) => k * k - Math.max(0, k - 2) ** 2,
@@ -46,7 +46,7 @@ const BOUW = {
       'Je hebt alleen de blokjes aan de rand van een laag geteld. In een grote laag zitten ook blokjes binnenin. Die zie je niet, maar ze tellen wel mee.',
   }),
   rechthoek: (c) => ({
-    tekst: `Het is een podium van blokjes. Elke laag is een rechthoek. De bovenste laag is 1 bij ${1 + c}. Elke laag eronder is 1 blokje langer en 1 blokje breder dan de laag erboven.`,
+    tekst: `Het is een stapel kratten van blokjes. Elke laag is een rechthoek. De bovenste laag is 1 bij ${1 + c}. Beide zijden van een laag zijn 1 blokje langer dan de zijden van de laag erboven.`,
     laag: (k) => k * (k + c),
     reken: (k) => `Laag ${k} is ${k} bij ${k + c}, dus ${k}*${k + c} = ${k * (k + c)} blokjes.`,
     zichtbaar: (k) => k * (k + c) - Math.max(0, k - 2) * Math.max(0, k + c - 2),
@@ -55,12 +55,12 @@ const BOUW = {
       'Je hebt alleen de blokjes aan de rand van een laag geteld. In een grote laag zitten ook blokjes binnenin. Die zie je niet, maar ze tellen wel mee.',
   }),
   tribune: (c, w) => ({
-    tekst: `Het is een tribune, ${w} blokjes breed. De bovenste laag is 1 rij van ${w} blokjes. Elke laag eronder heeft 1 rij van ${w} blokjes meer.`,
+    tekst: `Het is een dijkje van blokjes, ${w} blokjes breed. De bovenste laag is 1 rij van ${w} blokjes. Elke laag eronder is 1 rij van ${w} blokjes dieper.`,
     laag: (k) => k * w,
     reken: (k) => `Laag ${k} heeft ${k} rijen van ${w} blokjes, dus ${k}*${w} = ${k * w} blokjes.`,
     zichtbaar: (k) => k,
     kolommen: (n) => vak(n, w).map(([i]) => i + 1),
-    zicht: `Je hebt alleen de blokjes aan de zijkant van de tribune geteld. Elke rij is ${w} blokjes breed, dus achter elk blokje dat je ziet zitten er nog meer.`,
+    zicht: `Je hebt alleen de blokjes aan de zijkant van het dijkje geteld. Elke rij is ${w} blokjes breed, dus achter elk blokje dat je ziet zitten er nog meer.`,
   }),
 };
 
@@ -336,7 +336,7 @@ const ophoog = (n, stap) => som(tot(n).map(stap));
 const PATRONEN = {
   trap: () => ({
     tekst:
-      'Elke figuur is een tribune van blokjes. Figuur 1 is 1 blokje. Bij elke volgende figuur komt er rechts een stapel bij die 1 blokje hoger is dan de vorige.',
+      'Elke figuur is een rij torentjes van blokjes. Figuur 1 is één torentje van 1 blokje. Bij elke volgende figuur komt er rechts een torentje bij dat 1 blokje hoger is dan het torentje links ervan.',
     waarde: (n) => ophoog(n, (j) => j),
     na: (n) => (n * (n + 1)) / 2,
     reken: (n) => `Figuur ${n}: ${tot(n).join(' + ')} = ${ophoog(n, (j) => j)}`,
@@ -346,7 +346,7 @@ const PATRONEN = {
   }),
   plaat: () => ({
     tekst:
-      'Elke figuur is een vloer van één laag blokjes, in de vorm van een vierkant. Bij elke volgende figuur is de plaat 1 blokje langer en 1 blokje breder.',
+      'Elke figuur is een tegelvloer: één laag blokjes in de vorm van een vierkant. Bij elke volgende figuur is elke zijde van de vloer 1 blokje langer.',
     waarde: (n) => n * n,
     // De oneven getallen optellen: 1 + 3 + 5 + ... geeft de kwadraten.
     na: (n) => ophoog(n, (j) => 2 * j - 1),
@@ -357,7 +357,7 @@ const PATRONEN = {
   }),
   kubus: () => ({
     tekst:
-      'Elke figuur is een volle kubus van blokjes. Bij elke volgende figuur is de ribbe 1 blokje langer.',
+      'Elke figuur is een grote dobbelsteen van blokjes, een kubus zonder holle plekken. Bij elke volgende figuur is de ribbe 1 blokje langer.',
     waarde: (n) => n ** 3,
     na: (n) => ophoog(n, (j) => schil(j - 1)),
     reken: (n) => `Figuur ${n} is ${n} bij ${n} bij ${n}, dus ${n}*${n}*${n} = ${n ** 3}`,
@@ -410,7 +410,7 @@ function patroon() {
     plaat: [
       [
         'keer-2-in-plaats-van-kwadraat',
-        'Een plaat van 4 bij 4 heeft 4 rijen van 4 blokjes, dus 4*4 blokjes, en niet 2*4.',
+        'Een vloer van 4 bij 4 heeft 4 rijen van 4 blokjes, dus 4*4 blokjes, en niet 2*4.',
         [
           [0, 2 * n, y],
           [1, N / 2, m],
