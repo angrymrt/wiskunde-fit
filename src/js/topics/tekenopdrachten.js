@@ -94,7 +94,7 @@ function isKubusTekening(P, n) {
 
 function kubusAfmaken() {
   const L = pick(LETTERS),
-    n = pick([3, 4]),
+    n = pick([3, 5]),
     s = pick(SCHUIN),
     achter = coin(),
     g = achter ? pick([2, 3, 6, 7]) : null,
@@ -392,7 +392,7 @@ function uitslagTekenen() {
 // ---------------------------------------------------------------------------------------------
 // De voorbeelden in de uitleg.
 
-const VB_KUBUS = kubusVraag('MNPQVWXY', 4, [2, 1], true, 2);
+const VB_KUBUS = kubusVraag('MNPQVWXY', 3, [2, 1], true, 2);
 const VB_DRIEHOEK = { soort: 'passer', ab: 5, ac: 4, bc: 3, L: 'RST', x1: 6, y1: 6 };
 const VB_UITSLAG = {
   soort: 'uitslag',
