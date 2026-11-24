@@ -1,5 +1,5 @@
 // Ruimtefiguren: uitslagen van een kubus en van een balk. Alleen rekenwerk, geen DOM, zodat de tests
-// het in Node draaien. Een figuur van zo'n uitslag van een kubus of balk tekent net() in figures.js.
+// het in Node draaien. Een figuur van zo'n uitslag van een kubus of balk tekent net() in ruimtefiguren.js.
 //
 // Een uitslag van een kubus is een lijst hokjes [x, y] op een rooster, met x naar rechts en y naar beneden. Elk
 // hokje is een vlak. Twee hokjes met een gemeenschappelijke zijde zitten aan elkaar vast.

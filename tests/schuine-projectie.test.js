@@ -1,9 +1,9 @@
-// Ruimtefiguren in schuine projectie: solid() en solidFacts() in src/js/figures.js. De tests rekenen
+// Ruimtefiguren in schuine projectie: solid() en solidFacts() in src/js/ruimtefiguren.js. De tests rekenen
 // de aantallen na met de formules, en de gestippelde ribben met een eigen manier: een punt van de
 // ribbe ligt achter een zijvlak dat ervoor staat.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { solid, solidFacts } from '../src/js/figures.js';
+import { solid, solidFacts } from '../src/js/ruimtefiguren.js';
 
 const label = (svg) => svg.match(/aria-label="([^"]*)"/)[1];
 const textsOf = (svg, re) => [...svg.matchAll(re)].map((m) => m[1]);
