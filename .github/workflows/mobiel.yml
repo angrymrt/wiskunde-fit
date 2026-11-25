@@ -5,8 +5,6 @@
 name: Mobiele tests
 
 on:
-  push:
-    branches: [mobiele-tests] # TIJDELIJK voor de proefrun
   workflow_dispatch:
     inputs:
       adres:
