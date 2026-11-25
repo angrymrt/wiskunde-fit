@@ -759,6 +759,31 @@
     "184": {
       "aantal": 5360,
       "exact": true
+    },
+    "185": {
+      "aantal": 23170,
+      "exact": true
+    },
+    "186": {
+      "aantal": 22141,
+      "exact": true
+    },
+    "187": {
+      "aantal": 498357,
+      "exact": true
+    },
+    "188": {
+      "aantal": 243274,
+      "exact": true
+    },
+    "189": {
+      "aantal": 632883,
+      "ondergrens": true,
+      "exact": false
+    },
+    "190": {
+      "aantal": 141714,
+      "exact": true
     }
   }
 }

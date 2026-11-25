@@ -3413,7 +3413,8 @@ const LIMITS = {
   // Laag 3 van #232 zette gedeelde figuurcode in topics/shared.js: 17,0 kB verstuurd, dus de grens ging van 17 naar 17,5, en onverpakt van 48 naar 49 kB.
   // De tekenopdrachten en de methode-indeling (#232) brachten het gedeelde bestand op 17,5 kB verstuurd en 49,6 kB onverpakt, dus de grens ging van 17,5 naar 18 en van 49 naar 50 kB.
   // Het nakijken van de vorm van een breuk (#244) staat in het gedeelde bestand met answers.js: 18,2 kB verstuurd en 51,6 kB onverpakt, dus de grens ging van 18 naar 18,5 en van 50 naar 52 kB.
-  shared: { sent: 18.5, own: 52, why: 'een gedeeld codebestand' },
+  // De woorden van Rekenvolgorde (#244: som, verschil, product, quotiënt en rekenvolgorde) staan in woorden.js in hetzelfde bestand: 52,2 kB onverpakt, dus de grens ging van 52 naar 53 kB.
+  shared: { sent: 18.5, own: 53, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
   // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
   css: { sent: 10.5, why: 'de CSS' },

@@ -3,6 +3,33 @@
 // `onderwerp` is het onderwerp waar de term wordt uitgelegd; zonder onderwerp is de korte uitleg genoeg.
 // De uitleg is in eigen woorden en geeft nooit het antwoord van een vraag.
 export const WOORDEN = {
+  som: {
+    naam: 'som',
+    uitleg: 'De uitkomst van optellen. De getallen die je optelt, heten de termen.',
+    onderwerp: 'rekenvolgorde',
+  },
+  verschil: {
+    naam: 'verschil',
+    uitleg: 'De uitkomst van aftrekken.',
+    onderwerp: 'rekenvolgorde',
+  },
+  product: {
+    naam: 'product',
+    uitleg:
+      'De uitkomst van vermenigvuldigen. De getallen die je vermenigvuldigt, heten de factoren.',
+    onderwerp: 'rekenvolgorde',
+  },
+  quotient: {
+    naam: 'quotiënt',
+    uitleg: 'De uitkomst van delen.',
+    onderwerp: 'rekenvolgorde',
+  },
+  rekenvolgorde: {
+    naam: 'rekenvolgorde',
+    uitleg:
+      'De afspraak over wat je eerst uitrekent: eerst wat tussen haakjes staat, dan vermenigvuldigen en delen, en dan optellen en aftrekken. Bewerkingen met dezelfde voorrang doe je van links naar rechts.',
+    onderwerp: 'rekenvolgorde',
+  },
   richtingscoefficient: {
     naam: 'richtingscoëfficiënt',
     uitleg: 'Het getal a in y = ax + b. Het vertelt hoeveel y verandert als x 1 groter wordt.',

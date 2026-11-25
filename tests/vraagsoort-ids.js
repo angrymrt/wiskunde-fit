@@ -186,4 +186,10 @@ export default {
   182: 'kubusAfmaken',
   183: 'driehoekPasser',
   184: 'uitslagTekenen',
+  185: 'bewerkingen',
+  186: 'verhaal',
+  187: 's187',
+  188: 's188',
+  189: 'ontbrekend',
+  190: 'verhaalBerekening',
 };
