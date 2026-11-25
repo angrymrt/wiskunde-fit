@@ -20,7 +20,7 @@ const GENEGEERD = [
   /^\.serena\//,
   /^\.claude\//,
   /^LICENSE/,
-  /^\.github\/workflows\/(tellen|browsertest)\.yml$/,
+  /^\.github\/workflows\/(tellen|browsertest|mobiel)\.yml$/,
   /^\.github\/(ISSUE_TEMPLATE|CODEOWNERS)/,
   /^tests\/(?!browser\.e2e\.js)/,
   /^scripts\/(tokens|vingerafdrukken|lighthouse|azure-)/,

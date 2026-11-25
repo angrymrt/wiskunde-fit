@@ -27,6 +27,7 @@ npm run dev           # bouwt de site in dist-dev/ en toont die op poort 5173 zo
 npm run dev:nep       # hetzelfde, maar de pagina Cijfers toont nepcijfers uit data/nep-tellen/
 npm test              # generatortests, adressen, schermen, server en releasecontrole, ongeveer 3 seconden
 npm run test:browser  # bouwt en klikt alles door in Edge, ongeveer 2,5 minuut
+npm run test:mobiel   # een oefenvraag op echte telefoons via BrowserStack, ongeveer 30 seconden
 npm run vragen-tellen # telt hoeveel verschillende vragen elke soort maakt (alles ongeveer 15 minuten); met nummers erachter alleen die soorten
 npm run build         # maakt de site in dist/, met een HTML-bestand per pagina
 npm run images        # maakt de PNG's in src/ opnieuw, alleen nodig als het ontwerp verandert
@@ -41,6 +42,8 @@ Bij een pull request die schermen, opmaak, figuren, antwoordcontrole of de build
 Bij een pull request draait de workflow Browsertest. Die bepaalt met `scripts/browsertest-selectie.js` wat nodig is: bij alleen documentatie of tests zonder browser draait er niets, bij alleen de stof van onderwerpen de snelle set en de lange test voor die onderwerpen, en bij schermen, opmaak, figuren, antwoordcontrole of de build alles. De check is voorlopig informatief en niet verplicht. Lokaal beperk je de lange test met `ONDERWERPEN=a,b`, of met `METHODE=gr13-havo3` en eventueel `HOOFDSTUK=4`, en met `SNEL=1` sla je hem over. Bij een nieuw hoofdstuk is `METHODE=... HOOFDSTUK=...` genoeg tijdens het bouwen; draai voor de merge één keer alles.
 
 De browsertest geeft elke soort vraag standaard 1 ronde, en dat is genoeg voor kleine wijzigingen. Draai bij grote wijzigingen, zoals in de schermen, de antwoordcontrole of de build, ook `ROUNDS=4 npm run test:browser` (in PowerShell: `$env:ROUNDS=4; npm run test:browser`). Dat duurt ongeveer 6 minuten. Voeg een gerichte test toe als je een bepaald randgeval wilt vastleggen.
+
+De mobiele test (`tests/mobiel.e2e.js`) draait op echte telefoons via BrowserStack Automate: Firefox en Chrome op Android en Safari op een iPhone. Hij opent Home en een oefenvraag, typt het antwoord met de Rekenhulp en controleert het. Draai hem af en toe en na grote wijzigingen in de schermen, niet bij elke pull request, want de minuten zijn beperkt. Start de workflow Mobiele tests met de hand, of draai hem lokaal met `BROWSERSTACK_USERNAME` en `BROWSERSTACK_ACCESS_KEY` onder `env` in `.claude/settings.local.json`. Standaard test hij de site die online staat; een preview kies je met `ADRES=<adres>`, en toestellen met `TOESTELLEN=firefox-pixel,...`. Bekijk de schermafbeeldingen in `test-results/mobiel/`. Wat de browser zelf doet, zoals inzoomen met een dubbeltik, ziet deze test niet ([#241](https://github.com/angrymrt/wiskunde-fit/issues/241)); dat probeer je met de hand in BrowserStack Live.
 
 ## Regels
 
