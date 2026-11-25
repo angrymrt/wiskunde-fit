@@ -1,0 +1,45 @@
+# Mobiele tests op echte telefoons via BrowserStack Automate (#243): Safari op een oude en een nieuwe
+# iPhone, en Chrome, Samsung Internet en Firefox op Android. Start deze workflow met de hand, af en
+# toe of na een grote wijziging in de schermen. Standaard test hij de site die online staat; vul een preview in om die te testen.
+# Nodig zijn de secrets BROWSERSTACK_USERNAME en BROWSERSTACK_ACCESS_KEY.
+name: Mobiele tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      adres:
+        description: Adres van de site, zoals een preview
+        default: https://wiskundefit.nl/
+      toestellen:
+        description: Alleen deze toestellen, zoals firefox,safari-oud (leeg is alle)
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  mobiel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Mobiele tests
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          BROWSERSTACK_BUILD: 'mobiel #${{ github.run_number }}'
+          ADRES: ${{ inputs.adres || 'https://wiskundefit.nl/' }}
+          TOESTELLEN: ${{ inputs.toestellen }}
+        run: npm run test:mobiel
+      - name: Schermafbeeldingen bewaren
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobiel
+          path: test-results/mobiel/
+          retention-days: 7
