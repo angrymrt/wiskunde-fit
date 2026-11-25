@@ -784,6 +784,23 @@
     "190": {
       "aantal": 141714,
       "exact": true
+    },
+    "191": {
+      "aantal": 65675,
+      "ondergrens": true,
+      "exact": false
+    },
+    "192": {
+      "aantal": 1173,
+      "exact": true
+    },
+    "193": {
+      "aantal": 724,
+      "exact": true
+    },
+    "194": {
+      "aantal": 19772,
+      "exact": true
     }
   }
 }

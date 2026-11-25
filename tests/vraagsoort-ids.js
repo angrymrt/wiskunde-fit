@@ -192,4 +192,8 @@ export default {
   188: 's188',
   189: 'ontbrekend',
   190: 'verhaalBerekening',
+  191: 'deelGekleurd',
+  192: 'vereenvoudigen',
+  193: 'helen',
+  194: 'vergelijken',
 };

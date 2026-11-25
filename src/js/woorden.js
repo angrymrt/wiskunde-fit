@@ -30,6 +30,33 @@ export const WOORDEN = {
       'De afspraak over wat je eerst uitrekent: eerst wat tussen haakjes staat, dan vermenigvuldigen en delen, en dan optellen en aftrekken. Bewerkingen met dezelfde voorrang doe je van links naar rechts.',
     onderwerp: 'rekenvolgorde',
   },
+  teller: {
+    naam: 'teller',
+    uitleg: 'Het getal boven de streep van een breuk. Het zegt hoeveel delen je neemt.',
+    onderwerp: 'breuken',
+  },
+  noemer: {
+    naam: 'noemer',
+    uitleg:
+      'Het getal onder de streep van een breuk. Het zegt in hoeveel gelijke delen het geheel is verdeeld.',
+    onderwerp: 'breuken',
+  },
+  vereenvoudigen: {
+    naam: 'vereenvoudigen',
+    uitleg:
+      'De teller en de noemer van een breuk door hetzelfde getal delen. De breuk blijft even groot.',
+    onderwerp: 'breuken',
+  },
+  'gemengd-getal': {
+    naam: 'gemengd getal',
+    uitleg: 'Een heel getal met een breuk erachter. Het betekent het hele getal plus de breuk.',
+    onderwerp: 'breuken',
+  },
+  gelijknamig: {
+    naam: 'gelijknamig',
+    uitleg: 'Breuken zijn gelijknamig als ze dezelfde noemer hebben.',
+    onderwerp: 'breuken',
+  },
   richtingscoefficient: {
     naam: 'richtingscoëfficiënt',
     uitleg: 'Het getal a in y = ax + b. Het vertelt hoeveel y verandert als x 1 groter wordt.',

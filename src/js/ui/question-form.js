@@ -18,7 +18,7 @@ function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
       const cl = marks ? ((q.teken ? marks.ok : marks.each[i]) ? 'ok' : 'no') : '',
         br = f.br ? '<span class="fbreak"></span>' : '';
       if (f.sel)
-        return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<select id="${pfx}f${i}" aria-label="${f.label || 'Kies het teken'}" aria-describedby="${pfx}q" ${locked ? 'disabled' : ''}><option value="">kies</option>${f.sel.map((o) => `<option ${vals[i] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
+        return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<select id="${pfx}f${i}" aria-label="${f.label || 'Kies het teken'}" aria-describedby="${pfx}q" ${locked ? 'disabled' : ''}><option value="">kies</option>${f.sel.map((o) => `<option ${vals[i] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>${f.post ? `<span>${T(f.post)}</span>` : ''}</label>`;
       const input = `<input id="${pfx}f${i}" ${f.teken ? 'type="hidden" data-teken' : 'type="text" inputmode="text" autocomplete="off"'} ${f.label ? `aria-label="${f.label}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
       // Het veld en de eenheid erachter blijven bij elkaar als het veld op een smal scherm onder
       // de tekst ervoor komt te staan.

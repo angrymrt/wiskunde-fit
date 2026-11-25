@@ -36,6 +36,7 @@ import piramide from './piramide.js';
 import veelvlakken from './regelmatige-veelvlakken.js';
 import tekenen from './tekenopdrachten.js';
 import rekenvolgorde from './rekenvolgorde.js';
+import breuken from './breuken.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -49,11 +50,11 @@ const DOMAINS = [
     slug: 'getallen-en-rekenen',
     name: 'Getallen en rekenen',
     intro:
-      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Je begint met de rekenvolgorde: wat reken je eerst uit? Daarna reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
+      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Je begint met de rekenvolgorde: wat reken je eerst uit? En je leert werken met breuken. Daarna reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
     description:
-      'Rekenen oefenen: de rekenvolgorde, procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis met uitleg en hints.',
+      'Rekenen oefenen: de rekenvolgorde, breuken, procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis met uitleg.',
     color: 'teal',
-    topics: [rekenvolgorde, procenten, terugrekenen],
+    topics: [rekenvolgorde, breuken, procenten, terugrekenen],
   },
   {
     slug: 'rekenen-met-letters',
@@ -159,6 +160,7 @@ const PREREQUISITES = new Map([
   [piramide, [kubusBalk]],
   [veelvlakken, [kubusBalk]],
   [tekenen, [kubusBalk, veelhoeken, cirkel]],
+  [breuken, [rekenvolgorde]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],
