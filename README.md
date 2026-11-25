@@ -247,7 +247,7 @@ Dit is een persoonlijk project en heeft geen band met Noordhoff of _Getal & Ruim
 
 This project is tested with BrowserStack.
 
-We gebruiken BrowserStack om de site op echte telefoons te proberen: met de hand, en met de mobiele test (`npm run test:mobiel`) in Firefox en Chrome op Android en Safari op een iPhone.
+We gebruiken BrowserStack om de site op echte telefoons te proberen: met de hand, en met de mobiele test (`npm run test:mobiel`) in Safari op een oude en een nieuwe iPhone, en Chrome, Samsung Internet en Firefox op Android.
 
 ## Licentie
 

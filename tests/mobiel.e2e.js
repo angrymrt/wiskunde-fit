@@ -2,7 +2,7 @@
 //
 // Niet bij elke pull request: draai dit af en toe, of met de workflow Mobiele tests. Nodig zijn
 // BROWSERSTACK_USERNAME en BROWSERSTACK_ACCESS_KEY. Standaard test het de site die online staat; een
-// preview kies je met ADRES=<adres>. Met TOESTELLEN=firefox-pixel,... kies je toestellen uit de lijst
+// preview kies je met ADRES=<adres>. Met TOESTELLEN=firefox,safari-oud kies je toestellen uit de lijst
 // hieronder. Schermafbeeldingen om zelf na te kijken komen in test-results/mobiel/.
 //
 // Selenium en niet Playwright, want Playwright kan op BrowserStack op Android alleen Chrome. De tikken
@@ -14,21 +14,19 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Builder, By, until } from 'selenium-webdriver';
 
+// Waarom deze toestellen: zie het besluit "Welke browsers en telefoons we ondersteunen" in
+// https://github.com/angrymrt/wiskunde-fit/issues/113#issuecomment-7176359943
 const TOESTELLEN = [
-  {
-    naam: 'firefox-pixel',
-    browserName: 'firefox',
-    deviceName: 'Google Pixel 9 Pro',
-    osVersion: '15.0',
-  },
-  {
-    naam: 'chrome-galaxy',
-    browserName: 'chrome',
-    deviceName: 'Samsung Galaxy S22',
-    osVersion: '12.0',
-  },
-  // De oudste iOS uit browserslist in package.json die BrowserStack heeft.
-  { naam: 'safari-iphone', browserName: 'safari', deviceName: 'iPhone 12', osVersion: '14' },
+  // De oudste iPhone die nog veel voorkomt: een afgedankte telefoon die niet verder kan dan iOS 15. Ook een klein scherm.
+  { naam: 'safari-oud', browserName: 'safari', deviceName: 'iPhone SE 2022', osVersion: '15' },
+  // De grootste groep leerlingen: een nieuwe iPhone.
+  { naam: 'safari-nieuw', browserName: 'safari', deviceName: 'iPhone 17', osVersion: '26' },
+  // De meest gebruikte browser op een telefoon.
+  { naam: 'chrome', browserName: 'chrome', deviceName: 'Samsung Galaxy S22', osVersion: '12.0' },
+  // Ongeveer 5% van de telefoons in Nederland.
+  { naam: 'samsung', browserName: 'samsung', deviceName: 'Samsung Galaxy S24', osVersion: '14.0' },
+  // Klein aandeel, maar een leerling meldde er een fout mee (#241).
+  { naam: 'firefox', browserName: 'firefox', deviceName: 'Google Pixel 9 Pro', osVersion: '15.0' },
 ];
 
 const user = process.env.BROWSERSTACK_USERNAME;
