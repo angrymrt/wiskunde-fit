@@ -534,6 +534,18 @@ mark {
   font-family: var(--math);
   font-style: italic;
 }
+/* De negatieve min (8 − -3) is hetzelfde teken als de aftrekmin, maar korter, zoals in het boek.
+   Smaller maken kan alleen met een transform, en die werkt pas op een inline-block. Zo'n blok mag
+   de regel ervoor of erna laten afbreken, dus .negatief houdt de min bij het getal. De negatieve
+   marge haalt de ruimte weg die het smallere teken overlaat. Zie T in typeset.js. */
+.negatief {
+  white-space: nowrap;
+}
+.nmin {
+  display: inline-block;
+  transform: scaleX(0.6);
+  margin: 0 -0.1em;
+}
 .f {
   display: inline-flex;
   flex-direction: column;
@@ -793,6 +805,27 @@ sub {
 .fig .tt {
   font-size: 15px;
   font-weight: 700;
+}
+/* Breukfiguren en getallenlijnen, zie getalfiguren.js. Een gekleurd deel (.aan) heeft genoeg
+   contrast met een wit deel, en de lijnen tussen twee gekleurde delen blijven te zien. */
+.fig .bd {
+  fill: var(--sheet);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.fig .bd.aan {
+  fill: var(--blue);
+  fill-opacity: 0.7;
+}
+.fig .hl {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  fill: none;
+}
+.fig .tn {
+  font-size: 13px;
 }
 .figbox {
   display: flex;

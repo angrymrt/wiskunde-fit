@@ -41,7 +41,7 @@ import tabellen from './tabellen-en-diagrammen.js';
 import misleidend from './misleidende-statistiek.js';
 import interpoleren from './interpoleren-en-extrapoleren.js';
 import { newSeed, withSeed } from '../math.js';
-import { roundTraps } from '../answers.js';
+import { roundTraps, vormTraps } from '../answers.js';
 
 const DOMAINS = [
   {
@@ -212,11 +212,12 @@ function laadOnderwerpen(topics) {
 
 // Maakt een vraag van een vraagsoort met een seed, en bewaart die seed in de vraag. Zo is elke
 // vraag precies te herhalen, bijvoorbeeld bij een foutmelding.
-// Een vraag met afronden krijgt na zijn eigen valkuilen ook die voor afronden.
+// Een vraag met afronden krijgt na zijn eigen valkuilen ook die voor afronden, en een vraag met een
+// vorm van een breuk die voor de vorm.
 function makeQuestion(skill, seed = newSeed()) {
   if (!skill.gen) throw new Error(`Vraagsoort ${skill.id} is nog niet geladen.`);
   const q = withSeed(seed, skill.gen);
-  const traps = [...(q.traps ?? []), ...roundTraps(q.fields)];
+  const traps = [...(q.traps ?? []), ...roundTraps(q.fields), ...vormTraps(q.fields)];
   return { ...q, ...(traps.length ? { traps } : {}), seed };
 }
 

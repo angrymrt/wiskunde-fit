@@ -1,8 +1,9 @@
 // Antwoorden lezen en nakijken. Bevat geen DOM-code, dus goed los te testen.
-import { near, isNice, rd, roundText, TEKEN } from './math.js';
+import { near, isNice, rd, roundText, gcd, TEKEN } from './math.js';
 
+const netjes = (s) => String(s).trim().replace(/[−–]/g, '-').replace(/\s+/g, ' ');
 function parseNum(s) {
-  s = String(s).trim().replace(/[−–]/g, '-').replace(/\s+/g, ' ');
+  s = netjes(s);
   if (!s) return NaN;
   let neg = false;
   if (s[0] === '-' || s[0] === '+') {
@@ -22,10 +23,45 @@ function parseNum(s) {
   else return NaN;
   return neg ? -v : v;
 }
+// De vorm van een breuk in een antwoord (#244). Een veld met vorm keurt een antwoord met de goede
+// waarde af als de vorm niet klopt, en geeft dan een eigen valkuil uit vormTraps.
+// - vereenvoudigd: zo ver mogelijk vereenvoudigd. 7/2 en 3 1/2 zijn allebei goed, 14/4, 1 2/4 en
+//   1 3/2 niet. Een heel getal staat zonder breuk: 4, niet 4/1 of 8/2.
+// - gemengd: vereenvoudigd, met de helen eruit gehaald: 3 1/2, niet 7/2.
+// - onecht: vereenvoudigd, met de helen binnen de breuk: 7/2, niet 3 1/2.
+// Een kommagetal is bij elke vorm fout, ook 3,5 bij 7/2: de vraag vraagt om een breuk.
+const VORMEN = ['vereenvoudigd', 'gemengd', 'onecht'];
+// Leest de vorm van wat de leerling typte: een heel getal, een breuk (t/n) of een gemengd getal
+// (heel t/n), of een kommagetal. Geeft null als het geen getal is.
+function leesVorm(raw) {
+  const s = netjes(raw).replace(/^[-+] ?/, '');
+  let m;
+  if (/^\d+$|^\d{1,3}( \d{3})+$/.test(s)) return { soort: 'heel' };
+  if ((m = s.match(/^(\d+)\/(\d+)$/))) return { soort: 'breuk', heel: 0, t: +m[1], n: +m[2] };
+  if ((m = s.match(/^(\d+) (\d+)\/(\d+)$/)))
+    return { soort: 'gemengd', heel: +m[1], t: +m[2], n: +m[3] };
+  if (/^(\d+([.,]\d*)?|[.,]\d+)$|^\d{1,3}( \d{3})+[.,]\d+$/.test(s)) return { soort: 'komma' };
+  return null;
+}
+// Geeft de id van de vormfout, of null als de vorm klopt of het geen getal is.
+function vormFout(vorm, raw) {
+  const b = leesVorm(raw);
+  if (!b || b.soort === 'heel') return null;
+  if (b.soort === 'komma') return 'kommagetal-bij-breuk';
+  if (!b.n) return null;
+  if (b.soort === 'gemengd' && !b.heel) return 'nul-helen';
+  if (b.t % b.n === 0) return 'heel-getal-als-breuk';
+  if (gcd(b.t, b.n) > 1) return 'breuk-niet-vereenvoudigd';
+  if (b.soort === 'gemengd' && vorm === 'onecht') return 'helen-niet-binnen-de-breuk';
+  if (b.soort === 'gemengd' && b.t > b.n) return 'gemengd-getal-te-grote-breuk';
+  if (b.soort === 'breuk' && b.t > b.n && vorm === 'gemengd') return 'helen-niet-eruit';
+  return null;
+}
 function checkField(f, raw) {
   if (f.sel) return raw === f.a;
   const v = parseNum(raw);
   if (Number.isNaN(v)) return false;
+  if (f.vorm && vormFout(f.vorm, raw)) return false;
   // Bij afronden is alleen het goed afgeronde getal goed: bij 3,75 en 1 decimaal is 3,8 goed en
   // 3,7 fout. Meer decimalen is fout, ook als ze kloppen. Minder mag als het precies hetzelfde
   // getal is: 8 bij 7,96 en 1 decimaal, want dat is 8,0.
@@ -81,6 +117,60 @@ function roundTraps(fields = []) {
       ),
       m: 'Bijna, maar je hebt verkeerd afgerond. Is het eerste cijfer dat wegvalt 5 of meer, rond dan naar boven af.',
     },
+  ];
+}
+// De valkuilen die elke vraag met een vorm van een breuk vanzelf krijgt (#244). Zie makeQuestion in
+// topics/index.js. Een valkuil krijgt naast de getallen ook wat de leerling typte (raw), want 7/2 en
+// 3 1/2 zijn hetzelfde getal. Hij valt alleen als elk veld de goede waarde heeft, zodat "Je antwoord
+// klopt" ook echt klopt, en als minstens één veld deze vormfout heeft.
+function vormTraps(fields = []) {
+  if (!fields.some((f) => f.vorm)) return [];
+  // In een groep kan elk getal bij elk antwoord van de groep horen, net als bij roundTraps.
+  const mates = (i) =>
+    fields[i].grp != null ? fields.filter((g) => g.grp === fields[i].grp) : [fields[i]];
+  const fout = (v, raw, i) => {
+    if (mates(i).some((g) => checkField(g, raw[i] ?? ''))) return null;
+    const g = mates(i).find((g) => g.vorm && Number.isFinite(v[i]) && near(v[i], g.a));
+    return g ? vormFout(g.vorm, raw[i]) : null;
+  };
+  const trap = (id, m) => ({
+    id,
+    f: (v, raw = []) =>
+      fields.every(
+        (f, i) => fout(v, raw, i) || mates(i).some((g) => checkField(g, raw[i] ?? '')),
+      ) && fields.some((f, i) => fout(v, raw, i) === id),
+    m,
+  });
+  // Bij een heel getal als antwoord helpt "schrijf het als breuk" niet.
+  const breuk = fields.some((f) => f.vorm && !Number.isInteger(f.a));
+  return [
+    trap(
+      'kommagetal-bij-breuk',
+      breuk
+        ? 'Je antwoord klopt, maar schrijf het als breuk, niet als kommagetal.'
+        : 'Je antwoord klopt, maar schrijf het zonder komma.',
+    ),
+    trap('nul-helen', 'Je antwoord klopt, maar schrijf het zonder 0 helen ervoor.'),
+    trap(
+      'heel-getal-als-breuk',
+      'Je antwoord klopt, maar het is een heel getal. Schrijf het zonder breuk.',
+    ),
+    trap(
+      'breuk-niet-vereenvoudigd',
+      'Je antwoord klopt, maar je kunt de breuk nog vereenvoudigen.',
+    ),
+    trap(
+      'helen-niet-binnen-de-breuk',
+      'Je antwoord klopt, maar breng de helen nog binnen de breuk: schrijf het als één breuk.',
+    ),
+    trap(
+      'gemengd-getal-te-grote-breuk',
+      'Je antwoord klopt, maar de breuk in je gemengde getal is groter dan 1. Haal er nog helen uit.',
+    ),
+    trap(
+      'helen-niet-eruit',
+      'Je antwoord klopt, maar haal de helen er nog uit: schrijf het als gemengd getal.',
+    ),
   ];
 }
 // Bij een tekenvraag is elk paar verschillende punten op de lijn goed. Zie drawLine in topics/shared.js.
@@ -161,7 +251,8 @@ function fillState(q, vals = []) {
 // Geeft de eerste valkuil waar het antwoord in valt, met de gerichte feedback in m.
 // Bij meerkeuze krijgt een valkuil de tekst van de gekozen keuze, zoals [q.mc.opts[2]].
 // Een valkuil krijgt de getallen in de volgorde waarin ze zijn ingevuld, ook bij een groep velden.
-// Een valkuil bij een groep kijkt dus zelf naar alle velden van de groep.
+// Een valkuil bij een groep kijkt dus zelf naar alle velden van de groep. Als tweede argument krijgt
+// een valkuil wat de leerling typte, voor de vorm van een breuk (vormTraps).
 function findTrap(q, vals) {
   if (!q.traps) return null;
   const v = q.mc
@@ -169,7 +260,7 @@ function findTrap(q, vals) {
     : q.fields.map((f, i) => (f.sel || f.teken ? vals[i] : parseNum(vals[i])));
   for (const t of q.traps) {
     try {
-      if (t.f(v)) return t;
+      if (t.f(v, vals)) return t;
     } catch (e) {}
   }
   return null;
@@ -183,5 +274,8 @@ export {
   fillState,
   findTrap,
   roundTraps,
+  vormTraps,
+  vormFout,
+  VORMEN,
   isDrawing,
 };

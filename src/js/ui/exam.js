@@ -139,7 +139,7 @@ const filled = (v) => String(v ?? '').trim();
 const typed = (v) =>
   filled(v) ? esc(filled(v)).replace(/-/g, '−') : '<span class="muted">niet ingevuld</span>';
 const rightField = (f) =>
-  `${f.sel ? esc(f.a) : (f.round != null ? '≈ ' : '') + T(f.round != null ? d(rd(f.a, f.round)) : fmtAns(f.a))}${f.post ? ' ' + T(f.post) : ''}`;
+  `${f.sel ? esc(f.a) : (f.round != null ? '≈ ' : '') + T(f.round != null ? d(rd(f.a, f.round)) : fmtAns(f.a, f.vorm))}${f.post ? ' ' + T(f.post) : ''}`;
 function answerRows({ q, vals, c }) {
   if (q.mc)
     return [[null, filled(vals[0]) ? q.mc.opts[vals[0]] : typed(''), c.each[0], q.mc.opts[q.mc.a]]];
@@ -234,11 +234,14 @@ function vToetsRes() {
   <div class="row"><a class="btn main" href="${to('toets')}">Nieuwe proeftoets</a><a class="btn" href="${to('stof')}">Naar mijn stof</a></div></div>
   <div class="sheet"><h2>Alle vragen nakijken</h2><div class="res">${t.items.map(question).join('')}</div></div>`;
 }
-function fmtAns(a) {
-  if (Number.isInteger(a) || isNice(a, 4)) return d(a);
+// Bij een veld met een vorm (#244) staat het antwoord altijd als breuk, in die vorm: 3,5 zou daar fout zijn.
+function fmtAns(a, vorm) {
+  if (Number.isInteger(a) || (!vorm && isNice(a, 4))) return d(a);
   for (const den of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16]) {
     const n = a * den;
-    if (near(n, Math.round(n))) return fr(Q(Math.round(n), den));
+    if (!near(n, Math.round(n))) continue;
+    const q = Q(Math.round(n), den);
+    return vorm === 'onecht' ? `${q.n < 0 ? '-' : ''}{${Math.abs(q.n)}/${q.d}}` : fr(q);
   }
   return d(rd(a, 2));
 }

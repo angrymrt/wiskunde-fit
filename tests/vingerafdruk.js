@@ -17,11 +17,31 @@ const numbers = (html) =>
   (html.replace(/<[^>]*>/g, ' ').match(/(?:[−+-]\s?)?\d+(?:[.,]\d+)?/g) ?? []).map((n) =>
     n.replace(/\s/g, ''),
   );
+// De negatieve min (#244) is alleen opmaak: zet hem terug naar een gewone −, zodat de vingerafdrukken
+// van van vóór die opmaak blijven kloppen. Het sluitende </span> van .negatief hoort bij de span die
+// opengaat, ook als er een breuk met eigen spans in staat.
+function zonderNegatief(html) {
+  const open = '<span class="negatief"><span class="nmin">−</span>';
+  let i;
+  while ((i = html.indexOf(open)) >= 0) {
+    let j = i + open.length,
+      diepte = 1;
+    const re = /<span\b[^>]*>|<\/span>/g;
+    re.lastIndex = j;
+    let m;
+    while (diepte && (m = re.exec(html))) {
+      diepte += m[0] === '</span>' ? -1 : 1;
+      j = m.index;
+    }
+    html = `${html.slice(0, i)}−${html.slice(i + open.length, j)}${html.slice(j + '</span>'.length)}`;
+  }
+  return html;
+}
 const answers = (q) => ({
-  numbers: numbers(q.q),
+  numbers: numbers(zonderNegatief(q.q)),
   fields: (q.fields ?? []).map((f) => f.a),
   // Een keuze die een figuur is, zoals een schets, telt net als de figuur van de vraag niet mee.
-  mc: q.mc ? { opts: q.mc.opts.map((o) => (/^<svg/.test(o) ? 'figuur' : o)), a: q.mc.a } : null,
+  mc: q.mc ? { opts: q.mc.opts.map((o) => (/^<svg/.test(o) ? 'figuur' : zonderNegatief(o))), a: q.mc.a } : null,
   line: q.line ?? null,
   // Alleen bij een parabool tekenen, zodat de vingerafdruk van de andere vraagsoorten gelijk blijft.
   ...(q.parabola ? { parabola: q.parabola } : {}),

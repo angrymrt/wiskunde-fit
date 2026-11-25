@@ -3396,7 +3396,8 @@ const LIMITS = {
   // en 0,3 kB verstuurd. Laag 3 voegde er vijf toe (nu 9 onderwerpen). De grens ging van 53 naar 55, en onverpakt van 133 naar 139 kB.
   // Kleiner maken kan met #206 (de catalogus niet meer bij het eerste bezoek laden).
   // De methode-indeling van hoofdstuk 1 (#232) staat bij het eerste bezoek in de code: 139,7 kB onverpakt, dus de grens ging van 139 naar 140 kB.
-  start: { sent: 55, own: 140, why: 'de code bij het eerste bezoek' },
+  // Het nakijken van de vorm van een breuk (#244, vormTraps in answers.js) voegde 0,8 kB verstuurd toe: 55,4 kB, dus de grens ging van 55 naar 56, en onverpakt (142 kB) van 140 naar 143 kB.
+  start: { sent: 56, own: 143, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
@@ -3411,7 +3412,8 @@ const LIMITS = {
   // onderwerpen, niet bij het eerste bezoek. De grens ging van 16 naar 17 en van 44 naar 48 kB.
   // Laag 3 van #232 zette gedeelde figuurcode in topics/shared.js: 17,0 kB verstuurd, dus de grens ging van 17 naar 17,5, en onverpakt van 48 naar 49 kB.
   // De tekenopdrachten en de methode-indeling (#232) brachten het gedeelde bestand op 17,5 kB verstuurd en 49,6 kB onverpakt, dus de grens ging van 17,5 naar 18 en van 49 naar 50 kB.
-  shared: { sent: 18, own: 50, why: 'een gedeeld codebestand' },
+  // Het nakijken van de vorm van een breuk (#244) staat in het gedeelde bestand met answers.js: 18,2 kB verstuurd en 51,6 kB onverpakt, dus de grens ging van 18 naar 18,5 en van 50 naar 52 kB.
+  shared: { sent: 18.5, own: 52, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
   // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
   css: { sent: 10.5, why: 'de CSS' },

@@ -15,6 +15,9 @@ import {
   matchFields,
   parseNum,
   roundTraps,
+  vormFout,
+  vormTraps,
+  VORMEN,
 } from '../src/js/answers.js';
 import { cleanProgress, migrateIds, migrateSkills } from '../src/js/progress.js';
 import { VALKUIL_ID } from '../src/js/tel.js';
@@ -23,12 +26,17 @@ import KNOWN_IDS from './vraagsoort-ids.js';
 
 const ROUNDS = Number(process.env.QUESTIONS) || 500;
 
-// Schrijft een antwoord zoals een leerling het zou intypen.
-function typed(x) {
+// Schrijft een antwoord zoals een leerling het zou intypen. Bij een veld met de vorm gemengd als
+// gemengd getal, zoals 3 1/2, en anders als vereenvoudigde breuk (#244).
+function typed(x, vorm) {
   if (Number.isInteger(x)) return String(x);
   for (const den of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
-    const n = x * den;
-    if (Math.abs(n - Math.round(n)) < 1e-7) return `${Math.round(n)}/${den}`;
+    const n = Math.round(x * den);
+    if (Math.abs(x * den - n) >= 1e-7) continue;
+    const a = Math.abs(n),
+      heel = Math.floor(a / den);
+    if (vorm === 'gemengd' && heel) return `${n < 0 ? '-' : ''}${heel} ${a % den}/${den}`;
+    return `${n}/${den}`;
   }
   return String(x).replace('.', ',');
 }
@@ -132,8 +140,10 @@ function assertSound(q) {
     return;
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
-  for (const f of q.fields)
+  for (const f of q.fields) {
     if (!f.sel && !f.teken) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+    if (f.vorm != null) assert.ok(VORMEN.includes(f.vorm), `onbekende vorm ${f.vorm}: ${q.q}`);
+  }
   // Een tekening (q.teken) heeft één veld, met een goede tekening als tekst. Zonder het laatste deel is die
   // niet af of fout.
   if (q.teken) {
@@ -158,7 +168,7 @@ function assertSound(q) {
     assert.ok(size >= 2 && size <= 4, `groep met ${size} velden: ${q.q}`);
   }
   const right = q.fields.map((f) =>
-    f.sel ? f.a : f.round != null ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
+    f.sel ? f.a : f.round != null ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm),
   );
   // Bij een groep velden in elke volgorde.
   for (const r of rightOrders(q.fields, right)) {
@@ -1070,6 +1080,73 @@ test('een vraag met afronden heeft valkuilen voor te veel decimalen en verkeerd 
   assert.deepEqual(roundTraps([{ a: 3 }]), []);
 });
 
+test('een veld met een vorm keurt alleen de goede vorm van een breuk goed (#244)', () => {
+  const veld = (a, vorm) => ({ pre: '', a, vorm });
+  const goed = (a, vorm, raw) => checkField(veld(a, vorm), raw);
+  // vereenvoudigd: een onechte breuk en een gemengd getal zijn allebei goed.
+  for (const raw of ['7/2', '3 1/2', ' 3  1/2 ']) assert.ok(goed(3.5, 'vereenvoudigd', raw), raw);
+  for (const raw of ['14/4', '1 5/2', '2 3/2', '2 2/4', '3,5', '3.5', '0 7/2'])
+    assert.ok(!goed(3.5, 'vereenvoudigd', raw), raw);
+  // Een heel getal staat zonder breuk.
+  assert.ok(goed(4, 'vereenvoudigd', '4'));
+  for (const raw of ['4/1', '8/2', '3 2/2', '4,0']) assert.ok(!goed(4, 'vereenvoudigd', raw), raw);
+  // Een echte breuk kan niet anders.
+  assert.ok(goed(0.75, 'gemengd', '3/4') && goed(0.75, 'onecht', '3/4'));
+  assert.ok(!goed(0.75, 'gemengd', '6/8') && !goed(0.75, 'gemengd', '0 3/4'));
+  // gemengd: helen eruit halen. onecht: helen binnen de breuk brengen.
+  assert.ok(goed(3.5, 'gemengd', '3 1/2') && !goed(3.5, 'gemengd', '7/2'));
+  assert.ok(goed(3.5, 'onecht', '7/2') && !goed(3.5, 'onecht', '3 1/2'));
+  // Negatief werkt zoals in parseNum, met elk minteken.
+  assert.ok(goed(-0.75, 'vereenvoudigd', '-3/4') && goed(-0.75, 'vereenvoudigd', '−3/4'));
+  assert.ok(goed(-1.5, 'gemengd', '-1 1/2') && !goed(-1.5, 'gemengd', '-3/2'));
+  assert.ok(goed(-1.5, 'onecht', '-3/2') && !goed(-1.5, 'onecht', '-1 1/2'));
+  // Een foute waarde blijft fout, ook in de goede vorm.
+  assert.ok(!goed(3.5, 'vereenvoudigd', '5/2'));
+  // Zonder vorm verandert er niets: 14/4 en 3,5 zijn goed, zoals altijd.
+  for (const raw of ['14/4', '3,5', '7/2', '3 1/2']) assert.ok(checkField({ a: 3.5 }, raw), raw);
+
+  // Elke vormfout heeft een eigen valkuil. Een kommagetal is fout, want de vraag vraagt om een breuk.
+  const cases = [
+    ['vereenvoudigd', 3.5, '14/4', 'breuk-niet-vereenvoudigd'],
+    ['vereenvoudigd', 3.5, '2 6/4', 'breuk-niet-vereenvoudigd'],
+    ['vereenvoudigd', 4, '8/2', 'heel-getal-als-breuk'],
+    ['vereenvoudigd', 4, '4/1', 'heel-getal-als-breuk'],
+    ['vereenvoudigd', 3.5, '2 3/2', 'gemengd-getal-te-grote-breuk'],
+    ['vereenvoudigd', 3.5, '3,5', 'kommagetal-bij-breuk'],
+    ['vereenvoudigd', 0.5, '0 1/2', 'nul-helen'],
+    ['gemengd', 3.5, '7/2', 'helen-niet-eruit'],
+    ['gemengd', -3.5, '-7/2', 'helen-niet-eruit'],
+    ['gemengd', 3.5, '2 3/2', 'gemengd-getal-te-grote-breuk'],
+    ['onecht', 3.5, '3 1/2', 'helen-niet-binnen-de-breuk'],
+    ['onecht', 3.5, '2 3/2', 'helen-niet-binnen-de-breuk'],
+  ];
+  for (const [vorm, a, raw, id] of cases) {
+    const f = veld(a, vorm),
+      q = { fields: [f], traps: vormTraps([f]) };
+    assert.equal(vormFout(vorm, raw), id, raw);
+    assert.equal(findTrap(q, [raw])?.id, id, raw);
+    // De melding verklapt het antwoord niet.
+    assert.ok(!/\d/.test(findTrap(q, [raw]).m.replace(/\b[01]\b/g, '')), findTrap(q, [raw]).m);
+  }
+  // Het goede antwoord en een foute waarde vallen in geen van deze valkuilen.
+  const f = veld(3.5, 'gemengd'),
+    q = { fields: [f], traps: vormTraps([f]) };
+  for (const raw of ['3 1/2', '5/2', '2 1/2', '', 'abc'])
+    assert.equal(findTrap(q, [raw]), null, raw);
+  // "Je antwoord klopt" geldt pas als ook de andere velden goed zijn.
+  const twee = { fields: [f, { a: 2 }], traps: vormTraps([f, { a: 2 }]) };
+  assert.equal(findTrap(twee, ['7/2', '2'])?.id, 'helen-niet-eruit');
+  assert.equal(findTrap(twee, ['7/2', '3']), null);
+  assert.ok(!checkAnswer(twee, ['7/2', '2']).ok && checkAnswer(twee, ['3 1/2', '2']).ok);
+  // Bij een heel getal als antwoord noemt de melding over de komma geen breuk.
+  assert.match(vormTraps([veld(4, 'vereenvoudigd')])[0].m, /zonder komma/);
+  assert.match(vormTraps([veld(3.5, 'vereenvoudigd')])[0].m, /als breuk/);
+  // Een vraag zonder vorm krijgt deze valkuilen niet.
+  assert.deepEqual(vormTraps([{ a: 3.5 }]), []);
+  // Een bewaarde proeftoets (JSON) kijkt de vorm nog na.
+  assert.ok(!checkAnswer(JSON.parse(JSON.stringify(q)), ['7/2']).ok);
+});
+
 test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
   const skills = TOPICS.flatMap((t) => t.skills);
   const make = (test) =>
@@ -1114,7 +1191,46 @@ test('T zet wiskunde goed om', () => {
   assert.equal(T('F-hoeken'), 'F-hoeken');
   assert.equal(T('x_top'), '<span class="v">x</span><sub>top</sub>');
   assert.equal(T('y_top'), '<span class="v">y</span><sub>top</sub>');
-  assert.equal(T('x = -2 ∨ x = 9'), '<span class="v">x</span> = −2 ∨ <span class="v">x</span> = 9');
+  const neg = (x) => `<span class="negatief"><span class="nmin">−</span>${x}</span>`;
+  assert.equal(
+    T('x = -2 ∨ x = 9'),
+    `<span class="v">x</span> = ${neg(2)} ∨ <span class="v">x</span> = 9`,
+  );
+});
+
+test('T zet een negatieve min korter dan een aftrekmin', () => {
+  // De negatieve min: hetzelfde teken (U+2212), zodat een schermlezer "min" zegt, maar met een
+  // klasse die hem korter maakt. Met het getal erachter in .negatief, zodat de regel niet afbreekt.
+  const neg = (x) => `<span class="negatief"><span class="nmin">−</span>${x}</span>`;
+  const v = (x) => `<span class="v">${x}</span>`;
+  assert.equal(T('5 - 3 * -2'), `5 − 3 · ${neg(2)}`);
+  assert.equal(T('8 - -3'), `8 − ${neg(3)}`);
+  assert.equal(T('-4 * 6'), `${neg(4)} · 6`);
+  assert.equal(T('12 : -4'), `12 : ${neg(4)}`);
+  assert.equal(T('8*-4'), `8·${neg(4)}`);
+  assert.equal(T('(-3)^2'), `(${neg(3)})<sup>2</sup>`);
+  assert.equal(T('-x^2'), `${neg(v('x'))}<sup>2</sup>`);
+  assert.equal(T('y = -2x + 1'), `${v('y')} = ${neg(2)}${v('x')} + 1`);
+  assert.equal(T('f(-1,5)'), `${v('f')}(${neg('1,5')})`);
+  // Een negatieve breuk en een negatief gemengd getal: de min staat voor de breuk.
+  assert.match(
+    T('-{3/4}'),
+    /^<span class="negatief"><span class="nmin">−<\/span><span class="f">.*<\/span><\/span>$/,
+  );
+  assert.equal(
+    T('{-2 1/3}'),
+    `<span class="negatief"><span class="nmin">−</span>2<span class="f"><span>1</span><span>3</span></span></span>`,
+  );
+  // Een aftrekmin heeft spaties eromheen, of staat tussen twee getallen of letters.
+  assert.equal(T('x - 3'), `${v('x')} − 3`);
+  assert.equal(T('7-2'), '7−2');
+  assert.equal(T('a - b'), `${v('a')} − ${v('b')}`);
+  assert.equal(T('5 -'), '5 −');
+  // Een koppelteken tussen woorden blijft staan.
+  assert.equal(T('de x-as'), `de ${v('x')}-as`);
+  assert.equal(T('F-hoeken'), 'F-hoeken');
+  // De tekst blijft voor een schermlezer en bij kopiëren gewoon "−3".
+  assert.equal(T('8 - -3').replace(/<[^>]+>/g, ''), '8 − −3');
 });
 
 test('graph met coords: false noemt geen coördinaten en geen punten op een lijn', () => {
