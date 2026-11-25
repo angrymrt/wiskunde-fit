@@ -830,7 +830,7 @@ function verhaalBerekening() {
         ? 'Je deelt het hele bedrag door het aantal mensen. Zet dat bedrag tussen haakjes.'
         : 'Elke deelnemer betaalt beide bedragen. Zet ze tussen haakjes en vermenigvuldig dan met het aantal deelnemers.',
     'verkeerde-haakjes':
-      'Kijk welke getallen bij elkaar horen: het aantal blikjes, zakken of kaarten keer de prijs per stuk.',
+      'Kijk welke getallen bij elkaar horen: het aantal dingen keer de prijs per stuk.',
   };
   const traps = fout.map(([s, id]) => {
     const w = narekenen(s);
