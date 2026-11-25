@@ -590,6 +590,175 @@
     "142": {
       "aantal": 588,
       "exact": true
+    },
+    "143": {
+      "aantal": 110,
+      "exact": true
+    },
+    "144": {
+      "aantal": 12,
+      "exact": true
+    },
+    "145": {
+      "aantal": 4974954,
+      "ondergrens": true,
+      "exact": false
+    },
+    "146": {
+      "aantal": 2208,
+      "exact": true
+    },
+    "147": {
+      "aantal": 4280,
+      "exact": true
+    },
+    "148": {
+      "aantal": 5440,
+      "exact": true
+    },
+    "149": {
+      "aantal": 15,
+      "exact": true
+    },
+    "150": {
+      "aantal": 317,
+      "exact": true
+    },
+    "151": {
+      "aantal": 68,
+      "exact": true
+    },
+    "152": {
+      "aantal": 36288,
+      "exact": true
+    },
+    "153": {
+      "aantal": 162,
+      "exact": true
+    },
+    "154": {
+      "aantal": 90,
+      "exact": true
+    },
+    "155": {
+      "aantal": 502848,
+      "exact": true
+    },
+    "156": {
+      "aantal": 8468,
+      "exact": true
+    },
+    "157": {
+      "aantal": 21168,
+      "exact": true
+    },
+    "158": {
+      "aantal": 1020,
+      "exact": true
+    },
+    "159": {
+      "aantal": 760,
+      "exact": true
+    },
+    "160": {
+      "aantal": 40320,
+      "exact": true
+    },
+    "161": {
+      "aantal": 57600,
+      "exact": true
+    },
+    "162": {
+      "aantal": 2654,
+      "exact": true
+    },
+    "163": {
+      "aantal": 4480,
+      "exact": true
+    },
+    "164": {
+      "aantal": 164,
+      "exact": true
+    },
+    "165": {
+      "aantal": 30040,
+      "exact": true
+    },
+    "166": {
+      "aantal": 1184,
+      "exact": true
+    },
+    "167": {
+      "aantal": 5760,
+      "exact": true
+    },
+    "168": {
+      "aantal": 20,
+      "exact": true
+    },
+    "169": {
+      "aantal": 1664,
+      "exact": true
+    },
+    "170": {
+      "aantal": 61,
+      "exact": true
+    },
+    "171": {
+      "aantal": 132,
+      "exact": true
+    },
+    "172": {
+      "aantal": 48,
+      "exact": true
+    },
+    "173": {
+      "aantal": 1461,
+      "exact": true
+    },
+    "174": {
+      "aantal": 708,
+      "exact": true
+    },
+    "175": {
+      "aantal": 414,
+      "exact": true
+    },
+    "176": {
+      "aantal": 57,
+      "exact": true
+    },
+    "177": {
+      "aantal": 12328,
+      "exact": true
+    },
+    "178": {
+      "aantal": 344,
+      "exact": true
+    },
+    "179": {
+      "aantal": 30,
+      "exact": true
+    },
+    "180": {
+      "aantal": 25,
+      "exact": true
+    },
+    "181": {
+      "aantal": 215,
+      "exact": true
+    },
+    "182": {
+      "aantal": 150,
+      "exact": true
+    },
+    "183": {
+      "aantal": 1218,
+      "exact": true
+    },
+    "184": {
+      "aantal": 5360,
+      "exact": true
     }
   }
 }

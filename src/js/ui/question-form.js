@@ -11,18 +11,20 @@ function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
   // beschrijving van de figuur is de naam van de keuze voor een schermlezer.
   if (q.mc)
     return `<div class="opts${q.mc.opts.some((o) => /^<svg/.test(o)) ? ' figs' : ''}" role="radiogroup" aria-labelledby="${pfx}q">${q.mc.opts.map((o, i) => `<label class="opt ${marks ? (i === q.mc.a && marks.reveal ? 'ok' : String(vals[0]) === String(i) ? (marks.each[0] ? 'ok' : 'no') : '') : ''}"><input type="radio" name="${pfx}mc" id="${pfx}m${i}" value="${i}" ${String(vals[0]) === String(i) ? 'checked' : ''} ${locked ? 'disabled' : ''}><span>${o}</span></label>`).join('')}</div>`;
+  // Een tekening (#232): wat de leerling tekent, staat als tekst in een verborgen veld. Dat is goed als
+  // alle delen van de tekening goed zijn. De knoppen erbij zet ui/tekenen.js in .teken-knoppen.
   return `<div class="fields${q.compact ? ' compact' : ''}">${q.fields
     .map((f, i) => {
-      const cl = marks ? (marks.each[i] ? 'ok' : 'no') : '',
+      const cl = marks ? ((q.teken ? marks.ok : marks.each[i]) ? 'ok' : 'no') : '',
         br = f.br ? '<span class="fbreak"></span>' : '';
       if (f.sel)
         return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<select id="${pfx}f${i}" aria-label="${f.label || 'Kies het teken'}" aria-describedby="${pfx}q" ${locked ? 'disabled' : ''}><option value="">kies</option>${f.sel.map((o) => `<option ${vals[i] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
-      const input = `<input id="${pfx}f${i}" type="text" inputmode="text" autocomplete="off" ${f.label ? `aria-label="${f.label}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
+      const input = `<input id="${pfx}f${i}" ${f.teken ? 'type="hidden" data-teken' : 'type="text" inputmode="text" autocomplete="off"'} ${f.label ? `aria-label="${f.label}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
       // Het veld en de eenheid erachter blijven bij elkaar als het veld op een smal scherm onder
       // de tekst ervoor komt te staan.
       return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}${f.post ? `<span class="fin">${input}<span>${T(f.post)}</span></span>` : input}</label>`;
     })
-    .join('')}</div>`;
+    .join('')}${q.teken ? '<div class="teken-knoppen"></div>' : ''}</div>`;
 }
 function readVals(q, pfx) {
   if (q.mc) {
@@ -35,9 +37,13 @@ function readVals(q, pfx) {
   });
 }
 const unreadable = (q, vals) =>
-  !q.mc && q.fields.some((f, i) => !f.sel && vals[i].trim() && Number.isNaN(parseNum(vals[i])));
+  !q.mc &&
+  q.fields.some((f, i) => !f.sel && !f.teken && vals[i].trim() && Number.isNaN(parseNum(vals[i])));
+// Een tekening is pas af als er geen ? meer in staat: zo'n punt is nog niet gezet (zie tekenvragen.js).
 const empty = (q, vals) =>
-  q.mc ? vals[0] === '' : q.fields.some((f, i) => !String(vals[i]).trim());
+  q.mc
+    ? vals[0] === ''
+    : q.fields.some((f, i) => !String(vals[i]).trim() || (f.teken && vals[i].includes('?')));
 
 // De Rekenhulp (#18): welk niveau een vraag krijgt, of false als er geen is. Elke vraag heeft hem, ook meerkeuze en een
 // tekenvraag, zodat de knoppen Volgende veld en Controleer op een telefoon altijd onderin staan. Een vraag kan het zelf

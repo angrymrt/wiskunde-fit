@@ -845,4 +845,18 @@ function chart({
   return `<svg class="fig" role="img" aria-label="${attr(out.join(' '))}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${o}</svg>`;
 }
 
-export { graph, drawnHTML, drawnResult, triFromSides, xf, geo, angleFig, rightTriFig, chart };
+export {
+  graph,
+  drawnHTML,
+  drawnResult,
+  triFromSides,
+  xf,
+  geo,
+  angleFig,
+  rightTriFig,
+  chart,
+  num,
+  and,
+  cap,
+  attr,
+};

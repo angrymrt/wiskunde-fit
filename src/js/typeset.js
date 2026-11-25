@@ -31,7 +31,7 @@ function T(s) {
     } else if (t[0] === '^' && t.length > 1) o += `<sup>${T(t.slice(1))}</sup>`;
     else if (t[0] === '_' && t.length > 1) o += `<sub>${T(t.slice(1))}</sub>`;
     else if (/^[FZ]-hoek/.test(t)) o += t;
-    else if (/^[A-Za-z]$|^[A-Z]{2,4}$|^[ab]x$/.test(t)) o += `<span class="v">${t}</span>`;
+    else if (/^[A-Za-z]$|^[A-Z]{2,8}$|^[ab]x$/.test(t)) o += `<span class="v">${t}</span>`;
     else if (t === '-') o += /[A-Za-zÀ-ÿ]/.test(p) && /[A-Za-zÀ-ÿ]/.test(n) ? '-' : '−';
     else if (t === '*') o += '·';
     else o += esc(t);

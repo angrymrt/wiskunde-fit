@@ -31,7 +31,7 @@ test('id en adres zijn uniek en het adres is geldig', () => {
 });
 
 test('elke methode-indeling heeft alle paragrafen', () => {
-  const expected = { 'gr13-hv1': 47, 'gr13-hv2': 39, 'gr13-vwo1': 6, 'gr13-havo3': 46 };
+  const expected = { 'gr13-hv1': 48, 'gr13-hv2': 39, 'gr13-vwo1': 6, 'gr13-havo3': 46 };
   for (const m of MAPPINGS) assert.equal(paragraphsOf(m).length, expected[m.id], m.id);
 });
 
@@ -138,7 +138,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
   );
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 142);
+  assert.equal(prog.stof.length, 184);
   setStof([]);
 });
 

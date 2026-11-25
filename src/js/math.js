@@ -239,7 +239,14 @@ function dlin(a, b, v = 'x') {
 }
 const sg = (b) => (b < 0 ? ` - ${d(-b)}` : ` + ${d(b)}`);
 
+// Het nakijken van een tekening (q.teken, #232). Dat staat in tekenvragen.js, dat met de tekenvragen meekomt en
+// TEKEN.nakijken invult. checkAnswer in answers.js gebruikt het. Het staat hier en niet in answers.js, omdat
+// tekenvragen.js en answers.js dit bestand allebei al laden: zo verdeelt de build de code bij het eerste bezoek
+// niet over een extra bestand, en blijft die klein.
+const TEKEN = {};
+
 export {
+  TEKEN,
   withSeed,
   newSeed,
   seedText,

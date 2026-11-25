@@ -36,6 +36,9 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - Bij de vraag hoe een grafiek is verschoven, vul je de afstand in en kies je de richting uit een lijst. De grafiek gaat altijd zowel opzij als omhoog of omlaag. Een afstand typ je zonder teken; bij een negatief getal krijg je daar een melding over. De uitwerking vergelijkt de toppen.
 - Een breuk voor een letter staat als onechte breuk, zoals 9/2 · x, en niet als gemengd getal 4½x, want dat lees je als 4 · ½x. Een los antwoord mag wel een gemengd getal zijn.
 - Bij a, d en e aflezen mag je d en e in elke volgorde invullen, want a(x − d)(x − e) = a(x − e)(x − d).
+- Bij een kubus of balk kies je zijvlakken, ribben of een hoekpunt uit een lijst of uit een paar keuzes, zoals zijvlakken EFJI en FGKJ. In het boek schrijf je die zelf op. Of een zijvlak in werkelijkheid een vierkant is, kies je uit ja of nee. Bij een uitslag van een balk mag je de maten in elke volgorde invullen.
+- Bij een vierkant of rechthoek kies je de naam van een zijde, zoals WX, of twee hoekpunten, zoals W en Y, uit een lijst. In het boek schrijf je die zelf op. Of een rechthoek van vierkantjes ook met een ander aantal rijen kan, kies je uit ja of nee.
+- Bij een voorwerp kies je uit ja of nee of het kan rollen. Bij gestippelde ribben kies je de reden uit een lijst, en bij de zijvlakken van een balk die een vierkant zijn kies je ook "geen enkel zijvlak" als er geen vierkant bij is. In het boek schrijf je dat zelf op.
 - Bij een woordformule opstellen typ je de formule niet zelf. Je vult de twee getallen in en kiest + of − uit een lijst, zoals kosten = [5] [+] [4] · aantal spellen. De eenheid staat in de zin en niet in de formule. Bij invullen staat de eenheid achter het veld, dus die hoef je niet te typen.
 
 ## Onderwerpen

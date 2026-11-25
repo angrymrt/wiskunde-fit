@@ -132,7 +132,23 @@ function assertSound(q) {
     return;
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
-  for (const f of q.fields) if (!f.sel) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+  for (const f of q.fields)
+    if (!f.sel && !f.teken) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+  // Een tekening (q.teken) heeft één veld, met een goede tekening als tekst. Zonder het laatste deel is die
+  // niet af of fout.
+  if (q.teken) {
+    assert.equal(q.fields.length, 1, `een tekening heeft één veld: ${q.q}`);
+    assert.ok(q.fields[0].teken && typeof q.fields[0].a === 'string', `geen tekening: ${q.q}`);
+    assert.match(q.fig ?? '', / data-teken="/, `geen figuur om in te tekenen: ${q.q}`);
+    const right = [q.fields[0].a],
+      wrong = [q.fields[0].a.split(' ').slice(0, -1).join(' ')];
+    assert.ok(checkAnswer(q, right).ok, `goede tekening afgekeurd (${right}): ${q.q}`);
+    assert.ok(checkAnswer(stored(q), right).ok, `bewaard goede tekening afgekeurd: ${q.q}`);
+    assertNoTrap(q, right);
+    assert.ok(!checkAnswer(q, wrong).ok, `foute tekening goedgekeurd (${wrong}): ${q.q}`);
+    assert.ok(!checkAnswer(stored(q), ['999']).ok, `onleesbare tekening goedgekeurd: ${q.q}`);
+    return;
+  }
   // Een groep velden wordt zonder volgorde nagekeken. Dat kan alleen bij getallen, en met
   // hoogstens vier velden, want het nakijken probeert alle volgordes.
   const groups = q.fields.filter((f) => f.grp != null);
@@ -155,6 +171,8 @@ function assertSound(q) {
   const wrong = q.fields.map((f, i) =>
     f.sel ? f.a : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7 * 10 ** -(f.round ?? 0)),
   );
+  // Zijn alle velden keuzelijsten, dan kiest het foute antwoord in de eerste een andere keuze.
+  if (q.fields.every((f) => f.sel)) wrong[0] = q.fields[0].sel.find((o) => o !== q.fields[0].a);
   assert.ok(!checkAnswer(q, wrong).ok, `fout antwoord goedgekeurd: ${q.q}`);
   assert.ok(checkAnswer(stored(q), right).ok, `bewaard goed antwoord afgekeurd: ${q.q}`);
   assert.ok(!checkAnswer(stored(q), wrong).ok, `bewaard fout antwoord goedgekeurd: ${q.q}`);
@@ -1086,6 +1104,9 @@ test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
 
 test('T zet wiskunde goed om', () => {
   assert.match(T('y = ax + b'), /<span class="v">ax<\/span>/);
+  // Een naam van vijf letters, zoals bij prisma DEFGH, is net zo cursief als ABCD.
+  assert.equal(T('DEFGH'), '<span class="v">DEFGH</span>');
+  assert.equal(T('TABCDE'), '<span class="v">TABCDE</span>');
   assert.match(T('x - 3'), /−/);
   assert.match(T('de x-as'), /-as/);
   assert.match(T('{3/4}'), /class="f"/);

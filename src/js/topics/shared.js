@@ -1,6 +1,7 @@
 // Hulpmiddelen die de vraaggeneratoren van meerdere paragrafen delen.
 import { geo, graph } from '../figures.js';
 import {
+  pick,
   shuffle,
   tellen,
   Q,
@@ -26,6 +27,27 @@ const LV = [
   ['W', 's'],
   ['V', 'u'],
 ];
+// De naam van een veelhoek, naar het aantal hoekpunten.
+const HOEK = {
+  3: 'driehoek',
+  4: 'vierhoek',
+  5: 'vijfhoek',
+  6: 'zeshoek',
+  7: 'zevenhoek',
+  8: 'achthoek',
+  9: 'negenhoek',
+  10: 'tienhoek',
+  11: 'elfhoek',
+  12: 'twaalfhoek',
+};
+// Een woord met een hoofdletter.
+const groot = (s) => s[0].toUpperCase() + s.slice(1);
+// Letters bij hoekpunten: een rij van `lengte` opeenvolgende letters, vanaf een beginletter uit `begin`.
+const ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function reeks(begin, lengte) {
+  const b = ALFABET.indexOf(pick(begin));
+  return ALFABET.slice(b, b + lengte);
+}
 const H = (html) => ({ h: html });
 const F = (pre, a, post = '') => ({ pre, a: qv(a), post });
 const RF = (pre, x, n = 1, post = '') =>
@@ -521,6 +543,9 @@ const parabolaFig = (abc, top, pts) =>
   });
 
 export {
+  HOEK,
+  groot,
+  reeks,
   LV,
   group,
   H,

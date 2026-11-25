@@ -25,6 +25,16 @@ import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
 import aantonen from './gelijkvormigheid-aantonen.js';
 import lengtes from './lengtes-van-lijnstukken-berekenen.js';
+import ruimtefiguren from './ruimtefiguren-herkennen.js';
+import vierkantRechthoek from './vierkant-en-rechthoek.js';
+import blokjes from './blokjes-tellen.js';
+import kubusBalk from './kubus-en-balk.js';
+import cirkel from './cirkel.js';
+import veelhoeken from './veelhoeken-en-diagonalen.js';
+import prisma from './prisma.js';
+import piramide from './piramide.js';
+import veelvlakken from './regelmatige-veelvlakken.js';
+import tekenen from './tekenopdrachten.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -93,7 +103,23 @@ const DOMAINS = [
     description:
       'Meetkunde oefenen: stelling van Pythagoras, verhoudingstabellen en gelijkvormige driehoeken. Gratis met uitleg, hints en uitwerkingen.',
     color: 'orange',
-    topics: [pythagoras, verhoudingen, gelijkvormig, aantonen, lengtes],
+    topics: [
+      ruimtefiguren,
+      vierkantRechthoek,
+      kubusBalk,
+      blokjes,
+      cirkel,
+      veelhoeken,
+      prisma,
+      piramide,
+      veelvlakken,
+      tekenen,
+      pythagoras,
+      verhoudingen,
+      gelijkvormig,
+      aantonen,
+      lengtes,
+    ],
   },
   {
     slug: 'statistiek',
@@ -124,6 +150,14 @@ const PREREQUISITES = new Map([
   [gelijkvormig, [verhoudingen, pythagoras]],
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],
+  [blokjes, [vierkantRechthoek]],
+  [kubusBalk, [ruimtefiguren, vierkantRechthoek]],
+  [cirkel, [vierkantRechthoek]],
+  [veelhoeken, [vierkantRechthoek]],
+  [prisma, [kubusBalk]],
+  [piramide, [kubusBalk]],
+  [veelvlakken, [kubusBalk]],
+  [tekenen, [kubusBalk, veelhoeken, cirkel]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],
