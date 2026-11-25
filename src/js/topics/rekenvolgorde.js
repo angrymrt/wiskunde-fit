@@ -524,11 +524,11 @@ const OP = [
     k: [4, 8],
     q: [2, 5],
     t: (N, k) =>
-      `Een pontje kan ${k} fietsers tegelijk overzetten. Aan de kant wachten ${N} fietsers. Hoe vaak moet het pontje minstens oversteken?`,
+      `Een pontje kan ${k} fietsers tegelijk overzetten. Aan de kant wachten ${N} fietsers. Hoeveel ritten met fietsers moet het pontje minstens maken?`,
     pre: 'Het pontje moet',
-    post: 'keer oversteken',
+    post: 'ritten maken',
     rest: (r) =>
-      `Voor ${r === 1 ? 'de laatste fietser' : `de laatste ${r} fietsers`} moet het pontje nog een keer.`,
+      `Voor ${r === 1 ? 'de laatste fietser' : `de laatste ${r} fietsers`} is nog een rit nodig.`,
   },
   {
     k: [4, 9],
@@ -579,7 +579,8 @@ const NEER = [
       `Een fietsenmaker heeft ${N} spaken. Voor één wiel zijn ${k} spaken nodig. Hoeveel wielen kan de fietsenmaker helemaal afmaken?`,
     pre: 'Dat zijn',
     post: 'wielen',
-    rest: (r) => `Met de laatste ${r} spaken kun je geen heel wiel meer maken.`,
+    rest: (r) =>
+      `Met ${r === 1 ? 'de laatste spaak' : `de laatste ${r} spaken`} kun je geen heel wiel meer maken.`,
   },
 ];
 function verhaal() {
@@ -747,8 +748,7 @@ const PLEKKEN = [
 const DELERS = [
   [
     'vrienden',
-    (a, m, p) =>
-      `kopen samen een grote pizza van ${a} euro en ${m} blikjes drinken van ${p} euro per stuk.`,
+    (a, m, p) => `huren samen een tent van ${a} euro en ${m} luchtbedden van ${p} euro per stuk.`,
   ],
   [
     'buren',
@@ -878,8 +878,8 @@ export default {
     {
       t: 'Som, verschil, product en quotiënt',
       p: [
-        'Tel je op, dan heet de uitkomst de {{=som|som}}. De getallen die je optelt, zijn de {{term|termen}}. Trek je af, dan heet de uitkomst het {{=verschil|verschil}}.',
-        'Vermenigvuldig je, dan heet de uitkomst het {{=product|product}}. De getallen die je vermenigvuldigt, zijn de {{factor|factoren}}. Deel je, dan heet de uitkomst het {{=quotient|quotiënt}}.',
+        'Tel je op, dan heet de uitkomst de {{=som|som}}. De getallen die je optelt, zijn de termen. Trek je af, dan heet de uitkomst het {{=verschil|verschil}}.',
+        'Vermenigvuldig je, dan heet de uitkomst het {{=product|product}}. De getallen die je vermenigvuldigt, zijn de factoren. Deel je, dan heet de uitkomst het {{=quotient|quotiënt}}.',
         'Vermenigvuldigen schrijf je met een punt: 4 * 6. Delen schrijf je met een dubbele punt: 24 : 6. Een deling controleer je met een vermenigvuldiging.',
       ],
       ex: {
@@ -957,7 +957,7 @@ export default {
       ],
       ex: {
         q: T(
-          'Drie vrienden kopen samen een spel van 25 euro en 4 zakken chips van 2 euro. Ze delen de kosten eerlijk. Hoeveel betaalt ieder?',
+          'Drie vrienden kopen samen een spel van 25 euro en 4 batterijen van 2 euro. Ze delen de kosten eerlijk. Hoeveel betaalt ieder?',
         ),
         steps: ['(25 + 4 * 2) : 3 =', '(25 + 8) : 3 =', '33 : 3 = 11', 'Ieder betaalt 11 euro.'],
       },
