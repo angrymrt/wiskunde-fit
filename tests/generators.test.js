@@ -171,6 +171,8 @@ function assertSound(q) {
   const wrong = q.fields.map((f, i) =>
     f.sel ? f.a : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7 * 10 ** -(f.round ?? 0)),
   );
+  // Zijn alle velden keuzelijsten, dan kiest het foute antwoord in de eerste een andere keuze.
+  if (q.fields.every((f) => f.sel)) wrong[0] = q.fields[0].sel.find((o) => o !== q.fields[0].a);
   assert.ok(!checkAnswer(q, wrong).ok, `fout antwoord goedgekeurd: ${q.q}`);
   assert.ok(checkAnswer(stored(q), right).ok, `bewaard goed antwoord afgekeurd: ${q.q}`);
   assert.ok(!checkAnswer(stored(q), wrong).ok, `bewaard fout antwoord goedgekeurd: ${q.q}`);

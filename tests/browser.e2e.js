@@ -59,7 +59,11 @@ const answerOf = `(q) => {
     const back = g.map((i) => vals[i]).reverse();
     g.forEach((i, k) => (vals[i] = back[k]));
   }
-  return { mc: q.mc ? q.mc.a : null, vals };
+  // Zijn alle velden keuzelijsten, dan kiest het foute antwoord in de eerste een andere keuze.
+  const fout = vals && q.fields.every((f) => f.sel)
+    ? [q.fields[0].sel.find((o) => o !== q.fields[0].a), ...vals.slice(1)]
+    : null;
+  return { mc: q.mc ? q.mc.a : null, vals, fout };
 }`;
 
 // Een tekening (#232) staat in een verborgen veld. Dat vult de test zoals tikken het zou vullen. Het tikken zelf test
@@ -1219,7 +1223,7 @@ test(
 
             // Eerst een fout antwoord: dat mag niet goed worden gerekend.
             if (a.mc !== null) await p.check(`#pm${a.mc === 0 ? 1 : 0}`);
-            else await fill(p, 'p', a.vals, '999');
+            else await fill(p, 'p', a.fout ?? a.vals, '999');
             await p.click('#pform button[type=submit]');
             if (/Goed gedaan/.test(await p.textContent('.fb'))) {
               failures.push(`${skill}: fout goedgekeurd`);
@@ -1952,7 +1956,7 @@ test('het getal bij een soort rolt alleen als het verandert', async () => {
         `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(slug)}].q)`,
       );
       if (a.mc !== null) await p.check(`#pm${goed ? a.mc : a.mc === 0 ? 1 : 0}`);
-      else await fill(p, 'p', a.vals, goed ? undefined : '999');
+      else await fill(p, 'p', goed ? a.vals : (a.fout ?? a.vals), goed ? undefined : '999');
       await p.click('#pform button[type=submit]');
     };
     const roll = (p) =>
@@ -2057,7 +2061,7 @@ test('5 goede antwoorden achter elkaar geven een plaatje, en een fout begint opn
         `(${answerOf})(wiskundefit.state.prac[${JSON.stringify(slug)}].q)`,
       );
       if (a.mc !== null) await p.check(`#pm${goed ? a.mc : a.mc === 0 ? 1 : 0}`);
-      else await fill(p, 'p', a.vals, goed ? undefined : '999');
+      else await fill(p, 'p', goed ? a.vals : (a.fout ?? a.vals), goed ? undefined : '999');
       await p.click('#pform button[type=submit]');
     };
     const reeks = (p) => p.getAttribute('.reeks', 'aria-label');

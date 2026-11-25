@@ -726,9 +726,9 @@ function eigenschappen(n, rect) {
   if (n === 4) return 'vier even lange zijden en vier rechte hoeken';
   return `${WOORD[n]} even lange zijden en ${WOORD[n]} even grote hoeken`;
 }
-// Een uitslag van een piramide met letters: de letters van het grondvlak één keer, en de top bij
-// elke driehoek.
-function letterNet(net, L, rect) {
+// Een uitslag van een piramide met letters: de letters van het grondvlak één keer, en bij de punt
+// van elke driehoek de top. Met X krijgt de punt van driehoek i in plaats daarvan de letter X[i].
+function letterNet(net, L, rect, X) {
   const top = L[0],
     base = L.slice(1),
     n = base.length,
@@ -741,31 +741,22 @@ function letterNet(net, L, rect) {
         return {
           at: apex,
           dir: [apex[0] - (p[0] + q[0]) / 2, apex[1] - (p[1] + q[1]) / 2],
-          s: top,
+          s: X ? X[i] : top,
         };
       }),
     ],
-    tris = net.tris.map(({ i }) => `${base[i]}${base[(i + 1) % n]}${top}`),
-    desc = `Uitslag van een piramide. In het midden ligt het grondvlak ${base}, met ${eigenschappen(n, rect)}. Aan elke zijde van het grondvlak zit een driehoek met de top ${top} als derde hoekpunt: de driehoeken ${and(tris)}. Het grondvlak is gekleurd.`;
+    tris = net.tris.map(({ i }) => `${base[i]}${base[(i + 1) % n]}${X ? X[i] : top}`),
+    derde = X ? 'een eigen letter bij de punt' : `de top ${top} als derde hoekpunt`,
+    desc = `Uitslag van een piramide. In het midden ligt het grondvlak ${base}, met ${eigenschappen(n, rect)}. Aan elke zijde van het grondvlak zit een driehoek met ${derde}: de driehoeken ${and(tris)}. Het grondvlak is gekleurd.`;
   return { fig: vlakkenFig({ polys: vlakkenVan(net), marks, shade: [0], desc }), marks };
 }
-// De naam van een veelhoek uit de punten: het aantal zijden, gelijke zijden en rechte hoeken.
-function vormUit(poly) {
-  const n = poly.length,
-    ls = poly.map((p, i) => lengte(p, poly[(i + 1) % n])),
-    gelijk = ls.every((l) => near(l, ls[0], 1e-9)),
-    recht = poly.every((p, i) => {
-      const a = poly[(i + n - 1) % n],
-        b = poly[(i + 1) % n];
-      return near((a[0] - p[0]) * (b[0] - p[0]) + (a[1] - p[1]) * (b[1] - p[1]), 0, 1e-9);
-    });
-  if (n === 4) return recht ? (gelijk ? 'vierkant' : 'rechthoek') : HOEK[4];
-  return HOEK[n];
-}
 const VORMEN = ['driehoek', 'vierkant', 'rechthoek', 'vijfhoek', 'zeshoek'];
+// Letters voor de punten van de driehoeken in een uitslag van een piramide. Een rij mag geen letter
+// van de piramide zelf hebben.
+const PUNTEN = ['PQRSUV', 'ABCDEF', 'UVWXYZ'];
 
 function s177() {
-  const type = pick(['kies', 'tellen', 'lengtes']);
+  const type = pick(['kies', 'vouwen', 'lengtes']);
   if (type === 'kies') {
     // Welke figuur is een uitslag van een piramide? Het grondvlak is regelmatig.
     const n = pick([3, 4, 5, 6]),
@@ -868,8 +859,10 @@ function s177() {
   }
 
   const L0 = pick(LETTERS);
-  if (type === 'tellen') {
-    // Een uitslag van een piramide met letters: vlakken tellen, het grondvlak en de letters.
+  if (type === 'vouwen') {
+    // Een uitslag van een piramide waarin elke punt van een driehoek een eigen letter heeft. Je
+    // vouwt in gedachten: welk punt wordt de punt, welke ribbe wordt een zijde, en welke zijden
+    // komen tegen elkaar.
     const vorm = pick(VORMEN),
       rect = vorm === 'rechthoek',
       n = { driehoek: 3, vierkant: 4, rechthoek: 4, vijfhoek: 5, zeshoek: 6 }[vorm],
@@ -882,72 +875,114 @@ function s177() {
         ),
       ),
       L = L0.slice(0, n + 1),
+      X = until(
+        () => pick(PUNTEN).slice(0, n),
+        (p) => [...p].every((c) => !L.includes(c)),
+      ),
       top = L[0],
-      A = L[1],
-      { fig, marks } = letterNet(net, L, rect);
+      G = L.slice(1),
+      k = pick(G.split('').map((_, i) => i)),
+      B = G[k],
+      // De twee driehoeken bij B: j is die van de gevraagde zijde, o die aan de andere kant.
+      [j, o] = pick([
+        [k, (k + n - 1) % n],
+        [(k + n - 1) % n, k],
+      ]),
+      zijde = B + X[j],
+      tegen = B + X[o],
+      // De andere schuine zijde van driehoek j, die niet bij B begint.
+      overkant = G[j === k ? (k + 1) % n : (k + n - 1) % n] + X[j],
+      ribbe = top + B,
+      schuin = G.split('').flatMap((g, i) => [g + X[i], G[(i + 1) % n] + X[i]]),
+      ribben = solidFacts({ kind: 'piramide', n, letters: L }).edges,
+      { fig } = letterNet(net, L, rect, X);
     return {
       q: T(
-        `Hieronder staat een uitslag van piramide ${L}. Hoeveel vlakken heeft de uitslag van de piramide? Welke vorm heeft het grondvlak? Hoe vaak staat de letter ${top} erbij? Hoe vaak staat de letter ${A} erbij?`,
+        `Hieronder staat een uitslag van piramide ${L}. Je vouwt de driehoeken omhoog tot de piramide. Welk punt van de piramide wordt punt ${X[j]}? Welke ribbe van de piramide wordt zijde ${zijde}? Welke zijde van de uitslag komt tegen zijde ${zijde}?`,
       ),
       fig,
       fields: [
-        F('Vlakken:', n + 1),
         {
-          sel: VORMEN,
-          a: vorm,
-          pre: 'Het grondvlak is een',
-          label: 'Vorm van het grondvlak',
+          sel: L.split(''),
+          a: top,
+          pre: `Punt ${X[j]} wordt punt`,
+          label: `Welk punt wordt ${X[j]}?`,
+        },
+        {
+          sel: ribben,
+          a: ribbe,
+          pre: `Zijde ${zijde} wordt ribbe`,
+          label: `Welke ribbe wordt zijde ${zijde}?`,
           br: true,
         },
-        { ...F(`Zo vaak staat ${top} erbij:`, n), label: `Hoe vaak staat ${top} erbij?`, br: true },
-        { ...F(`Zo vaak staat ${A} erbij:`, 1), label: `Hoe vaak staat ${A} erbij?`, br: true },
+        {
+          sel: schuin.filter((s) => s !== zijde),
+          a: tegen,
+          pre: `Tegen zijde ${zijde} komt zijde`,
+          label: `Welke zijde komt tegen ${zijde}?`,
+          br: true,
+        },
       ],
-      hint: 'Het grondvlak ligt in het midden, met aan elke zijde een driehoek. Vouw in gedachten: de punten van alle driehoeken komen samen in de top.',
+      hint: `Een hoekpunt van het grondvlak blijft waar het is als je vouwt. De punten van de driehoeken komen samen in de top.`,
       steps: [
-        `Het grondvlak ${L.slice(1)} ligt in het midden. Het is een ${vorm}.`,
-        `Aan elke zijde zit een driehoek. Dat zijn ${n} driehoeken en het grondvlak: ${n} + 1 = ${n + 1} vlakken.`,
-        `Als je vouwt, komen de punten van alle ${n} driehoeken samen in de top. Daarom staat ${top} er ${n} keer bij.`,
-        `Hoekpunt ${A} is één punt, waar het grondvlak en twee driehoeken aan elkaar vastzitten. Daarom staat ${A} er maar 1 keer bij.`,
+        `${X[j]} is de punt van een driehoek. Als je vouwt, komen de punten van alle driehoeken samen in de top. Dus ${X[j]} wordt ${top}.`,
+        `${B} blijft ${B} en ${X[j]} wordt ${top}. Dus zijde ${zijde} wordt ribbe ${ribbe}.`,
+        `Aan de andere kant van ${B} zit driehoek ${G[o]}${G[(o + 1) % n]}${X[o]}. Ook daarvan wordt zijde ${tegen} ribbe ${ribbe}.`,
+        `Twee zijden die dezelfde ribbe worden, komen tegen elkaar. Dus zijde ${tegen} komt tegen zijde ${zijde}.`,
       ],
       traps: [
         {
-          id: 'grondvlak-vergeten',
-          f: (v) => v[0] === n,
-          m: `Het grondvlak is ook een vlak van de uitslag van de piramide. Dus ${n} driehoeken en het grondvlak.`,
-        },
-        n !== 3 && {
-          id: 'driehoek-is-geen-grondvlak',
-          f: (v) => v[1] === 'driehoek',
-          m: 'De driehoeken zijn de opstaande zijvlakken. Het grondvlak is het vlak in het midden, waar alle driehoeken aan vastzitten.',
-        },
-        vorm === 'vierkant' && {
-          id: 'vierkant-en-rechthoek-verwisseld',
-          f: (v) => v[1] === 'rechthoek',
-          m: 'Een vierkant is ook een rechthoek. Maar hier zijn alle zijden van het grondvlak even lang, en dan heet het een vierkant.',
-        },
-        rect && {
-          id: 'vierkant-en-rechthoek-verwisseld',
-          f: (v) => v[1] === 'vierkant',
-          m: 'Bij een vierkant zijn alle zijden even lang. Hier zijn twee zijden van het grondvlak langer dan de andere twee.',
+          id: 'punt-wordt-hoekpunt-grondvlak',
+          f: (v) => G.includes(v[0]),
+          m: `${X[j]} is de punt van een driehoek, geen hoekpunt van het grondvlak. Als je vouwt, komen de punten van alle driehoeken samen in de top.`,
         },
         {
-          id: 'top-een-keer',
-          f: (v) => v[2] === 1,
-          m: `Als je vouwt, komen de punten van alle driehoeken samen in de top. In de uitslag van de piramide staat ${top} dus bij elke driehoek.`,
+          id: 'grondvlakribbe',
+          f: (v) => !v[1].startsWith(top),
+          m: `Zijde ${zijde} is een schuine zijde van een driehoek. Die gaat van het grondvlak naar de punt, dus die wordt een opstaande ribbe.`,
         },
         {
-          id: 'hoekpunt-per-vlak-geteld',
-          f: (v) => v[3] === 3,
-          m: `${A} is één punt in de uitslag van de piramide. Het grondvlak en twee driehoeken zitten daar aan elkaar vast.`,
+          id: 'verkeerde-opstaande-ribbe',
+          f: (v) => v[1].startsWith(top) && v[1] !== ribbe,
+          m: `${B} blijft ${B} als je vouwt, en ${X[j]} wordt de top. De ribbe gaat dus van de top naar ${B}.`,
         },
-      ].filter(Boolean),
-      v: () =>
-        kanPiramide(net) &&
-        echteRibben(net) &&
-        vormUit(net.base) === vorm &&
-        vlakkenVan(net).length === n + 1 &&
-        marks.filter((m) => m.s === top).length === n &&
-        marks.filter((m) => m.s === A).length === 1,
+        {
+          id: 'zijde-van-dezelfde-driehoek',
+          f: (v) => v[2] === overkant,
+          m: `Zijde ${overkant} hoort bij dezelfde driehoek als zijde ${zijde}. Twee zijden van één driehoek komen niet tegen elkaar. Kijk naar de driehoek aan de andere kant van ${B}.`,
+        },
+        {
+          id: 'zijde-niet-bij-hoekpunt',
+          f: (v) => v[2] !== overkant && v[2] !== tegen && v[2][0] !== B,
+          m: `${B} blijft op zijn plek als je vouwt. De zijde die tegen zijde ${zijde} komt, begint dus ook bij ${B}.`,
+        },
+      ],
+      // De controle vouwt echt: in de ruimte gaat elke punt naar de top boven het midden. Dan
+      // zoekt ze in de uitslag de schuine zijden bij B die op dezelfde ribbe terechtkomen.
+      v: () => {
+        const c = midden(net.base),
+          naar3d = (p, isPunt) => (isPunt ? [c[0], c[1], net.H] : [p[0], p[1], 0]),
+          gelijk = (a, b) => a.every((x, i) => near(x, b[i], 1e-9)),
+          segs = net.tris.flatMap(({ i, apex }) =>
+            [i, (i + 1) % n].map((g) => ({
+              naam: G[g] + X[i],
+              ends: [naar3d(net.base[g], false), naar3d(apex, true)],
+            })),
+          ),
+          mijn = segs.find((s) => s.naam === zijde),
+          zelfde = segs.filter(
+            (s) => s !== mijn && s.ends.every((e, i) => gelijk(e, mijn.ends[i])),
+          );
+        return (
+          kanPiramide(net) &&
+          echteRibben(net) &&
+          zelfde.length === 1 &&
+          zelfde[0].naam === tegen &&
+          ribben.includes(ribbe) &&
+          gelijk(mijn.ends[1], [c[0], c[1], net.H]) &&
+          new Set([...X, ...L]).size === 2 * n + 1
+        );
+      },
     };
   }
 
@@ -1033,7 +1068,8 @@ function s177() {
 
 // De figuren in de uitleg.
 const VOORBEELD = 'TGHIJ';
-const voorbeeldNet = () => letterNet(piramideNet(regelmatig(4, 3), 3), VOORBEELD, false).fig;
+const voorbeeldNet = () =>
+  letterNet(piramideNet(regelmatig(4, 3), 3), VOORBEELD, false, 'PQRS').fig;
 
 export default {
   slug: 'piramide',
@@ -1114,14 +1150,18 @@ export default {
       t: 'Uitslag van een piramide',
       p: [
         'Een uitslag van een piramide heeft het grondvlak in het midden, met aan elke zijde een driehoek.',
-        'Als je vouwt, komen de punten van alle driehoeken samen in de top. Daarom staat de letter van de top bij elke driehoek. De letters van het grondvlak staan er maar één keer.',
+        'Als je vouwt, komen de punten van alle driehoeken samen in de top. Een hoekpunt van het grondvlak blijft waar het is.',
         'Elke opstaande ribbe zie je in de uitslag van een piramide twee keer, aan twee driehoeken. Die zijden komen tegen elkaar als je vouwt, dus ze zijn even lang.',
       ],
       ex: {
-        q: T('Hoe vaak staat de letter T in de uitslag van piramide TGHIJ?') + voorbeeldNet(),
+        q:
+          T(
+            'Dit is een uitslag van piramide TGHIJ. Welke zijde komt tegen zijde GP als je vouwt?',
+          ) + voorbeeldNet(),
         steps: [
-          'Aan elke zijde van het grondvlak GHIJ zit een driehoek. Dat zijn 4 driehoeken.',
-          'Bij elke driehoek staat T, dus T staat er 4 keer.',
+          'G blijft G, en de punt P komt in de top T. Zijde GP wordt dus ribbe TG.',
+          'Aan de andere kant van G zit driehoek JGS. Ook zijde GS wordt ribbe TG.',
+          'Dus zijde GS komt tegen zijde GP.',
         ],
       },
       watch: T(
