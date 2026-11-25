@@ -895,10 +895,10 @@ function s177() {
       ribbe = top + B,
       schuin = G.split('').flatMap((g, i) => [g + X[i], G[(i + 1) % n] + X[i]]),
       ribben = solidFacts({ kind: 'piramide', n, letters: L }).edges,
-      { fig } = letterNet(net, L, rect, X);
+      { fig, marks } = letterNet(net, L, rect, X);
     return {
       q: T(
-        `Hieronder staat een uitslag van piramide ${L}. Je vouwt de driehoeken omhoog tot de piramide. Welk punt van de piramide wordt punt ${X[j]}? Welke ribbe van de piramide wordt zijde ${zijde}? Welke zijde van de uitslag komt tegen zijde ${zijde}?`,
+        `Hieronder staat een uitslag van piramide ${L}. Je vouwt de driehoeken omhoog tot de piramide. Welk punt van de piramide wordt punt ${X[j]}? Welke ribbe van de piramide wordt zijde ${zijde}? Welke zijde van de uitslag van de piramide komt tegen zijde ${zijde}?`,
       ),
       fig,
       fields: [
@@ -957,30 +957,54 @@ function s177() {
           m: `${B} blijft op zijn plek als je vouwt. De zijde die tegen zijde ${zijde} komt, begint dus ook bij ${B}.`,
         },
       ],
-      // De controle vouwt echt: in de ruimte gaat elke punt naar de top boven het midden. Dan
-      // zoekt ze in de uitslag de schuine zijden bij B die op dezelfde ribbe terechtkomen.
+      // De controle vouwt echt. Elke driehoek draait om zijn zijde van het grondvlak omhoog, tot
+      // zijn punt recht boven het midden van het grondvlak komt. De namen komen uit de letters in de
+      // figuur. Dan zoekt ze de schuine zijden die op dezelfde ribbe in de ruimte terechtkomen.
       v: () => {
         const c = midden(net.base),
-          naar3d = (p, isPunt) => (isPunt ? [c[0], c[1], net.H] : [p[0], p[1], 0]),
-          gelijk = (a, b) => a.every((x, i) => near(x, b[i], 1e-9)),
-          segs = net.tris.flatMap(({ i, apex }) =>
-            [i, (i + 1) % n].map((g) => ({
-              naam: G[g] + X[i],
-              ends: [naar3d(net.base[g], false), naar3d(apex, true)],
-            })),
-          ),
+          gelijk = (a, b) => a.length === b.length && a.every((x, i) => near(x, b[i], 1e-9)),
+          letter = (pt) => {
+            const ls = marks.filter((m) => gelijk(m.at, pt)).map((m) => m.s);
+            return ls.length === 1 ? ls[0] : '?';
+          },
+          // Draait punt a van een driehoek om de lijn door p en q, uit het vlak omhoog.
+          vouw = (p, q, a) => {
+            const l = lengte(p, q),
+              u = [(q[0] - p[0]) / l, (q[1] - p[1]) / l],
+              t = (a[0] - p[0]) * u[0] + (a[1] - p[1]) * u[1],
+              f = [p[0] + t * u[0], p[1] + t * u[1]],
+              h = lengte(f, a),
+              w = [(a[0] - f[0]) / h, (a[1] - f[1]) / h],
+              cos = ((c[0] - f[0]) * w[0] + (c[1] - f[1]) * w[1]) / h,
+              sin = Math.sqrt(1 - cos * cos);
+            return [f[0] + h * cos * w[0], f[1] + h * cos * w[1], h * sin];
+          },
+          segs = vlakkenVan(net)
+            .slice(1)
+            .flatMap(([p, q, a]) => {
+              const top3 = vouw(p, q, a);
+              return [p, q].map((g) => ({
+                naam: letter(g) + letter(a),
+                punt: letter(a),
+                ends: [[g[0], g[1], 0], top3],
+              }));
+            }),
+          toppen = segs.map((s) => s.ends[1]),
           mijn = segs.find((s) => s.naam === zijde),
           zelfde = segs.filter(
             (s) => s !== mijn && s.ends.every((e, i) => gelijk(e, mijn.ends[i])),
           );
         return (
           kanPiramide(net) &&
-          echteRibben(net) &&
+          toppen.every((p) => gelijk(p, toppen[0]) && p[2] > 0) &&
+          gelijk(toppen[0], [c[0], c[1], net.H]) &&
+          segs.filter((s) => s.punt === X[j]).length === 2 &&
+          !!mijn &&
           zelfde.length === 1 &&
           zelfde[0].naam === tegen &&
-          ribben.includes(ribbe) &&
-          gelijk(mijn.ends[1], [c[0], c[1], net.H]) &&
-          new Set([...X, ...L]).size === 2 * n + 1
+          ribben.includes(top + letter(mijn.ends[0].slice(0, 2))) &&
+          top + letter(mijn.ends[0].slice(0, 2)) === ribbe &&
+          new Set(marks.map((m) => m.s)).size === 2 * n
         );
       },
     };
