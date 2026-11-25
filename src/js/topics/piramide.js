@@ -1004,7 +1004,8 @@ function s177() {
           zelfde[0].naam === tegen &&
           ribben.includes(top + letter(mijn.ends[0].slice(0, 2))) &&
           top + letter(mijn.ends[0].slice(0, 2)) === ribbe &&
-          new Set(marks.map((m) => m.s)).size === 2 * n
+          new Set(marks.map((m) => m.s)).size === 2 * n &&
+          !X.includes(top)
         );
       },
     };
