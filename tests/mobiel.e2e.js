@@ -39,8 +39,9 @@ const at = (pad) => new URL(pad, adres).href;
 const build =
   process.env.BROWSERSTACK_BUILD ||
   `mobiel ${new Date().toISOString().slice(0, 16).replace('T', ' ')}`;
-const gekozen = process.env.TOESTELLEN?.split(',');
-const toestellen = gekozen ? TOESTELLEN.filter((t) => gekozen.includes(t.naam)) : TOESTELLEN;
+// Leeg, zoals in de workflow als je niets kiest, is alle toestellen.
+const gekozen = process.env.TOESTELLEN?.split(',').map((t) => t.trim()).filter(Boolean);
+const toestellen = gekozen?.length ? TOESTELLEN.filter((t) => gekozen.includes(t.naam)) : TOESTELLEN;
 const shotDir = fileURLToPath(new URL('../test-results/mobiel/', import.meta.url));
 
 // Een vaste vraag, zodat elke run hetzelfde doet: twee velden, a en b.
