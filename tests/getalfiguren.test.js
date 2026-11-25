@@ -196,6 +196,10 @@ test('de beschrijving van een getallenlijn noemt punten en pijlen, of alleen de 
     desc({ ...LIJNEN[1], coords: false }),
     /De eerste pijl wijst naar rechts, met \+4 erboven\. De tweede pijl wijst naar links, met −9 erboven\.$/,
   );
+  assert.match(
+    desc({ xr: [-5, 5], arrows: [{ from: -2, to: 3, t: '+5' }], coords: false }),
+    /Boven de lijn staat een pijl die naar rechts wijst, met \+5 erboven\.$/,
+  );
   // De pijl wijst naar to: de punt staat bij het eind, aan de goede kant.
   const svg = getallenlijn(LIJNEN[5]),
     t = ticksOf(svg),

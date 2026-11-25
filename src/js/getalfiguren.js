@@ -319,7 +319,9 @@ function lijnDesc({ lo, hi, step, lx, labeled, ticks, pts, arrows, coords }) {
     out.push(
       coords
         ? `${who} ${arrows.length === 1 ? 'van' : 'gaat van'} ${said(from)} naar ${said(to)}, ${dir}${lab}.`
-        : `${who} wijst ${dir}${lab}.`,
+        : arrows.length === 1
+          ? `${who} die ${dir} wijst${lab}.`
+          : `${who} wijst ${dir}${lab}.`,
     );
   });
   return out.join(' ');
