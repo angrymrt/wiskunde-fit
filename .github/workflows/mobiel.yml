@@ -5,6 +5,8 @@
 name: Mobiele tests
 
 on:
+  push:
+    branches: [mobiele-tests] # TIJDELIJK voor de proefrun
   workflow_dispatch:
     inputs:
       adres:
@@ -33,7 +35,7 @@ jobs:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           BROWSERSTACK_BUILD: 'mobiel #${{ github.run_number }}'
-          ADRES: ${{ inputs.adres }}
+          ADRES: ${{ inputs.adres || 'https://wiskundefit.nl/' }}
           TOESTELLEN: ${{ inputs.toestellen }}
         run: npm run test:mobiel
       - name: Schermafbeeldingen bewaren
