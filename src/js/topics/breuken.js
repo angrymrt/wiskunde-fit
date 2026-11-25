@@ -6,7 +6,7 @@ import { F } from './shared.js';
 import { T } from '../typeset.js';
 import { breukFig } from '../getalfiguren.js';
 
-// Een breuk en een gemengd getal als tekst voor T, zonder te vereenvoudigen: {24/36} en {2 3/5}.
+// Een breuk en een gemengd getal als tekst voor T, zonder te vereenvoudigen: {24/36} en {4 2/9}.
 const b = (t, n) => `{${t}/${n}}`;
 const g = (h, t, n) => `{${h} ${t}/${n}}`;
 // Of je de teller en de noemer nog door hetzelfde getal kunt delen. Dit probeert elk getal vanaf 2,
@@ -117,6 +117,11 @@ function deelGekleurd() {
 
 // --- 192 Een breuk vereenvoudigen ---
 
+// De kleinste noemer tot 1000 waarmee x een geheel getal wordt, door elke noemer vanaf 1 te proberen.
+const kleinsteNoemer = (x) => {
+  for (let d = 1; d <= 1000; d++) if (near(x * d, Math.round(x * d))) return d;
+  return 0;
+};
 // De kleinste deler van x vanaf 2.
 const kleinsteDeler = (x) => {
   for (let k = 2; k < x; k++) if (x % k === 0) return k;
@@ -155,9 +160,10 @@ function vereenvoudigen() {
   const verschillend = delers.flatMap((x) =>
     delers.filter((y) => y !== x).map((y) => t / x / (n / y)),
   );
+  const fields = [BF(`${b(t, n)} =`, Q(t, n))];
   return {
     q: T(`Vereenvoudig ${b(t, n)} zo ver mogelijk.`),
-    fields: [BF(`${b(t, n)} =`, Q(t, n))],
+    fields,
     hint: T(
       'Zoek een getal waardoor je de {{teller|teller}} en de {{noemer|noemer}} allebei kunt delen. Ga door tot dat niet meer kan.',
     ),
@@ -169,8 +175,14 @@ function vereenvoudigen() {
         m: 'Deel de teller en de noemer door hetzelfde getal. Deel je ze door verschillende getallen, dan verandert de breuk.',
       },
     ],
-    // Kruislings vermenigvuldigen geeft dezelfde waarde, en geen getal deelt nog allebei.
-    v: () => p * n === q * t && onvereenvoudigbaar(p, q) && q > 1,
+    // Kijkt het antwoord in het veld na: kruislings vermenigvuldigen met de vraagbreuk geeft
+    // hetzelfde, en geen getal deelt nog de teller en de noemer van het antwoord.
+    v: () => {
+      const a = fields[0].a,
+        d = kleinsteNoemer(a),
+        z = Math.round(a * d);
+      return d > 1 && z * n === d * t && onvereenvoudigbaar(z, d);
+    },
   };
 }
 
@@ -332,7 +344,8 @@ const PAREN = {
     // Een gemengd getal met dezelfde helen of één meer of minder, met een andere breuk.
     const y = until(
       () => ({ ...echteBreuk(), h: Math.floor(x.t / x.n) + pick([-1, 0, 0, 1]) }),
-      (y) => y.h >= 1 && y.n !== x.n && y.h * y.n * x.n + y.t * x.n !== x.t * y.n,
+      (y) =>
+        y.h >= 1 && y.n !== x.n && y.h * y.n * x.n + y.t * x.n !== x.t * y.n && lcm(x.n, y.n) <= 60,
     );
     return [y, x];
   },
@@ -369,20 +382,23 @@ function vergelijken() {
   }
   steps.push(`Dus ${tekstVan(L)} ${a} ${tekstVan(R)}.`);
   const traps = [];
-  // Wie denkt dat een grotere noemer een grotere breuk geeft, zet het teken van de noemers.
-  const viaNoemer = teken(L.n, R.n);
-  if (!L.h && !R.h && L.n !== R.n && viaNoemer !== a)
+  // Wie alleen de tellers vergelijkt, zet het teken van de tellers. Wie denkt dat een grotere noemer
+  // een grotere breuk geeft, zet het teken van de noemers. Is het teken van de tellers fout, dan is
+  // dat van de noemers hetzelfde: met een grotere teller en een kleinere noemer is de breuk altijd
+  // groter. Daarom noemt die melding allebei de fouten.
+  const viaNoemer = teken(L.n, R.n),
+    viaTeller = teken(L.t, R.t);
+  if (!L.h && !R.h && L.n !== R.n && L.t !== R.t && viaTeller !== a)
+    traps.push({
+      id: 'alleen-tellers-vergeleken',
+      f: (v) => v[0] === viaTeller,
+      m: 'De noemers zijn niet gelijk, dus je kunt de tellers niet zomaar vergelijken. En een grotere noemer betekent geen grotere breuk: elk stuk is dan juist kleiner. Maak de breuken eerst gelijknamig.',
+    });
+  else if (!L.h && !R.h && L.n !== R.n && viaNoemer !== a)
     traps.push({
       id: 'grotere-noemer-grotere-breuk',
       f: (v) => v[0] === viaNoemer,
       m: 'Een grotere noemer betekent geen grotere breuk. Bij een grotere noemer verdeel je in meer stukken, dus is elk stuk juist kleiner.',
-    });
-  const viaTeller = teken(L.t, R.t);
-  if (!L.h && !R.h && L.n !== R.n && L.t !== R.t && viaTeller !== a && viaTeller !== viaNoemer)
-    traps.push({
-      id: 'alleen-tellers-vergeleken',
-      f: (v) => v[0] === viaTeller,
-      m: 'De noemers zijn niet gelijk, dus je kunt de tellers niet zomaar vergelijken. Maak de breuken eerst gelijknamig.',
     });
   const hint = {
     noemer: 'De noemers zijn gelijk. Vergelijk de tellers.',
@@ -391,7 +407,7 @@ function vergelijken() {
     anders: 'Maak de breuken {{gelijknamig|gelijknamig}}. Vergelijk daarna de tellers.',
     gelijk: 'Vereenvoudig de breuken, of maak ze {{gelijknamig|gelijknamig}}.',
     gemengd: 'Breng eerst de helen binnen de breuk.',
-  }[soort];
+  }[L.h || R.h ? 'gemengd' : soort];
   return {
     q: T(`Welke breuk is groter: ${tekstVan(L)} of ${tekstVan(R)}? Kies <, > of =.`),
     fields: [
@@ -469,7 +485,7 @@ export default {
     {
       t: 'Helen eruit halen en binnen de breuk brengen',
       p: [
-        'Is de teller groter dan de noemer, dan zitten er helen in de breuk. Die kun je eruit halen. Je krijgt dan een {{=gemengd-getal|gemengd getal}}, zoals {2 3/5}. Dat betekent 2 + {3/5}.',
+        'Is de teller groter dan de noemer, dan zitten er helen in de breuk. Die kun je eruit halen. Je krijgt dan een {{=gemengd-getal|gemengd getal}}, zoals {4 2/9}. Dat betekent 4 + {2/9}.',
         'Kijk hoe vaak de noemer in de teller past. Dat zijn de helen. Wat overblijft, is de nieuwe teller. De noemer blijft hetzelfde.',
         'Omgekeerd kun je de helen binnen de breuk brengen. De nieuwe teller is dan heel * noemer + teller.',
       ],

@@ -1172,6 +1172,29 @@ test('een veld met een vorm keurt alleen de goede vorm van een breuk goed (#244)
   assert.ok(!checkAnswer(JSON.parse(JSON.stringify(q)), ['7/2']).ok);
 });
 
+// Uit de review van #244: wie bij twee breuken alleen de tellers vergelijkt, valt in de valkuil
+// alleen-tellers-vergeleken. Het goede teken valt nooit in een valkuil.
+test('Welke breuk is groter herkent wie alleen de tellers vergelijkt (#244)', () => {
+  const topic = TOPICS.find((t) => t.slug === 'breuken'),
+    skill = topic.skills.find((k) => k.id === 194);
+  const teken = (x, y) => (x < y ? '<' : x > y ? '>' : '=');
+  const breuk = (s) => s.match(/^\{(\d+)\/(\d+)\}$/);
+  let gevallen = 0;
+  eachQuestion(topic, skill, (q) => {
+    const f = q.fields[0];
+    assert.equal(findTrap(q, [f.a]), null, q.q);
+    const [l, r] = [breuk(f.pre), breuk(f.post)];
+    if (!l || !r || l[2] === r[2] || l[1] === r[1]) return;
+    const viaTeller = teken(+l[1], +r[1]);
+    if (viaTeller === f.a) return;
+    const trap = findTrap(q, [viaTeller]);
+    assert.equal(trap?.id, 'alleen-tellers-vergeleken', q.q);
+    assert.match(trap.m, /tellers/);
+    gevallen++;
+  });
+  assert.ok(gevallen > 20, `genoeg vragen waar je alleen de tellers kunt vergelijken: ${gevallen}`);
+});
+
 test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
   const skills = TOPICS.flatMap((t) => t.skills);
   const make = (test) =>
