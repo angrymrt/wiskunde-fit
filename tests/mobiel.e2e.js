@@ -40,8 +40,12 @@ const build =
   process.env.BROWSERSTACK_BUILD ||
   `mobiel ${new Date().toISOString().slice(0, 16).replace('T', ' ')}`;
 // Leeg, zoals in de workflow als je niets kiest, is alle toestellen.
-const gekozen = process.env.TOESTELLEN?.split(',').map((t) => t.trim()).filter(Boolean);
-const toestellen = gekozen?.length ? TOESTELLEN.filter((t) => gekozen.includes(t.naam)) : TOESTELLEN;
+const gekozen = process.env.TOESTELLEN?.split(',')
+  .map((t) => t.trim())
+  .filter(Boolean);
+const toestellen = gekozen?.length
+  ? TOESTELLEN.filter((t) => gekozen.includes(t.naam))
+  : TOESTELLEN;
 const shotDir = fileURLToPath(new URL('../test-results/mobiel/', import.meta.url));
 
 // Een vaste vraag, zodat elke run hetzelfde doet: twee velden, a en b.
@@ -67,83 +71,86 @@ test('mobiele tests op BrowserStack', { concurrency: true }, async (t) => {
   await mkdir(shotDir, { recursive: true });
   console.log(`Build "${build}" op ${adres}`);
 
-  for (const toestel of toestellen) {
-    t.test(toestel.naam, async () => {
-      const { naam, browserName, ...opties } = toestel;
-      const driver = await new Builder()
-        .usingServer('https://hub.browserstack.com/wd/hub')
-        .withCapabilities({
-          browserName,
-          'bstack:options': {
-            ...opties,
-            realMobile: 'true',
-            projectName: 'wiskunde-fit',
-            buildName: build,
-            sessionName: naam,
-            userName: user,
-            accessKey: key,
-          },
-        })
-        .build();
-      const foto = async (stap) =>
-        writeFile(`${shotDir}${naam}-${stap}.png`, await driver.takeScreenshot(), 'base64');
-      const status = (goed, reden) =>
-        driver
-          .executeScript(
-            `browserstack_executor: ${JSON.stringify({ action: 'setSessionStatus', arguments: { status: goed ? 'passed' : 'failed', reason: reden.slice(0, 250) } })}`,
-          )
-          .catch(() => {});
-      const tik = async (css) =>
-        (await driver.wait(until.elementLocated(By.css(css)), 10000)).click();
-      try {
-        // Home
-        await driver.get(adres);
-        await driver.wait(until.elementLocated(By.css('main h1')), 20000);
-        await foto('1-home');
+  // Alle toestellen tegelijk. Wacht op ze: Node 22 breekt subtests af die nog lopen als de test klaar is.
+  await Promise.all(
+    toestellen.map((toestel) =>
+      t.test(toestel.naam, async () => {
+        const { naam, browserName, ...opties } = toestel;
+        const driver = await new Builder()
+          .usingServer('https://hub.browserstack.com/wd/hub')
+          .withCapabilities({
+            browserName,
+            'bstack:options': {
+              ...opties,
+              realMobile: 'true',
+              projectName: 'wiskunde-fit',
+              buildName: build,
+              sessionName: naam,
+              userName: user,
+              accessKey: key,
+            },
+          })
+          .build();
+        const foto = async (stap) =>
+          writeFile(`${shotDir}${naam}-${stap}.png`, await driver.takeScreenshot(), 'base64');
+        const status = (goed, reden) =>
+          driver
+            .executeScript(
+              `browserstack_executor: ${JSON.stringify({ action: 'setSessionStatus', arguments: { status: goed ? 'passed' : 'failed', reason: reden.slice(0, 250) } })}`,
+            )
+            .catch(() => {});
+        const tik = async (css) =>
+          (await driver.wait(until.elementLocated(By.css(css)), 10000)).click();
+        try {
+          // Home
+          await driver.get(adres);
+          await driver.wait(until.elementLocated(By.css('main h1')), 20000);
+          await foto('1-home');
 
-        // Het oefenscherm. Op een telefoon staat de Rekenhulp al open.
-        await driver.get(at(VRAAG));
-        await driver.wait(until.elementLocated(By.css('#pform')), 20000);
-        const open = () =>
-          driver.executeScript(
-            "const p = document.getElementById('rekenhulp'); return !!p && !p.hidden",
+          // Het oefenscherm. Op een telefoon staat de Rekenhulp al open.
+          await driver.get(at(VRAAG));
+          await driver.wait(until.elementLocated(By.css('#pform')), 20000);
+          const open = () =>
+            driver.executeScript(
+              "const p = document.getElementById('rekenhulp'); return !!p && !p.hidden",
+            );
+          await driver.wait(open, 5000).catch(() => {});
+          if (!(await open())) await tik('[data-act="rekenhulp"]');
+          await driver.wait(open, 10000);
+          await foto('2-oefenen');
+
+          // Het antwoord typen met het tabblad Toetsenbord, veld na veld.
+          const vals = await driver.executeScript(antwoorden);
+          await tik('[data-k="TAB:toetsenbord"]');
+          for (const [i, val] of vals.entries()) {
+            const negatief = val.startsWith('-');
+            for (const c of negatief ? val.slice(1) : val) await tik(`[data-k="V:${c}"]`);
+            if (negatief) await tik('[data-k="V:TEKEN"]');
+            if (i < vals.length - 1) await tik('[data-k="V:VOLGENDE"]');
+          }
+          const getypt = await driver.executeScript(
+            `return [...document.querySelectorAll('#pform input:not([type=hidden])')].map((e) => e.value)`,
           );
-        await driver.wait(open, 5000).catch(() => {});
-        if (!(await open())) await tik('[data-act="rekenhulp"]');
-        await driver.wait(open, 10000);
-        await foto('2-oefenen');
+          assert.deepEqual(
+            getypt.map((v) => v.replace('−', '-')),
+            vals,
+            'de velden bevatten wat de toetsen typten',
+          );
+          await foto('3-getypt');
 
-        // Het antwoord typen met het tabblad Toetsenbord, veld na veld.
-        const vals = await driver.executeScript(antwoorden);
-        await tik('[data-k="TAB:toetsenbord"]');
-        for (const [i, val] of vals.entries()) {
-          const negatief = val.startsWith('-');
-          for (const c of negatief ? val.slice(1) : val) await tik(`[data-k="V:${c}"]`);
-          if (negatief) await tik('[data-k="V:TEKEN"]');
-          if (i < vals.length - 1) await tik('[data-k="V:VOLGENDE"]');
+          // Controleren met de knop in de Rekenhulp.
+          await tik('[data-k="V:CONTROLEER"]');
+          await driver.wait(until.elementLocated(By.css('#pfb.good')), 10000);
+          await foto('4-goed');
+          await status(true, 'alles werkt');
+        } catch (e) {
+          await foto('fout').catch(() => {});
+          await status(false, e.message);
+          throw e;
+        } finally {
+          await driver.quit();
         }
-        const getypt = await driver.executeScript(
-          `return [...document.querySelectorAll('#pform input:not([type=hidden])')].map((e) => e.value)`,
-        );
-        assert.deepEqual(
-          getypt.map((v) => v.replace('−', '-')),
-          vals,
-          'de velden bevatten wat de toetsen typten',
-        );
-        await foto('3-getypt');
-
-        // Controleren met de knop in de Rekenhulp.
-        await tik('[data-k="V:CONTROLEER"]');
-        await driver.wait(until.elementLocated(By.css('#pfb.good')), 10000);
-        await foto('4-goed');
-        await status(true, 'alles werkt');
-      } catch (e) {
-        await foto('fout').catch(() => {});
-        await status(false, e.message);
-        throw e;
-      } finally {
-        await driver.quit();
-      }
-    });
-  }
+      }),
+    ),
+  );
 });
