@@ -202,4 +202,9 @@ export default {
   198: 'vermenigvuldigen',
   199: 'deelVan',
   200: 'rekenvolgorde',
+  201: 'getallenOpDeLijn',
+  202: 'negatiefVergelijken',
+  203: 'temperatuur',
+  204: 'optellenAftrekken',
+  205: 'drieGetallen',
 };

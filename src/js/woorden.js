@@ -57,6 +57,23 @@ export const WOORDEN = {
     uitleg: 'Breuken zijn gelijknamig als ze dezelfde noemer hebben.',
     onderwerp: 'breuken',
   },
+  positief: {
+    naam: 'positief getal',
+    uitleg: 'Een getal dat groter is dan 0. Op de getallenlijn staat het rechts van 0.',
+    onderwerp: 'negatieve-getallen',
+  },
+  negatief: {
+    naam: 'negatief getal',
+    uitleg:
+      'Een getal dat kleiner is dan 0, zoals −4. Op de getallenlijn staat het links van 0. Het getal 0 zelf is niet positief en niet negatief.',
+    onderwerp: 'negatieve-getallen',
+  },
+  getallenlijn: {
+    naam: 'getallenlijn',
+    uitleg:
+      'Een lijn met getallen op gelijke afstand van elkaar. Naar rechts worden de getallen groter, naar links kleiner.',
+    onderwerp: 'negatieve-getallen',
+  },
   richtingscoefficient: {
     naam: 'richtingscoëfficiënt',
     uitleg: 'Het getal a in y = ax + b. Het vertelt hoeveel y verandert als x 1 groter wordt.',

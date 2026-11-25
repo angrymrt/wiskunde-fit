@@ -1195,6 +1195,65 @@ test('Welke breuk is groter herkent wie alleen de tellers vergelijkt (#244)', ()
   assert.ok(gevallen > 20, `genoeg vragen waar je alleen de tellers kunt vergelijken: ${gevallen}`);
 });
 
+// Elke valkuil van Negatieve getallen kan afgaan: bij een of meer vragen is er een fout antwoord
+// in één veld dat erin valt, terwijl de andere velden goed zijn. Dat het goede antwoord nooit in
+// een valkuil valt, kijkt assertSound al na (#244).
+test('elke valkuil van Negatieve getallen kan afgaan (#244)', () => {
+  const VERWACHT = {
+    201: ['minteken-vergeten', 'breuk-de-verkeerde-kant-op', 'verkeerde-kant-op-geteld'],
+    202: ['zonder-minteken-vergeleken', 'kleiner-en-groter-verwisseld', 'van-groot-naar-klein'],
+    203: [
+      'verkeerde-kant-op',
+      'minteken-vergeten',
+      'verschil-zonder-minteken',
+      'verschil-negatief',
+    ],
+    204: [
+      'plus-min-als-plus',
+      'min-min-als-min',
+      'negatief-min-getal-als-verschil',
+      'pijl-verkeerde-kant',
+      'minteken-vergeten',
+    ],
+    205: [
+      'haakjes-genegeerd',
+      'plus-min-als-plus',
+      'min-min-als-min',
+      'negatief-min-getal-als-verschil',
+      'pijl-verkeerde-kant',
+      'minteken-vergeten',
+    ],
+  };
+  // Gehele getallen en breuken met noemer 12, als tekst zoals een leerling ze typt.
+  const getallen = [
+    ...Array.from({ length: 161 }, (_, i) => String(i - 80)),
+    ...Array.from({ length: 289 }, (_, i) => i - 144)
+      .filter((k) => k % 12)
+      .map((k) => `${k < 0 ? '-' : ''}${Math.abs(k)}/12`),
+  ];
+  const skills = TOPICS.flatMap((t) => t.skills);
+  for (const [id, ids] of Object.entries(VERWACHT)) {
+    const skill = skills.find((k) => k.id === +id),
+      af = new Set();
+    for (let seed = 1; seed <= 150; seed++) {
+      const q = makeQuestion(skill, seed * 7919);
+      if (q.mc) {
+        q.mc.opts.forEach((_, i) => af.add(findTrap(q, [String(i)])?.id));
+        continue;
+      }
+      const goed = q.fields.map((f) => (f.sel ? f.a : typed(f.a, f.vorm)));
+      q.fields.forEach((f, i) => {
+        for (const x of f.sel || getallen) {
+          const vals = [...goed];
+          vals[i] = x;
+          if (!checkAnswer(q, vals).ok) af.add(findTrap(q, vals)?.id);
+        }
+      });
+    }
+    for (const t of ids) assert.ok(af.has(t), `vraagsoort ${id}: de valkuil ${t} gaat nooit af`);
+  }
+});
+
 test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
   const skills = TOPICS.flatMap((t) => t.skills);
   const make = (test) =>

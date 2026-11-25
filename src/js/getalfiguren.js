@@ -223,15 +223,15 @@ function getallenlijn({
   // kleinste stap waarbij de getallen elkaar niet raken, het liefst een mooie, zoals 1, 2 of 5 maal
   // een macht van 10: bij streepjes om de 0,25 dus 0, 0,5 en 1, en niet 0 en 1,25.
   if (!lx) {
-    const at = (l) => ticks.filter((v) => near(v / l, Math.round(v / l), 1e-9)),
-      room = (l) => Math.max(...at(l).map(wide)),
+    const onder = (l) => ticks.filter((v) => near(v / l, Math.round(v / l), 1e-9)),
+      room = (l) => Math.max(...onder(l).map(wide)),
       nice = (l) => {
         const m = l / 10 ** Math.floor(Math.log10(l) + 1e-9);
         return [1, 2, 2.5, 5].some((k) => near(m, k, 1e-6));
       },
       fit = [1, 2, 3, 4, 5, 6, 10, 12, 20, 25, 50, 100, 200, 500]
         .map((k) => k * step)
-        .filter((l) => at(l).length && (u * l) / step >= room(l));
+        .filter((l) => onder(l).length && (u * l) / step >= room(l));
     lx = fit.find(nice) ?? fit[0] ?? hi - lo;
   }
   const k0 = Math.round(lx / step);

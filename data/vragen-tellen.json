@@ -825,6 +825,28 @@
     "200": {
       "aantal": 31859,
       "exact": true
+    },
+    "201": {
+      "aantal": 17686,
+      "exact": true
+    },
+    "202": {
+      "aantal": 2021562,
+      "ondergrens": true,
+      "exact": false
+    },
+    "203": {
+      "aantal": 2049,
+      "exact": true
+    },
+    "204": {
+      "aantal": 3453,
+      "ondergrens": true,
+      "exact": false
+    },
+    "205": {
+      "aantal": 147510,
+      "exact": true
     }
   }
 }
