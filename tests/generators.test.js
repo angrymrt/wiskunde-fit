@@ -11,6 +11,7 @@ import {
   checkField,
   fillState,
   findTrap,
+  fmtAns,
   isDrawing,
   matchFields,
   parseNum,
@@ -27,10 +28,13 @@ import KNOWN_IDS from './vraagsoort-ids.js';
 const ROUNDS = Number(process.env.QUESTIONS) || 500;
 
 // Schrijft een antwoord zoals een leerling het zou intypen. Bij een veld met de vorm gemengd als
-// gemengd getal, zoals 3 1/2, en anders als vereenvoudigde breuk (#244).
+// gemengd getal, zoals 3 1/2, en anders als vereenvoudigde breuk (#244). Bij een vorm zoekt het de
+// kleinste noemer tot 1000, zodat ook 1/20, 1/14 en 7/24 vereenvoudigd en als breuk staan.
+const NOEMERS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40],
+  ALLE_NOEMERS = Array.from({ length: 999 }, (_, i) => i + 2);
 function typed(x, vorm) {
   if (Number.isInteger(x)) return String(x);
-  for (const den of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
+  for (const den of vorm ? ALLE_NOEMERS : NOEMERS) {
     const n = Math.round(x * den);
     if (Math.abs(x * den - n) >= 1e-7) continue;
     const a = Math.abs(n),
@@ -1138,6 +1142,27 @@ test('een veld met een vorm keurt alleen de goede vorm van een breuk goed (#244)
   assert.equal(findTrap(twee, ['7/2', '2'])?.id, 'helen-niet-eruit');
   assert.equal(findTrap(twee, ['7/2', '3']), null);
   assert.ok(!checkAnswer(twee, ['7/2', '2']).ok && checkAnswer(twee, ['3 1/2', '2']).ok);
+  // In een groep hoort elk getal bij een ander antwoord. Twee keer 14/4 bij 7/2 en 5/2 is niet goed,
+  // dus geen "Je antwoord klopt". In een andere volgorde of met één vormfout wel.
+  const groep = [
+    { ...veld(3.5, 'vereenvoudigd'), grp: 0 },
+    { ...veld(2.5, 'vereenvoudigd'), grp: 0 },
+  ];
+  const gq = { fields: groep, traps: vormTraps(groep) };
+  assert.equal(findTrap(gq, ['14/4', '14/4']), null);
+  assert.equal(findTrap(gq, ['10/4', '14/4'])?.id, 'breuk-niet-vereenvoudigd');
+  assert.equal(findTrap(gq, ['5/2', '14/4'])?.id, 'breuk-niet-vereenvoudigd');
+  assert.equal(findTrap(gq, ['5/2', '7/2']), null);
+  // Ook een breuk met een grote noemer typt de test goed in de vereiste vorm.
+  for (const [a, vorm, raw] of [
+    [1 / 20, 'vereenvoudigd', '1/20'],
+    [1 / 14, 'gemengd', '1/14'],
+    [7 / 24, 'onecht', '7/24'],
+    [-31 / 24, 'gemengd', '-1 7/24'],
+  ]) {
+    assert.equal(typed(a, vorm), raw);
+    assert.ok(goed(a, vorm, raw), raw);
+  }
   // Bij een heel getal als antwoord noemt de melding over de komma geen breuk.
   assert.match(vormTraps([veld(4, 'vereenvoudigd')])[0].m, /zonder komma/);
   assert.match(vormTraps([veld(3.5, 'vereenvoudigd')])[0].m, /als breuk/);
@@ -1259,4 +1284,17 @@ test('de beschrijving van aflees-figuren verklapt het antwoord niet', () => {
         label = q.fig.match(/aria-label="([^"]*)"/)[1];
       assert.doesNotMatch(label, lek, `vraagsoort ${id}, seed ${seed}: ${label}`);
     }
+});
+
+// Bij een veld met een vorm staat het goede antwoord in de uitslag als breuk, in die vorm, ook bij
+// een noemer als 24 of 14. Een kommagetal zou daar fout zijn (#244).
+test('de uitslag toont het antwoord bij een vorm als breuk, ook bij een grote noemer', () => {
+  assert.equal(fmtAns(19 / 24, 'vereenvoudigd'), '{19/24}');
+  assert.equal(fmtAns(3 / 14, 'gemengd'), '{3/14}');
+  assert.equal(fmtAns(43 / 20, 'gemengd'), '{2 3/20}');
+  assert.equal(fmtAns(-43 / 20, 'onecht'), '-{43/20}');
+  assert.equal(fmtAns(5 / 18, 'onecht'), '{5/18}');
+  // Zonder vorm blijft het zoals het was.
+  assert.equal(fmtAns(19 / 24), '0,79');
+  assert.equal(fmtAns(3.5), '3,5');
 });

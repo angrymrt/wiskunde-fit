@@ -1,9 +1,9 @@
 // De proeftoets: samenstellen, afnemen en nakijken. Bewaren en de klok staan in toets-opslag.js, want
 // die zijn bij het eerste bezoek al nodig. De browser laadt dit bestand pas als het scherm nodig is
 // (scripts/later-schermen.js, #188).
-import { checkAnswer, fillState, isDrawing, matchFields, parseNum } from '../answers.js';
+import { checkAnswer, fillState, fmtAns, isDrawing, matchFields, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
-import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
+import { shuffle, rd, d } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
 import { rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
@@ -233,17 +233,6 @@ function vToetsRes() {
   <div class="res-per"><h2 class="h3">Per onderwerp</h2><div class="res-domains${groups.length === 1 ? ' one' : ''}">${groups.map(domain).join('')}</div><p class="small muted">Tik op een onderwerp om het te oefenen.</p></div>
   <div class="row"><a class="btn main" href="${to('toets')}">Nieuwe proeftoets</a><a class="btn" href="${to('stof')}">Naar mijn stof</a></div></div>
   <div class="sheet"><h2>Alle vragen nakijken</h2><div class="res">${t.items.map(question).join('')}</div></div>`;
-}
-// Bij een veld met een vorm (#244) staat het antwoord altijd als breuk, in die vorm: 3,5 zou daar fout zijn.
-function fmtAns(a, vorm) {
-  if (Number.isInteger(a) || (!vorm && isNice(a, 4))) return d(a);
-  for (const den of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16]) {
-    const n = a * den;
-    if (!near(n, Math.round(n))) continue;
-    const q = Q(Math.round(n), den);
-    return vorm === 'onecht' ? `${q.n < 0 ? '-' : ''}{${Math.abs(q.n)}/${q.d}}` : fr(q);
-  }
-  return d(rd(a, 2));
 }
 
 // In de browser laadt dit scherm pas als het nodig is (scripts/later-schermen.js). In Node is het er

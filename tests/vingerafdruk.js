@@ -18,7 +18,7 @@ const numbers = (html) =>
     n.replace(/\s/g, ''),
   );
 // De negatieve min (#244) is alleen opmaak: zet hem terug naar een gewone −, zodat de vingerafdrukken
-// van van vóór die opmaak blijven kloppen. Het sluitende </span> van .negatief hoort bij de span die
+// van vóór die opmaak blijven kloppen. Het sluitende </span> van .negatief hoort bij de span die
 // opengaat, ook als er een breuk met eigen spans in staat.
 function zonderNegatief(html) {
   const open = '<span class="negatief"><span class="nmin">−</span>';

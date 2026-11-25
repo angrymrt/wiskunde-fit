@@ -1,5 +1,5 @@
 // Antwoorden lezen en nakijken. Bevat geen DOM-code, dus goed los te testen.
-import { near, isNice, rd, roundText, gcd, TEKEN } from './math.js';
+import { near, isNice, rd, roundText, gcd, TEKEN, Q, d, fr } from './math.js';
 
 const netjes = (s) => String(s).trim().replace(/[−–]/g, '-').replace(/\s+/g, ' ');
 function parseNum(s) {
@@ -125,20 +125,24 @@ function roundTraps(fields = []) {
 // klopt" ook echt klopt, en als minstens één veld deze vormfout heeft.
 function vormTraps(fields = []) {
   if (!fields.some((f) => f.vorm)) return [];
-  // In een groep kan elk getal bij elk antwoord van de groep horen, net als bij roundTraps.
-  const mates = (i) =>
-    fields[i].grp != null ? fields.filter((g) => g.grp === fields[i].grp) : [fields[i]];
-  const fout = (v, raw, i) => {
-    if (mates(i).some((g) => checkField(g, raw[i] ?? ''))) return null;
-    const g = mates(i).find((g) => g.vorm && Number.isFinite(v[i]) && near(v[i], g.a));
-    return g ? vormFout(g.vorm, raw[i]) : null;
+  // In een groep hoort elk getal bij een antwoord van de groep dat nog niet is gebruikt, net als bij
+  // het nakijken (matchFields). Het koppelen gaat op de waarde, zonder op de vorm te letten, zodat
+  // 14/4 bij 7/2 hoort. Twee keer 14/4 bij 7/2 en 5/2 valt dus niet in een valkuil.
+  const zonderVorm = fields.map(({ vorm, ...f }) => f);
+  const fout = (v, raw, i, to) => {
+    const g = fields[to[i]];
+    if (checkField(g, raw[i] ?? '')) return null;
+    return g.vorm && Number.isFinite(v[i]) && near(v[i], g.a) ? vormFout(g.vorm, raw[i]) : null;
   };
   const trap = (id, m) => ({
     id,
-    f: (v, raw = []) =>
-      fields.every(
-        (f, i) => fout(v, raw, i) || mates(i).some((g) => checkField(g, raw[i] ?? '')),
-      ) && fields.some((f, i) => fout(v, raw, i) === id),
+    f: (v, raw = []) => {
+      const to = matchFields(zonderVorm, raw);
+      return (
+        fields.every((f, i) => fout(v, raw, i, to) || checkField(fields[to[i]], raw[i] ?? '')) &&
+        fields.some((f, i) => fout(v, raw, i, to) === id)
+      );
+    },
     m,
   });
   // Bij een heel getal als antwoord helpt "schrijf het als breuk" niet.
@@ -266,7 +270,23 @@ function findTrap(q, vals) {
   return null;
 }
 
+// Het goede antwoord zoals de uitslag van de proeftoets het toont. Bij een veld met een vorm (#244) staat het antwoord altijd als breuk, in die vorm: 3,5 zou daar fout zijn.
+// Daar zoekt het de kleinste noemer tot 1000, zodat ook 19/24 of 3/14 een breuk blijft.
+const NOEMERS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16],
+  ALLE_NOEMERS = Array.from({ length: 999 }, (_, i) => i + 2);
+function fmtAns(a, vorm) {
+  if (Number.isInteger(a) || (!vorm && isNice(a, 4))) return d(a);
+  for (const den of vorm ? ALLE_NOEMERS : NOEMERS) {
+    const n = a * den;
+    if (!near(n, Math.round(n))) continue;
+    const q = Q(Math.round(n), den);
+    return vorm === 'onecht' ? `${q.n < 0 ? '-' : ''}{${Math.abs(q.n)}/${q.d}}` : fr(q);
+  }
+  return d(rd(a, 2));
+}
+
 export {
+  fmtAns,
   parseNum,
   checkField,
   checkAnswer,
