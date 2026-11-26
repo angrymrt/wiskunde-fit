@@ -119,7 +119,9 @@ function s34expand() {
     traps.push({
       id: 'haakjes-vergeten',
       f: (v) => near(v[1], -(u + w)) && near(v[2], u * w),
-      m: minus(`Denk aan de haakjes: vermenigvuldig elke term tussen de haakjes met ${fr(A)}.`),
+      m: minus(
+        `Denk aan de haakjes: vermenigvuldig elke term tussen de haakjes met ${fr(A).replace(/[{}]/g, '')}.`,
+      ),
     });
   if (u && B !== 0)
     traps.push({
@@ -178,7 +180,9 @@ function s35expand() {
     traps.push({
       id: 'haakjes-vergeten',
       f: (v) => near(v[1], -2 * p) && near(v[2], p * p + q),
-      m: minus(`Denk aan de haakjes: vermenigvuldig elke term tussen de haakjes met ${fr(A)}.`),
+      m: minus(
+        `Denk aan de haakjes: vermenigvuldig elke term tussen de haakjes met ${fr(A).replace(/[{}]/g, '')}.`,
+      ),
     });
   return {
     q: T(`Schrijf ${n}(x) = ${f} in de vorm ax^2 + bx + c. Wat zijn a, b en c?`),
