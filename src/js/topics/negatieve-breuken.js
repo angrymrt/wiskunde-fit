@@ -285,16 +285,17 @@ function deelstreep() {
   fouten.push(['teller-en-noemer-omgedraaid', 0, metBuiten(N / Tw)]);
   // Gewone tekst voor de ontleder: de deelstreep als haakjes om teller en noemer.
   const plat = omBuiten(`(${deelTekst(tel)}) : (${deelTekst(noe)})`);
+  const fields = [F('Uitkomst:', R)];
   return {
     q: T(`Bereken ${s}.`),
-    fields: [F('Uitkomst:', R)],
+    fields,
     hint: T(
       `De {{deelstreep|deelstreep}} betekent delen.${metTeller || metNoemer ? ' Reken eerst de teller en de noemer apart uit. Deel daarna.' : ''}${buiten ? ' Reken de breuk uit voor je de bewerking buiten de breuk doet.' : ''}`,
     ),
     steps: [...rows, `Controle van de deling: ${q} * ${N} = ${Tw}`],
     traps: maakTraps(fouten, [R], DELING_TEKEN),
     // Een eigen ontleder rekent de berekening na, met haakjes om de teller en de noemer.
-    v: () => narekenen(plat) === R && Number.isInteger(R),
+    v: () => narekenen(plat) === fields[0].a && Number.isInteger(fields[0].a),
   };
 }
 
@@ -635,7 +636,7 @@ export default {
     {
       t: 'Rekenen met de deelstreep',
       p: [
-        'De streep van een breuk heet de {{=deelstreep|deelstreep}}. Hij betekent delen: {-42/6} = -42 : 6 = -7.',
+        'De streep van een breuk heet de {{=deelstreep|deelstreep}}. Hij betekent delen: {-54/9} = -54 : 9 = -6.',
         'Staat er een berekening boven of onder de deelstreep, reken dan eerst de teller en de noemer apart uit. Daarna deel je. De deelstreep werkt dus als haakjes om de teller en om de noemer.',
         'Staat er nog een bewerking buiten de breuk, dan reken je eerst de breuk uit.',
       ],
@@ -685,12 +686,12 @@ export default {
         'Bij een negatief {{gemengd-getal|gemengd getal}} hoort de min bij het hele getal. {-3 2/7} is -3 - {2/7}, en niet -3 + {2/7}. Breng de helen binnen de breuk: {-3 2/7} = -{23/7}.',
       ],
       ex: {
-        q: T('Bereken -{5/9} + {1/6}.'),
+        q: T('Bereken -{3/4} + {1/10}.'),
         steps: [
-          'De nieuwe noemer is 18: dat is het eerste getal dat in de tafels van 6 en 9 staat.',
-          'Teller en noemer keer 2: -{5/9} = -{10/18}',
-          'Teller en noemer keer 3: {1/6} = {3/18}',
-          'Reken met de tellers: -10 + 3 = -7. Dus -{10/18} + {3/18} = -{7/18}',
+          'De nieuwe noemer is 20: dat is het eerste getal dat in de tafels van 4 en 10 staat.',
+          'Teller en noemer keer 5: -{3/4} = -{15/20}',
+          'Teller en noemer keer 2: {1/10} = {2/20}',
+          'Reken met de tellers: -15 + 2 = -13. Dus -{15/20} + {2/20} = -{13/20}',
         ],
       },
       ex2: {
