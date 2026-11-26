@@ -19,6 +19,8 @@ test('alleen documentatie, gegevens of tests zonder browser vragen geen browsert
     'scripts/tokens.js',
     'scripts/lighthouse.js',
     '.github/workflows/tellen.yml',
+    '.github/workflows/mobiel.yml',
+    'tests/mobiel.e2e.js',
     'api/tel.js',
   ]) {
     assert.equal(kies(f).soort, 'geen', f);
