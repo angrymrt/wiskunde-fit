@@ -45,13 +45,17 @@ const launch = () =>
 // velden, zoals bij x = −2 ∨ x = 9, staan ze in omgekeerde volgorde: die volgorde moet ook goed zijn.
 const answerOf = `(q) => {
   // Bij een veld met een vorm (#244) moet het antwoord een breuk zijn, dus zoekt het dan elke noemer
-  // tot 1000, zodat ook 1/18 of 7/45 een breuk blijft.
+  // tot 1000, zodat ook 1/18 of 7/45 een breuk blijft. Bij de vorm gemengd haalt het de helen eruit,
+  // zoals 3 1/2 in plaats van 7/2.
   const alle = Array.from({ length: 999 }, (_, i) => i + 2);
   const typed = (x, vorm) => {
     if (Number.isInteger(x)) return String(x);
     for (const n of vorm ? alle : [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
-      const k = x * n;
-      if (Math.abs(k - Math.round(k)) < 1e-7) return Math.round(k) + '/' + n;
+      const k = Math.round(x * n);
+      if (Math.abs(x * n - k) >= 1e-7) continue;
+      const t = Math.abs(k);
+      if (vorm === 'gemengd' && t > n) return (k < 0 ? '-' : '') + Math.floor(t / n) + ' ' + (t % n) + '/' + n;
+      return k + '/' + n;
     }
     return String(x).replace('.', ',');
   };
@@ -3404,7 +3408,10 @@ const LIMITS = {
   // Het nakijken van de vorm van een breuk (#244, vormTraps in answers.js) voegde 0,8 kB verstuurd toe: 55,4 kB, dus de grens ging van 55 naar 56, en onverpakt (142 kB) van 140 naar 143 kB.
   // Breuken (#244) zette de catalogus van een onderwerp en vijf woorden (teller, noemer, vereenvoudigen, gemengd getal,
   // gelijknamig) in de code bij het eerste bezoek: 56,04 kB verstuurd en 143,5 kB onverpakt, dus de grens ging van 56 naar 57, en onverpakt van 143 naar 145 kB.
-  start: { sent: 57, own: 145, why: 'de code bij het eerste bezoek' },
+  // Negatieve getallen en Vermenigvuldigen en delen met negatieve getallen (#244) zetten hun catalogus en vijf woorden
+  // (onder meer getallenlijn, aftrekmin en negatieve min) in de code bij het eerste bezoek: 145,6 kB onverpakt en 56,7 kB verstuurd,
+  // dus de grens onverpakt ging van 145 naar 146 kB. narekenen en tekst in topics/shared.js laden alleen bij een onderwerp.
+  start: { sent: 57, own: 146, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
