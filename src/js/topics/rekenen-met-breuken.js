@@ -654,7 +654,7 @@ function deelVan() {
     v: () => near(((antw.n / antw.d) * x.n) / x.t, W),
   };
 }
-// Een deel van een breuk, zoals de helft van {2/5} of {2/3} deel van {3/4}.
+// Een deel van een breuk, zoals de helft van {2/5} of {3/4} deel van {2/7}.
 function deelVanBreuk() {
   const [x, y] = until(
     () => {
@@ -923,14 +923,14 @@ export default {
         'Een heel getal schrijf je als breuk met dezelfde noemer als de andere breuk.',
       ],
       ex: {
-        q: T('Bereken {4 1/5} - {1 1/2}.'),
+        q: T('Bereken {4 1/3} - {1 3/4}.'),
         steps: [
-          'Breng de helen binnen de breuk: {4 1/5} = {21/5} en {1 1/2} = {3/2}',
-          'De nieuwe noemer is 2 * 5 = 10.',
-          'Teller en noemer keer 2: {21/5} = {42/10}',
-          'Teller en noemer keer 5: {3/2} = {15/10}',
-          'Trek de tellers af: {21/5} - {3/2} = {42/10} - {15/10} = {27/10}',
-          'Haal de helen eruit: {27/10} = {2 7/10}',
+          'Breng de helen binnen de breuk: {4 1/3} = {13/3} en {1 3/4} = {7/4}',
+          'De nieuwe noemer is 3 * 4 = 12.',
+          'Teller en noemer keer 4: {13/3} = {52/12}',
+          'Teller en noemer keer 3: {7/4} = {21/12}',
+          'Trek de tellers af: {13/3} - {7/4} = {52/12} - {21/12} = {31/12}',
+          'Haal de helen eruit: {31/12} = {2 7/12}',
         ],
       },
       watch:
@@ -943,16 +943,16 @@ export default {
         'Een heel getal schrijf je als breuk met noemer 1, zoals 5 = {5/1}. Een gemengd getal breng je eerst binnen de breuk.',
       ],
       ex: {
-        q: T('Bereken {1 3/4} * {2 2/3}.'),
+        q: T('Bereken {1 1/2} * {2 2/5}.'),
         steps: [
-          'Breng de helen binnen de breuk: {1 3/4} = {7/4} en {2 2/3} = {8/3}',
-          'Teller keer teller en noemer keer noemer: {7/4} * {8/3} = {56/12}',
-          'Teller en noemer door 4 delen: {56/12} = {14/3}',
-          'Helen eruit halen mag, maar hoeft niet: {14/3} = {4 2/3}',
+          'Breng de helen binnen de breuk: {1 1/2} = {3/2} en {2 2/5} = {12/5}',
+          'Teller keer teller en noemer keer noemer: {3/2} * {12/5} = {36/10}',
+          'Teller en noemer door 2 delen: {36/10} = {18/5}',
+          'Helen eruit halen mag, maar hoeft niet: {18/5} = {3 3/5}',
         ],
       },
       watch:
-        'Vermenigvuldig de helen en de breuken niet los. {1 3/4} * {2 2/3} is niet 1 * 2 plus {3/4} * {2/3}.',
+        'Vermenigvuldig de helen en de breuken niet los. {1 1/2} * {2 2/5} is niet 1 * 2 plus {1/2} * {2/5}.',
     },
     {
       t: 'Een deel van een getal',
@@ -976,16 +976,16 @@ export default {
         'Ook met breuken geldt de {{rekenvolgorde|rekenvolgorde}}: eerst wat tussen haakjes staat, dan vermenigvuldigen, en dan optellen en aftrekken.',
       ],
       ex: {
-        q: T('Bereken {2/3} + {1/2} * {2/5}.'),
+        q: T('Bereken {3/4} + {1/3} * {3/5}.'),
         steps: [
-          'Vermenigvuldigen gaat voor optellen. Reken eerst {1/2} * {2/5} uit.',
-          'Teller keer teller en noemer keer noemer: {1/2} * {2/5} = {2/10}',
-          'Teller en noemer door 2 delen: {2/10} = {1/5}',
-          'Vul dat in: {2/3} + {1/2} * {2/5} = {2/3} + {1/5}',
-          'De nieuwe noemer is 3 * 5 = 15.',
-          'Teller en noemer keer 5: {2/3} = {10/15}',
-          'Teller en noemer keer 3: {1/5} = {3/15}',
-          'Tel de tellers op: {2/3} + {1/5} = {10/15} + {3/15} = {13/15}',
+          'Vermenigvuldigen gaat voor optellen. Reken eerst {1/3} * {3/5} uit.',
+          'Teller keer teller en noemer keer noemer: {1/3} * {3/5} = {3/15}',
+          'Teller en noemer door 3 delen: {3/15} = {1/5}',
+          'Vul dat in: {3/4} + {1/3} * {3/5} = {3/4} + {1/5}',
+          'De nieuwe noemer is 4 * 5 = 20.',
+          'Teller en noemer keer 5: {3/4} = {15/20}',
+          'Teller en noemer keer 4: {1/5} = {4/20}',
+          'Tel de tellers op: {3/4} + {1/5} = {15/20} + {4/20} = {19/20}',
         ],
       },
     },
