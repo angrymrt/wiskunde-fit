@@ -196,4 +196,10 @@ export default {
   192: 'vereenvoudigen',
   193: 'helen',
   194: 'vergelijken',
+  195: 'gelijknamig',
+  196: 'ongelijknamig',
+  197: 'gemengd',
+  198: 'vermenigvuldigen',
+  199: 'deelVan',
+  200: 'rekenvolgorde',
 };

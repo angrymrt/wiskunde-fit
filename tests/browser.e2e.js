@@ -44,15 +44,18 @@ const launch = () =>
 // Geeft de juiste antwoorden van een vraag, getypt zoals een leerling dat zou doen. In een groep
 // velden, zoals bij x = −2 ∨ x = 9, staan ze in omgekeerde volgorde: die volgorde moet ook goed zijn.
 const answerOf = `(q) => {
-  const typed = (x) => {
+  // Bij een veld met een vorm (#244) moet het antwoord een breuk zijn, dus zoekt het dan elke noemer
+  // tot 1000, zodat ook 1/18 of 7/45 een breuk blijft.
+  const alle = Array.from({ length: 999 }, (_, i) => i + 2);
+  const typed = (x, vorm) => {
     if (Number.isInteger(x)) return String(x);
-    for (const n of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
+    for (const n of vorm ? alle : [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
       const k = x * n;
       if (Math.abs(k - Math.round(k)) < 1e-7) return Math.round(k) + '/' + n;
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {
@@ -3389,7 +3392,8 @@ const LIMITS = {
   // Rekenvolgorde en Breuken (#244) voegden er tien aan toe: 7,52 kB, dus de grens ging van 7,5 naar 8.
   page: { sent: 8, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 184 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
-  lijst: { sent: 10.5, why: 'de pagina met alle vraagsoorten' },
+  // Rekenen met breuken (#244) voegde er zes toe (nu 200 vraagsoorten): 10,6 kB, dus de grens ging van 10,5 naar 11.
+  lijst: { sent: 11, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
   // Hoofdstuk 1 van havo/vwo 1 (#232) voegde vier onderwerpen met 19 vraagsoorten toe. Van elk onderwerp staat de

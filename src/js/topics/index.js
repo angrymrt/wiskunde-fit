@@ -37,6 +37,7 @@ import veelvlakken from './regelmatige-veelvlakken.js';
 import tekenen from './tekenopdrachten.js';
 import rekenvolgorde from './rekenvolgorde.js';
 import breuken from './breuken.js';
+import rekenenMetBreuken from './rekenen-met-breuken.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -54,7 +55,7 @@ const DOMAINS = [
     description:
       'Rekenen oefenen: de rekenvolgorde, breuken, procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis met uitleg.',
     color: 'teal',
-    topics: [rekenvolgorde, breuken, procenten, terugrekenen],
+    topics: [rekenvolgorde, breuken, rekenenMetBreuken, procenten, terugrekenen],
   },
   {
     slug: 'rekenen-met-letters',
@@ -161,6 +162,7 @@ const PREREQUISITES = new Map([
   [veelvlakken, [kubusBalk]],
   [tekenen, [kubusBalk, veelhoeken, cirkel]],
   [breuken, [rekenvolgorde]],
+  [rekenenMetBreuken, [breuken]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],
