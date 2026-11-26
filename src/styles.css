@@ -2637,12 +2637,15 @@ html.rh-open body {
   padding-bottom: calc(var(--rh-h, 0px) + 16px);
   padding-right: var(--rh-w, 0px);
 }
+/* touch-action: snel twee keer op een toets tikken zoomt anders in, in Firefox op Android (#241).
+   Knijpen om te zoomen blijft werken. */
 .rh {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 40;
+  touch-action: manipulation;
   max-width: 900px;
   margin: 0 auto;
   padding: 10px 12px max(14px, env(safe-area-inset-bottom, 0px));
