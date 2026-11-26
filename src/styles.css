@@ -255,6 +255,11 @@ input {
 .foot nav a {
   padding: 10px 6px;
 }
+/* Zonder min-width: 0 is het kruimelpad in het rooster zo breed als het laatste deel op één regel,
+   en dan wordt het niet afgekapt maar maakt het de pagina te breed. */
+.crumbs {
+  min-width: 0;
+}
 .crumbs ol {
   list-style: none;
   margin: 0;

@@ -671,7 +671,7 @@ export default {
         ],
       },
       watch:
-        'In -3 * 5 - -12 : 4 reken je eerst -12 : 4 uit. De aftrekmin ervoor doet pas daarna mee, want aftrekken komt na delen.',
+        'In -3 * 5 - -12 : 4 reken je -12 : 4 uit voordat je aftrekt. De aftrekmin ervoor doet pas mee als het delen klaar is, want aftrekken komt na delen.',
     },
     {
       t: 'Een ontbrekende factor of deler',
