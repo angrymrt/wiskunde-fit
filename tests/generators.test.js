@@ -1406,6 +1406,15 @@ test('T zet een negatieve min korter dan een aftrekmin', () => {
     T('-{3/4}'),
     /^<span class="negatief"><span class="nmin">−<\/span><span class="f">.*<\/span><\/span>$/,
   );
+  // Ook als de min in de breuk staat, zoals fr hem geeft (#256), en hetzelfde als -{3/4}.
+  assert.equal(
+    T('{-3/4}'),
+    `<span class="negatief"><span class="nmin">−</span><span class="f"><span>3</span><span>4</span></span></span>`,
+  );
+  assert.equal(T('{-3/4}'), T('-{3/4}'));
+  assert.equal(T('{-0,5/2}'), T('-{0,5/2}'));
+  // Een teller die een som is, houdt zijn min: die hoort bij de som.
+  assert.match(T('{-b + 1/2a}'), /^<span class="f"><span><span class="negatief">/);
   assert.equal(
     T('{-2 1/3}'),
     `<span class="negatief"><span class="nmin">−</span>2<span class="f"><span>1</span><span>3</span></span></span>`,
