@@ -212,4 +212,8 @@ export default {
   208: 'delen',
   209: 'rekenvolgordeNegatief',
   210: 'ontbrekendeFactor',
+  211: 'deelstreep',
+  212: 'vereenvoudigen',
+  213: 'optellenAftrekken',
+  214: 'vermenigvuldigen',
 };

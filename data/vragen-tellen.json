@@ -871,6 +871,23 @@
     "210": {
       "aantal": 1320,
       "exact": true
+    },
+    "211": {
+      "aantal": 1177889,
+      "ondergrens": true,
+      "exact": false
+    },
+    "212": {
+      "aantal": 3864,
+      "exact": true
+    },
+    "213": {
+      "aantal": 43068,
+      "exact": true
+    },
+    "214": {
+      "aantal": 11670,
+      "exact": true
     }
   }
 }

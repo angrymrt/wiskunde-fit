@@ -40,6 +40,7 @@ import breuken from './breuken.js';
 import rekenenMetBreuken from './rekenen-met-breuken.js';
 import negatief from './negatieve-getallen.js';
 import keerDelen from './vermenigvuldigen-en-delen-met-negatieve-getallen.js';
+import negatieveBreuken from './negatieve-breuken.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -63,6 +64,7 @@ const DOMAINS = [
       rekenenMetBreuken,
       negatief,
       keerDelen,
+      negatieveBreuken,
       procenten,
       terugrekenen,
     ],
@@ -175,6 +177,7 @@ const PREREQUISITES = new Map([
   [rekenenMetBreuken, [breuken]],
   [negatief, [rekenvolgorde]],
   [keerDelen, [negatief]],
+  [negatieveBreuken, [keerDelen, rekenenMetBreuken]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],

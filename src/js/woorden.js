@@ -85,6 +85,11 @@ export const WOORDEN = {
       'De min van een negatief getal, zoals in −4 of 6 · −4. Hij hoort bij het getal erachter en is iets korter dan de aftrekmin.',
     onderwerp: 'vermenigvuldigen-en-delen-met-negatieve-getallen',
   },
+  deelstreep: {
+    naam: 'deelstreep',
+    uitleg: 'De streep van een breuk. Hij betekent delen: de teller gedeeld door de noemer.',
+    onderwerp: 'negatieve-breuken',
+  },
   richtingscoefficient: {
     naam: 'richtingscoëfficiënt',
     uitleg: 'Het getal a in y = ax + b. Het vertelt hoeveel y verandert als x 1 groter wordt.',
