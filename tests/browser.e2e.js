@@ -3411,7 +3411,8 @@ const LIMITS = {
   // Negatieve getallen en Vermenigvuldigen en delen met negatieve getallen (#244) zetten hun catalogus en vijf woorden
   // (onder meer getallenlijn, aftrekmin en negatieve min) in de code bij het eerste bezoek: 145,6 kB onverpakt en 56,7 kB verstuurd,
   // dus de grens onverpakt ging van 145 naar 146 kB. narekenen en tekst in topics/shared.js laden alleen bij een onderwerp.
-  start: { sent: 57, own: 146, why: 'de code bij het eerste bezoek' },
+  // Met alle zes onderwerpen van hoofdstuk 2 (#244) in de catalogus is het eerste bezoek 57,0 kB verstuurd, dus de grens ging van 57 naar 58.
+  start: { sent: 58, own: 146, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
@@ -3430,7 +3431,8 @@ const LIMITS = {
   // De woorden van Rekenvolgorde (#244: som, verschil, product, quotiënt en rekenvolgorde) staan in woorden.js in hetzelfde bestand: 52,2 kB onverpakt, dus de grens ging van 52 naar 53 kB.
   // De woorden van Breuken (#244: teller, noemer, vereenvoudigen, gemengd getal en gelijknamig) brachten het op 18,77 kB verstuurd en 53,06 kB onverpakt, dus de grens ging van 18,5 naar 19 en van 53 naar 54 kB.
   // De woorden van Negatieve getallen (#244: positief, negatief, getallenlijn) brachten het op 19,1 kB verstuurd. De rest van hoofdstuk 2 voegt nog woorden toe (aftrekmin, negatieve min), dus de grens ging in één keer van 19 naar 20 en van 54 naar 56 kB. Kleiner maken kan met #206.
-  shared: { sent: 20, own: 56, why: 'een gedeeld codebestand' },
+  // Met alle woorden van hoofdstuk 2 (#244) is het gedeelde bestand 56,1 kB onverpakt, dus de grens ging van 56 naar 57 kB.
+  shared: { sent: 20, own: 57, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
   // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
   css: { sent: 10.5, why: 'de CSS' },
