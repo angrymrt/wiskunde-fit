@@ -33,7 +33,14 @@ function zonderNegatief(html) {
       diepte += m[0] === '</span>' ? -1 : 1;
       j = m.index;
     }
-    html = `${html.slice(0, i)}−${html.slice(i + open.length, j)}${html.slice(j + '</span>'.length)}`;
+    // Staat er een breuk achter, zet de min dan in de teller. Anders komen er tussen de min en het
+    // getal twee spaties als numbers de tags weghaalt, en valt het teken weg (#256).
+    const binnen = html.slice(i + open.length, j),
+      teller = '<span class="f"><span>',
+      zonder = binnen.startsWith(teller)
+        ? `${teller}−${binnen.slice(teller.length)}`
+        : `−${binnen}`;
+    html = `${html.slice(0, i)}${zonder}${html.slice(j + '</span>'.length)}`;
   }
   return html;
 }
@@ -41,7 +48,9 @@ const answers = (q) => ({
   numbers: numbers(zonderNegatief(q.q)),
   fields: (q.fields ?? []).map((f) => f.a),
   // Een keuze die een figuur is, zoals een schets, telt net als de figuur van de vraag niet mee.
-  mc: q.mc ? { opts: q.mc.opts.map((o) => (/^<svg/.test(o) ? 'figuur' : zonderNegatief(o))), a: q.mc.a } : null,
+  mc: q.mc
+    ? { opts: q.mc.opts.map((o) => (/^<svg/.test(o) ? 'figuur' : zonderNegatief(o))), a: q.mc.a }
+    : null,
   line: q.line ?? null,
   // Alleen bij een parabool tekenen, zodat de vingerafdruk van de andere vraagsoorten gelijk blijft.
   ...(q.parabola ? { parabola: q.parabola } : {}),

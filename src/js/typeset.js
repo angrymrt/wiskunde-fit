@@ -34,9 +34,6 @@ function T(s) {
       let k;
       if ((k = b.match(/^(-?)(\d+) (\d+)\/(\d+)$/)))
         o += `${k[1] ? `<span class="negatief">${NMIN}` : ''}${k[2]}<span class="f"><span>${k[3]}</span><span>${k[4]}</span></span>${k[1] ? '</span>' : ''}`;
-      else if ((k = b.match(/^-(\d+(?:[.,]\d+)?)\/(\d+(?:[.,]\d+)?)$/)))
-        // Een negatieve breuk krijgt de min vóór de breuk, niet in de teller (#256).
-        o += `<span class="negatief">${NMIN}<span class="f"><span>${k[1]}</span><span>${k[2]}</span></span></span>`;
       else {
         const c = b.lastIndexOf('/');
         o += `<span class="f"><span>${T(b.slice(0, c))}</span><span>${T(b.slice(c + 1))}</span></span>`;

@@ -106,7 +106,7 @@ Een veld kan ook `label` krijgen, de naam voor een schermlezer als de tekst erna
 | `AC^2`, `rc_k`     | Superscript en subscript                                   |
 | `x-as`, `F-hoeken` | Koppelteken blijft staan, geen minteken                    |
 
-Een min zonder spatie direct voor een getal, breuk `{...}` of letter, aan het begin of na een spatie, rekenteken of `(`, is een negatieve min: `8 - -3`, `4 * -2`, `-x^2`, `(-3)^2`, `{-2 1/3}`. Bij een breuk met alleen een getal in de teller zet `T` de min ook vóór de breuk: `{-3/4}` verschijnt als `-{3/4}`. Die is korter, zoals in het boek (klasse `nmin` in `styles.css`). Een aftrekmin schrijf je met spaties eromheen, `a - b`. Beide worden het teken −, zodat een schermlezer "min" zegt.
+Een min zonder spatie direct voor een getal, breuk `{...}` of letter, aan het begin of na een spatie, rekenteken of `(`, is een negatieve min: `8 - -3`, `4 * -2`, `-x^2`, `(-3)^2`, `{-2 1/3}`. Een negatieve breuk schrijf je als `-{3/4}`, met de min vóór de breuk; `fr` doet dat ook. `{-3/4}` zet de min in de teller, alleen voor als dat de bedoeling is. Die is korter, zoals in het boek (klasse `nmin` in `styles.css`). Een aftrekmin schrijf je met spaties eromheen, `a - b`. Beide worden het teken −, zodat een schermlezer "min" zegt.
 
 Een term met uitleg in een popup schrijf je als `{{id|woord}}`, met het `id` uit `woorden.js`. Schrijf `{{=id|woord}}` op de plek waar de term wordt uitgelegd, in het onderwerp dat bij `onderwerp` staat. Op de pagina van dat onderwerp krijgt de term geen popup, want de lijst "Woorden in dit onderwerp" onder de uitleg legt hem uit. Op andere pagina's en bij het oefenen krijgt hij wel een popup, met "Meer uitleg" naar die lijst. Een term is nooit zichtbaar in de proeftoets.
 
