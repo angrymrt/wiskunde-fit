@@ -12,6 +12,12 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 - **Getallenlijn en breukfiguren.** Bij negatieve getallen lees je af op een getallenlijn, en bij breuken zie je een figuur die in gelijke delen is verdeeld.
 - **Methode-indeling.** In Getal & Ruimte, 13e editie, havo/vwo 1, staat hoofdstuk 2 nu bij de vragen. Bij elke paragraaf staat wat je hier nog niet kunt oefenen, zoals puzzels als een getallenpiramide.
 
+## 1.23.1
+
+### Hersteld
+
+- **Rekenhulp op een telefoon.** Als je snel achter elkaar op de toetsen tikte, zoomde de pagina in Firefox op Android in. Dat gebeurt nu niet meer. Met twee vingers in- en uitzoomen kan nog steeds.
+
 ## 1.23.0
 
 ### Nieuw

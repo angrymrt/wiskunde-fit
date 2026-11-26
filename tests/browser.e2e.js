@@ -2321,6 +2321,12 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       await p.click('[data-act="rekenhulp"]');
       await p.waitForSelector('#rekenhulp:not([hidden])');
       assert.equal(await p.getAttribute('[data-act="rekenhulp"]', 'aria-expanded'), 'true');
+      // Snel tikken op de toetsen mag niet inzoomen (#241). Dat zelf zie je alleen op een echte telefoon.
+      assert.equal(
+        await p.$eval('#rekenhulp', (e) => getComputedStyle(e).touchAction),
+        'manipulation',
+        'geen dubbeltik-zoom op het paneel',
+      );
       assert.equal(
         await p.evaluate(() => document.activeElement.id),
         'rh-titel',
@@ -3412,7 +3418,8 @@ const LIMITS = {
   // (onder meer getallenlijn, aftrekmin en negatieve min) in de code bij het eerste bezoek: 145,6 kB onverpakt en 56,7 kB verstuurd,
   // dus de grens onverpakt ging van 145 naar 146 kB. narekenen en tekst in topics/shared.js laden alleen bij een onderwerp.
   // Met alle zes onderwerpen van hoofdstuk 2 (#244) in de catalogus is het eerste bezoek 57,0 kB verstuurd, dus de grens ging van 57 naar 58.
-  start: { sent: 58, own: 146, why: 'de code bij het eerste bezoek' },
+  // Met het hele hoofdstuk 2 (#244) is de code bij het eerste bezoek 146,7 kB onverpakt, dus die grens ging van 146 naar 148 kB.
+  start: { sent: 58, own: 148, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
