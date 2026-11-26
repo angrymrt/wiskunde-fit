@@ -5,45 +5,16 @@
 // in het boek: 4 * -3 en 12 : -4. Haakjes staan alleen om een deelberekening. Alleen gehele
 // getallen, elke deling gaat op en je deelt nooit door 0.
 import { ri, pick, coin, shuffle, near, until } from '../math.js';
-import { F } from './shared.js';
+import { F, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
 
-// Een berekening is een rij tekens: getallen (ook negatief), '-', '*', ':', '(' en ')'. Als tekst
-// voor T staat een negatief getal zonder haakjes, zoals 4 * -3.
-const tekst = (ts) => ts.join(' ').replace(/\( /g, '(').replace(/ \)/g, ')');
+// Een berekening is een rij tekens: getallen (ook negatief), '-', '*', ':', '(' en ')'. tekst en
+// narekenen staan in shared.js.
 // Een getal of berekening zoals je het leest, voor een melding: met − en ·.
 const zw = (s) => String(s).replace(/-/g, '−').replace(/\*/g, '·');
 const doe = (x, op, y) => (op === '+' ? x + y : op === '-' ? x - y : op === '*' ? x * y : x / y);
 const zegTeken = (x) => (x > 0 ? 'positief' : 'negatief');
 const metTeken = (x) => (coin() ? -x : x);
-
-// Rekent een berekening als tekst na, zoals '-5 - 3 * -2' of '(4 - 9) : -5'. Een eigen ontleder,
-// los van de stappen hieronder, voor de controle v. Een min aan het begin, na een bewerking of na
-// '(' hoort bij het getal erachter.
-function narekenen(s) {
-  const ts = s.match(/\d+|[-+*:()]/g) || [];
-  let i = 0;
-  const een = () => {
-    if (ts[i] === '-') {
-      i++;
-      return -een();
-    }
-    if (ts[i] === '(') {
-      i++;
-      const x = som();
-      return ts[i++] === ')' ? x : NaN;
-    }
-    return /^\d+$/.test(ts[i] ?? '') ? Number(ts[i++]) : NaN;
-  };
-  const meer = (x) =>
-    ts[i] === '*' || ts[i] === ':' ? meer(ts[i++] === '*' ? x * een() : x / een()) : x;
-  const product = () => meer(een());
-  const plus = (x) =>
-    ts[i] === '+' || ts[i] === '-' ? plus(ts[i++] === '+' ? x + product() : x - product()) : x;
-  const som = () => plus(product());
-  const x = som();
-  return i === ts.length ? x : NaN;
-}
 
 // Een valkuil per fout, als een van de velden een foute uitkomst van die fout heeft. per[i] is een
 // lijst [id, foute waarde] voor veld i, zonder de goede waarde. De volgorde van ids is de volgorde
@@ -661,12 +632,12 @@ export default {
       t: 'Een lang product',
       p: [
         'Heb je meer dan twee factoren, dan reken je van links naar rechts.',
-        'Wil je alleen weten of de uitkomst positief of negatief is, tel dan de mintekens. Twee mintekens samen geven een plus. Bij een even aantal mintekens is de uitkomst positief, bij een oneven aantal negatief. Staat er een 0 bij, dan is de uitkomst 0.',
+        'Wil je alleen weten of de uitkomst positief of negatief is, tel dan de mintekens. Twee mintekens samen geven een plus. Staat er een 0 bij, dan is de uitkomst 0.',
       ],
       ex: {
         q: T('Is de uitkomst van -2 * 5 * -1 * -3 positief of negatief?'),
         steps: [
-          'Er staan 3 mintekens. 3 is oneven, dus de uitkomst is negatief.',
+          'Er staan 3 mintekens. Twee daarvan samen geven een plus. Er blijft één minteken over, dus de uitkomst is negatief.',
           'Controle: -2 * 5 * -1 * -3 = -10 * -1 * -3 = 10 * -3 = -30',
         ],
       },
@@ -690,15 +661,17 @@ export default {
         'Schrijf de berekening onder elkaar. Reken op elke regel één stap uit, en schrijf de rest opnieuw op.',
       ],
       ex: {
-        q: T('Bereken 7 - 4 * -5.'),
-        steps: ['7 - 4 * -5 =', '7 - -20 = 27'],
-      },
-      ex2: {
-        q: T('Bereken -3 - (5 - 9) * -2.'),
-        steps: ['-3 - (5 - 9) * -2 =', '-3 - -4 * -2 =', '-3 - 8 = -11'],
+        q: T('Bereken -3 * 5 - -12 : 4.'),
+        steps: [
+          'De min voor de 3 is een negatieve min: die hoort bij de 3. De min na de 5 is een aftrekmin. De min voor de 12 is weer een negatieve min.',
+          'Eerst vermenigvuldigen en delen, van links naar rechts, en dan pas aftrekken.',
+          '-3 * 5 - -12 : 4 =',
+          '-15 - -12 : 4 =',
+          '-15 - -3 = -12',
+        ],
       },
       watch:
-        'In 7 - 4 * -5 reken je eerst 4 * -5 uit. De aftrekmin voor de 4 hoort bij het aftrekken, niet bij de 4.',
+        'In -3 * 5 - -12 : 4 reken je eerst -12 : 4 uit. De aftrekmin ervoor doet pas daarna mee, want aftrekken komt na delen.',
     },
     {
       t: 'Een ontbrekende factor of deler',

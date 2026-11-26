@@ -364,6 +364,36 @@ function group(s) {
     g = a.length > 4 ? a.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : a;
   return `${neg ? '-' : ''}${g}${f ? `,${f}` : ''}`;
 }
+// Een berekening als rij tekens, zoals [4, '*', '(', 5, '-', -2, ')'], als tekst voor T: 4 * (5 - -2).
+// Een negatief getal staat zonder haakjes, zoals in het boek.
+const tekst = (ts) => ts.join(' ').replace(/\( /g, '(').replace(/ \)/g, ')');
+// Rekent een berekening als tekst na, zoals '18 - 6 : 3', '-5 - 3 * -2' of '(4 - 9) : -5'. Een eigen
+// ontleder, los van de stappen van een vraag, voor de controle v. Een min aan het begin, na een
+// bewerking of na '(' hoort bij het getal erachter. Klopt de tekst niet, dan geeft hij NaN.
+function narekenen(s) {
+  const ts = s.match(/\d+|[-+*:()]/g) || [];
+  let i = 0;
+  const een = () => {
+    if (ts[i] === '-') {
+      i++;
+      return -een();
+    }
+    if (ts[i] === '(') {
+      i++;
+      const x = som();
+      return ts[i++] === ')' ? x : NaN;
+    }
+    return /^\d+$/.test(ts[i] ?? '') ? Number(ts[i++]) : NaN;
+  };
+  const meer = (x) =>
+    ts[i] === '*' || ts[i] === ':' ? meer(ts[i++] === '*' ? x * een() : x / een()) : x;
+  const product = () => meer(een());
+  const plus = (x) =>
+    ts[i] === '+' || ts[i] === '-' ? plus(ts[i++] === '+' ? x + product() : x - product()) : x;
+  const som = () => plus(product());
+  const x = som();
+  return i === ts.length ? x : NaN;
+}
 const TRP = [
   [3, 4, 5],
   [6, 8, 10],
@@ -580,6 +610,8 @@ export {
   factorForm,
   pt,
   euro,
+  tekst,
+  narekenen,
   TRP,
   nestedPts,
   nestedFig,

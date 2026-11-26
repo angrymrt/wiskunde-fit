@@ -2,7 +2,7 @@
 // Alleen gehele getallen van 0 en groter: negatieve getallen komen in een later onderwerp. Elke
 // tussenuitkomst is heel en niet negatief, en elke deling gaat op.
 import { ri, pick, coin, near, until } from '../math.js';
-import { F } from './shared.js';
+import { F, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
 
 // Een berekening is een boom: een getal, of [bewerking, links, rechts], met als bewerking '+', '-',
@@ -22,8 +22,6 @@ function tekens(t, ouder = null, rechts = false) {
   const nodig = ouder && (PREC[op] < PREC[ouder] || (rechts && PREC[op] === PREC[ouder]));
   return nodig ? ['(', ...binnen, ')'] : binnen;
 }
-// De tekens als tekst voor T, zoals 4 * (5 - 2).
-const tekst = (ts) => ts.join(' ').replace(/\( /g, '(').replace(/ \)/g, ')');
 // Dezelfde tekst voor een keuzelijst, die geen T krijgt: met het maalpunt en het minteken zelf.
 const zichtbaar = (s) => s.replace(/ \* /g, ' · ').replace(/ - /g, ' − ');
 const getallen = (t) => (isBoom(t) ? [...getallen(t[1]), ...getallen(t[2])] : [t]);
@@ -129,27 +127,6 @@ function rekenTraps(per) {
         }
       : null;
   }).filter(Boolean);
-}
-
-// Rekent een berekening als tekst na, zoals '18 - 6 : 3' of '4 * (5 - (1 + 2))'. Dit is een eigen
-// ontleder, los van de stappen hierboven, voor de controle v.
-function narekenen(s) {
-  const ts = s.match(/\d+|[-+*:()]/g) || [];
-  let i = 0;
-  const getal = () => {
-    if (ts[i] !== '(') return Number(ts[i++]);
-    i++;
-    const x = som();
-    return ts[i++] === ')' ? x : NaN;
-  };
-  const meer = (x) =>
-    ts[i] === '*' || ts[i] === ':' ? meer(ts[i++] === '*' ? x * getal() : x / getal()) : x;
-  const product = () => meer(getal());
-  const plus = (x) =>
-    ts[i] === '+' || ts[i] === '-' ? plus(ts[i++] === '+' ? x + product() : x - product()) : x;
-  const som = () => plus(product());
-  const x = som();
-  return i === ts.length ? x : NaN;
 }
 
 // Maakt een berekening in de vorm van een boom met 'n' voor een getal, zoals ['+', 'n', ['*', 'n', 'n']].

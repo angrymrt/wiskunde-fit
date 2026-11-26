@@ -4,7 +4,7 @@
 // deelberekening. Alleen gehele getallen, behalve bij de getallenlijn en het vergelijken.
 // Vermenigvuldigen en delen met negatieve getallen staat in een eigen onderwerp.
 import { ri, nz, pick, coin, shuffle, gcd, lcm, Q, near, until } from '../math.js';
-import { F, MC } from './shared.js';
+import { F, MC, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
 import { getallenlijn } from '../getalfiguren.js';
 
@@ -669,9 +669,8 @@ function temperatuur() {
 
 // --- 204 en 205 Optellen en aftrekken ---
 
-// Een berekening is een rij tekens: getallen (ook negatief), '+', '-', '(' en ')'. Als tekst voor T
-// staat een negatief getal zonder haakjes, zoals 6 - -5.
-const tekst = (ts) => ts.join(' ').replace(/\( /g, '(').replace(/ \)/g, ')');
+// Een berekening is een rij tekens: getallen (ook negatief), '+', '-', '(' en ')'. tekst en
+// narekenen staan in shared.js.
 const doe = (x, op, y) => (op === '+' ? x + y : x - y);
 
 // Eén stap: reken binnen de eerste haakjes die sluiten de eerste bewerking uit, of anders de eerste
@@ -752,30 +751,6 @@ function rekenTraps(berekeningen) {
     .filter(Boolean);
 }
 
-// Rekent een berekening als tekst na, zoals '6 - -5' of '-4 - (6 - 9)'. Een eigen ontleder, los van
-// de stappen hierboven, voor de controle v. Een min aan het begin, na een bewerking of na '(' hoort
-// bij het getal erachter.
-function narekenen(s) {
-  const ts = s.match(/\d+|[-+()]/g) || [];
-  let i = 0;
-  const een = () => {
-    if (ts[i] === '-') {
-      i++;
-      return -een();
-    }
-    if (ts[i] === '(') {
-      i++;
-      const x = som();
-      return ts[i++] === ')' ? x : NaN;
-    }
-    return /^\d+$/.test(ts[i] ?? '') ? Number(ts[i++]) : NaN;
-  };
-  const verder = (x) =>
-    ts[i] === '+' || ts[i] === '-' ? verder(ts[i++] === '+' ? x + een() : x - een()) : x;
-  const som = () => verder(een());
-  const x = som();
-  return i === ts.length ? x : NaN;
-}
 // Telt een som stap voor stap op de getallenlijn: vanaf het eerste getal één stap per keer naar
 // rechts (erbij) of naar links (eraf). Min een negatief getal gaat dus naar rechts.
 const pijl = (x, op, y) => tel(x, Math.abs(y), (op === '+') === y > 0 ? 1 : -1);
