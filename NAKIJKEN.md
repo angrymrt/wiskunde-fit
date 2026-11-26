@@ -40,6 +40,10 @@ Hier wijkt de site af van het boek. Laat het weten als dat volgens jou niet hand
 - Bij een vierkant of rechthoek kies je de naam van een zijde, zoals WX, of twee hoekpunten, zoals W en Y, uit een lijst. In het boek schrijf je die zelf op. Of een rechthoek van vierkantjes ook met een ander aantal rijen kan, kies je uit ja of nee.
 - Bij een voorwerp kies je uit ja of nee of het kan rollen. Bij gestippelde ribben kies je de reden uit een lijst, en bij de zijvlakken van een balk die een vierkant zijn kies je ook "geen enkel zijvlak" als er geen vierkant bij is. In het boek schrijf je dat zelf op.
 - Bij een woordformule opstellen typ je de formule niet zelf. Je vult de twee getallen in en kiest + of − uit een lijst, zoals kosten = [5] [+] [4] · aantal spellen. De eenheid staat in de zin en niet in de formule. Bij invullen staat de eenheid achter het veld, dus die hoef je niet te typen.
+- Bij de namen van een berekening, zoals 7 + 5, kies je uit een lijst of 7 en 5 termen of factoren zijn, en of de uitkomst de som, het verschil, het product of het quotiënt heet. In het boek schrijf je die naam zelf op.
+- Bij het vergelijken van twee breuken of twee negatieve getallen kies je `<`, `>` of `=` uit een lijst. In het boek zet je het teken er zelf tussen.
+- Of de uitkomst van een berekening met mintekens positief, negatief of 0 is, kies je uit een lijst, zonder de uitkomst uit te rekenen.
+- Een breuk als antwoord moet zo ver mogelijk vereenvoudigd zijn: 14/4 is fout, ook al is de waarde goed. Een heel getal schrijf je zonder breuk, en een kommagetal is fout als om een breuk wordt gevraagd. Meestal mag een onechte breuk of een gemengd getal, zoals 7/2 of 3 1/2. Vraagt de vraag om een gemengd getal of om een onechte breuk, dan is alleen die vorm goed. Bij een fout in de vorm zegt de site wat er niet klopt.
 
 ## Onderwerpen
 

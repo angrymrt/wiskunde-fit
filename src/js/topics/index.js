@@ -54,9 +54,9 @@ const DOMAINS = [
     slug: 'getallen-en-rekenen',
     name: 'Getallen en rekenen',
     intro:
-      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Je begint met de rekenvolgorde: wat reken je eerst uit? En je leert werken met breuken. Daarna reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
+      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Je begint met de rekenvolgorde: wat reken je eerst uit? En je leert werken met breuken en met negatieve getallen: optellen, aftrekken, vermenigvuldigen en delen, ook met negatieve breuken. Daarna reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
     description:
-      'Rekenen oefenen: de rekenvolgorde, breuken, procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis met uitleg.',
+      'Rekenen oefenen: rekenvolgorde, breuken, negatieve getallen, procentuele verandering, procent op procent en terugrekenen. Gratis met uitleg.',
     color: 'teal',
     topics: [
       rekenvolgorde,
