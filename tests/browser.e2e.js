@@ -2317,6 +2317,12 @@ test('de Rekenhulp rekent en neemt de uitkomst over in het veld', async () => {
       await p.click('[data-act="rekenhulp"]');
       await p.waitForSelector('#rekenhulp:not([hidden])');
       assert.equal(await p.getAttribute('[data-act="rekenhulp"]', 'aria-expanded'), 'true');
+      // Snel tikken op de toetsen mag niet inzoomen (#241). Dat zelf zie je alleen op een echte telefoon.
+      assert.equal(
+        await p.$eval('#rekenhulp', (e) => getComputedStyle(e).touchAction),
+        'manipulation',
+        'geen dubbeltik-zoom op het paneel',
+      );
       assert.equal(
         await p.evaluate(() => document.activeElement.id),
         'rh-titel',
