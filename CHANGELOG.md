@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.23.1
+
+### Hersteld
+
+- **Rekenhulp op een telefoon.** Als je snel achter elkaar op de toetsen tikte, zoomde de pagina in Firefox op Android in. Dat gebeurt nu niet meer. Met twee vingers in- en uitzoomen kan nog steeds.
+
 ## 1.23.0
 
 ### Nieuw
