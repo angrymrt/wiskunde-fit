@@ -1,9 +1,9 @@
 // De proeftoets: samenstellen, afnemen en nakijken. Bewaren en de klok staan in toets-opslag.js, want
 // die zijn bij het eerste bezoek al nodig. De browser laadt dit bestand pas als het scherm nodig is
 // (scripts/later-schermen.js, #188).
-import { checkAnswer, fillState, isDrawing, matchFields, parseNum } from '../answers.js';
+import { checkAnswer, fillState, fmtAns, isDrawing, matchFields, parseNum } from '../answers.js';
 import { drawnResult } from '../figures.js';
-import { shuffle, Q, near, rd, isNice, d, fr } from '../math.js';
+import { shuffle, rd, d } from '../math.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../topics/index.js';
 import { rec } from '../progress.js';
 import { pathFor, to } from '../routes.js';
@@ -139,7 +139,7 @@ const filled = (v) => String(v ?? '').trim();
 const typed = (v) =>
   filled(v) ? esc(filled(v)).replace(/-/g, '−') : '<span class="muted">niet ingevuld</span>';
 const rightField = (f) =>
-  `${f.sel ? esc(f.a) : (f.round != null ? '≈ ' : '') + T(f.round != null ? d(rd(f.a, f.round)) : fmtAns(f.a))}${f.post ? ' ' + T(f.post) : ''}`;
+  `${f.sel ? esc(f.a) : (f.round != null ? '≈ ' : '') + T(f.round != null ? d(rd(f.a, f.round)) : fmtAns(f.a, f.vorm))}${f.post ? ' ' + T(f.post) : ''}`;
 function answerRows({ q, vals, c }) {
   if (q.mc)
     return [[null, filled(vals[0]) ? q.mc.opts[vals[0]] : typed(''), c.each[0], q.mc.opts[q.mc.a]]];
@@ -233,14 +233,6 @@ function vToetsRes() {
   <div class="res-per"><h2 class="h3">Per onderwerp</h2><div class="res-domains${groups.length === 1 ? ' one' : ''}">${groups.map(domain).join('')}</div><p class="small muted">Tik op een onderwerp om het te oefenen.</p></div>
   <div class="row"><a class="btn main" href="${to('toets')}">Nieuwe proeftoets</a><a class="btn" href="${to('stof')}">Naar mijn stof</a></div></div>
   <div class="sheet"><h2>Alle vragen nakijken</h2><div class="res">${t.items.map(question).join('')}</div></div>`;
-}
-function fmtAns(a) {
-  if (Number.isInteger(a) || isNice(a, 4)) return d(a);
-  for (const den of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16]) {
-    const n = a * den;
-    if (near(n, Math.round(n))) return fr(Q(Math.round(n), den));
-  }
-  return d(rd(a, 2));
 }
 
 // In de browser laadt dit scherm pas als het nodig is (scripts/later-schermen.js). In Node is het er

@@ -1,13 +1,23 @@
 // Zet tekst om naar wiskundezetting in HTML. Zie "T-notatie" in de skill vraag-toevoegen.
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// Het boek kent twee soorten min: de aftrekmin (5 − 3) en de negatieve min van een negatief getal
+// (8 − -3, 4 · -2), die korter is. Beide zijn het teken − (U+2212), zodat een schermlezer ze als
+// "min" leest; de negatieve min is in styles.css (.nmin) alleen smaller. Hij staat met het getal
+// erachter in .negatief, zodat de regel daartussen niet kan afbreken.
+const NMIN = '<span class="nmin">−</span>';
+// Een min is een negatieve min als er direct een getal, breuk of letter achter staat, en ervoor
+// niets, een spatie, een rekenteken of een haakje openen.
+const voorNeg = /^$|[\s([*·×:+=<>≤≥≈∨,;]/;
+const naNeg = /[\d{A-Za-zÀ-ÿ]/;
 /* T zet een regel tekst om naar wiskundezetting: losse letters cursief, {a/b} is een breuk, * is een maalpunt. */
 function T(s) {
   s = String(s);
   let o = '';
   const re =
     /\{\{=?[a-z-]+\|[^{}|<>]+\}\}|\{[^{}]*\}|\^[0-9a-zA-Z]+|_[0-9A-Za-z]+|[FZ]-hoek[a-z]*|[A-Za-zÀ-ÿ]+|\d+(?:[.,]\d+)?|\s+|[\s\S]/g;
-  let m;
+  let m,
+    neg = false;
   while ((m = re.exec(s))) {
     const t = m[0],
       i = m.index,
@@ -23,7 +33,7 @@ function T(s) {
       const b = t.slice(1, -1);
       let k;
       if ((k = b.match(/^(-?)(\d+) (\d+)\/(\d+)$/)))
-        o += `${k[1] ? '−' : ''}${k[2]}<span class="f"><span>${k[3]}</span><span>${k[4]}</span></span>`;
+        o += `${k[1] ? `<span class="negatief">${NMIN}` : ''}${k[2]}<span class="f"><span>${k[3]}</span><span>${k[4]}</span></span>${k[1] ? '</span>' : ''}`;
       else {
         const c = b.lastIndexOf('/');
         o += `<span class="f"><span>${T(b.slice(0, c))}</span><span>${T(b.slice(c + 1))}</span></span>`;
@@ -32,9 +42,18 @@ function T(s) {
     else if (t[0] === '_' && t.length > 1) o += `<sub>${T(t.slice(1))}</sub>`;
     else if (/^[FZ]-hoek/.test(t)) o += t;
     else if (/^[A-Za-z]$|^[A-Z]{2,8}$|^[ab]x$/.test(t)) o += `<span class="v">${t}</span>`;
-    else if (t === '-') o += /[A-Za-zÀ-ÿ]/.test(p) && /[A-Za-zÀ-ÿ]/.test(n) ? '-' : '−';
+    else if (t === '-' && voorNeg.test(p) && naNeg.test(n)) {
+      // Het getal erachter komt in de volgende ronde; daarna sluit .negatief.
+      o += `<span class="negatief">${NMIN}`;
+      neg = true;
+      continue;
+    } else if (t === '-') o += /[A-Za-zÀ-ÿ]/.test(p) && /[A-Za-zÀ-ÿ]/.test(n) ? '-' : '−';
     else if (t === '*') o += '·';
     else o += esc(t);
+    if (neg) {
+      o += '</span>';
+      neg = false;
+    }
   }
   return o;
 }

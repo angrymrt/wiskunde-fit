@@ -35,24 +35,39 @@ import prisma from './prisma.js';
 import piramide from './piramide.js';
 import veelvlakken from './regelmatige-veelvlakken.js';
 import tekenen from './tekenopdrachten.js';
+import rekenvolgorde from './rekenvolgorde.js';
+import breuken from './breuken.js';
+import rekenenMetBreuken from './rekenen-met-breuken.js';
+import negatief from './negatieve-getallen.js';
+import keerDelen from './vermenigvuldigen-en-delen-met-negatieve-getallen.js';
+import negatieveBreuken from './negatieve-breuken.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
 import misleidend from './misleidende-statistiek.js';
 import interpoleren from './interpoleren-en-extrapoleren.js';
 import { newSeed, withSeed } from '../math.js';
-import { roundTraps } from '../answers.js';
+import { roundTraps, vormTraps } from '../answers.js';
 
 const DOMAINS = [
   {
     slug: 'getallen-en-rekenen',
     name: 'Getallen en rekenen',
     intro:
-      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Hier reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
+      'Bij getallen en rekenen reken je met getallen uit het dagelijks leven, zoals prijzen en aantallen. Je begint met de rekenvolgorde: wat reken je eerst uit? En je leert werken met breuken en met negatieve getallen: optellen, aftrekken, vermenigvuldigen en delen, ook met negatieve breuken. Daarna reken je met procenten: hoeveel procent iets is, met hoeveel procent het is veranderd, en wat er na een of meer veranderingen van over is. Ook reken je terug naar het oude getal of het totaal, en reken je met miljoenen en miljarden.',
     description:
-      'Procenten oefenen: procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis met uitleg, hints en uitwerkingen.',
+      'Rekenen oefenen: rekenvolgorde, breuken, negatieve getallen, procentuele verandering, procent op procent en terugrekenen. Gratis met uitleg.',
     color: 'teal',
-    topics: [procenten, terugrekenen],
+    topics: [
+      rekenvolgorde,
+      breuken,
+      rekenenMetBreuken,
+      negatief,
+      keerDelen,
+      negatieveBreuken,
+      procenten,
+      terugrekenen,
+    ],
   },
   {
     slug: 'rekenen-met-letters',
@@ -158,6 +173,11 @@ const PREREQUISITES = new Map([
   [piramide, [kubusBalk]],
   [veelvlakken, [kubusBalk]],
   [tekenen, [kubusBalk, veelhoeken, cirkel]],
+  [breuken, [rekenvolgorde]],
+  [rekenenMetBreuken, [breuken]],
+  [negatief, [rekenvolgorde]],
+  [keerDelen, [negatief]],
+  [negatieveBreuken, [keerDelen, rekenenMetBreuken]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],
@@ -212,11 +232,12 @@ function laadOnderwerpen(topics) {
 
 // Maakt een vraag van een vraagsoort met een seed, en bewaart die seed in de vraag. Zo is elke
 // vraag precies te herhalen, bijvoorbeeld bij een foutmelding.
-// Een vraag met afronden krijgt na zijn eigen valkuilen ook die voor afronden.
+// Een vraag met afronden krijgt na zijn eigen valkuilen ook die voor afronden, en een vraag met een
+// vorm van een breuk die voor de vorm.
 function makeQuestion(skill, seed = newSeed()) {
   if (!skill.gen) throw new Error(`Vraagsoort ${skill.id} is nog niet geladen.`);
   const q = withSeed(seed, skill.gen);
-  const traps = [...(q.traps ?? []), ...roundTraps(q.fields)];
+  const traps = [...(q.traps ?? []), ...roundTraps(q.fields), ...vormTraps(q.fields)];
   return { ...q, ...(traps.length ? { traps } : {}), seed };
 }
 

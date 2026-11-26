@@ -1,5 +1,5 @@
 // Getal & Ruimte, 13e editie, havo/vwo 1. De koppelingen komen uit de titels en de generatoren.
-// Hoofdstuk 1 is gemaakt met de foto's van het boek erbij, de andere hoofdstukken nog niet. Daarom is alles hier deels gedekt.
+// Hoofdstuk 1 en 2 zijn gemaakt met de foto's van het boek erbij, de andere hoofdstukken nog niet. Daarom is alles hier deels gedekt.
 export default {
   id: 'gr13-hv1',
   slug: 'getal-en-ruimte-13-havo-vwo-1',
@@ -7,7 +7,7 @@ export default {
   edition: 13,
   level: 'havo/vwo',
   year: 1,
-  note: 'Hoofdstuk 1 is gemaakt met dit boek erbij. De andere vragen zijn gemaakt voor havo 3 en nog niet (helemaal) met dit boek vergeleken.',
+  note: 'Hoofdstuk 1 en 2 zijn gemaakt met dit boek erbij. De andere vragen zijn gemaakt voor havo 3 en nog niet (helemaal) met dit boek vergeleken.',
   // De leerboeken komen uit de webshop van Noordhoff, de FLEX-boeken uit de bestandsnamen bij Noordhoff.
   books: [
     {
@@ -93,11 +93,41 @@ export default {
       part: 'deel 1',
       description: 'Rekenen met getallen',
       paragraphs: [
-        ['2.1', 'De rekenbewerkingen en hun volgorde'],
-        ['2.2', 'Rekenen met breuken'],
-        ['2.3', 'Getallen onder nul'],
-        ['2.4', 'Vermenigvuldigen en delen met mintekens'],
-        ['2.5', 'Breuken met een minteken'],
+        [
+          '2.1',
+          'De rekenbewerkingen en hun volgorde',
+          [185, 186, 187, 188, 189, 190],
+          'deels',
+          'Getallenrijen en rekenpuzzels oefen je hier niet.',
+        ],
+        [
+          '2.2',
+          'Rekenen met breuken',
+          [191, 192, 193, 194, 195, 196, 197, 198, 199, 200],
+          'deels',
+          'Puzzels zoals een getallenpiramide met breuken oefen je hier niet.',
+        ],
+        [
+          '2.3',
+          'Getallen onder nul',
+          [201, 202, 203, 204, 205],
+          'deels',
+          'Een pijl tekenen op de getallenlijn kun je hier niet; je leest af en rekent.',
+        ],
+        [
+          '2.4',
+          'Vermenigvuldigen en delen met mintekens',
+          [206, 207, 208, 209, 210],
+          'deels',
+          'Puzzels zoals een getallenpiramide en zelf een berekening maken met gegeven getallen oefen je hier niet.',
+        ],
+        [
+          '2.5',
+          'Breuken met een minteken',
+          [211, 212, 213, 214],
+          'deels',
+          'Puzzels zoals een magisch vierkant oefen je hier niet.',
+        ],
       ],
     },
     {

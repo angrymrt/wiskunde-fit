@@ -138,7 +138,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
   );
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 184);
+  assert.equal(prog.stof.length, 214);
   setStof([]);
 });
 

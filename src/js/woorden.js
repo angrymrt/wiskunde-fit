@@ -3,6 +3,93 @@
 // `onderwerp` is het onderwerp waar de term wordt uitgelegd; zonder onderwerp is de korte uitleg genoeg.
 // De uitleg is in eigen woorden en geeft nooit het antwoord van een vraag.
 export const WOORDEN = {
+  som: {
+    naam: 'som',
+    uitleg: 'De uitkomst van optellen. De getallen die je optelt, heten de termen.',
+    onderwerp: 'rekenvolgorde',
+  },
+  verschil: {
+    naam: 'verschil',
+    uitleg: 'De uitkomst van aftrekken.',
+    onderwerp: 'rekenvolgorde',
+  },
+  product: {
+    naam: 'product',
+    uitleg:
+      'De uitkomst van vermenigvuldigen. De getallen die je vermenigvuldigt, heten de factoren.',
+    onderwerp: 'rekenvolgorde',
+  },
+  quotient: {
+    naam: 'quotiënt',
+    uitleg: 'De uitkomst van delen.',
+    onderwerp: 'rekenvolgorde',
+  },
+  rekenvolgorde: {
+    naam: 'rekenvolgorde',
+    uitleg:
+      'De afspraak over wat je eerst uitrekent: eerst wat tussen haakjes staat, dan vermenigvuldigen en delen, en dan optellen en aftrekken. Bewerkingen met dezelfde voorrang doe je van links naar rechts.',
+    onderwerp: 'rekenvolgorde',
+  },
+  teller: {
+    naam: 'teller',
+    uitleg: 'Het getal boven de streep van een breuk. Het zegt hoeveel delen je neemt.',
+    onderwerp: 'breuken',
+  },
+  noemer: {
+    naam: 'noemer',
+    uitleg:
+      'Het getal onder de streep van een breuk. Het zegt in hoeveel gelijke delen het geheel is verdeeld.',
+    onderwerp: 'breuken',
+  },
+  vereenvoudigen: {
+    naam: 'vereenvoudigen',
+    uitleg:
+      'De teller en de noemer van een breuk door hetzelfde getal delen. De breuk blijft even groot.',
+    onderwerp: 'breuken',
+  },
+  'gemengd-getal': {
+    naam: 'gemengd getal',
+    uitleg: 'Een heel getal met een breuk erachter. Het betekent het hele getal plus de breuk.',
+    onderwerp: 'breuken',
+  },
+  gelijknamig: {
+    naam: 'gelijknamig',
+    uitleg: 'Breuken zijn gelijknamig als ze dezelfde noemer hebben.',
+    onderwerp: 'breuken',
+  },
+  positief: {
+    naam: 'positief getal',
+    uitleg: 'Een getal dat groter is dan 0. Op de getallenlijn staat het rechts van 0.',
+    onderwerp: 'negatieve-getallen',
+  },
+  negatief: {
+    naam: 'negatief getal',
+    uitleg:
+      'Een getal dat kleiner is dan 0, zoals −4. Op de getallenlijn staat het links van 0. Het getal 0 zelf is niet positief en niet negatief.',
+    onderwerp: 'negatieve-getallen',
+  },
+  getallenlijn: {
+    naam: 'getallenlijn',
+    uitleg:
+      'Een lijn met getallen op gelijke afstand van elkaar. Naar rechts worden de getallen groter, naar links kleiner.',
+    onderwerp: 'negatieve-getallen',
+  },
+  aftrekmin: {
+    naam: 'aftrekmin',
+    uitleg: 'De min van aftrekken, zoals in 7 − 2. Hij zegt dat je het getal erachter aftrekt.',
+    onderwerp: 'vermenigvuldigen-en-delen-met-negatieve-getallen',
+  },
+  'negatieve-min': {
+    naam: 'negatieve min',
+    uitleg:
+      'De min van een negatief getal, zoals in −4 of 6 · −4. Hij hoort bij het getal erachter en is iets korter dan de aftrekmin.',
+    onderwerp: 'vermenigvuldigen-en-delen-met-negatieve-getallen',
+  },
+  deelstreep: {
+    naam: 'deelstreep',
+    uitleg: 'De streep van een breuk. Hij betekent delen: de teller gedeeld door de noemer.',
+    onderwerp: 'negatieve-breuken',
+  },
   richtingscoefficient: {
     naam: 'richtingscoëfficiënt',
     uitleg: 'Het getal a in y = ax + b. Het vertelt hoeveel y verandert als x 1 groter wordt.',

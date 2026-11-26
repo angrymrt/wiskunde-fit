@@ -215,6 +215,9 @@ function fr(q) {
   const a = Math.abs(q.n),
     w = Math.floor(a / q.d),
     r = a % q.d;
+  // Een negatieve breuk krijgt de min vóór de breuk, niet in de teller (#256). Bij een gemengd getal
+  // doet T dat zelf.
+  if (q.n < 0 && !w) return `-{${r}/${q.d}}`;
   return `{${q.n < 0 ? '-' : ''}${w ? w + ' ' : ''}${r}/${q.d}}`;
 }
 function lin(a, b, v = 'x') {

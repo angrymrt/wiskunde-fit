@@ -2,6 +2,16 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.24.0
+
+### Nieuw
+
+- **Hoofdstuk 2 van havo/vwo 1: Rekenen met getallen.** Zes nieuwe onderwerpen met 30 soorten vragen: de rekenvolgorde, breuken, rekenen met breuken, negatieve getallen, vermenigvuldigen en delen met negatieve getallen, en negatieve breuken. Bij elk onderwerp staat uitleg, en bij een fout antwoord zie je wat er mis ging.
+- **De vorm van een breuk telt mee.** Een breuk als antwoord moet zo ver mogelijk vereenvoudigd zijn. Vraagt de vraag om een gemengd getal of een onechte breuk, dan moet je hem zo schrijven. Klopt de waarde wel maar de vorm niet, dan zegt de site wat je nog moet doen.
+- **De min zoals in het boek.** Een negatief getal staat zonder haakjes en met een kortere min, zoals in 6 − −5. Zo zie je het verschil met de min van aftrekken. Bij een negatieve breuk staat de min vóór de breuk, niet in de teller.
+- **Getallenlijn en breukfiguren.** Bij negatieve getallen lees je af op een getallenlijn, en bij breuken zie je een figuur die in gelijke delen is verdeeld.
+- **Methode-indeling.** In Getal & Ruimte, 13e editie, havo/vwo 1, staat hoofdstuk 2 nu bij de vragen. Bij elke paragraaf staat wat je hier nog niet kunt oefenen, zoals puzzels als een getallenpiramide.
+
 ## 1.23.1
 
 ### Hersteld

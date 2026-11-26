@@ -44,15 +44,22 @@ const launch = () =>
 // Geeft de juiste antwoorden van een vraag, getypt zoals een leerling dat zou doen. In een groep
 // velden, zoals bij x = −2 ∨ x = 9, staan ze in omgekeerde volgorde: die volgorde moet ook goed zijn.
 const answerOf = `(q) => {
-  const typed = (x) => {
+  // Bij een veld met een vorm (#244) moet het antwoord een breuk zijn, dus zoekt het dan elke noemer
+  // tot 1000, zodat ook 1/18 of 7/45 een breuk blijft. Bij de vorm gemengd haalt het de helen eruit,
+  // zoals 3 1/2 in plaats van 7/2.
+  const alle = Array.from({ length: 999 }, (_, i) => i + 2);
+  const typed = (x, vorm) => {
     if (Number.isInteger(x)) return String(x);
-    for (const n of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
-      const k = x * n;
-      if (Math.abs(k - Math.round(k)) < 1e-7) return Math.round(k) + '/' + n;
+    for (const n of vorm ? alle : [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
+      const k = Math.round(x * n);
+      if (Math.abs(x * n - k) >= 1e-7) continue;
+      const t = Math.abs(k);
+      if (vorm === 'gemengd' && t > n) return (k < 0 ? '-' : '') + Math.floor(t / n) + ' ' + (t % n) + '/' + n;
+      return k + '/' + n;
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {
@@ -3392,9 +3399,11 @@ test(
 // (nu 10 kB zelf), die dus ruimer is dan voorheen; een eigen soort grens volgt als die gaat groeien.
 const LIMITS = {
   // De pagina Cijfers noemt alle vraagsoorten (#232: 184). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 7,2 kB, dus de grens ging van 7 naar 7,5.
-  page: { sent: 7.5, why: 'een vooraf gebouwde pagina' },
+  // Rekenvolgorde en Breuken (#244) voegden er tien aan toe: 7,52 kB, dus de grens ging van 7,5 naar 8.
+  page: { sent: 8, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 184 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
-  lijst: { sent: 10.5, why: 'de pagina met alle vraagsoorten' },
+  // Rekenen met breuken (#244) voegde er zes toe (nu 200 vraagsoorten): 10,6 kB, dus de grens ging van 10,5 naar 11.
+  lijst: { sent: 11, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
   // Hoofdstuk 1 van havo/vwo 1 (#232) voegde vier onderwerpen met 19 vraagsoorten toe. Van elk onderwerp staat de
@@ -3402,7 +3411,15 @@ const LIMITS = {
   // en 0,3 kB verstuurd. Laag 3 voegde er vijf toe (nu 9 onderwerpen). De grens ging van 53 naar 55, en onverpakt van 133 naar 139 kB.
   // Kleiner maken kan met #206 (de catalogus niet meer bij het eerste bezoek laden).
   // De methode-indeling van hoofdstuk 1 (#232) staat bij het eerste bezoek in de code: 139,7 kB onverpakt, dus de grens ging van 139 naar 140 kB.
-  start: { sent: 55, own: 140, why: 'de code bij het eerste bezoek' },
+  // Het nakijken van de vorm van een breuk (#244, vormTraps in answers.js) voegde 0,8 kB verstuurd toe: 55,4 kB, dus de grens ging van 55 naar 56, en onverpakt (142 kB) van 140 naar 143 kB.
+  // Breuken (#244) zette de catalogus van een onderwerp en vijf woorden (teller, noemer, vereenvoudigen, gemengd getal,
+  // gelijknamig) in de code bij het eerste bezoek: 56,04 kB verstuurd en 143,5 kB onverpakt, dus de grens ging van 56 naar 57, en onverpakt van 143 naar 145 kB.
+  // Negatieve getallen en Vermenigvuldigen en delen met negatieve getallen (#244) zetten hun catalogus en vijf woorden
+  // (onder meer getallenlijn, aftrekmin en negatieve min) in de code bij het eerste bezoek: 145,6 kB onverpakt en 56,7 kB verstuurd,
+  // dus de grens onverpakt ging van 145 naar 146 kB. narekenen en tekst in topics/shared.js laden alleen bij een onderwerp.
+  // Met alle zes onderwerpen van hoofdstuk 2 (#244) in de catalogus is het eerste bezoek 57,0 kB verstuurd, dus de grens ging van 57 naar 58.
+  // Met het hele hoofdstuk 2 (#244) is de code bij het eerste bezoek 146,7 kB onverpakt, dus die grens ging van 146 naar 148 kB.
+  start: { sent: 58, own: 148, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
@@ -3417,7 +3434,12 @@ const LIMITS = {
   // onderwerpen, niet bij het eerste bezoek. De grens ging van 16 naar 17 en van 44 naar 48 kB.
   // Laag 3 van #232 zette gedeelde figuurcode in topics/shared.js: 17,0 kB verstuurd, dus de grens ging van 17 naar 17,5, en onverpakt van 48 naar 49 kB.
   // De tekenopdrachten en de methode-indeling (#232) brachten het gedeelde bestand op 17,5 kB verstuurd en 49,6 kB onverpakt, dus de grens ging van 17,5 naar 18 en van 49 naar 50 kB.
-  shared: { sent: 18, own: 50, why: 'een gedeeld codebestand' },
+  // Het nakijken van de vorm van een breuk (#244) staat in het gedeelde bestand met answers.js: 18,2 kB verstuurd en 51,6 kB onverpakt, dus de grens ging van 18 naar 18,5 en van 50 naar 52 kB.
+  // De woorden van Rekenvolgorde (#244: som, verschil, product, quotiënt en rekenvolgorde) staan in woorden.js in hetzelfde bestand: 52,2 kB onverpakt, dus de grens ging van 52 naar 53 kB.
+  // De woorden van Breuken (#244: teller, noemer, vereenvoudigen, gemengd getal en gelijknamig) brachten het op 18,77 kB verstuurd en 53,06 kB onverpakt, dus de grens ging van 18,5 naar 19 en van 53 naar 54 kB.
+  // De woorden van Negatieve getallen (#244: positief, negatief, getallenlijn) brachten het op 19,1 kB verstuurd. De rest van hoofdstuk 2 voegt nog woorden toe (aftrekmin, negatieve min), dus de grens ging in één keer van 19 naar 20 en van 54 naar 56 kB. Kleiner maken kan met #206.
+  // Met alle woorden van hoofdstuk 2 (#244) is het gedeelde bestand 56,1 kB onverpakt, dus de grens ging van 56 naar 57 kB.
+  shared: { sent: 20, own: 57, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
   // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
   css: { sent: 10.5, why: 'de CSS' },

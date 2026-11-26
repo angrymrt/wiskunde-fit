@@ -759,6 +759,135 @@
     "184": {
       "aantal": 5360,
       "exact": true
+    },
+    "185": {
+      "aantal": 23170,
+      "exact": true
+    },
+    "186": {
+      "aantal": 22141,
+      "exact": true
+    },
+    "187": {
+      "aantal": 498357,
+      "exact": true
+    },
+    "188": {
+      "aantal": 243274,
+      "exact": true
+    },
+    "189": {
+      "aantal": 632883,
+      "ondergrens": true,
+      "exact": false
+    },
+    "190": {
+      "aantal": 141714,
+      "exact": true
+    },
+    "191": {
+      "aantal": 65675,
+      "ondergrens": true,
+      "exact": false
+    },
+    "192": {
+      "aantal": 1173,
+      "exact": true
+    },
+    "193": {
+      "aantal": 724,
+      "exact": true
+    },
+    "194": {
+      "aantal": 13820,
+      "exact": true
+    },
+    "195": {
+      "aantal": 7034,
+      "exact": true
+    },
+    "196": {
+      "aantal": 15384,
+      "exact": true
+    },
+    "197": {
+      "aantal": 20006,
+      "exact": true
+    },
+    "198": {
+      "aantal": 2559,
+      "exact": true
+    },
+    "199": {
+      "aantal": 6849,
+      "exact": true
+    },
+    "200": {
+      "aantal": 31859,
+      "exact": true
+    },
+    "201": {
+      "aantal": 17686,
+      "exact": true
+    },
+    "202": {
+      "aantal": 2021562,
+      "ondergrens": true,
+      "exact": false
+    },
+    "203": {
+      "aantal": 2049,
+      "exact": true
+    },
+    "204": {
+      "aantal": 3453,
+      "ondergrens": true,
+      "exact": false
+    },
+    "205": {
+      "aantal": 147510,
+      "exact": true
+    },
+    "206": {
+      "aantal": 7663,
+      "ondergrens": true,
+      "exact": false
+    },
+    "207": {
+      "aantal": 16742927,
+      "ondergrens": true,
+      "exact": false
+    },
+    "208": {
+      "aantal": 896,
+      "ondergrens": true,
+      "exact": false
+    },
+    "209": {
+      "aantal": 463862,
+      "ondergrens": true,
+      "exact": false
+    },
+    "210": {
+      "aantal": 1320,
+      "exact": true
+    },
+    "211": {
+      "aantal": 1177889,
+      "ondergrens": true,
+      "exact": false
+    },
+    "212": {
+      "aantal": 3864,
+      "exact": true
+    },
+    "213": {
+      "aantal": 43068,
+      "exact": true
+    },
+    "214": {
+      "aantal": 11670,
+      "exact": true
     }
   }
 }

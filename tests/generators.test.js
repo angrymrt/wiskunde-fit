@@ -5,16 +5,20 @@ import assert from 'node:assert/strict';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
 import { flipTrap, orFields, MC } from '../src/js/topics/shared.js';
 import { chart, drawnHTML, graph } from '../src/js/figures.js';
-import { near, parseSeed, rd, seedText } from '../src/js/math.js';
+import { fr, near, parseSeed, Q, rd, seedText } from '../src/js/math.js';
 import {
   checkAnswer,
   checkField,
   fillState,
   findTrap,
+  fmtAns,
   isDrawing,
   matchFields,
   parseNum,
   roundTraps,
+  vormFout,
+  vormTraps,
+  VORMEN,
 } from '../src/js/answers.js';
 import { cleanProgress, migrateIds, migrateSkills } from '../src/js/progress.js';
 import { VALKUIL_ID } from '../src/js/tel.js';
@@ -23,12 +27,20 @@ import KNOWN_IDS from './vraagsoort-ids.js';
 
 const ROUNDS = Number(process.env.QUESTIONS) || 500;
 
-// Schrijft een antwoord zoals een leerling het zou intypen.
-function typed(x) {
+// Schrijft een antwoord zoals een leerling het zou intypen. Bij een veld met de vorm gemengd als
+// gemengd getal, zoals 3 1/2, en anders als vereenvoudigde breuk (#244). Bij een vorm zoekt het de
+// kleinste noemer tot 1000, zodat ook 1/20, 1/14 en 7/24 vereenvoudigd en als breuk staan.
+const NOEMERS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40],
+  ALLE_NOEMERS = Array.from({ length: 999 }, (_, i) => i + 2);
+function typed(x, vorm) {
   if (Number.isInteger(x)) return String(x);
-  for (const den of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 24, 25, 40]) {
-    const n = x * den;
-    if (Math.abs(n - Math.round(n)) < 1e-7) return `${Math.round(n)}/${den}`;
+  for (const den of vorm ? ALLE_NOEMERS : NOEMERS) {
+    const n = Math.round(x * den);
+    if (Math.abs(x * den - n) >= 1e-7) continue;
+    const a = Math.abs(n),
+      heel = Math.floor(a / den);
+    if (vorm === 'gemengd' && heel) return `${n < 0 ? '-' : ''}${heel} ${a % den}/${den}`;
+    return `${n}/${den}`;
   }
   return String(x).replace('.', ',');
 }
@@ -132,8 +144,10 @@ function assertSound(q) {
     return;
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
-  for (const f of q.fields)
+  for (const f of q.fields) {
     if (!f.sel && !f.teken) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+    if (f.vorm != null) assert.ok(VORMEN.includes(f.vorm), `onbekende vorm ${f.vorm}: ${q.q}`);
+  }
   // Een tekening (q.teken) heeft één veld, met een goede tekening als tekst. Zonder het laatste deel is die
   // niet af of fout.
   if (q.teken) {
@@ -158,7 +172,7 @@ function assertSound(q) {
     assert.ok(size >= 2 && size <= 4, `groep met ${size} velden: ${q.q}`);
   }
   const right = q.fields.map((f) =>
-    f.sel ? f.a : f.round != null ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a),
+    f.sel ? f.a : f.round != null ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm),
   );
   // Bij een groep velden in elke volgorde.
   for (const r of rightOrders(q.fields, right)) {
@@ -1070,6 +1084,258 @@ test('een vraag met afronden heeft valkuilen voor te veel decimalen en verkeerd 
   assert.deepEqual(roundTraps([{ a: 3 }]), []);
 });
 
+test('een veld met een vorm keurt alleen de goede vorm van een breuk goed (#244)', () => {
+  const veld = (a, vorm) => ({ pre: '', a, vorm });
+  const goed = (a, vorm, raw) => checkField(veld(a, vorm), raw);
+  // vereenvoudigd: een onechte breuk en een gemengd getal zijn allebei goed.
+  for (const raw of ['7/2', '3 1/2', ' 3  1/2 ']) assert.ok(goed(3.5, 'vereenvoudigd', raw), raw);
+  for (const raw of ['14/4', '1 5/2', '2 3/2', '2 2/4', '3,5', '3.5', '0 7/2'])
+    assert.ok(!goed(3.5, 'vereenvoudigd', raw), raw);
+  // Een heel getal staat zonder breuk.
+  assert.ok(goed(4, 'vereenvoudigd', '4'));
+  for (const raw of ['4/1', '8/2', '3 2/2', '4,0']) assert.ok(!goed(4, 'vereenvoudigd', raw), raw);
+  // Een echte breuk kan niet anders.
+  assert.ok(goed(0.75, 'gemengd', '3/4') && goed(0.75, 'onecht', '3/4'));
+  assert.ok(!goed(0.75, 'gemengd', '6/8') && !goed(0.75, 'gemengd', '0 3/4'));
+  // gemengd: helen eruit halen. onecht: helen binnen de breuk brengen.
+  assert.ok(goed(3.5, 'gemengd', '3 1/2') && !goed(3.5, 'gemengd', '7/2'));
+  assert.ok(goed(3.5, 'onecht', '7/2') && !goed(3.5, 'onecht', '3 1/2'));
+  // Negatief werkt zoals in parseNum, met elk minteken.
+  assert.ok(goed(-0.75, 'vereenvoudigd', '-3/4') && goed(-0.75, 'vereenvoudigd', '−3/4'));
+  assert.ok(goed(-1.5, 'gemengd', '-1 1/2') && !goed(-1.5, 'gemengd', '-3/2'));
+  assert.ok(goed(-1.5, 'onecht', '-3/2') && !goed(-1.5, 'onecht', '-1 1/2'));
+  // Een foute waarde blijft fout, ook in de goede vorm.
+  assert.ok(!goed(3.5, 'vereenvoudigd', '5/2'));
+  // Zonder vorm verandert er niets: 14/4 en 3,5 zijn goed, zoals altijd.
+  for (const raw of ['14/4', '3,5', '7/2', '3 1/2']) assert.ok(checkField({ a: 3.5 }, raw), raw);
+
+  // Elke vormfout heeft een eigen valkuil. Een kommagetal is fout, want de vraag vraagt om een breuk.
+  const cases = [
+    ['vereenvoudigd', 3.5, '14/4', 'breuk-niet-vereenvoudigd'],
+    ['vereenvoudigd', 3.5, '2 6/4', 'breuk-niet-vereenvoudigd'],
+    ['vereenvoudigd', 4, '8/2', 'heel-getal-als-breuk'],
+    ['vereenvoudigd', 4, '4/1', 'heel-getal-als-breuk'],
+    ['vereenvoudigd', 3.5, '2 3/2', 'gemengd-getal-te-grote-breuk'],
+    ['vereenvoudigd', 3.5, '3,5', 'kommagetal-bij-breuk'],
+    ['vereenvoudigd', 0.5, '0 1/2', 'nul-helen'],
+    ['gemengd', 3.5, '7/2', 'helen-niet-eruit'],
+    ['gemengd', -3.5, '-7/2', 'helen-niet-eruit'],
+    ['gemengd', 3.5, '2 3/2', 'gemengd-getal-te-grote-breuk'],
+    ['onecht', 3.5, '3 1/2', 'helen-niet-binnen-de-breuk'],
+    ['onecht', 3.5, '2 3/2', 'helen-niet-binnen-de-breuk'],
+  ];
+  for (const [vorm, a, raw, id] of cases) {
+    const f = veld(a, vorm),
+      q = { fields: [f], traps: vormTraps([f]) };
+    assert.equal(vormFout(vorm, raw), id, raw);
+    assert.equal(findTrap(q, [raw])?.id, id, raw);
+    // De melding verklapt het antwoord niet.
+    assert.ok(!/\d/.test(findTrap(q, [raw]).m.replace(/\b[01]\b/g, '')), findTrap(q, [raw]).m);
+  }
+  // Het goede antwoord en een foute waarde vallen in geen van deze valkuilen.
+  const f = veld(3.5, 'gemengd'),
+    q = { fields: [f], traps: vormTraps([f]) };
+  for (const raw of ['3 1/2', '5/2', '2 1/2', '', 'abc'])
+    assert.equal(findTrap(q, [raw]), null, raw);
+  // "Je antwoord klopt" geldt pas als ook de andere velden goed zijn.
+  const twee = { fields: [f, { a: 2 }], traps: vormTraps([f, { a: 2 }]) };
+  assert.equal(findTrap(twee, ['7/2', '2'])?.id, 'helen-niet-eruit');
+  assert.equal(findTrap(twee, ['7/2', '3']), null);
+  assert.ok(!checkAnswer(twee, ['7/2', '2']).ok && checkAnswer(twee, ['3 1/2', '2']).ok);
+  // In een groep hoort elk getal bij een ander antwoord. Twee keer 14/4 bij 7/2 en 5/2 is niet goed,
+  // dus geen "Je antwoord klopt". In een andere volgorde of met één vormfout wel.
+  const groep = [
+    { ...veld(3.5, 'vereenvoudigd'), grp: 0 },
+    { ...veld(2.5, 'vereenvoudigd'), grp: 0 },
+  ];
+  const gq = { fields: groep, traps: vormTraps(groep) };
+  assert.equal(findTrap(gq, ['14/4', '14/4']), null);
+  assert.equal(findTrap(gq, ['10/4', '14/4'])?.id, 'breuk-niet-vereenvoudigd');
+  assert.equal(findTrap(gq, ['5/2', '14/4'])?.id, 'breuk-niet-vereenvoudigd');
+  assert.equal(findTrap(gq, ['5/2', '7/2']), null);
+  // Ook een breuk met een grote noemer typt de test goed in de vereiste vorm.
+  for (const [a, vorm, raw] of [
+    [1 / 20, 'vereenvoudigd', '1/20'],
+    [1 / 14, 'gemengd', '1/14'],
+    [7 / 24, 'onecht', '7/24'],
+    [-31 / 24, 'gemengd', '-1 7/24'],
+  ]) {
+    assert.equal(typed(a, vorm), raw);
+    assert.ok(goed(a, vorm, raw), raw);
+  }
+  // Bij een heel getal als antwoord noemt de melding over de komma geen breuk.
+  assert.match(vormTraps([veld(4, 'vereenvoudigd')])[0].m, /zonder komma/);
+  assert.match(vormTraps([veld(3.5, 'vereenvoudigd')])[0].m, /als breuk/);
+  // Een vraag zonder vorm krijgt deze valkuilen niet.
+  assert.deepEqual(vormTraps([{ a: 3.5 }]), []);
+  // Een bewaarde proeftoets (JSON) kijkt de vorm nog na.
+  assert.ok(!checkAnswer(JSON.parse(JSON.stringify(q)), ['7/2']).ok);
+});
+
+// Uit de review van #244: wie bij twee breuken alleen de tellers vergelijkt, valt in de valkuil
+// alleen-tellers-vergeleken. Het goede teken valt nooit in een valkuil.
+test('Welke breuk is groter herkent wie alleen de tellers vergelijkt (#244)', () => {
+  const topic = TOPICS.find((t) => t.slug === 'breuken'),
+    skill = topic.skills.find((k) => k.id === 194);
+  const teken = (x, y) => (x < y ? '<' : x > y ? '>' : '=');
+  const breuk = (s) => s.match(/^\{(\d+)\/(\d+)\}$/);
+  let gevallen = 0;
+  eachQuestion(topic, skill, (q) => {
+    const f = q.fields[0];
+    assert.equal(findTrap(q, [f.a]), null, q.q);
+    const [l, r] = [breuk(f.pre), breuk(f.post)];
+    if (!l || !r || l[2] === r[2] || l[1] === r[1]) return;
+    const viaTeller = teken(+l[1], +r[1]);
+    if (viaTeller === f.a) return;
+    const trap = findTrap(q, [viaTeller]);
+    assert.equal(trap?.id, 'alleen-tellers-vergeleken', q.q);
+    assert.match(trap.m, /tellers/);
+    gevallen++;
+  });
+  assert.ok(gevallen > 20, `genoeg vragen waar je alleen de tellers kunt vergelijken: ${gevallen}`);
+});
+
+// Elke valkuil van Negatieve getallen kan afgaan: bij een of meer vragen is er een fout antwoord
+// in één veld dat erin valt, terwijl de andere velden goed zijn. Dat het goede antwoord nooit in
+// een valkuil valt, kijkt assertSound al na (#244).
+test('elke valkuil van Negatieve getallen kan afgaan (#244)', () => {
+  const VERWACHT = {
+    201: ['minteken-vergeten', 'breuk-de-verkeerde-kant-op', 'verkeerde-kant-op-geteld'],
+    202: ['zonder-minteken-vergeleken', 'kleiner-en-groter-verwisseld', 'van-groot-naar-klein'],
+    203: [
+      'verkeerde-kant-op',
+      'minteken-vergeten',
+      'verschil-zonder-minteken',
+      'verschil-negatief',
+    ],
+    204: [
+      'plus-min-als-plus',
+      'min-min-als-min',
+      'negatief-min-getal-als-verschil',
+      'pijl-verkeerde-kant',
+      'minteken-vergeten',
+    ],
+    205: [
+      'haakjes-genegeerd',
+      'plus-min-als-plus',
+      'min-min-als-min',
+      'negatief-min-getal-als-verschil',
+      'pijl-verkeerde-kant',
+      'minteken-vergeten',
+    ],
+  };
+  // Gehele getallen en breuken met noemer 12, als tekst zoals een leerling ze typt.
+  const getallen = [
+    ...Array.from({ length: 161 }, (_, i) => String(i - 80)),
+    ...Array.from({ length: 289 }, (_, i) => i - 144)
+      .filter((k) => k % 12)
+      .map((k) => `${k < 0 ? '-' : ''}${Math.abs(k)}/12`),
+  ];
+  const skills = TOPICS.flatMap((t) => t.skills);
+  for (const [id, ids] of Object.entries(VERWACHT)) {
+    const skill = skills.find((k) => k.id === +id),
+      af = new Set();
+    for (let seed = 1; seed <= 150; seed++) {
+      const q = makeQuestion(skill, seed * 7919);
+      if (q.mc) {
+        q.mc.opts.forEach((_, i) => af.add(findTrap(q, [String(i)])?.id));
+        continue;
+      }
+      const goed = q.fields.map((f) => (f.sel ? f.a : typed(f.a, f.vorm)));
+      q.fields.forEach((f, i) => {
+        for (const x of f.sel || getallen) {
+          const vals = [...goed];
+          vals[i] = x;
+          if (!checkAnswer(q, vals).ok) af.add(findTrap(q, vals)?.id);
+        }
+      });
+    }
+    for (const t of ids) assert.ok(af.has(t), `vraagsoort ${id}: de valkuil ${t} gaat nooit af`);
+  }
+});
+
+// Bij 201 met hele getallen telt de uitwerking vanaf een getal onder de lijn. Dat getal moet echt
+// in de figuur staan, en de valkuil verkeerde-kant-op-geteld moet de streepjes vanaf dat getal de
+// verkeerde kant op tellen (#244).
+test('201 telt vanaf een getal dat onder de lijn staat (#244)', () => {
+  const skill = TOPICS.flatMap((t) => t.skills).find((k) => k.id === 201);
+  let geteld = 0,
+    fout = 0;
+  for (let seed = 1; seed <= 3000; seed++) {
+    const q = makeQuestion(skill, seed),
+      labels = [...q.fig.matchAll(/<text class="tn"[^>]*>([^<]+)<\/text>/g)].map(
+        (m) => +m[1].replace('−', '-'),
+      );
+    // Alleen de lijn met hele getallen; bij breuken staat de stap in de eerste zin.
+    if (q.steps[0] !== 'Van streepje naar streepje is 1.') continue;
+    q.steps.forEach((s) => {
+      // Bij aflezen 'A staat 2 streepjes links van -10, dus bij -12.', bij kiezen '-12 staat 2
+      // streepjes links van -10.'
+      const m = s.match(
+        /^(\S+) staat (\d+) streepjes? (links|rechts) van (-?\d+)(?:, dus bij (-?\d+))?\.$/,
+      );
+      if (!m) return;
+      const [, naam, k, kant, L, n = naam] = m;
+      assert.ok(labels.includes(+L), `seed ${seed}: ${L} staat niet onder de lijn (${labels})`);
+      assert.equal(+n, +L + (kant === 'links' ? -k : +k), s);
+      geteld++;
+      // De fout: dezelfde streepjes de andere kant op. Bij 0 is dat het getal zonder minteken, en
+      // dat vangt een andere valkuil.
+      if (q.fields[0].sel || +n >= 0 || +L === 0) return;
+      const i = ['A', 'B'].indexOf(naam),
+        vals = q.fields.map((f) => String(f.a));
+      vals[i] = String(2 * +L - +n);
+      assert.equal(findTrap(q, vals)?.id, 'verkeerde-kant-op-geteld', `seed ${seed}: ${s}`);
+      fout++;
+    });
+  }
+  assert.ok(geteld > 500 && fout > 100, `genoeg uitwerkingen: ${geteld}, ${fout}`);
+});
+
+// Elke valkuil van Vermenigvuldigen en delen met negatieve getallen kan afgaan, net als hierboven.
+// Dat het goede antwoord nooit in een valkuil valt, kijkt assertSound na (#244).
+test('elke valkuil van Vermenigvuldigen en delen met negatieve getallen kan afgaan (#244)', () => {
+  const VERWACHT = {
+    206: [
+      'product-met-nul',
+      'min-keer-min-is-min',
+      'minteken-vergeten',
+      'mintekens-verkeerd-geteld',
+    ],
+    207: ['mintekens-verkeerd-geteld', 'nul-vergeten'],
+    208: ['nul-gedeeld-door-getal', 'min-gedeeld-door-min-is-min', 'minteken-vergeten'],
+    209: [
+      'haakjes-genegeerd',
+      'zonder-voorrang',
+      'min-keer-min-is-min',
+      'min-gedeeld-door-min-is-min',
+      'min-min-als-min',
+      'keerregel-bij-aftrekken',
+      'negatief-min-getal-als-verschil',
+      'minteken-vergeten',
+    ],
+    210: ['teken-omgedraaid', 'verkeerd-teruggerekend'],
+  };
+  const getallen = Array.from({ length: 401 }, (_, i) => String(i - 200));
+  const skills = TOPICS.flatMap((t) => t.skills);
+  for (const [id, ids] of Object.entries(VERWACHT)) {
+    const skill = skills.find((k) => k.id === +id),
+      af = new Set();
+    for (let seed = 1; seed <= 200; seed++) {
+      const q = makeQuestion(skill, seed * 7919);
+      const goed = q.fields.map((f) => (f.sel ? f.a : typed(f.a, f.vorm)));
+      q.fields.forEach((f, i) => {
+        for (const x of f.sel || getallen) {
+          const vals = [...goed];
+          vals[i] = x;
+          if (!checkAnswer(q, vals).ok) af.add(findTrap(q, vals)?.id);
+        }
+      });
+    }
+    for (const t of ids) assert.ok(af.has(t), `vraagsoort ${id}: de valkuil ${t} gaat nooit af`);
+  }
+});
+
 test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
   const skills = TOPICS.flatMap((t) => t.skills);
   const make = (test) =>
@@ -1114,7 +1380,52 @@ test('T zet wiskunde goed om', () => {
   assert.equal(T('F-hoeken'), 'F-hoeken');
   assert.equal(T('x_top'), '<span class="v">x</span><sub>top</sub>');
   assert.equal(T('y_top'), '<span class="v">y</span><sub>top</sub>');
-  assert.equal(T('x = -2 ∨ x = 9'), '<span class="v">x</span> = −2 ∨ <span class="v">x</span> = 9');
+  const neg = (x) => `<span class="negatief"><span class="nmin">−</span>${x}</span>`;
+  assert.equal(
+    T('x = -2 ∨ x = 9'),
+    `<span class="v">x</span> = ${neg(2)} ∨ <span class="v">x</span> = 9`,
+  );
+});
+
+test('T zet een negatieve min korter dan een aftrekmin', () => {
+  // De negatieve min: hetzelfde teken (U+2212), zodat een schermlezer "min" zegt, maar met een
+  // klasse die hem korter maakt. Met het getal erachter in .negatief, zodat de regel niet afbreekt.
+  const neg = (x) => `<span class="negatief"><span class="nmin">−</span>${x}</span>`;
+  const v = (x) => `<span class="v">${x}</span>`;
+  assert.equal(T('5 - 3 * -2'), `5 − 3 · ${neg(2)}`);
+  assert.equal(T('8 - -3'), `8 − ${neg(3)}`);
+  assert.equal(T('-4 * 6'), `${neg(4)} · 6`);
+  assert.equal(T('12 : -4'), `12 : ${neg(4)}`);
+  assert.equal(T('8*-4'), `8·${neg(4)}`);
+  assert.equal(T('(-3)^2'), `(${neg(3)})<sup>2</sup>`);
+  assert.equal(T('-x^2'), `${neg(v('x'))}<sup>2</sup>`);
+  assert.equal(T('y = -2x + 1'), `${v('y')} = ${neg(2)}${v('x')} + 1`);
+  assert.equal(T('f(-1,5)'), `${v('f')}(${neg('1,5')})`);
+  // Een negatieve breuk en een negatief gemengd getal: de min staat voor de breuk.
+  assert.match(
+    T('-{3/4}'),
+    /^<span class="negatief"><span class="nmin">−<\/span><span class="f">.*<\/span><\/span>$/,
+  );
+  // fr geeft een negatieve breuk met de min vóór de breuk (#256). Met {-a/b} kun je de min met
+  // opzet in de teller zetten, zoals in de uitleg van Negatieve breuken.
+  assert.equal(fr(Q(-3, 4)), '-{3/4}');
+  assert.equal(fr(Q(-7, 3)), '{-2 1/3}');
+  assert.equal(fr(Q(3, 4)), '{3/4}');
+  assert.match(T('{-3/4}'), /^<span class="f"><span><span class="negatief">/);
+  assert.equal(
+    T('{-2 1/3}'),
+    `<span class="negatief"><span class="nmin">−</span>2<span class="f"><span>1</span><span>3</span></span></span>`,
+  );
+  // Een aftrekmin heeft spaties eromheen, of staat tussen twee getallen of letters.
+  assert.equal(T('x - 3'), `${v('x')} − 3`);
+  assert.equal(T('7-2'), '7−2');
+  assert.equal(T('a - b'), `${v('a')} − ${v('b')}`);
+  assert.equal(T('5 -'), '5 −');
+  // Een koppelteken tussen woorden blijft staan.
+  assert.equal(T('de x-as'), `de ${v('x')}-as`);
+  assert.equal(T('F-hoeken'), 'F-hoeken');
+  // De tekst blijft voor een schermlezer en bij kopiëren gewoon "−3".
+  assert.equal(T('8 - -3').replace(/<[^>]+>/g, ''), '8 − −3');
 });
 
 test('graph met coords: false noemt geen coördinaten en geen punten op een lijn', () => {
@@ -1143,4 +1454,17 @@ test('de beschrijving van aflees-figuren verklapt het antwoord niet', () => {
         label = q.fig.match(/aria-label="([^"]*)"/)[1];
       assert.doesNotMatch(label, lek, `vraagsoort ${id}, seed ${seed}: ${label}`);
     }
+});
+
+// Bij een veld met een vorm staat het goede antwoord in de uitslag als breuk, in die vorm, ook bij
+// een noemer als 24 of 14. Een kommagetal zou daar fout zijn (#244).
+test('de uitslag toont het antwoord bij een vorm als breuk, ook bij een grote noemer', () => {
+  assert.equal(fmtAns(19 / 24, 'vereenvoudigd'), '{19/24}');
+  assert.equal(fmtAns(3 / 14, 'gemengd'), '{3/14}');
+  assert.equal(fmtAns(43 / 20, 'gemengd'), '{2 3/20}');
+  assert.equal(fmtAns(-43 / 20, 'onecht'), '-{43/20}');
+  assert.equal(fmtAns(5 / 18, 'onecht'), '{5/18}');
+  // Zonder vorm blijft het zoals het was.
+  assert.equal(fmtAns(19 / 24), '0,79');
+  assert.equal(fmtAns(3.5), '3,5');
 });
