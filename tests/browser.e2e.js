@@ -3422,7 +3422,8 @@ const LIMITS = {
   // Het nakijken van de vorm van een breuk (#244) staat in het gedeelde bestand met answers.js: 18,2 kB verstuurd en 51,6 kB onverpakt, dus de grens ging van 18 naar 18,5 en van 50 naar 52 kB.
   // De woorden van Rekenvolgorde (#244: som, verschil, product, quotiënt en rekenvolgorde) staan in woorden.js in hetzelfde bestand: 52,2 kB onverpakt, dus de grens ging van 52 naar 53 kB.
   // De woorden van Breuken (#244: teller, noemer, vereenvoudigen, gemengd getal en gelijknamig) brachten het op 18,77 kB verstuurd en 53,06 kB onverpakt, dus de grens ging van 18,5 naar 19 en van 53 naar 54 kB.
-  shared: { sent: 19, own: 54, why: 'een gedeeld codebestand' },
+  // De woorden van Negatieve getallen (#244: positief, negatief, getallenlijn) brachten het op 19,1 kB verstuurd. De rest van hoofdstuk 2 voegt nog woorden toe (aftrekmin, negatieve min), dus de grens ging in één keer van 19 naar 20 en van 54 naar 56 kB. Kleiner maken kan met #206.
+  shared: { sent: 20, own: 56, why: 'een gedeeld codebestand' },
   // De Rekenhulp (#18) voegde 0,7 kB toe aan de CSS, die voor het paneel bij elk bezoek wordt geladen. De grens ging van 8,5 naar 9,5.
   // Het volledig-schermmodus op een telefoon (#222) voegde 0,9 kB toe aan de CSS. De grens ging van 9,5 naar 10,5.
   css: { sent: 10.5, why: 'de CSS' },
