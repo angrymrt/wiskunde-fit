@@ -1254,6 +1254,44 @@ test('elke valkuil van Negatieve getallen kan afgaan (#244)', () => {
   }
 });
 
+// Bij 201 met hele getallen telt de uitwerking vanaf een getal onder de lijn. Dat getal moet echt
+// in de figuur staan, en de valkuil verkeerde-kant-op-geteld moet de streepjes vanaf dat getal de
+// verkeerde kant op tellen (#244).
+test('201 telt vanaf een getal dat onder de lijn staat (#244)', () => {
+  const skill = TOPICS.flatMap((t) => t.skills).find((k) => k.id === 201);
+  let geteld = 0,
+    fout = 0;
+  for (let seed = 1; seed <= 3000; seed++) {
+    const q = makeQuestion(skill, seed),
+      labels = [...q.fig.matchAll(/<text class="tn"[^>]*>([^<]+)<\/text>/g)].map(
+        (m) => +m[1].replace('−', '-'),
+      );
+    // Alleen de lijn met hele getallen; bij breuken staat de stap in de eerste zin.
+    if (q.steps[0] !== 'Van streepje naar streepje is 1.') continue;
+    q.steps.forEach((s) => {
+      // Bij aflezen 'A staat 2 streepjes links van -10, dus bij -12.', bij kiezen '-12 staat 2
+      // streepjes links van -10.'
+      const m = s.match(
+        /^(\S+) staat (\d+) streepjes? (links|rechts) van (-?\d+)(?:, dus bij (-?\d+))?\.$/,
+      );
+      if (!m) return;
+      const [, naam, k, kant, L, n = naam] = m;
+      assert.ok(labels.includes(+L), `seed ${seed}: ${L} staat niet onder de lijn (${labels})`);
+      assert.equal(+n, +L + (kant === 'links' ? -k : +k), s);
+      geteld++;
+      // De fout: dezelfde streepjes de andere kant op. Bij 0 is dat het getal zonder minteken, en
+      // dat vangt een andere valkuil.
+      if (q.fields[0].sel || +n >= 0 || +L === 0) return;
+      const i = ['A', 'B'].indexOf(naam),
+        vals = q.fields.map((f) => String(f.a));
+      vals[i] = String(2 * +L - +n);
+      assert.equal(findTrap(q, vals)?.id, 'verkeerde-kant-op-geteld', `seed ${seed}: ${s}`);
+      fout++;
+    });
+  }
+  assert.ok(geteld > 500 && fout > 100, `genoeg uitwerkingen: ${geteld}, ${fout}`);
+});
+
 test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
   const skills = TOPICS.flatMap((t) => t.skills);
   const make = (test) =>

@@ -1,6 +1,6 @@
 // Onderwerp: Negatieve getallen. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 // Getallen kleiner dan 0 op de getallenlijn, vergelijken, temperaturen, en optellen en aftrekken.
-// Een negatief getal staat zonder haakjes, zoals in het boek: 8 - -3. Haakjes staan alleen om een
+// Een negatief getal staat zonder haakjes, zoals 6 - -5. Haakjes staan alleen om een
 // deelberekening. Alleen gehele getallen, behalve bij de getallenlijn en het vergelijken.
 // Vermenigvuldigen en delen met negatieve getallen staat in een eigen onderwerp.
 import { ri, nz, pick, coin, shuffle, gcd, lcm, Q, near, until } from '../math.js';
@@ -68,12 +68,21 @@ function magPunt({ lo, hi, d }, n) {
   if (d === 1) return n % 5 !== 0;
   return n % d !== 0 && (d !== 2 || Math.abs(n) % 2 === 1);
 }
+// Bij 'heel' het getal onder de lijn waar je vanaf telt: het vijfvoud dat het dichtst bij n ligt en
+// dat echt op de lijn staat. Ligt het dichtstbijzijnde vijfvoud buiten de lijn, dan het volgende.
+function vanaf({ lo, hi }, n) {
+  let L = Math.round(n / 5) * 5;
+  if (L < lo) L += 5;
+  if (L > hi) L -= 5;
+  return L;
+}
 // De fout die bij een negatief punt hoort. Bij een breuk: de breuk vanaf het verkeerde streepje
-// geteld, zodat -3½ tussen -3 en -2 komt (of omgekeerd: het punt midden tussen -4 en -3 als -4½
-// gelezen). Bij 'heel': de streepjes vanaf het dichtstbijzijnde getal de verkeerde kant op geteld.
-function foutPunt({ d }, n) {
+// geteld, zodat -1½ tussen -1 en 0 komt (of omgekeerd: het punt midden tussen -2 en -1 als -2½
+// gelezen). Bij 'heel': de streepjes vanaf het getal onder de lijn de verkeerde kant op geteld.
+function foutPunt(lijn, n) {
+  const { d } = lijn;
   if (n >= 0) return null;
-  if (d === 1) return 2 * Math.round(n / 5) * 5 - n;
+  if (d === 1) return 2 * vanaf(lijn, n) - n;
   const m = -n,
     h = Math.floor(m / d);
   return -(h * d + 2 * d - (m % d));
@@ -82,13 +91,14 @@ const FOUT_ID = (d) => (d === 1 ? 'verkeerde-kant-op-geteld' : 'breuk-de-verkeer
 const FOUT_M = (d) =>
   d === 1
     ? 'Je hebt de streepjes de verkeerde kant op geteld. Links van 0 worden de getallen kleiner: een streepje naar links is 1 minder.'
-    : 'Een negatief getal met een breuk, zoals −3 1/2, is −3 en dan nog een stukje verder naar links. Het ligt dus tussen −4 en −3. Tel de breuk vanaf het streepje dat het dichtst bij 0 ligt.';
+    : 'Een negatief getal met een breuk, zoals −2 1/2, is −2 en dan nog een stukje verder naar links. Het ligt dus tussen −3 en −2. Tel de breuk vanaf het streepje dat het dichtst bij 0 ligt.';
 
 // Hoe je een punt vindt of afleest, als zin voor de uitwerking.
-function plekZin({ d }, n, naam) {
-  const x = Q(n, d);
+function plekZin(lijn, n, naam) {
+  const { d } = lijn,
+    x = Q(n, d);
   if (d === 1) {
-    const L = Math.round(n / 5) * 5,
+    const L = vanaf(lijn, n),
       k = Math.abs(n - L);
     return `${naam} staat ${k} ${k === 1 ? 'streepje' : 'streepjes'} ${n < L ? 'links' : 'rechts'} van ${L}, dus bij ${n}.`;
   }
@@ -125,6 +135,8 @@ const lijnFig = (lijn, pts) =>
   getallenlijn({
     xr: [lijn.lo, lijn.hi],
     step: lijn.d === 2 ? 1 : 1 / lijn.d,
+    // Bij 'heel' staat er een getal bij elk vijfvoud, zoals vanaf verwacht.
+    lx: lijn.d === 1 ? 5 : undefined,
     pts: pts.map(([n, label]) => ({ x: n / lijn.d, label })),
     coords: false,
   });
@@ -658,7 +670,7 @@ function temperatuur() {
 // --- 204 en 205 Optellen en aftrekken ---
 
 // Een berekening is een rij tekens: getallen (ook negatief), '+', '-', '(' en ')'. Als tekst voor T
-// staat een negatief getal zonder haakjes, zoals 8 - -3.
+// staat een negatief getal zonder haakjes, zoals 6 - -5.
 const tekst = (ts) => ts.join(' ').replace(/\( /g, '(').replace(/ \)/g, ')');
 const doe = (x, op, y) => (op === '+' ? x + y : x - y);
 
@@ -740,7 +752,7 @@ function rekenTraps(berekeningen) {
     .filter(Boolean);
 }
 
-// Rekent een berekening als tekst na, zoals '8 - -3' of '-4 - (6 - 9)'. Een eigen ontleder, los van
+// Rekent een berekening als tekst na, zoals '6 - -5' of '-4 - (6 - 9)'. Een eigen ontleder, los van
 // de stappen hierboven, voor de controle v. Een min aan het begin, na een bewerking of na '(' hoort
 // bij het getal erachter.
 function narekenen(s) {
@@ -926,11 +938,11 @@ export default {
       ],
       ex: {
         q:
-          T('Bij welk getal staat punt P?') +
-          figbox(getallenlijn({ xr: [-5, 3], pts: [{ x: -3.5, label: 'P', t: '−3 1/2' }] })),
+          T('Bij welk getal staat punt K?') +
+          figbox(getallenlijn({ xr: [-4, 4], pts: [{ x: -1.5, label: 'K', t: '−1 1/2' }] })),
         steps: [
           'Van streepje naar streepje is 1.',
-          'P staat midden tussen -4 en -3, dus bij -{3 1/2}.',
+          'K staat midden tussen -2 en -1, dus bij -{1 1/2}.',
         ],
       },
     },
