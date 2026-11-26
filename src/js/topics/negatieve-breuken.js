@@ -686,12 +686,12 @@ export default {
         'Bij een negatief {{gemengd-getal|gemengd getal}} hoort de min bij het hele getal. {-3 2/7} is -3 - {2/7}, en niet -3 + {2/7}. Breng de helen binnen de breuk: {-3 2/7} = -{23/7}.',
       ],
       ex: {
-        q: T('Bereken -{3/4} + {1/10}.'),
+        q: T('Bereken -{5/12} + {1/9}.'),
         steps: [
-          'De nieuwe noemer is 20: dat is het eerste getal dat in de tafels van 4 en 10 staat.',
-          'Teller en noemer keer 5: -{3/4} = -{15/20}',
-          'Teller en noemer keer 2: {1/10} = {2/20}',
-          'Reken met de tellers: -15 + 2 = -13. Dus -{15/20} + {2/20} = -{13/20}',
+          'De nieuwe noemer is 36: dat is het eerste getal dat in de tafels van 9 en 12 staat.',
+          'Teller en noemer keer 3: -{5/12} = -{15/36}',
+          'Teller en noemer keer 4: {1/9} = {4/36}',
+          'Reken met de tellers: -15 + 4 = -11. Dus -{15/36} + {4/36} = -{11/36}',
         ],
       },
       ex2: {
