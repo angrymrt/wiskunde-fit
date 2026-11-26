@@ -1292,6 +1292,50 @@ test('201 telt vanaf een getal dat onder de lijn staat (#244)', () => {
   assert.ok(geteld > 500 && fout > 100, `genoeg uitwerkingen: ${geteld}, ${fout}`);
 });
 
+// Elke valkuil van Vermenigvuldigen en delen met negatieve getallen kan afgaan, net als hierboven.
+// Dat het goede antwoord nooit in een valkuil valt, kijkt assertSound na (#244).
+test('elke valkuil van Vermenigvuldigen en delen met negatieve getallen kan afgaan (#244)', () => {
+  const VERWACHT = {
+    206: [
+      'product-met-nul',
+      'min-keer-min-is-min',
+      'minteken-vergeten',
+      'mintekens-verkeerd-geteld',
+    ],
+    207: ['mintekens-verkeerd-geteld', 'nul-vergeten'],
+    208: ['nul-gedeeld-door-getal', 'min-gedeeld-door-min-is-min', 'minteken-vergeten'],
+    209: [
+      'haakjes-genegeerd',
+      'zonder-voorrang',
+      'min-keer-min-is-min',
+      'min-gedeeld-door-min-is-min',
+      'min-min-als-min',
+      'keerregel-bij-aftrekken',
+      'negatief-min-getal-als-verschil',
+      'minteken-vergeten',
+    ],
+    210: ['teken-omgedraaid', 'verkeerd-teruggerekend'],
+  };
+  const getallen = Array.from({ length: 401 }, (_, i) => String(i - 200));
+  const skills = TOPICS.flatMap((t) => t.skills);
+  for (const [id, ids] of Object.entries(VERWACHT)) {
+    const skill = skills.find((k) => k.id === +id),
+      af = new Set();
+    for (let seed = 1; seed <= 200; seed++) {
+      const q = makeQuestion(skill, seed * 7919);
+      const goed = q.fields.map((f) => (f.sel ? f.a : typed(f.a, f.vorm)));
+      q.fields.forEach((f, i) => {
+        for (const x of f.sel || getallen) {
+          const vals = [...goed];
+          vals[i] = x;
+          if (!checkAnswer(q, vals).ok) af.add(findTrap(q, vals)?.id);
+        }
+      });
+    }
+    for (const t of ids) assert.ok(af.has(t), `vraagsoort ${id}: de valkuil ${t} gaat nooit af`);
+  }
+});
+
 test('fillState zegt of een vraag leeg, half of helemaal is ingevuld', () => {
   const skills = TOPICS.flatMap((t) => t.skills);
   const make = (test) =>

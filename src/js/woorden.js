@@ -74,6 +74,17 @@ export const WOORDEN = {
       'Een lijn met getallen op gelijke afstand van elkaar. Naar rechts worden de getallen groter, naar links kleiner.',
     onderwerp: 'negatieve-getallen',
   },
+  aftrekmin: {
+    naam: 'aftrekmin',
+    uitleg: 'De min van aftrekken, zoals in 7 − 2. Hij zegt dat je het getal erachter aftrekt.',
+    onderwerp: 'vermenigvuldigen-en-delen-met-negatieve-getallen',
+  },
+  'negatieve-min': {
+    naam: 'negatieve min',
+    uitleg:
+      'De min van een negatief getal, zoals in −4 of 6 · −4. Hij hoort bij het getal erachter en is iets korter dan de aftrekmin.',
+    onderwerp: 'vermenigvuldigen-en-delen-met-negatieve-getallen',
+  },
   richtingscoefficient: {
     naam: 'richtingscoëfficiënt',
     uitleg: 'Het getal a in y = ax + b. Het vertelt hoeveel y verandert als x 1 groter wordt.',

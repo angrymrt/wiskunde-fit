@@ -207,4 +207,9 @@ export default {
   203: 'temperatuur',
   204: 'optellenAftrekken',
   205: 'drieGetallen',
+  206: 'vermenigvuldigen',
+  207: 'positiefOfNegatief',
+  208: 'delen',
+  209: 'rekenvolgordeNegatief',
+  210: 'ontbrekendeFactor',
 };

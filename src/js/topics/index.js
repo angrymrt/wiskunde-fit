@@ -39,6 +39,7 @@ import rekenvolgorde from './rekenvolgorde.js';
 import breuken from './breuken.js';
 import rekenenMetBreuken from './rekenen-met-breuken.js';
 import negatief from './negatieve-getallen.js';
+import keerDelen from './vermenigvuldigen-en-delen-met-negatieve-getallen.js';
 import procenten from './procentuele-verandering.js';
 import terugrekenen from './rekenen-met-procenten.js';
 import tabellen from './tabellen-en-diagrammen.js';
@@ -56,7 +57,15 @@ const DOMAINS = [
     description:
       'Rekenen oefenen: de rekenvolgorde, breuken, procentuele verandering, de vermenigvuldigingsfactor, procent op procent en terugrekenen. Gratis met uitleg.',
     color: 'teal',
-    topics: [rekenvolgorde, breuken, rekenenMetBreuken, negatief, procenten, terugrekenen],
+    topics: [
+      rekenvolgorde,
+      breuken,
+      rekenenMetBreuken,
+      negatief,
+      keerDelen,
+      procenten,
+      terugrekenen,
+    ],
   },
   {
     slug: 'rekenen-met-letters',
@@ -165,6 +174,7 @@ const PREREQUISITES = new Map([
   [breuken, [rekenvolgorde]],
   [rekenenMetBreuken, [breuken]],
   [negatief, [rekenvolgorde]],
+  [keerDelen, [negatief]],
   [terugrekenen, [procenten]],
   [tabellen, [procenten, terugrekenen]],
   [misleidend, [procenten, tabellen]],
