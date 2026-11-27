@@ -191,7 +191,7 @@ test('een globale grafiek heeft geen getallen en geen rooster, wel letters bij d
 });
 
 test('de beschrijving zegt alleen wat zeg toestaat', () => {
-  const punten = label(contextGraph(FIETS)),
+  const punten = label(contextGraph({ ...FIETS, zeg: 'punten' })),
     vorm = label(contextGraph({ ...FIETS, zeg: 'vorm' })),
     assen = label(contextGraph({ ...FIETS, zeg: 'assen' }));
   assert.match(punten, /9 en 0; 10 en 15; 11 en 15; 13 en 40/);
@@ -211,6 +211,51 @@ test('de beschrijving zegt alleen wat zeg toestaat', () => {
   const kaal = label(contextGraph({ ...SCHETS, zeg: 'assen' }));
   assert.match(kaal, /de stukken a, b en c/);
   assert.doesNotMatch(kaal, /stijgt|daalt|horizontaal/);
+});
+
+test('zonder zeg verklapt de beschrijving geen punten (#292)', () => {
+  assert.equal(label(contextGraph(FIETS)), label(contextGraph({ ...FIETS, zeg: 'vorm' })));
+});
+
+test('meer letters dan stukken: de beschrijving slaat de rest over (#292)', () => {
+  const g = {
+    x: { naam: 'tijd', van: 0, tot: 4, stap: 1 },
+    y: { naam: 'snelheid', van: 0, tot: 4, stap: 1 },
+    schets: true,
+    grafieken: [
+      {
+        punten: [
+          [0, 0],
+          [1, 2],
+          [2, 2],
+        ],
+        stukken: ['a', 'b', 'c'],
+      },
+    ],
+  };
+  for (const zeg of ['vorm', 'assen']) {
+    const l = label(contextGraph({ ...g, zeg }));
+    assert.doesNotMatch(l, /stuk c|, c/);
+  }
+});
+
+test("fmt: 'tijd' schrijft tijdstippen bij de as en in de beschrijving (#292)", () => {
+  const svg = contextGraph({
+    ...FIETS,
+    x: { ...FIETS.x, van: 9, tot: 11, stap: 0.5, fmt: 'tijd' },
+    zeg: 'punten',
+  });
+  assertSvg(svg);
+  // Bij de as staat het tijdstip zonder "uur"; 9.30 valt hier weg omdat de getallen anders over elkaar vallen.
+  assert.ok(texts(svg).includes('10'));
+  assert.ok(texts(svg).every((t) => !t.endsWith(' uur')));
+  assert.ok(
+    texts(
+      contextGraph({ ...FIETS, x: { ...FIETS.x, van: 9, tot: 11, stap: 0.5, fmt: 'tijd' }, u: 60 }),
+    ).includes('9.30'),
+  );
+  assert.match(label(svg), /van 9 uur tot 11 uur/);
+  assert.match(label(svg), /10 uur en 15/);
 });
 
 test('tijd schrijft een tijdstip zoals op een klok', () => {

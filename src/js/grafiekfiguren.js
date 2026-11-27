@@ -9,7 +9,9 @@
 //  - x en y: een as, { naam: 'tijd in uren', van: 9, tot: 15, stap: 1 }. stap is wat één hokje is, zoals
 //    2 uur of 5 km. Optioneel: eenheid (bij één hokje in de beschrijving, zoals 'uur'), getal (elke hoeveelste lijn een getal krijgt; vanzelf als de getallen anders
 //    over elkaar vallen), scheur (een scheurlijn tussen 0 en van; voor y vanzelf als van groter is dan 0) en
-//    fmt (een functie die een getal bij de as schrijft, standaard met een komma).
+//    fmt (hoe een getal bij de as staat: standaard met een komma; 'tijd' voor tijdstippen, zoals 9.30 bij de
+//    as en "9.30 uur" in de beschrijving; of een eigen functie, maar die kan niet in een tekenvraag, want
+//    die wordt als JSON bewaard).
 //  - grafieken: één tot drie, elk { naam, punten: [[x, y], ...], vorm, stippen, c, stukken, naamBij }.
 //    vorm is 'lijn' (rechte stukken van punt naar punt, een horizontaal stuk is een pauze), 'kromme' (een
 //    vloeiende kromme door de punten, die tussen twee punten niet hoger of lager komt dan die punten) of
@@ -18,7 +20,7 @@
 //    naamBij is de plek van de naam als [x, y] in de getallen van de assen; standaard staat de naam
 //    rechts van het laatste punt.
 //  - schets: een globale grafiek, zonder getallen en zonder rooster. De punten geven dan alleen de vorm.
-//  - zeg: wat de beschrijving voor een schermlezer over de grafieken zegt. 'punten' noemt de punten,
+//  - zeg (standaard 'vorm', zodat een vergeten zeg het antwoord niet verklapt): wat de beschrijving voor een schermlezer over de grafieken zegt. 'punten' noemt de punten,
 //    'vorm' alleen of elk stuk stijgt, daalt of horizontaal loopt (voor een vraag waarbij je een getal
 //    afleest), en 'assen' alleen de assen en de namen (voor een vraag over de vorm zelf). Zie #168: de
 //    beschrijving zegt nooit het antwoord voor.
@@ -135,7 +137,11 @@ const VORM = {
 };
 
 // De beschrijving voor een schermlezer, zie zeg hierboven.
-function beschrijf({ titel, x, y, G, schets, zeg, label, fmt }) {
+// Hoe een getal van as a klinkt in de beschrijving en hoe het bij de as staat.
+const zegGetal = (a) => (a.fmt === 'tijd' ? tijd : typeof a.fmt === 'function' ? a.fmt : num),
+  asGetal = (a) => (a.fmt === 'tijd' ? (h) => tijd(h).replace(' uur', '') : zegGetal(a));
+function beschrijf({ titel, x, y, G, schets, zeg, label }) {
+  const fmt = zegGetal;
   const out = [`${label.replace(/\.$/, '')}${titel ? `: ${titel}` : ''}.`];
   if (schets) {
     out.push(`Langs de horizontale as: ${x.naam}. Langs de verticale as: ${y.naam}.`);
@@ -174,13 +180,16 @@ function beschrijf({ titel, x, y, G, schets, zeg, label, fmt }) {
     }
     out.push(cap(`${w} ${VORM[g.vorm]}.`));
     if (g.stukken) {
-      const L = g.stukken.filter(Boolean);
+      const L = g.stukken.slice(0, ps.length - 1).filter(Boolean);
       if (wat === 'vorm')
         out.push(
           cap(
             and(
               g.stukken
-                .map((s, k) => s && `stuk ${s} ${WOORD[richting(ps[k], ps[k + 1])]}`)
+                .map(
+                  (s, k) =>
+                    s && k < ps.length - 1 && `stuk ${s} ${WOORD[richting(ps[k], ps[k + 1])]}`,
+                )
                 .filter(Boolean),
             ) + '.',
           ),
@@ -203,7 +212,7 @@ function grafiekDelen({
   y: y0,
   grafieken = [],
   schets = false,
-  zeg = 'punten',
+  zeg = 'vorm',
   u = 26,
   label = schets ? 'Globale grafiek' : 'Grafiek',
 }) {
@@ -211,7 +220,7 @@ function grafiekDelen({
     y = { scheur: !schets && y0.van > 0, ...y0 },
     nx = Math.round((x.tot - x.van) / x.stap),
     ny = Math.round((y.tot - y.van) / y.stap),
-    fmt = (a) => a.fmt || num,
+    fmt = asGetal,
     G = grafieken.map((g, i) => ({ vorm: 'lijn', c: i + 1, ...g }));
   // Elke hoeveelste lijn een getal krijgt: zo vaak als past zonder dat de getallen over elkaar vallen.
   const xs = [],
@@ -304,7 +313,7 @@ function grafiekDelen({
   W = Math.ceil(W);
   const H = Math.ceil(xn + 8);
   if (titel) o = txt(W / 2, 20, titel, 'tt') + o;
-  const desc = beschrijf({ titel, x, y, G, schets, zeg, label, fmt });
+  const desc = beschrijf({ titel, x, y, G, schets, zeg, label });
   return { W, H, X, Y, x, y, u, px0, px1, mt, py1, inner: o, desc };
 }
 
@@ -313,4 +322,4 @@ const contextGraph = (opts) => {
   return `<svg class="fig" role="img" aria-label="${attr(desc)}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${inner}</svg>`;
 };
 
-export { contextGraph, grafiekDelen, tijd, bezier, pad };
+export { contextGraph, grafiekDelen, tijd, zegGetal, bezier, pad };
