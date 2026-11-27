@@ -206,7 +206,7 @@ const MEET = [
     zin: (b, w) => `${cap(b)} is de ballon op ${w} meter hoogte.`,
     wanneer: (w) => `Na hoeveel minuten is de ballon op ${w} meter hoogte?`,
     hoogst: 'Wat is de grootste hoogte van de ballon, en na hoeveel minuten is hij daar?',
-    hoogstVeld: 'De grootste hoogte is',
+    hoogstVeld: 'De ballon komt het hoogst op',
     toe: (tus, up) => `Hoeveel meter ${up ? 'stijgt' : 'daalt'} de ballon ${tus}?`,
     toeZin: (tus, up, w) => `${cap(tus)} ${up ? 'stijgt' : 'daalt'} de ballon ${w} meter.`,
   },
@@ -534,8 +534,9 @@ function s32tijdstip() {
 }
 
 // Een tocht: rijden, pauze, weer rijden. v zijn de snelheden in km per uur, h een half hokje op
-// de verticale as. Elke snelheid geeft in een half uur een veelvoud van h, dus elk knikpunt ligt
-// op een lijn of precies halverwege.
+// de verticale as. Niet elke snelheid geeft in elke duur een veelvoud van h (wandelen met 3 km per
+// uur in een half uur niet), dus snelheid() kiest alleen een snelheid die dat wel doet. Zo ligt elk
+// knikpunt op een lijn of precies halverwege.
 const TOCHT = [
   {
     zin: (n) => `${n} maakt een fietstocht.`,
@@ -706,21 +707,16 @@ function s32tocht() {
     rekenen =
       dt === 1
         ? [`In 1 uur gaat ${n} ${d(dd)} km, dus de snelheid is ${d(s)} km per uur.`]
-        : dt === 0.5
+        : dt === 2
           ? [
-              `In een half uur gaat ${n} ${d(dd)} km.`,
-              `In een uur is dat 2 * ${d(dd)} = ${d(s)} km, dus de snelheid is ${d(s)} km per uur.`,
+              `In 2 uur gaat ${n} ${d(dd)} km.`,
+              `In een uur is dat ${d(dd)} : 2 = ${d(s)} km, dus de snelheid is ${d(s)} km per uur.`,
             ]
-          : dt === 2
-            ? [
-                `In 2 uur gaat ${n} ${d(dd)} km.`,
-                `In een uur is dat ${d(dd)} : 2 = ${d(s)} km, dus de snelheid is ${d(s)} km per uur.`,
-              ]
-            : [
-                `In 1,5 uur gaat ${n} ${d(dd)} km. Dat zijn drie halve uren.`,
-                `In een half uur is dat ${d(dd)} : 3 = ${d(dd / 3)} km.`,
-                `In een uur is dat 2 * ${d(dd / 3)} = ${d(s)} km, dus de snelheid is ${d(s)} km per uur.`,
-              ],
+          : [
+              `In 1,5 uur gaat ${n} ${d(dd)} km. Dat zijn drie halve uren.`,
+              `In een half uur is dat ${d(dd)} : 3 = ${d(dd / 3)} km.`,
+              `In een uur is dat 2 * ${d(dd / 3)} = ${d(s)} km, dus de snelheid is ${d(s)} km per uur.`,
+            ],
     gemiddeld = D / (eind - t0);
   return {
     q: T(`${intro} Bereken de snelheid van ${n} tussen ${tijd(a)} en ${tijd(b)} in km per uur.`),
