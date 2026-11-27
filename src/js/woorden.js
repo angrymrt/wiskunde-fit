@@ -188,6 +188,12 @@ export const WOORDEN = {
       'Een grafiek met de tijd op de horizontale as en de afgelegde afstand op de verticale as. Een horizontaal stuk betekent dat de afstand niet verandert.',
     onderwerp: 'grafieken-lezen-en-tekenen',
   },
+  'globale-grafiek': {
+    naam: 'globale grafiek',
+    uitleg:
+      'Een grafiek zonder getallen bij de assen. Je ziet alleen of iets stijgt, daalt of gelijk blijft, en hoe snel.',
+    onderwerp: 'grafieken-lezen-en-tekenen',
+  },
   woordformule: {
     naam: 'woordformule',
     uitleg:

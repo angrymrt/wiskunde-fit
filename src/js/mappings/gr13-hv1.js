@@ -124,9 +124,9 @@ export default {
         [
           '3.2',
           'Grafieken lezen en tekenen',
-          [223, 224, 225, 226],
+          [223, 224, 225, 226, 227, 228, 229],
           'deels',
-          'Een grafiek tekenen bij een tabel en globale grafieken zonder getallen kun je hier nog niet oefenen.',
+          'Vormen vullen met water en een snelheidsgrafiek bij een circuit kun je hier nog niet oefenen.',
         ],
         ['3.3', 'Formules in woorden', [133, 134, 135, 136, 137], 'deels'],
         ['3.4', 'Formules in letters schrijven', [138, 139, 140, 141, 142], 'deels'],

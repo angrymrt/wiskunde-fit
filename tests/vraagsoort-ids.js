@@ -228,4 +228,7 @@ export default {
   224: 's32tijdstip',
   225: 's32tocht',
   226: 's32twee',
+  227: 's32tabel',
+  228: 's32globaal',
+  229: 's32verhaal',
 };

@@ -940,6 +940,20 @@
       "aantal": 2995565,
       "ondergrens": true,
       "exact": false
+    },
+    "227": {
+      "aantal": 1084523,
+      "ondergrens": true,
+      "exact": false
+    },
+    "228": {
+      "aantal": 588775,
+      "ondergrens": true,
+      "exact": false
+    },
+    "229": {
+      "aantal": 1060,
+      "exact": true
     }
   }
 }
