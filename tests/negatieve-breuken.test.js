@@ -53,6 +53,7 @@ const VALKUILEN = {
     'keerregel-bij-aftrekken',
     'negatief-min-getal-als-verschil',
   ],
+  219: ['minteken-fout'],
 };
 
 for (const skill of topic.skills) {

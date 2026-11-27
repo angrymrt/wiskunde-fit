@@ -8,6 +8,7 @@ import { F, H, MC, tekst, narekenen } from './shared.js';
 import { SOORTEN, tekenAf, tekenFig } from '../tekenvragen.js';
 import { T } from '../typeset.js';
 import { getallenlijn } from '../getalfiguren.js';
+import { piramideOpen, piramideVraag } from '../puzzels.js';
 
 // Een getal als tekst voor T: een geheel getal, of een breuk of gemengd getal met de min ervoor,
 // zoals -{3/4} of -{7 1/2}. De min staat voor de breuk, nooit in de teller.
@@ -992,6 +993,33 @@ function drieGetallen() {
   };
 }
 
+// Een getallenpiramide met negatieve getallen (#262): elk vak is de som van de twee vakken eronder.
+// Vier lagen, met vier lege vakken, waarvan je minstens één vindt door terug te rekenen.
+const PIRAMIDE_OPEN = piramideOpen(4, 4);
+function piramide() {
+  const { onder, open } = until(
+    () => ({ onder: [0, 1, 2, 3].map(() => nz(-9, 9)), open: pick(PIRAMIDE_OPEN) }),
+    ({ onder, open }) => {
+      if (onder.filter((x) => x < 0).length < 2) return false;
+      const p = piramideVraag({ onder, soort: 'som', open });
+      return p.rijen.flat().every((q) => Math.abs(q.n) <= 40) && p.fields.some((f) => f.a < 0);
+    },
+  );
+  const p = piramideVraag({ onder, soort: 'som', open, teken: true });
+  return {
+    q: T(
+      `In deze {{getallenpiramide|getallenpiramide}} is elk vak de som van de twee vakken eronder. Bereken de getallen in de vakken ${lijstMet(p.namen)}.`,
+    ),
+    fig: p.fig,
+    fields: p.fields,
+    hint: 'Begin bij een vak waarvan je de twee vakken eronder al weet, en tel die op. Weet je het vak erboven en één vak eronder, trek dan dat vak eronder af van het vak erboven.',
+    steps: p.steps,
+    traps: p.traps,
+    v: p.v,
+  };
+}
+const lijstMet = (xs) => `${xs.slice(0, -1).join(', ')} en ${xs[xs.length - 1]}`;
+
 export default {
   slug: 'negatieve-getallen',
   title: 'Negatieve getallen',
@@ -1007,6 +1035,7 @@ export default {
     [215, 'Een som als pijl op de getallenlijn', somAlsPijl],
     [204, 'Optellen en aftrekken met negatieve getallen', optellenAftrekken],
     [205, 'Drie getallen en haakjes', drieGetallen],
+    [217, 'Een getallenpiramide met negatieve getallen', piramide],
   ],
   learn: [
     {

@@ -835,6 +835,122 @@ function verhaalBerekening() {
 const s187 = () => eenBerekening(ZONDER, false);
 const s188 = () => (ri(0, 2) === 0 ? paar() : eenBerekening(MET, true));
 
+// Een getallenrij voortzetten (#262): vijf getallen met een regelmaat, en de leerling geeft de
+// volgende twee. De regel is telkens hetzelfde erbij of eraf, telkens keer of gedeeld door
+// hetzelfde getal, een verschil dat telkens 1 of 2 groter wordt, of om en om iets erbij en iets eraf.
+// Alle getallen zijn heel en niet negatief.
+const RIJEN = {
+  plus: () => {
+    const s = ri(1, 30),
+      k = ri(2, 15);
+    return (i) => s + i * k;
+  },
+  min: () => {
+    const k = ri(3, 12),
+      s = 6 * k + ri(0, 40);
+    return (i) => s - i * k;
+  },
+  keer: () => {
+    const k = pick([2, 3]),
+      s = ri(1, 5);
+    return (i) => s * k ** i;
+  },
+  delen: () => {
+    const k = pick([2, 3]),
+      s = ri(1, 4) * k ** 6;
+    return (i) => s / k ** i;
+  },
+  groeiend: () => {
+    const s = ri(1, 20),
+      d = ri(1, 6),
+      st = pick([1, 2]);
+    return (i) => s + i * d + (st * i * (i - 1)) / 2;
+  },
+  afwisselend: () => {
+    const s = ri(1, 20),
+      a = ri(3, 12),
+      b = ri(1, a - 1);
+    return (i) => s + Math.ceil(i / 2) * a - Math.floor(i / 2) * b;
+  },
+};
+const verschilTekst = (x) => (x < 0 ? `-${-x}` : `+${x}`);
+function getallenrij() {
+  const { soort, rij } = until(
+    () => {
+      const soort = pick(Object.keys(RIJEN)),
+        f = RIJEN[soort]();
+      return { soort, rij: [0, 1, 2, 3, 4, 5, 6].map(f) };
+    },
+    ({ rij }) => rij.every((x) => Number.isInteger(x) && x >= 0) && Math.max(...rij) <= 3000,
+  );
+  const [x6, x7] = rij.slice(5),
+    toon = rij.slice(0, 5),
+    vs = rij.slice(1).map((x, i) => x - rij[i]),
+    lijstV = (xs) =>
+      `${xs.slice(0, -1).map(verschilTekst).join(', ')} en ${verschilTekst(xs[xs.length - 1])}`,
+    k = rij[1] / rij[0],
+    q = rij[0] / rij[1];
+  const uitleg = {
+    plus: [`De verschillen zijn ${lijstV(vs.slice(0, 4))}. Je telt er telkens ${vs[0]} bij op.`],
+    min: [`De verschillen zijn ${lijstV(vs.slice(0, 4))}. Je haalt er telkens ${-vs[0]} af.`],
+    keer: [
+      `Elk getal is ${k} keer het getal ervoor: ${toon[0]} * ${k} = ${toon[1]}, ${toon[1]} * ${k} = ${toon[2]}, enzovoort.`,
+    ],
+    delen: [
+      `Elk getal is het getal ervoor gedeeld door ${q}: ${toon[0]} : ${q} = ${toon[1]}, ${toon[1]} : ${q} = ${toon[2]}, enzovoort.`,
+    ],
+    groeiend: [
+      `De verschillen zijn ${lijstV(vs.slice(0, 4))}. Het verschil wordt telkens ${vs[1] - vs[0]} groter.`,
+      `De volgende verschillen zijn dus ${verschilTekst(vs[4])} en ${verschilTekst(vs[5])}.`,
+    ],
+    afwisselend: [
+      `De verschillen zijn ${lijstV(vs.slice(0, 4))}. Je telt er om en om ${vs[0]} bij op en haalt er ${-vs[1]} af.`,
+    ],
+  }[soort];
+  const stap = (a, b) => {
+    if (soort === 'keer') return `${a} * ${k} = ${b}`;
+    if (soort === 'delen') return `${a} : ${q} = ${b}`;
+    return b >= a ? `${a} + ${b - a} = ${b}` : `${a} - ${a - b} = ${b}`;
+  };
+  // De fout bij het volgende getal: de laatste stap nog een keer doen, of bij keer en delen het
+  // laatste verschil nog een keer optellen.
+  const fout = rij[4] + vs[3],
+    bericht = {
+      keer: 'Het verschil tussen twee getallen is niet steeds hetzelfde. Kijk of je steeds met hetzelfde getal vermenigvuldigt.',
+      delen:
+        'Het verschil tussen twee getallen is niet steeds hetzelfde. Kijk of je steeds door hetzelfde getal deelt.',
+      groeiend:
+        'Het verschil blijft niet gelijk. Kijk hoe het verschil van stap tot stap verandert.',
+      afwisselend: 'Je doet niet telkens dezelfde stap. Kijk welke stap na de laatste stap komt.',
+    }[soort];
+  return {
+    q: T(
+      `Dit is het begin van een rij getallen met een regelmaat: ${toon.join(', ')}, ... Wat zijn de volgende twee getallen van de rij?`,
+    ),
+    fields: [F('Het volgende getal is', x6), F('Het getal daarna is', x7)],
+    hint: 'Kijk wat er van het ene getal naar het volgende gebeurt. Is dat steeds hetzelfde, of verandert het met een regelmaat?',
+    steps: [...uitleg, stap(rij[4], x6), stap(x6, x7)],
+    traps:
+      bericht && fout !== x6
+        ? [{ id: 'verkeerde-regel', f: (v) => v[0] === fout, m: bericht }]
+        : [],
+    // Rekent na of de hele rij, met de twee antwoorden erbij, één regel volgt: de verschillen of de
+    // verhoudingen zijn gelijk, de verschillen van de verschillen zijn gelijk, of de verschillen
+    // wisselen om en om.
+    v: () => {
+      const r = [...toon, x6, x7],
+        d = r.slice(1).map((x, i) => x - r[i]),
+        dd = d.slice(1).map((x, i) => x - d[i]),
+        alle = (xs) => xs.every((x) => x === xs[0]);
+      if (soort === 'plus' || soort === 'min') return alle(d) && d[0] !== 0;
+      if (soort === 'keer' || soort === 'delen')
+        return alle(r.slice(1).map((x, i) => x / r[i])) && r[1] !== r[0];
+      if (soort === 'groeiend') return alle(dd) && dd[0] > 0;
+      return d.every((x, i) => i < 2 || x === d[i - 2]) && d[0] > 0 && d[1] < 0;
+    },
+  };
+}
+
 export default {
   slug: 'rekenvolgorde',
   title: 'Rekenvolgorde',
@@ -850,6 +966,7 @@ export default {
     [188, 'Rekenvolgorde met haakjes', s188],
     [189, 'Het ontbrekende getal', ontbrekend],
     [190, 'Een verhaal als één berekening', verhaalBerekening],
+    [220, 'Een getallenrij voortzetten', getallenrij],
   ],
   learn: [
     {

@@ -8,6 +8,15 @@
 import { ri, pick, coin, gcd, lcm, Q, near, until } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
+import { vierkantFig } from '../getalfiguren.js';
+import {
+  magisch,
+  vierkantOpen,
+  vierkantLetters,
+  losVierkantOp,
+  vierkantStappen,
+  vierkantKlopt,
+} from '../puzzels.js';
 
 // Het veld voor een breuk als antwoord: zo ver mogelijk vereenvoudigd, de helen eruit halen mag.
 const BF = (pre, q, post) => ({ ...F(pre, q, post), vorm: 'vereenvoudigd' });
@@ -618,6 +627,71 @@ function vermenigvuldigen() {
   };
 }
 
+// Een magisch vierkant met negatieve breuken (#262): elke rij, kolom en diagonaal heeft dezelfde som.
+// Vier vakken zijn leeg. Minstens één lijn is helemaal bekend, zodat je de som kunt uitrekenen, en
+// daarna kun je telkens een lijn afmaken waarin nog één vak leeg is. De getallen zijn negen
+// verschillende breuken met dezelfde noemer, de helft, een derde of een kwart.
+const VIERKANT_OPEN = vierkantOpen(4);
+function magischVierkant() {
+  const { noemer, ms, open } = until(
+    () => {
+      const noemer = pick([2, 3, 4]);
+      return {
+        noemer,
+        ms: magisch(ri(-2 * noemer, noemer), ri(1, 3 * noemer), ri(-3 * noemer, 3 * noemer)),
+        open: pick(VIERKANT_OPEN),
+      };
+    },
+    ({ noemer, ms, open }) => {
+      const alle = ms.flat(),
+        leeg = open.map(([r, k]) => ms[r][k]);
+      return (
+        new Set(alle).size === 9 &&
+        alle.every((x) => Math.abs(x) <= 6 * noemer) &&
+        alle.filter((x) => x < 0).length >= 3 &&
+        alle.filter((x) => x % noemer !== 0).length >= 5 &&
+        leeg.some((x) => x < 0 && x % noemer !== 0)
+      );
+    },
+  );
+  const vk = ms.map((rij) => rij.map((x) => Q(x, noemer))),
+    letters = vierkantLetters(open),
+    namen = Object.values(letters).sort(),
+    plek = (L) =>
+      Object.keys(letters)
+        .find((p) => letters[p] === L)
+        .split(',')
+        .map(Number),
+    goed = namen.map((L) => vk[plek(L)[0]][plek(L)[1]]),
+    fields = namen.map((L, i) => BF(`${L} =`, goed[i])),
+    toon = vk.map((rij, r) => rij.map((g, k) => letters[`${r},${k}`] ?? g)),
+    teken = goed.map((q, i) => [i, -q.n / q.d]).filter(([, x]) => x !== 0);
+  return {
+    q: T(
+      `Dit is een {{magisch-vierkant|magisch vierkant}}: de getallen in elke rij, elke kolom en de twee diagonalen hebben dezelfde som. Bereken de getallen in de vakken ${lijst(namen)}. Vereenvoudig zo ver mogelijk.`,
+    ),
+    fig: vierkantFig(toon),
+    fields,
+    hint: 'Zoek een rij, kolom of diagonaal waarin alle drie de getallen bekend zijn, en tel ze op. Dat is de som van elke lijn. Zoek dan een lijn waarin nog één vak leeg is.',
+    steps: vierkantStappen(vk, losVierkantOp(open), letters),
+    traps: [
+      {
+        id: 'minteken-fout',
+        w: teken,
+        f: (v) => teken.some(([i, x]) => near(v[i], x)),
+        m: 'Op het minteken na klopt je antwoord. Kijk nog eens of de uitkomst positief of negatief is.',
+      },
+    ],
+    // Rekent alle lijnen na met de ingevulde getallen, als kommagetallen.
+    v: () =>
+      vierkantKlopt(
+        vk,
+        open,
+        fields.map((f) => f.a),
+      ),
+  };
+}
+
 export default {
   slug: 'negatieve-breuken',
   title: 'Negatieve breuken',
@@ -631,6 +705,7 @@ export default {
     [212, 'Een negatieve breuk vereenvoudigen', vereenvoudigen],
     [213, 'Negatieve breuken optellen en aftrekken', optellenAftrekken],
     [214, 'Negatieve breuken vermenigvuldigen', vermenigvuldigen],
+    [219, 'Een magisch vierkant', magischVierkant],
   ],
   learn: [
     {

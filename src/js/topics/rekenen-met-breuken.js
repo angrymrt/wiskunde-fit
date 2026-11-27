@@ -5,6 +5,7 @@
 import { ri, pick, coin, gcd, lcm, Q, qAdd, qSub, qMul, near, until } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
+import { piramideOpen, piramideVraag } from '../puzzels.js';
 
 // Een breuk en een gemengd getal als tekst voor T, zonder te vereenvoudigen: {24/36} en {2 3/5}.
 const b = (t, n) => `{${t}/${n}}`;
@@ -865,6 +866,36 @@ function rekenvolgorde() {
   };
 }
 
+// Een getallenpiramide met breuken (#262): elk vak is de som van de twee vakken eronder. Drie van de
+// zes vakken zijn leeg, en minstens één daarvan vind je door terug te rekenen met aftrekken. De
+// breuken in de onderste laag hebben een noemer die in de tafel van de grote noemer staat, zodat
+// gelijknamig maken niet te zwaar wordt.
+const PIRAMIDE_OPEN = piramideOpen(3, 3);
+function piramide() {
+  const { L, onder, open } = until(
+    () => {
+      const L = pick([4, 6, 8, 12]);
+      return { L, onder: [0, 1, 2].map(() => Q(ri(1, 2 * L), L)), open: pick(PIRAMIDE_OPEN) };
+    },
+    ({ L, onder }) =>
+      onder.filter((q) => q.d > 1).length >= 2 &&
+      onder.some((q) => q.d === L) &&
+      new Set(onder.map((q) => `${q.n}/${q.d}`)).size === 3,
+  );
+  const p = piramideVraag({ onder, soort: 'som', open, vorm: 'vereenvoudigd' });
+  return {
+    q: T(
+      `In deze {{getallenpiramide|getallenpiramide}} is elk vak de som van de twee vakken eronder. Bereken de getallen in de vakken ${lijst(p.namen)}. Vereenvoudig zo ver mogelijk.`,
+    ),
+    fig: p.fig,
+    fields: p.fields,
+    hint: 'Begin bij een vak waarvan je de twee vakken eronder al weet, en tel die op. Weet je het vak erboven en één vak eronder, trek dan dat vak eronder af van het vak erboven.',
+    steps: p.steps,
+    traps: p.traps,
+    v: () => L > 1 && p.v(),
+  };
+}
+
 export default {
   slug: 'rekenen-met-breuken',
   title: 'Rekenen met breuken',
@@ -880,6 +911,7 @@ export default {
     [198, 'Breuken vermenigvuldigen', vermenigvuldigen],
     [199, 'Een deel van een getal', deelVan],
     [200, 'Rekenvolgorde met breuken', rekenvolgorde],
+    [216, 'Een getallenpiramide met breuken', piramide],
   ],
   learn: [
     {
@@ -988,6 +1020,21 @@ export default {
           'Tel de tellers op: {3/4} + {1/5} = {15/20} + {4/20} = {19/20}',
         ],
       },
+    },
+    {
+      t: 'Een getallenpiramide',
+      p: [
+        'In een {{=getallenpiramide|getallenpiramide}} is elk vak de som van de twee vakken eronder. Sommige vakken zijn leeg, en die reken je uit.',
+        'Weet je de twee vakken onder een leeg vak, dan tel je ze op. Weet je het vak erboven en één vak eronder, dan reken je terug: je trekt het vak eronder af van het vak erboven.',
+      ],
+      ex: {
+        q: T('Onder het vak {2 1/2} staan het vak {3/4} en een leeg vak A. Bereken A.'),
+        steps: [
+          '{3/4} + A = {2 1/2}, dus A = {2 1/2} - {3/4}.',
+          'A = {2 1/2} - {3/4} = {5/2} - {3/4} = {10/4} - {3/4} = {7/4} = {1 3/4}',
+        ],
+      },
+      watch: 'Bij terugrekenen trek je af. Tel het vak eronder niet op bij het vak erboven.',
     },
   ],
 };

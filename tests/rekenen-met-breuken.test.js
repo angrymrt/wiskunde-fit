@@ -36,6 +36,7 @@ const VALKUILEN = {
     'deel-in-plaats-van-rest',
   ],
   200: ['haakjes-genegeerd', 'zonder-voorrang'],
+  216: ['opgeteld-bij-terugrekenen', 'tellers-en-noemers-opgeteld'],
 };
 
 for (const skill of topic.skills) {
