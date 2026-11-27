@@ -1282,14 +1282,15 @@ const GLOBAAL = [
   {
     y: 'temperatuur',
     intro: () =>
-      'In de globale grafiek zie je hoe de temperatuur in een klaslokaal verandert op een schooldag.',
+      'In de {{globale-grafiek|globale grafiek}} zie je hoe de temperatuur in een klaslokaal verandert op een schooldag.',
     doet: (n, r) =>
       r > 0 ? 'wordt het warmer' : r < 0 ? 'wordt het kouder' : 'blijft de temperatuur gelijk',
     snelst: (r) => `In welk stuk wordt het het snelst ${r > 0 ? 'warmer' : 'kouder'}?`,
   },
   {
     y: 'waterhoogte',
-    intro: (n) => `In de globale grafiek zie je hoe hoog het water in het bad van ${n} staat.`,
+    intro: (n) =>
+      `In de {{globale-grafiek|globale grafiek}} zie je hoe hoog het water in het bad van ${n} staat.`,
     doet: (n, r) =>
       r > 0 ? 'stijgt het water' : r < 0 ? 'daalt het water' : 'blijft het water even hoog',
     snelst: (r) => `In welk stuk ${r > 0 ? 'stijgt' : 'daalt'} het water het snelst?`,
@@ -1297,7 +1298,8 @@ const GLOBAAL = [
   {
     y: 'snelheid',
     fiets: true,
-    intro: (n) => `${n} maakt een fietstocht. In de globale grafiek zie je de snelheid van ${n}.`,
+    intro: (n) =>
+      `${n} maakt een fietstocht. In de {{globale-grafiek|globale grafiek}} zie je de snelheid van ${n}.`,
     doet: (n, r, nul) =>
       r > 0
         ? `gaat ${n} steeds harder`
@@ -1668,7 +1670,7 @@ function s32verhaal() {
     uit = V.stappen(n);
   return {
     q: T(
-      `${V.zin(n)} Welke globale grafiek past bij dit verhaal? In elke grafiek staat de tijd op de horizontale as en de ${V.y} op de verticale as.`,
+      `${V.zin(n)} Welke {{globale-grafiek|globale grafiek}} past bij dit verhaal? In elke grafiek staat de tijd op de horizontale as en de ${V.y} op de verticale as.`,
     ),
     mc,
     hint: T(
