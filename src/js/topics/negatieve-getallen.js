@@ -673,9 +673,9 @@ function temperatuur() {
 // Een verhaal bij de pijl: een temperatuur die stijgt of daalt. Eigen verhalen, met b graden erbij of eraf.
 const PIJL_VERHAAL = {
   '+': (a, b) =>
-    `Om zes uur 's ochtends is het ${a} graden. Tot de middag wordt het ${b} graden warmer. Teken dat als pijl op de getallenlijn.`,
+    `Om zes uur 's ochtends is het ${a} graden. Tot de middag wordt het ${b} graden warmer. Teken dat als pijl op de {{getallenlijn|getallenlijn}}.`,
   '-': (a, b) =>
-    `Bij zonsondergang is het ${a} graden. In de nacht wordt het ${b} graden kouder. Teken dat als pijl op de getallenlijn.`,
+    `Bij zonsondergang is het ${a} graden. In de nacht wordt het ${b} graden kouder. Teken dat als pijl op de {{getallenlijn|getallenlijn}}.`,
 };
 
 function somAlsPijl() {
@@ -703,13 +703,13 @@ function somAlsPijl() {
     kant = op === '+' ? 'rechts' : 'links';
   return {
     q: T(
-      `${verhaal ? PIJL_VERHAAL[op](a, b) : `Teken ${som} als pijl op de getallenlijn.`} Tik eerst waar de pijl begint, en dan waar hij eindigt.`,
+      `${verhaal ? PIJL_VERHAAL[op](a, b) : `Teken ${som} als pijl op de {{getallenlijn|getallenlijn}}.`} Tik eerst waar de pijl begint, en dan waar hij eindigt.`,
     ),
     fig: tekenFig(t),
     teken: t,
     fields,
     hint: T(
-      `De pijl begint bij het eerste getal. ${op === '+' ? 'Erbij optellen is naar rechts' : 'Eraf aftrekken is naar links'}, en de pijl is zo lang als het tweede getal.`,
+      `Op de {{getallenlijn|getallenlijn}} begint de pijl bij het eerste getal. ${op === '+' ? 'Erbij optellen is naar rechts' : 'Eraf aftrekken is naar links'}, en de pijl is zo lang als het tweede getal.`,
     ),
     steps: [
       verhaal
@@ -746,12 +746,20 @@ function somAlsPijl() {
             : 'Eraf aftrekken is een pijl naar links. Jouw pijl gaat naar rechts.',
       },
       {
-        id: 'pijl-verkeerd-geteld',
+        id: 'pijl-te-lang',
         f: (v) => {
           const [p, q] = lees(v);
-          return is(p, a) && !!q && (q[0] - a) * s > 0 && q[0] !== e;
+          return is(p, a) && !!q && (q[0] - a) * s > b;
         },
-        m: `De pijl moet ${b} stappen lang zijn. Tel de stappen van streepje naar streepje, en tel het streepje waar je begint niet mee.`,
+        m: `Je pijl is te lang: hij moet ${b} stappen lang zijn. Tel de stappen van streepje naar streepje. Het streepje waar je begint, tel je niet mee.`,
+      },
+      {
+        id: 'pijl-te-kort',
+        f: (v) => {
+          const [p, q] = lees(v);
+          return is(p, a) && !!q && (q[0] - a) * s > 0 && (q[0] - a) * s < b;
+        },
+        m: `Je pijl is te kort: hij moet ${b} stappen lang zijn. Tel de stappen van streepje naar streepje, tot je er ${b} hebt.`,
       },
     ],
     // Telt stap voor stap vanaf het begin, en een eigen ontleder rekent de som na.

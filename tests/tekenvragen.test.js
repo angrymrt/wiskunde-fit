@@ -284,7 +284,8 @@ test('een pijl: elke vraag is goed met het antwoord en heeft de valkuilen', () =
     if (a - s >= lo && a - s <= hi)
       assert.equal(findTrap(q, [`${a} ${a - s}`])?.id, 'pijl-verkeerde-kant');
     if (e + s >= lo && e + s <= hi)
-      assert.equal(findTrap(q, [`${a} ${e + s}`])?.id, 'pijl-verkeerd-geteld');
+      assert.equal(findTrap(q, [`${a} ${e + s}`])?.id, 'pijl-te-lang');
+    assert.equal(findTrap(q, [`${a} ${e - s}`])?.id, 'pijl-te-kort');
     assert.equal(findTrap(q, [q.fields[0].a]), null);
   }
 });
