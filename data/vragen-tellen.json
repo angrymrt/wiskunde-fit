@@ -921,6 +921,25 @@
       "aantal": 1288597,
       "ondergrens": true,
       "exact": false
+    },
+    "223": {
+      "aantal": 1941522,
+      "ondergrens": true,
+      "exact": false
+    },
+    "224": {
+      "aantal": 3286715,
+      "ondergrens": true,
+      "exact": false
+    },
+    "225": {
+      "aantal": 160080,
+      "exact": true
+    },
+    "226": {
+      "aantal": 2995565,
+      "ondergrens": true,
+      "exact": false
     }
   }
 }

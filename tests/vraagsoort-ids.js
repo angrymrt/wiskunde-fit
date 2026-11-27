@@ -224,4 +224,8 @@ export default {
   220: 'getallenrij',
   221: 'haakjesZetten',
   222: 'rekentekensZetten',
+  223: 's32aflezen',
+  224: 's32tijdstip',
+  225: 's32tocht',
+  226: 's32twee',
 };

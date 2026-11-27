@@ -34,7 +34,13 @@ export default {
           'Roosterpunten tellen en tekenen in een assenstelsel kun je hier nog niet oefenen.',
         ],
         ['3.2', 'Regelmaat in assenstelsels', [132], 'deels'],
-        ['3.3', 'Grafieken in assenstelsels'],
+        [
+          '3.3',
+          'Grafieken in assenstelsels',
+          [223, 224, 225, 226],
+          'deels',
+          'Een grafiek tekenen bij een tabel en globale grafieken zonder getallen kun je hier nog niet oefenen.',
+        ],
         ['3.4', 'Woordformules', [133, 134, 135, 136, 137]],
         ['3.5', 'Formules met letters', [138, 139, 140, 141, 142]],
         [

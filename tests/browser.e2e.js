@@ -3705,7 +3705,9 @@ const LIMITS = {
   // dus de grens onverpakt ging van 145 naar 146 kB. narekenen en tekst in topics/shared.js laden alleen bij een onderwerp.
   // Met alle zes onderwerpen van hoofdstuk 2 (#244) in de catalogus is het eerste bezoek 57,0 kB verstuurd, dus de grens ging van 57 naar 58.
   // Met het hele hoofdstuk 2 (#244) is de code bij het eerste bezoek 146,7 kB onverpakt, dus die grens ging van 146 naar 148 kB.
-  start: { sent: 58, own: 148, why: 'de code bij het eerste bezoek' },
+  // Grafieken lezen en tekenen (#287) zette een catalogus, twee woorden (scheurlijn, afstand-tijdgrafiek) en vier
+  // vraagsoorten in de methode-indelingen in de code bij het eerste bezoek: 148,2 kB onverpakt, dus die grens ging van 148 naar 150 kB.
+  start: { sent: 58, own: 150, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
