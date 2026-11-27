@@ -786,8 +786,12 @@ test(
       assert.match(await controleer(), /meer dan zes/);
       await hokje(...vrij);
       assert.equal(await veld(), q.fields[0].a);
-      // Met het toetsenbord kleur je een hokje en maak je het weer leeg. De cursor begint linksboven.
+      // Met het toetsenbord kleur je een hokje en maak je het weer leeg. De cursor begint linksboven. Na Controleer
+      // bouwt het scherm zich opnieuw op, en ui/tekenen.js maakt het rooster daarna pas focusbaar: wacht daarop, en
+      // op de cursor, anders gaan de toetsen soms nergens heen.
+      await p.waitForSelector('svg[data-teken][tabindex="0"]');
       await p.focus('svg[data-teken]');
+      await p.waitForSelector('svg[data-teken] .getekend .cursor');
       for (let k = 0; k < vrij[0]; k++) await p.keyboard.press('ArrowRight');
       for (let k = 0; k < vrij[1]; k++) await p.keyboard.press('ArrowDown');
       await p.keyboard.press(' ');
@@ -805,6 +809,7 @@ test(
       assert.equal(await p.$$eval('.teken-knoppen [data-teken-knop="omhoog"]', (b) => b.length), 0);
       // Met het toetsenbord: de cursor begint bij 0, en Enter zet daar het begin. Een schermlezer hoort waar.
       await p.focus('svg[data-teken]');
+      await p.waitForSelector('svg[data-teken] .getekend .cursor');
       assert.match(await uitleg(), /De cursor staat bij 0\./);
       await p.keyboard.press('Enter');
       assert.equal(await veld(), '0 ?');
