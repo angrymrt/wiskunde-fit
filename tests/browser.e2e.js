@@ -59,7 +59,7 @@ const answerOf = `(q) => {
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken || f.berekening ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {
@@ -2794,6 +2794,62 @@ test('het tabblad Toetsenbord typt in het veld, en het toetsenbord van het syste
       assert.equal(await p.textContent('#rh-invnaam'), 'a = (1/2)');
       await ctx.close();
     }
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('een berekening typ je zelf, ook met de Rekenhulp, en de site rekent hem na (#262)', async () => {
+  const browser = await launch();
+  try {
+    const errors = [];
+    const p = await browser.newPage({
+      reducedMotion: 'reduce',
+      viewport: { width: 390, height: 700 },
+    });
+    p.on('pageerror', (e) => errors.push(e.message));
+    // Rekentekens zetten bij -3, -9, 7 en -3 met de uitkomst -15.
+    await p.goto(at('/vermenigvuldigen-en-delen-met-negatieve-getallen/oefenen?soort=222&seed=2'));
+    await p.waitForSelector('#pform');
+    assert.match(await p.textContent('#pq'), /uitkomst −15/);
+    // Wat niet te lezen is, krijgt een eigen melding.
+    await p.fill('#pf0', '-3 - (-9 + 7');
+    await p.click('#pform button[type="submit"]');
+    assert.match(await p.textContent('#pfb'), /berekening kan ik niet lezen/);
+    // Een andere volgorde van de getallen, en een berekening met de verkeerde uitkomst.
+    await p.fill('#pf0', '-9 - -3 + 7 * -3');
+    await p.click('#pform button[type="submit"]');
+    assert.match(await p.textContent('#pfb'), /in dezelfde volgorde/);
+    await p.fill('#pf0', '-3 * -9 + 7 * -3');
+    await p.click('#pform button[type="submit"]');
+    assert.match(await p.textContent('#pfb'), /geeft niet −15/);
+    // Het tabblad Toetsenbord heeft bij een berekening rekentekens en haakjes. Een min na een getal is een aftrekmin,
+    // met spaties, en anders een negatieve min.
+    await p.click('[data-act="rekenhulp"]');
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    await p.click('#rh-tab-toetsenbord');
+    await p.click('.rh [data-k="V:LEEG"]');
+    for (const k of ['-', '3', '-', '(', '-', '9', ')', '+', '7', '*', '-', '3'])
+      await p.click(`.rh [data-k="V:${k}"]`);
+    assert.equal(await p.inputValue('#pf0'), '−3 − (−9) + 7 · −3');
+    await p.click('.rh [data-k="V:WIS"]');
+    assert.equal(await p.inputValue('#pf0'), '−3 − (−9) + 7 · −');
+    // Het gewone toetsenbord typt ook rekentekens, als de focus in het paneel staat.
+    await p.focus('#rh-titel');
+    await p.keyboard.type('3');
+    assert.equal(await p.inputValue('#pf0'), '−3 − (−9) + 7 · −3');
+    await p.screenshot({ path: `${shotDir}rekenhulp-berekening.png` });
+    await p.click('.rh [data-k="V:CONTROLEER"]');
+    assert.equal(await p.textContent('#pfb'), 'Goed gedaan!');
+    // Bij een vraag zonder berekening heeft het tabblad weer de gewone toetsen.
+    await p.goto(at('/lineaire-formule-opstellen/oefenen?soort=5&seed=k3x9q'));
+    await p.waitForSelector('#pform');
+    await p.click('[data-act="rekenhulp"]');
+    await p.waitForSelector('#rekenhulp:not([hidden])');
+    await p.click('#rh-tab-toetsenbord');
+    assert.ok(await p.$('.rh [data-k="V:TEKEN"]'));
+    assert.equal(await p.$('.rh [data-k="V:("]'), null);
     assert.deepEqual(errors, []);
   } finally {
     await browser.close();

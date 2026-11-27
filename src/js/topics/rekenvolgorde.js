@@ -951,6 +951,58 @@ function getallenrij() {
   };
 }
 
+// --- 221 Haakjes zetten (#262) ---
+// Een berekening met één paar haakjes uit MET. Zonder haakjes geeft ze een andere uitkomst, dus de
+// haakjes zijn echt nodig. Ook zonder haakjes is de uitkomst heel en niet negatief, want die staat in
+// de uitwerking. De leerling typt de hele berekening. Elke plek van de haakjes die de
+// uitkomst geeft, is goed: answers.js rekent de getypte berekening na (berekeningKlopt).
+const EEN_PAAR = MET.filter(
+  (v) => tekens(vul(v, [2, 3, 4, 5, 6])).filter((x) => x === '(').length === 1,
+);
+function haakjesZetten() {
+  const vorm = pick(EEN_PAAR);
+  const t = until(
+    () => bouw(vorm),
+    (t) => {
+      if (!goed(t)) return false;
+      const zonder = anders(ZONDER_HAAKJES(tekens(t)));
+      return Number.isInteger(zonder) && zonder >= 0 && zonder !== waarde(t);
+    },
+  );
+  const ts = tekens(t),
+    kaal = ZONDER_HAAKJES(ts),
+    { rijen, uitkomst } = stappen(ts),
+    s = tekst(ts);
+  return {
+    q: T(
+      `Zet haakjes in ${tekst(kaal)}, zodat de uitkomst ${uitkomst} is. Typ de hele berekening, met de haakjes erin.`,
+    ),
+    fields: [
+      {
+        pre: 'Berekening:',
+        label: 'Je berekening met haakjes',
+        a: s,
+        berekening: {
+          getallen: kaal.filter((x) => typeof x === 'number'),
+          tekens: kaal.filter((x) => typeof x === 'string'),
+          uitkomst,
+        },
+      },
+    ],
+    hint: 'Wat tussen haakjes staat, reken je eerst uit. Zet de haakjes om een plus of min, en reken na of de uitkomst klopt. Klopt hij niet, probeer dan een andere plek.',
+    steps: [
+      `Zonder haakjes is ${tekst(kaal)} = ${narekenen(tekst(kaal))}. Dat is niet ${uitkomst}, dus er moeten haakjes bij.`,
+      `Met haakjes om ${tekst(ts.slice(ts.indexOf('(') + 1, ts.indexOf(')')))} reken je dat eerst uit:`,
+      ...uitwerking(rijen),
+    ],
+    // Een eigen ontleder rekent de berekening met haakjes na, en zonder haakjes is de uitkomst anders.
+    v: () =>
+      narekenen(s) === uitkomst &&
+      narekenen(tekst(kaal)) !== uitkomst &&
+      s.replace(/[()]/g, '').replace(/ +/g, ' ').trim() === tekst(kaal),
+  };
+}
+
 export default {
   slug: 'rekenvolgorde',
   title: 'Rekenvolgorde',
@@ -967,6 +1019,7 @@ export default {
     [189, 'Het ontbrekende getal', ontbrekend],
     [190, 'Een verhaal als één berekening', verhaalBerekening],
     [220, 'Een getallenrij voortzetten', getallenrij],
+    [221, 'Haakjes zetten', haakjesZetten],
   ],
   learn: [
     {

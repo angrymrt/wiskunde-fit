@@ -798,9 +798,10 @@ app.addEventListener('submit', async (e) => {
       render('#pfb');
       return;
     }
-    if (unreadable(st.q, vals)) {
+    const onleesbaar = unreadable(st.q, vals);
+    if (onleesbaar) {
       st.status = 'wrong';
-      st.msg = 'Dit getal kan ik niet lezen. Schrijf bijvoorbeeld -2, 3,5 of 1 1/2.';
+      st.msg = onleesbaar;
       st.marks = null;
       render('#pfb');
       return;

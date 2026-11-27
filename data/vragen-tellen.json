@@ -912,6 +912,15 @@
     "220": {
       "aantal": 2387,
       "exact": true
+    },
+    "221": {
+      "aantal": 43609,
+      "exact": true
+    },
+    "222": {
+      "aantal": 1288597,
+      "ondergrens": true,
+      "exact": false
     }
   }
 }

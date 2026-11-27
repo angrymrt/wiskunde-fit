@@ -222,4 +222,6 @@ export default {
   218: 'piramide',
   219: 'magischVierkant',
   220: 'getallenrij',
+  221: 'haakjesZetten',
+  222: 'rekentekensZetten',
 };

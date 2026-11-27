@@ -47,7 +47,7 @@ import tabellen from './tabellen-en-diagrammen.js';
 import misleidend from './misleidende-statistiek.js';
 import interpoleren from './interpoleren-en-extrapoleren.js';
 import { newSeed, withSeed } from '../math.js';
-import { roundTraps, vormTraps } from '../answers.js';
+import { roundTraps, vormTraps, berekeningTraps } from '../answers.js';
 
 const DOMAINS = [
   {
@@ -237,7 +237,12 @@ function laadOnderwerpen(topics) {
 function makeQuestion(skill, seed = newSeed()) {
   if (!skill.gen) throw new Error(`Vraagsoort ${skill.id} is nog niet geladen.`);
   const q = withSeed(seed, skill.gen);
-  const traps = [...(q.traps ?? []), ...roundTraps(q.fields), ...vormTraps(q.fields)];
+  const traps = [
+    ...(q.traps ?? []),
+    ...roundTraps(q.fields),
+    ...vormTraps(q.fields),
+    ...berekeningTraps(q.fields),
+  ];
   return { ...q, ...(traps.length ? { traps } : {}), seed };
 }
 
