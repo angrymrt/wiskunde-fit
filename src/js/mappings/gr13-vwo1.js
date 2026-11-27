@@ -26,13 +26,7 @@ export default {
       part: 'deel 1',
       description: 'Grafieken en formules',
       paragraphs: [
-        [
-          '3.1',
-          'Assenstelsels en kwadranten',
-          [127, 128, 129, 130, 131],
-          'deels',
-          'Roosterpunten tellen en tekenen in een assenstelsel kun je hier nog niet oefenen.',
-        ],
+        ['3.1', 'Assenstelsels en kwadranten', [127, 128, 129, 130, 131, 230, 231]],
         ['3.2', 'Regelmaat in assenstelsels', [132], 'deels'],
         [
           '3.3',
@@ -41,8 +35,8 @@ export default {
           'deels',
           'Vormen vullen met water en een snelheidsgrafiek bij een circuit kun je hier nog niet oefenen.',
         ],
-        ['3.4', 'Woordformules', [133, 134, 135, 136, 137]],
-        ['3.5', 'Formules met letters', [138, 139, 140, 141, 142]],
+        ['3.4', 'Woordformules', [133, 134, 135, 136, 137, 232]],
+        ['3.5', 'Formules met letters', [138, 139, 140, 141, 142, 236]],
         [
           '3.6',
           'Grafiek bij een formule',

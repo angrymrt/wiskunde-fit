@@ -1,5 +1,6 @@
 // Getal & Ruimte, 13e editie, havo/vwo 1. De koppelingen komen uit de titels en de generatoren.
-// Hoofdstuk 1 en 2 zijn gemaakt met de foto's van het boek erbij, de andere hoofdstukken nog niet. Daarom is alles hier deels gedekt.
+// Hoofdstuk 1 en 2 zijn gemaakt met de foto's van het boek erbij, hoofdstuk 3 met een samenvatting van de werkwijze (#283).
+// Een paragraaf die niet helemaal is gedekt of nog niet met het boek is vergeleken, staat op deels.
 export default {
   id: 'gr13-hv1',
   slug: 'getal-en-ruimte-13-havo-vwo-1',
@@ -7,7 +8,7 @@ export default {
   edition: 13,
   level: 'havo/vwo',
   year: 1,
-  note: 'Hoofdstuk 1 en 2 zijn gemaakt met dit boek erbij. De andere vragen zijn gemaakt voor havo 3 en nog niet (helemaal) met dit boek vergeleken.',
+  note: 'Hoofdstuk 1, 2 en 3 zijn gemaakt met dit boek erbij. De andere vragen zijn gemaakt voor havo 3 en nog niet (helemaal) met dit boek vergeleken.',
   // De leerboeken komen uit de webshop van Noordhoff, de FLEX-boeken uit de bestandsnamen bij Noordhoff.
   books: [
     {
@@ -120,7 +121,7 @@ export default {
       part: 'deel 1',
       description: 'Assen, grafieken en eerste formules',
       paragraphs: [
-        ['3.1', 'Punten plaatsen met coördinaten', [127, 128, 129, 130, 132], 'deels'],
+        ['3.1', 'Punten plaatsen met coördinaten', [127, 128, 129, 130, 230, 231]],
         [
           '3.2',
           'Grafieken lezen en tekenen',
@@ -128,8 +129,14 @@ export default {
           'deels',
           'Vormen vullen met water en een snelheidsgrafiek bij een circuit kun je hier nog niet oefenen.',
         ],
-        ['3.3', 'Formules in woorden', [133, 134, 135, 136, 137], 'deels'],
-        ['3.4', 'Formules in letters schrijven', [138, 139, 140, 141, 142], 'deels'],
+        [
+          '3.3',
+          'Formules in woorden',
+          [133, 134, 135, 136, 137, 232],
+          'deels',
+          'Een formule opstellen bij een patroon, zoals van lucifers, kun je hier nog niet oefenen.',
+        ],
+        ['3.4', 'Formules in letters schrijven', [138, 139, 140, 141, 142, 236]],
         ['3.5', 'Van formule naar grafiek', [1, 2, 3, 4, 5, 8, 11, 14, 16], 'deels'],
       ],
     },

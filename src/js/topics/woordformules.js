@@ -1,7 +1,7 @@
 // Onderwerp: Woordformules. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
 import { ri, pick, coin, until, Q, qv, near, isNice, rd, d, fr, ap } from '../math.js';
-import { F, MC } from './shared.js';
-import { T } from '../typeset.js';
+import { F, H, MC } from './shared.js';
+import { T, dt } from '../typeset.js';
 
 // Een bedrag in euro met twee decimalen als het geen heel getal is: 12,50 en geen 12,5.
 const geld = (x) => (isNice(x, 0) ? String(Math.round(x)) : x.toFixed(2).replace('.', ','));
@@ -601,6 +601,178 @@ function wfCannot() {
   };
 }
 
+// --- 232 Twee woordformules vergelijken (#289) ---
+
+// Twee aanbieders met elk een woordformule: vast bedrag + bedrag per keer. De ene heeft een hoger vast bedrag en
+// is per keer goedkoper. b zijn de keuzes voor het bedrag per keer, a voor het lagere vaste bedrag.
+const TWEE = [
+  {
+    wie: ['Kanoverhuur De Reiger', 'Kanoverhuur Het Riet'],
+    per: 'uur',
+    zin: 'Je huurt een kano. Voor de kosten in euro gelden bij twee verhuurders deze woordformules.',
+    x: 'aantal uren',
+    xe: 'uur',
+    b: [3, 4, 5, 6, 7],
+    a: [0, 2, 4, 5],
+  },
+  {
+    wie: ['Sportschool Topfit', 'Sportschool De Sprong'],
+    per: 'maand',
+    zin: 'Voor de kosten in euro van een abonnement gelden bij twee sportscholen deze woordformules.',
+    x: 'aantal maanden',
+    xe: 'maanden',
+    b: [15, 18, 20, 22, 25],
+    a: [10, 15, 20, 25],
+  },
+  {
+    wie: ['Zwembad De Golf', 'Zwembad Het Bad'],
+    per: 'keer',
+    zin: 'Voor de kosten in euro van zwemmen in de zomer gelden bij twee zwembaden deze woordformules. Bij het ene zwembad koop je eerst een pasje.',
+    x: 'aantal keer',
+    xe: 'keer',
+    b: [3, 4, 5, 6],
+    a: [0],
+  },
+  {
+    wie: ['Bowlingbaan De Kegel', 'Bowlingbaan De Pin'],
+    per: 'spel',
+    zin: 'Voor de kosten in euro van een avond bowlen gelden bij twee bowlingbanen deze woordformules. De vaste kosten zijn voor de schoenen.',
+    x: 'aantal spellen',
+    xe: 'spellen',
+    b: [4, 5, 6, 7, 8],
+    a: [2, 3, 4],
+  },
+];
+// De formule als tekst: kosten = 12 + 3 · aantal uren, of kosten = 5 · aantal keer zonder vast bedrag.
+const formule = (c, a, b) => `kosten = ${a ? `${a} + ` : ''}${b} · ${c.x}`;
+const invul = (a, b, n) =>
+  a ? `${a} + ${b} · ${n} = ${a} + ${b * n} = ${a + b * n}` : `${b} · ${n} = ${b * n}`;
+
+function wfVergelijk() {
+  const c = pick(TWEE),
+    // H heeft het hogere vaste bedrag en is per keer goedkoper. Bij n keer zijn ze even duur.
+    { aL, aH, bL, bH, n } = until(
+      () => {
+        const bH = pick(c.b),
+          bL = pick(c.b),
+          n = ri(2, 8),
+          aL = pick(c.a);
+        return { aL, bL, bH, n, aH: aL + n * (bL - bH) };
+      },
+      ({ bL, bH, aH }) => bL > bH && aH <= 60,
+    ),
+    // Welke aanbieder het eerst staat, en of die het hogere vaste bedrag heeft.
+    hoogEerst = coin(),
+    wie = coin() ? c.wie : [c.wie[1], c.wie[0]],
+    rij = hoogEerst
+      ? [
+          { naam: wie[0], a: aH, b: bH },
+          { naam: wie[1], a: aL, b: bL },
+        ]
+      : [
+          { naam: wie[0], a: aL, b: bL },
+          { naam: wie[1], a: aH, b: bH },
+        ],
+    K = aH + bH * n,
+    kost = (r, k) => r.a + r.b * k,
+    // De twee formules elk op een eigen regel, na de zin over het verhaal.
+    vraag = (tekst) =>
+      [c.zin, ...rij.map((r) => `${r.naam}: ${formule(c, r.a, r.b)}`), tekst]
+        .map((z) => T(z))
+        .join('<br>');
+  if (coin()) {
+    // Bij welk aantal zijn ze even duur? Uitwerking met een tabel.
+    const tot = n + 1,
+      ks = Array.from({ length: tot + 1 }, (_, k) => k),
+      tab = dt(
+        [
+          [c.x, ...ks.map(String)],
+          ...rij.map((r) => [r.naam, ...ks.map((k) => String(kost(r, k)))]),
+        ],
+        `Tabel: de kosten bij ${rij[0].naam} en ${rij[1].naam}`,
+      );
+    return {
+      q: vraag(`Bij welk ${c.x} zijn de kosten bij allebei even hoog? Hoeveel euro is dat dan?`),
+      fields: [F(`${c.x} =`, n), { ...F('kosten =', K, 'euro'), br: true, label: 'kosten' }],
+      hint: T(
+        `Maak een tabel met ${c.x} 0, 1, 2, ... en reken bij elk aantal de kosten bij allebei uit. Kijk waar de kosten gelijk zijn.`,
+      ),
+      steps: [
+        `Maak een tabel en reken bij elk ${c.x} de kosten uit met allebei de formules.`,
+        H(tab),
+        `Bij ${n} ${c.xe} zijn de kosten bij allebei ${K} euro.`,
+        `Controle: ${invul(rij[0].a, rij[0].b, n)} en ${invul(rij[1].a, rij[1].b, n)}.`,
+      ],
+      traps: [
+        fout(
+          'verschil-vast-bedrag',
+          aH - aL,
+          n,
+          `${aH - aL} euro is het verschil in vaste kosten. Per ${c.per} haal je ${bL - bH} euro van dat verschil in. Maak een tabel of vul aantallen in.`,
+        ),
+        {
+          id: 'bedragen-gemengd',
+          f: (v) =>
+            near(v[0], n) && [aH + bL * n, aL + bH * n].some((w) => w !== K && near(v[1], w)),
+          m: 'Je hebt het vaste bedrag van de ene formule en het bedrag per keer van de andere gebruikt. Vul het aantal in één formule in.',
+        },
+      ].filter(Boolean),
+      // Loopt de aantallen af tot de kosten voor het eerst gelijk zijn, zoals in de tabel.
+      v: () => {
+        const k = Array.from({ length: 21 }, (_, i) => i).find(
+          (i) => kost(rij[0], i) === kost(rij[1], i),
+        );
+        return k === n && kost(rij[0], k) === K && kost(rij[1], k) === K;
+      },
+    };
+  }
+  // Welke is goedkoper bij m keer? Soms precies even duur.
+  const m = ri(1, 5) === 1 ? n : ri(1, 12),
+    k0 = kost(rij[0], m),
+    k1 = kost(rij[1], m),
+    goed = k0 < k1 ? 0 : k1 < k0 ? 1 : 2,
+    opts = [`Bij ${rij[0].naam}`, `Bij ${rij[1].naam}`, 'Ze zijn even duur'].map((o) => T(o)),
+    laagVast = rij[0].a < rij[1].a ? 0 : 1;
+  return {
+    q: vraag(`Je wilt ${m} ${c.xe}. Waar is dat het goedkoopst?`),
+    mc: MC(opts, goed),
+    hint: T(`Vul ${m} in bij allebei de formules en vergelijk de kosten.`),
+    steps: [
+      `${rij[0].naam}: ${invul(rij[0].a, rij[0].b, m)}`,
+      `${rij[1].naam}: ${invul(rij[1].a, rij[1].b, m)}`,
+      goed === 2
+        ? `Allebei ${k0} euro, dus ze zijn even duur.`
+        : `${Math.min(k0, k1)} euro is minder dan ${Math.max(k0, k1)} euro, dus bij ${rij[goed].naam} is het goedkoopst.`,
+    ],
+    traps: [
+      ...(goed === 2
+        ? []
+        : [
+            {
+              id: 'laagste-vaste-bedrag',
+              f: (v) => v[0] === opts[laagVast] && laagVast !== goed,
+              m: `Je hebt alleen naar de vaste kosten gekeken. Bij een groot ${c.x} telt het bedrag per ${c.per} zwaarder. Vul het aantal in bij allebei de formules.`,
+            },
+            {
+              id: 'laagste-bedrag-per-keer',
+              f: (v) => v[0] === opts[1 - laagVast] && 1 - laagVast !== goed,
+              m: `Je hebt alleen naar het bedrag per ${c.per} gekeken. Bij een klein ${c.x} tellen de vaste kosten zwaarder. Vul het aantal in bij allebei de formules.`,
+            },
+          ]),
+      {
+        id: 'kosten-niet-vergeleken',
+        f: (v) => v[0] !== opts[goed],
+        m: 'Vul het aantal in bij allebei de formules en vergelijk de uitkomsten.',
+      },
+    ],
+    // Het verschil in kosten is het verschil in vast bedrag min het voordeel per keer.
+    v: () => {
+      const diff = rij[0].a - rij[1].a + (rij[0].b - rij[1].b) * m;
+      return Math.sign(diff) === [-1, 1, 0][goed];
+    },
+  };
+}
+
 export default {
   slug: 'woordformules',
   title: 'Woordformules',
@@ -615,6 +787,7 @@ export default {
     [135, 'Woordformule opstellen', wfMake],
     [136, 'Aantal terugrekenen', wfBack],
     [137, 'Welke waarde kan niet?', wfCannot],
+    [232, 'Twee formules vergelijken', wfVergelijk],
   ],
   learn: [
     {
@@ -672,6 +845,27 @@ export default {
         steps: ['22 - 6 = 16', '16 : 4 = 4', 'Je hebt 4 uur schilderles gehad.'],
       },
       watch: T('Deel niet eerst: 22 : 4 - 6 klopt niet.'),
+    },
+    {
+      t: 'Twee formules vergelijken',
+      p: [
+        T(
+          'Heb je twee woordformules voor hetzelfde, zoals de kosten bij twee winkels, maak dan een tabel. Reken bij elk aantal de uitkomst uit met allebei de formules. Zo zie je waar ze gelijk zijn en welke het goedkoopst is.',
+        ),
+      ],
+      ex: {
+        q: T(
+          'Bij winkel A geldt kosten = 9 + 2 · aantal uren, bij winkel B kosten = 3 + 5 · aantal uren. Bij hoeveel uur zijn de kosten gelijk?',
+        ),
+        steps: [
+          'Bij 1 uur: A 9 + 2 · 1 = 11 en B 3 + 5 · 1 = 8.',
+          'Bij 2 uur: A 9 + 2 · 2 = 13 en B 3 + 5 · 2 = 13.',
+          'Bij 2 uur zijn de kosten bij allebei 13 euro.',
+        ],
+      },
+      watch: T(
+        'Kijk niet alleen naar het vaste bedrag of alleen naar het bedrag per keer. Welke goedkoper is, hangt af van het aantal.',
+      ),
     },
     {
       t: 'Waarden die niet kunnen',

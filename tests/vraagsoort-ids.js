@@ -231,4 +231,8 @@ export default {
   227: 's32tabel',
   228: 's32globaal',
   229: 's32verhaal',
+  230: 's31rooster',
+  231: 's31diagonalen',
+  232: 'wfVergelijk',
+  236: 'flNegatief',
 };

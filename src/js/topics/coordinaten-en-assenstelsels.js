@@ -1,7 +1,8 @@
 // Onderwerp: Coördinaten en assenstelsels. Vraaggeneratoren staan bovenaan, de uitleg en de lijst met vraagsoorten onderaan.
-import { ri, nz, pick, coin, shuffle, until } from '../math.js';
+import { ri, nz, pick, coin, shuffle, until, Q, qv, fr, near } from '../math.js';
 import { F, H, MC } from './shared.js';
-import { graph } from '../figures.js';
+import { graph, and, cap } from '../figures.js';
+import { SOORTEN, tekenAf, tekenFig } from '../tekenvragen.js';
 import { T } from '../typeset.js';
 
 // T zet I en II cursief, als een variabele. Een kwadrant heeft een Romeins cijfer, dus dat staat
@@ -517,6 +518,364 @@ function s32pattern() {
   };
 }
 
+// --- 230 Roosterpunten met een voorwaarde (#289) ---
+
+const ROOSTER =
+  'Een roosterpunt is een punt waarvan de x-coördinaat en de y-coördinaat allebei hele getallen zijn.';
+const TIK = 'Tik op een plek om er een punt te zetten, en nog een keer om het weg te halen.';
+// De hele getallen tussen lo en hi, zonder de grenzen zelf.
+const tussen = (lo, hi) => Array.from({ length: hi - lo - 1 }, (_, i) => lo + 1 + i);
+const rij = (xs) => and(xs.map(String));
+
+// Alle roosterpunten die aan een voorwaarde voldoen: op een verticale of horizontale lijn met de andere
+// coördinaat tussen twee grenzen, aan één kant van een as, met dezelfde coördinaat als een gegeven punt, of in
+// een rechthoek. De grenzen tellen niet mee. Hoogstens 12 punten.
+function s31rooster() {
+  const soort = pick(['x', 'y', 'kant', 'zelfde', 'blok', 'blok']),
+    G = SOORTEN.roosterpunten;
+  // Per as: een vaste waarde, of een open interval [lo, hi] zonder de grenzen.
+  let X, Y, cond, geg, uitleg, grensMsg, hoort;
+  const lijn = () => {
+    const n = ri(4, 9),
+      lo = ri(-6, 6 - n);
+    return [lo, lo + n];
+  };
+  if (soort === 'x' || soort === 'y') {
+    const c = nz(-5, 5),
+      [lo, hi] = lijn(),
+      a = soort,
+      b = a === 'x' ? 'y' : 'x';
+    [X, Y] = a === 'x' ? [c, [lo, hi]] : [[lo, hi], c];
+    cond = `${a} = ${c} en ${b} tussen ${lo} en ${hi}`;
+    uitleg = [
+      `${a} = ${c}: alle punten liggen op de ${a === 'x' ? 'verticale' : 'horizontale'} lijn door (${a === 'x' ? `${c}, 0` : `0, ${c}`}).`,
+      `${b} tussen ${lo} en ${hi}: de grenzen ${lo} en ${hi} tellen niet mee. Dus ${b} = ${rij(tussen(lo, hi))}.`,
+    ];
+    grensMsg = `Tussen ${mn(lo)} en ${mn(hi)} betekent zonder ${mn(lo)} en ${mn(hi)} zelf. Haal de punten met ${b} = ${mn(lo)} en ${b} = ${mn(hi)} weg.`;
+    hoort = (p) =>
+      p[a === 'x' ? 0 : 1] === c && p[a === 'x' ? 1 : 0] > lo && p[a === 'x' ? 1 : 0] < hi;
+  } else if (soort === 'kant') {
+    // Aan één kant van een as, tot een grens: onder de x-as met y groter dan −4, enzovoort.
+    const kant = pick(['onder', 'boven', 'links', 'rechts']),
+      k = ri(3, 6),
+      c = nz(-5, 5),
+      opX = kant === 'onder' || kant === 'boven',
+      neg = kant === 'onder' || kant === 'links',
+      [lo, hi] = neg ? [-k, 0] : [0, k],
+      a = opX ? 'x' : 'y',
+      b = opX ? 'y' : 'x',
+      as = opX ? 'x-as' : 'y-as',
+      waar = { onder: 'onder', boven: 'boven', links: 'links van', rechts: 'rechts van' }[kant],
+      eind = neg ? -k : k;
+    [X, Y] = opX ? [c, [lo, hi]] : [[lo, hi], c];
+    cond = `${a} = ${c} die ${waar} de ${as} liggen, met ${b} ${neg ? 'groter' : 'kleiner'} dan ${eind}`;
+    uitleg = [
+      `${a} = ${c}: alle punten liggen op de ${opX ? 'verticale' : 'horizontale'} lijn door (${opX ? `${c}, 0` : `0, ${c}`}).`,
+      `${cap(waar)} de ${as} is ${b} ${neg ? 'negatief' : 'positief'}. Een punt op de ${as} zelf, met ${b} = 0, telt niet mee.`,
+      `${b} ${neg ? 'groter' : 'kleiner'} dan ${eind}, dus ${eind} telt ook niet mee. Dus ${b} = ${rij(tussen(lo, hi))}.`,
+    ];
+    grensMsg = `Kijk naar de grenzen. Een punt op de ${as} ligt niet ${waar} de ${as}, en ${b} = ${mn(eind)} is niet ${neg ? 'groter' : 'kleiner'} dan ${mn(eind)}.`;
+    hoort = (p) =>
+      p[opX ? 0 : 1] === c &&
+      (neg ? p[opX ? 1 : 0] < 0 : p[opX ? 1 : 0] > 0) &&
+      Math.abs(p[opX ? 1 : 0]) < k;
+  } else if (soort === 'zelfde') {
+    // Dezelfde x-coördinaat (of y-coördinaat) als een gegeven punt A, dat zelf buiten de grenzen ligt.
+    const a = pick(['x', 'y']),
+      b = a === 'x' ? 'y' : 'x',
+      L = pick(['A', 'K', 'P', 'R']),
+      { lo, hi, c, e } = until(
+        () => {
+          const [lo, hi] = lijn();
+          return { lo, hi, c: nz(-5, 5), e: nz(-6, 6) };
+        },
+        ({ lo, hi, e }) => e < lo || e > hi,
+      ),
+      pA = a === 'x' ? [c, e] : [e, c];
+    geg = [{ p: pA, L }];
+    [X, Y] = a === 'x' ? [c, [lo, hi]] : [[lo, hi], c];
+    cond = `dezelfde ${a}-coördinaat als punt ${L}(${pA[0]}, ${pA[1]}) en ${b} tussen ${lo} en ${hi}`;
+    uitleg = [
+      `${L} heeft ${a} = ${c}. De punten liggen dus op de ${a === 'x' ? 'verticale' : 'horizontale'} lijn door ${L}.`,
+      `${b} tussen ${lo} en ${hi}: de grenzen ${lo} en ${hi} tellen niet mee. Dus ${b} = ${rij(tussen(lo, hi))}.`,
+    ];
+    grensMsg = `Tussen ${mn(lo)} en ${mn(hi)} betekent zonder ${mn(lo)} en ${mn(hi)} zelf. Haal de punten met ${b} = ${mn(lo)} en ${b} = ${mn(hi)} weg.`;
+    hoort = (p) =>
+      p[a === 'x' ? 0 : 1] === pA[a === 'x' ? 0 : 1] &&
+      p[a === 'x' ? 1 : 0] > lo &&
+      p[a === 'x' ? 1 : 0] < hi;
+  } else {
+    // Een rechthoek: x tussen twee grenzen en y tussen twee grenzen.
+    const [w, h] = until(
+        () => [ri(2, 4), ri(2, 4)],
+        ([w, h]) => w * h <= 12,
+      ),
+      x0 = ri(-6, 5 - w),
+      y0 = ri(-6, 5 - h);
+    X = [x0, x0 + w + 1];
+    Y = [y0, y0 + h + 1];
+    cond = `x tussen ${X[0]} en ${X[1]} en y tussen ${Y[0]} en ${Y[1]}`;
+    uitleg = [
+      `x tussen ${X[0]} en ${X[1]}, zonder de grenzen: x = ${rij(tussen(...X))}.`,
+      `y tussen ${Y[0]} en ${Y[1]}, zonder de grenzen: y = ${rij(tussen(...Y))}.`,
+      `Elke x hoort bij elke y. Dat zijn ${w} · ${h} = ${w * h} punten, in een rechthoek.`,
+    ];
+    grensMsg =
+      'Tussen betekent zonder de grenzen. Een punt op de rand, met x of y gelijk aan een grens, telt niet mee.';
+    hoort = (p) => p[0] > X[0] && p[0] < X[1] && p[1] > Y[0] && p[1] < Y[1];
+  }
+  // De punten, en de punten op de grenzen: wat je krijgt als je de grenzen wel meetelt.
+  const waarden = (A, dicht) =>
+      typeof A === 'number' ? [A] : dicht ? [A[0], ...tussen(...A), A[1]] : tussen(...A),
+    punten = (dicht) => waarden(X, dicht).flatMap((x) => waarden(Y, dicht).map((y) => [x, y])),
+    goed = punten(false),
+    t = { soort: 'roosterpunten', xr: [-6, 6], yr: [-6, 6], goed, ...(geg ? { geg } : {}) },
+    has = (ps, p) => ps.some((q) => is(q, p)),
+    grens = punten(true).filter((p) => !has(goed, p) && Math.abs(p[0]) <= 6 && Math.abs(p[1]) <= 6),
+    antwoord = G.schrijf(t, goed),
+    lees = (v) => G.lees(t, v[0]),
+    alle = (v, f) => {
+      const L = lees(v);
+      return L.length > 0 && L.every(f);
+    };
+  return {
+    q: T(`${ROOSTER} Zet in het assenstelsel alle roosterpunten met ${cond}. ${TIK}`),
+    fig: tekenFig(t),
+    teken: t,
+    fields: [{ teken: true, a: antwoord, label: 'Je punten' }],
+    hint: T(
+      `Een roosterpunt heeft hele getallen als coördinaten. Tussen twee getallen betekent zonder die getallen zelf: tussen 1 en 4 liggen 2 en 3.`,
+    ),
+    steps: [
+      ...uitleg,
+      `Dat zijn ${goed.length} punten: ${and(goed.map(([x, y]) => `(${x}, ${y})`))}.`,
+      H(tekenAf(t, antwoord, 'Met de goede punten.')),
+    ],
+    traps: [
+      {
+        id: 'x-en-y-verwisseld',
+        f: (v) => alle(v, (p) => has(goed, [p[1], p[0]])) && lees(v).some((p) => !has(goed, p)),
+        m: 'Je hebt x en y omgewisseld. De x-coördinaat zegt hoe ver je naar links of rechts gaat, de y-coördinaat hoe ver omhoog of omlaag.',
+      },
+      {
+        id: 'grenzen-meegeteld',
+        f: (v) =>
+          alle(v, (p) => has(goed, p) || has(grens, p)) && lees(v).some((p) => has(grens, p)),
+        m: grensMsg,
+      },
+      ...(geg
+        ? [
+            {
+              id: 'andere-coordinaat-gebruikt',
+              f: (v) =>
+                alle(v, (p) => p[0] === geg[0].p[0] || p[1] === geg[0].p[1]) &&
+                lees(v).some((p) => !has(goed, p)),
+              m: `Kijk welke coördinaat hetzelfde moet zijn als bij ${geg[0].L}. Dezelfde x-coördinaat betekent recht boven of onder ${geg[0].L}, dezelfde y-coördinaat recht links of rechts ervan.`,
+            },
+          ]
+        : []),
+      {
+        id: 'punt-vergeten',
+        f: (v) => alle(v, (p) => has(goed, p)) && lees(v).length < goed.length,
+        m: `Je bent een punt vergeten. Er horen ${goed.length} punten bij.`,
+      },
+    ],
+    // Loopt alle roosterpunten van het assenstelsel langs en houdt die over die aan de voorwaarde voldoen.
+    v: () => {
+      const gezet = G.lees(t, antwoord),
+        L = [];
+      for (let x = -6; x <= 6; x++) for (let y = -6; y <= 6; y++) if (hoort([x, y])) L.push([x, y]);
+      return (
+        L.length >= 2 &&
+        L.length <= 12 &&
+        L.length === gezet.length &&
+        L.every((p) => has(gezet, p)) &&
+        !(geg || []).some((g) => hoort(g.p))
+      );
+    },
+  };
+}
+
+// --- 231 Snijpunt van de diagonalen (#289) ---
+
+// Hoeveel je naar links of rechts en omhoog of omlaag gaat, zoals '5 naar rechts en 3 omhoog'.
+function stap(dx, dy) {
+  const s = (n) => fr(Q(Math.abs(n.n), n.d)),
+    delen = [];
+  if (dx.n) delen.push(`${s(dx)} ${dx.n < 0 ? 'naar links' : 'naar rechts'}`);
+  if (dy.n) delen.push(`${s(dy)} ${omhoog(dy.n)}`);
+  return delen.join(' en ');
+}
+// Een coördinaat plus een stap, zoals x = 3 - {2 1/2} = {1/2}.
+const plus = (c, a, s, uit) =>
+  `${c} = ${a} ${s.n < 0 ? '-' : '+'} ${fr(Q(Math.abs(s.n), s.d))} = ${fr(uit)}`;
+const HEEL = [
+  'Ja, want de x-coördinaat en de y-coördinaat van S zijn allebei hele getallen.',
+  'Nee, want de x-coördinaat van S is geen heel getal.',
+  'Nee, want de y-coördinaat van S is geen heel getal.',
+  'Nee, want de x-coördinaat en de y-coördinaat van S zijn allebei geen hele getallen.',
+];
+
+// Een vierkant of rechthoek met roosterpunten als hoekpunten. Het snijpunt S van de diagonalen ligt midden op
+// een diagonaal. Bereken S, of zeg of S een roosterpunt is.
+function s31diagonalen() {
+  const scheef = coin(),
+    square = scheef || coin(),
+    // De hoekpunten tegen de klok in. Een scheef vierkant heeft een zijde van a opzij en b omhoog.
+    P = until(
+      () => {
+        if (scheef) {
+          const a = ri(1, 4),
+            b = ri(1, 3),
+            p = [ri(-6, 6), ri(-6, 6)];
+          return [p, [p[0] + a, p[1] + b], [p[0] + a - b, p[1] + a + b], [p[0] - b, p[1] + a]];
+        }
+        const w = ri(2, 7),
+          h = square ? w : ri(2, 7),
+          p = [ri(-6, 6), ri(-6, 6)];
+        return [p, [p[0] + w, p[1]], [p[0] + w, p[1] + h], [p[0], p[1] + h]];
+      },
+      (P) =>
+        P.every(([x, y]) => Math.abs(x) <= 6 && Math.abs(y) <= 6) &&
+        (square || P[1][0] - P[0][0] !== P[3][1] - P[0][1]),
+    ),
+    names = pick(['ABCD', 'KLMN', 'EFGH']),
+    vorm = square ? 'vierkant' : 'rechthoek',
+    [A, , C] = P,
+    dx = Q(C[0] - A[0], 2),
+    dy = Q(C[1] - A[1], 2),
+    Sx = Q(A[0] + C[0], 2),
+    Sy = Q(A[1] + C[1], 2),
+    sx = qv(Sx),
+    sy = qv(Sy),
+    heel = (q) => q.d === 1,
+    k = heel(Sx) ? (heel(Sy) ? 0 : 2) : heel(Sy) ? 1 : 3,
+    midX = (P[0][0] + P[2][0]) / 2,
+    midY = (P[0][1] + P[2][1]) / 2,
+    // De letter staat van het midden af, zodat hij niet op een zijde valt.
+    off = ([x, y]) => [x > midX ? 6 : x < midX ? -14 : -4, y > midY ? -6 : y < midY ? 16 : 5],
+    hoeken = P.map((p, i) => ({ x: p[0], y: p[1], label: names[i], off: off(p) })),
+    rand = (Xp, Yp) =>
+      `<path class="l2" d="M${P.map(([x, y]) => `${Xp(x)} ${Yp(y)}`).join('L')}Z"/>`,
+    fig = graph({
+      xr: [-7, 7],
+      yr: [-7, 7],
+      u: 20,
+      pts: hoeken,
+      extra: rand,
+      label: `${cap(vorm)} ${names} in een assenstelsel`,
+    }),
+    figS = graph({
+      xr: [-7, 7],
+      yr: [-7, 7],
+      u: 20,
+      pts: [...hoeken, { x: sx, y: sy, label: 'S', off: [6, -7] }],
+      extra: (Xp, Yp) =>
+        rand(Xp, Yp) +
+        `<path class="l1 d" d="M${Xp(P[0][0])} ${Yp(P[0][1])}L${Xp(P[2][0])} ${Yp(P[2][1])}M${Xp(P[1][0])} ${Yp(P[1][1])}L${Xp(P[3][0])} ${Yp(P[3][1])}"/>`,
+      label: `${cap(vorm)} ${names} met de diagonalen ${names[0]}${names[2]} en ${names[1]}${names[3]} en hun snijpunt S`,
+    }),
+    gegeven = `${names} is een ${vorm} met ${and(P.map((p, i) => `${names[i]}(${p[0]}, ${p[1]})`))}. S is het snijpunt van de diagonalen ${names[0]}${names[2]} en ${names[1]}${names[3]}.`,
+    reken = [
+      `De diagonalen van een ${vorm} snijden elkaar precies in het midden. S ligt dus midden op ${names[0]}${names[2]}.`,
+      `Van ${names[0]}(${A[0]}, ${A[1]}) naar ${names[2]}(${C[0]}, ${C[1]}) ga je ${stap(Q(C[0] - A[0]), Q(C[1] - A[1]))}. De helft daarvan is ${stap(dx, dy)}.`,
+      ...(dx.n ? [plus('x', A[0], dx, Sx)] : [`x = ${A[0]}`]),
+      ...(dy.n ? [plus('y', A[1], dy, Sy)] : [`y = ${A[1]}`]),
+      `Dus S(${fr(Sx)}, ${fr(Sy)}).`,
+    ],
+    // Het snijpunt van de lijnen AC en BD, met de formule voor twee lijnen door twee punten. Zo rekent v niet
+    // met het midden. Bij een vierkant zijn de zijden ook even lang en staan ze loodrecht op elkaar.
+    v = () => {
+      const [p, q, r, s] = P,
+        u = [r[0] - p[0], r[1] - p[1]],
+        w = [s[0] - q[0], s[1] - q[1]],
+        cr = (a, b) => a[0] * b[1] - a[1] * b[0],
+        t = cr([q[0] - p[0], q[1] - p[1]], w) / cr(u, w),
+        zij = [0, 1, 2, 3].map((i) => [P[(i + 1) % 4][0] - P[i][0], P[(i + 1) % 4][1] - P[i][1]]),
+        haaks = zij.every((z, i) => z[0] * zij[(i + 1) % 4][0] + z[1] * zij[(i + 1) % 4][1] === 0),
+        len = zij.map((z) => z[0] ** 2 + z[1] ** 2);
+      return (
+        near(p[0] + t * u[0], sx) &&
+        near(p[1] + t * u[1], sy) &&
+        haaks &&
+        (!square || len.every((l) => l === len[0])) &&
+        Number.isInteger(sx) === (k === 0 || k === 2) &&
+        Number.isInteger(sy) === (k === 0 || k === 1)
+      );
+    };
+  if (coin()) {
+    const vormen = (q) => (heel(q) ? {} : { vorm: 'gemengd' }),
+      half = !heel(Sx) || !heel(Sy);
+    return {
+      q: T(
+        `${gegeven} Bereken de coördinaten van S. Is een coördinaat geen heel getal, schrijf die dan als gemengd getal, zoals {2 1/2}.`,
+      ),
+      fig,
+      fields: [
+        { ...F('S(', sx, ','), ...vormen(Sx), label: 'x-coördinaat van S' },
+        { ...F('', sy, ')'), ...vormen(Sy), label: 'y-coördinaat van S' },
+      ],
+      compact: true,
+      hint: T(
+        `De diagonalen snijden elkaar in het midden. Kijk hoeveel je van ${names[0]} naar ${names[2]} opzij en omhoog gaat, en neem daarvan de helft.`,
+      ),
+      steps: [...reken, H(figS)],
+      traps: [
+        { id: 'x-en-y-verwisseld', f: (v) => sx !== sy && is(v, [sy, sx]), m: SWAP },
+        {
+          id: 'beginpunt-vergeten',
+          f: (v) => (A[0] !== 0 || A[1] !== 0) && is(v, [qv(dx), qv(dy)]),
+          m: `Dat is de halve stap van ${names[0]} naar ${names[2]}. Begin in ${names[0]} en tel de halve stap erbij op.`,
+        },
+        {
+          id: 'hoekpunt',
+          f: (v) => P.some((p) => is(v, p)),
+          m: `Dat is een hoekpunt. S ligt midden in de ${vorm}, waar de diagonalen elkaar snijden.`,
+        },
+        ...(half
+          ? [
+              {
+                id: 'half-afgerond',
+                f: (v) =>
+                  Math.abs(v[0] - sx) <= 0.5 &&
+                  Math.abs(v[1] - sy) <= 0.5 &&
+                  (Math.abs(v[0] - sx) === 0.5 || Math.abs(v[1] - sy) === 0.5),
+                m: 'S ligt hier niet op een roosterpunt, maar precies halverwege twee roosterlijnen. Rond niet af: schrijf de helft als gemengd getal, zoals {2 1/2}.',
+              },
+            ]
+          : []),
+      ],
+      v,
+    };
+  }
+  const opts = HEEL.map((s) => T(s)),
+    swapK = k === 1 ? 2 : k === 2 ? 1 : -1;
+  return {
+    q: T(`${gegeven} ${ROOSTER} Is S een roosterpunt?`),
+    fig,
+    mc: MC(opts, k),
+    hint: T(
+      `Bereken eerst S. De diagonalen snijden elkaar in het midden: neem de helft van de stap van ${names[0]} naar ${names[2]}.`,
+    ),
+    steps: [
+      ...reken,
+      k
+        ? `${k === 3 ? `x = ${fr(Sx)} en y = ${fr(Sy)} zijn` : k === 1 ? `x = ${fr(Sx)} is` : `y = ${fr(Sy)} is`} geen heel getal, dus S is geen roosterpunt.`
+        : 'x en y zijn hele getallen, dus S is een roosterpunt.',
+      H(figS),
+    ],
+    traps: [
+      ...(swapK > 0 ? [{ id: 'x-en-y-verwisseld', f: (v) => v[0] === opts[swapK], m: SWAP }] : []),
+      {
+        id: 'roosterpunt-fout',
+        f: (v) => v[0] !== opts[k],
+        m: 'Bereken S eerst. Ligt S precies halverwege twee roosterlijnen, dan is die coördinaat geen heel getal en is S geen roosterpunt.',
+      },
+    ],
+    v,
+  };
+}
+
 export default {
   slug: 'coordinaten-en-assenstelsels',
   title: 'Coördinaten en assenstelsels',
@@ -532,6 +891,8 @@ export default {
     [130, 'Het ontbrekende hoekpunt', s31rect],
     [131, 'Kwadranten', s31quadrant],
     [132, 'Regelmaat in punten', s32pattern],
+    [230, 'Roosterpunten tekenen', s31rooster],
+    [231, 'Snijpunt van de diagonalen', s31diagonalen],
   ],
   learn: [
     {
@@ -587,6 +948,41 @@ export default {
           'De x-coördinaten zijn -2, 3 en 3. Dus D heeft x = -2.',
           'De y-coördinaten zijn 1, 1 en 5. Dus D heeft y = 5.',
           'Dus D(-2, 5).',
+        ],
+      },
+    },
+    {
+      t: 'Roosterpunten',
+      p: [
+        T(
+          'Een roosterpunt is een punt waarvan de x-coördinaat en de y-coördinaat allebei hele getallen zijn, zoals (3, -2). Het punt ({1 1/2}, 2) is geen roosterpunt.',
+        ),
+        T(
+          'Staat er "tussen -1 en 3", dan tellen de grenzen niet mee. Tussen -1 en 3 liggen de hele getallen 0, 1 en 2.',
+        ),
+      ],
+      ex: {
+        q: T('Welke roosterpunten hebben x = 2 en y tussen -1 en 3?'),
+        steps: ['x = 2, en y = 0, 1 of 2.', 'Dus (2, 0), (2, 1) en (2, 2).'],
+      },
+      watch: T('Tel de grenzen niet mee: (2, -1) en (2, 3) horen er niet bij.'),
+    },
+    {
+      t: 'Het snijpunt van de diagonalen',
+      p: [
+        T(
+          'De diagonalen van een vierkant of rechthoek snijden elkaar precies in het midden. Het snijpunt ligt dus midden op een diagonaal. Neem de helft van de stap van het ene hoekpunt naar het overstaande hoekpunt.',
+        ),
+      ],
+      ex: {
+        q: T(
+          'ABCD is een rechthoek met A(1, 1), B(6, 1), C(6, 4) en D(1, 4). Bereken het snijpunt S van de diagonalen.',
+        ),
+        steps: [
+          'Van A naar C ga je 5 naar rechts en 3 omhoog. De helft is {2 1/2} naar rechts en {1 1/2} omhoog.',
+          'x = 1 + {2 1/2} = {3 1/2}',
+          'y = 1 + {1 1/2} = {2 1/2}',
+          'Dus S({3 1/2}, {2 1/2}). S is geen roosterpunt.',
         ],
       },
     },
