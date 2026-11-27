@@ -17,6 +17,8 @@ import { startServer } from '../scripts/server.js';
 import { MAPPINGS } from '../src/js/mappings/index.js';
 import { PAGES } from '../src/js/pages.js';
 import { graph } from '../src/js/figures.js';
+import { contextGraph } from '../src/js/grafiekfiguren.js';
+import { SOORTEN, tekenFig } from '../src/js/tekenvragen.js';
 import { DOMAINS, TOPICS, makeQuestion } from '../src/js/topics/index.js';
 import { MC, orFields } from '../src/js/topics/shared.js';
 
@@ -886,6 +888,193 @@ test(
       await p.screenshot({ path: `${shotDir}teken-proeftoets-resultaat.png`, fullPage: true });
       assert.deepEqual(errors, []);
       await context.close();
+    } finally {
+      await browser.close();
+    }
+  },
+);
+
+// Punten aantikken en grafieken bij een verhaal (#286). Nog geen vraagsoort gebruikt dit, dus de test maakt de vragen
+// zelf, als gegevens. Wat een tik precies doet, staat in tests/tekenvragen.test.js. Hier: dat tikken en het toetsenbord
+// het verborgen veld vullen, dat het nakijken werkt, en schermafbeeldingen in licht en donker om zelf te bekijken.
+test(
+  'roosterpunten en grafiekpunten tik je aan, en een grafiek bij een verhaal staat goed op het scherm',
+  { timeout: 60_000 },
+  async () => {
+    const rooster = {
+      soort: 'roosterpunten',
+      xr: [-4, 4],
+      yr: [-3, 3],
+      goed: [
+        [2, -1],
+        [2, 0],
+        [2, 1],
+      ],
+      geg: [{ p: [0, 2], L: 'A' }],
+    };
+    const tabel = {
+      soort: 'grafiekpunten',
+      fig: {
+        titel: 'Groei van een plant',
+        x: { naam: 'tijd in weken', van: 0, tot: 8, stap: 1 },
+        y: { naam: 'lengte in cm', van: 0, tot: 50, stap: 5 },
+      },
+      goed: [
+        [0, 5],
+        [2, 12.5],
+        [4, 30],
+      ],
+      snap: [1, 2.5],
+      verbind: 'kromme',
+    };
+    const tekenvraag = (t, tekst) => ({
+      q: tekst,
+      fig: tekenFig(t),
+      teken: t,
+      fields: [{ teken: true, a: SOORTEN[t.soort].schrijf(t, t.goed), label: 'Je punten' }],
+      hint: 'Kijk goed naar het rooster.',
+      steps: ['Zie de figuur.'],
+    });
+    const aflezen = {
+      q: 'Hoeveel km had Mila om 11 uur gefietst?',
+      fig: `${contextGraph({
+        titel: 'Fietstocht',
+        x: { naam: 'tijd in uren', van: 9, tot: 14, stap: 1 },
+        y: { naam: 'afstand in km', van: 0, tot: 40, stap: 5 },
+        grafieken: [
+          {
+            naam: 'Mila',
+            punten: [
+              [9, 0],
+              [10, 15],
+              [11, 15],
+              [13, 40],
+            ],
+          },
+          {
+            naam: 'Ravi',
+            vorm: 'kromme',
+            punten: [
+              [9, 0],
+              [11, 20],
+              [12, 22],
+              [14, 35],
+            ],
+          },
+        ],
+        zeg: 'vorm',
+      })}${contextGraph({
+        schets: true,
+        x: { naam: 'tijd', van: 0, tot: 8, stap: 1 },
+        y: { naam: 'snelheid', van: 0, tot: 4, stap: 1 },
+        grafieken: [
+          {
+            punten: [
+              [0, 0],
+              [2, 3],
+              [5, 3],
+              [8, 0],
+            ],
+            stukken: ['a', 'b', 'c'],
+          },
+        ],
+        zeg: 'assen',
+      })}`,
+      fields: [{ a: 15, post: 'km' }],
+      hint: 'Zoek 11 uur op de horizontale as.',
+      steps: ['Om 11 uur is de afstand 15 km.'],
+    };
+    const browser = await launch();
+    try {
+      await mkdir(shotDir, { recursive: true });
+      for (const kleur of ['light', 'dark']) {
+        const errors = [];
+        const context = await browser.newContext({
+          viewport: { width: 390, height: 1100 },
+          colorScheme: kleur,
+        });
+        const p = await context.newPage();
+        p.on('pageerror', (e) => errors.push(e.message));
+        await p.goto(siteUrl);
+        const slug = 'lineaire-grafieken-tekenen';
+        await p.evaluate((s) => wiskundefit.go({ name: 'topic', slug: s, oefen: true }), slug);
+        const show = (q) =>
+          p.evaluate(
+            ([s, q]) => {
+              // go() bewaart eerst wat er in de velden staat. Bij een vraag die de test zelf neerzet,
+              // hoort het antwoord op de vorige vraag daar niet bij.
+              for (const v of document.querySelectorAll('#pform input')) v.value = '';
+              Object.assign(wiskundefit.state.prac[s], {
+                q,
+                status: 'open',
+                vals: [],
+                marks: null,
+                msg: '',
+              });
+              wiskundefit.go({ name: 'topic', slug: s, oefen: true });
+            },
+            [slug, q],
+          );
+        const veld = () => p.$eval('#pf0', (e) => e.value);
+        // Tikt op een plek in de figuur, in de eenheden van de viewBox, ook als de figuur geschaald is.
+        const tik = async (sx, sy) => {
+          const svg = await p.$('svg[data-teken]');
+          const box = await svg.boundingBox();
+          const w = await svg.evaluate((s) => s.viewBox.baseVal.width);
+          await p.mouse.click(box.x + (sx * box.width) / w, box.y + (sy * box.width) / w);
+        };
+        const controleer = async () => {
+          await p.click('#pform button[type=submit]');
+          return p.textContent('.fb');
+        };
+
+        // Roosterpunten: een assenstelsel zoals graph() het tekent, met 26 per hokje, x vanaf 30 en y vanaf 20.
+        await show(tekenvraag(rooster, 'Zet alle roosterpunten met x = 2 en y tussen −2 en 2.'));
+        await p.waitForSelector('.teken-knoppen button');
+        const roosterTik = ([x, y]) => tik(30 + (x + 4) * 26, 20 + (3 - y) * 26);
+        // Met het toetsenbord: de cursor begint in O, twee keer naar rechts en Enter zet (2, 0).
+        await p.focus('svg[data-teken]');
+        await p.waitForSelector('svg[data-teken] .getekend .cursor');
+        await p.keyboard.press('ArrowRight');
+        await p.keyboard.press('ArrowRight');
+        await p.keyboard.press('Enter');
+        assert.equal(await veld(), '2,0');
+        await roosterTik([2, 1]);
+        await roosterTik([3, 3]);
+        assert.equal(await veld(), '2,0 2,1 3,3');
+        assert.doesNotMatch(await controleer(), /Goed gedaan/);
+        // Haal het verkeerde punt weg en zet het laatste goede punt.
+        await roosterTik([3, 3]);
+        await roosterTik([2, -1]);
+        assert.equal(await veld(), '2,-1 2,0 2,1');
+        assert.match(await controleer(), /Goed gedaan/);
+        await p.screenshot({ path: `${shotDir}teken-roosterpunten-${kleur}.png`, fullPage: true });
+
+        // Grafiekpunten: een tik komt op de dichtstbijzijnde stap van het rooster.
+        await show(tekenvraag(tabel, 'Zet de punten uit de tabel in het rooster.'));
+        await p.waitForSelector('.teken-knoppen button');
+        const maat = SOORTEN.grafiekpunten.maat(tabel);
+        for (const [x, y] of tabel.goed) await tik(maat.X(x) + 2, maat.Y(y) - 2);
+        assert.equal(await veld(), '0,5 2,12.5 4,30');
+        assert.equal(await p.locator('svg[data-teken] .getekend path.l1').count(), 1);
+        assert.match(await controleer(), /Goed gedaan/);
+        await p.screenshot({ path: `${shotDir}teken-grafiekpunten-${kleur}.png`, fullPage: true });
+
+        // Een grafiek bij een verhaal en een globale grafiek, als gewone figuren bij een vraag.
+        await show(aflezen);
+        const namen = await p.$$eval('.figbox svg[aria-label]', (els) =>
+          els.map((e) => e.getAttribute('aria-label')),
+        );
+        assert.ok(namen.some((n) => /^Grafiek: Fietstocht\./.test(n)));
+        assert.ok(namen.some((n) => /^Globale grafiek\./.test(n)));
+        // De figuren passen op een telefoon zonder dat de pagina opzij schuift.
+        assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        await p.fill('#pf0', '15');
+        assert.match(await controleer(), /Goed gedaan/);
+        await p.screenshot({ path: `${shotDir}grafiek-bij-verhaal-${kleur}.png`, fullPage: true });
+        assert.deepEqual(errors, []);
+        await context.close();
+      }
     } finally {
       await browser.close();
     }

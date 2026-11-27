@@ -7,7 +7,7 @@
 // draaien. Dit bestand onthoudt alleen wat bij het tekenen zelf hoort: waar de cursor van het toetsenbord staat en
 // hoe ver de passer open staat.
 //
-// Bediening zonder muis: bij een kubus, een uitslag en een pijl krijgt het rooster of de getallenlijn de focus, en dan
+// Bediening zonder muis: bij alle soorten behalve de passer krijgt het rooster of de getallenlijn de focus, en dan
 // verplaatsen de pijltjes een cursor en zet Enter of de spatie daar iets neer. Knoppen eronder doen hetzelfde. Bij de
 // passer gaat alles met knoppen. Wat er gebeurt, leest een schermlezer voor uit een eigen melding.
 import { SOORTEN } from '../tekenvragen.js';
@@ -61,12 +61,16 @@ const PIJL = {
   ArrowDown: [0, -1],
 };
 const KNOP_PIJL = { links: [-1, 0], rechts: [1, 0], omhoog: [0, 1], omlaag: [0, -1] };
-// Met het rooster of de getallenlijn zelf: bij een kubus, een uitslag en een pijl. De passer gaat met knoppen.
+// Met het rooster of de getallenlijn zelf: bij alle soorten behalve de passer, die gaat met knoppen.
 const metRooster = (g) => g.t.soort !== 'passer';
 const HULP = {
   kubus:
     'Tik op een punt van het rooster om het volgende hoekpunt te zetten. Tik je op een gezet punt, dan haal je het weg.',
   uitslag: 'Tik op een hokje om het te kleuren. Tik je nog een keer, dan is het weer leeg.',
+  roosterpunten:
+    'Tik op een roosterpunt om het te zetten. Tik je op een gezet punt, dan haal je het weg. De volgorde maakt niet uit.',
+  grafiekpunten:
+    'Tik op een punt van het rooster om daar een punt te zetten. Tik je op een gezet punt, dan haal je het weg. De volgorde maakt niet uit.',
   pijl: 'Tik op het getal waar de pijl begint, en daarna op het getal waar hij eindigt. Tik je op een gezet punt, dan haal je het weg.',
   passer: (L) =>
     `Stel de passer in met − en +. Zet hem in ${L[0]} of ${L[1]} met de knop, of tik in de figuur op ${L[0]} of ${L[1]}. Tik daarna op het snijpunt van de boogjes, of kies de knop voor ${L[2]}.`,
