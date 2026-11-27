@@ -3437,7 +3437,8 @@ const LIMITS = {
   page: { sent: 8, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 184 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
   // Rekenen met breuken (#244) voegde er zes toe (nu 200 vraagsoorten): 10,6 kB, dus de grens ging van 10,5 naar 11.
-  lijst: { sent: 11, why: 'de pagina met alle vraagsoorten' },
+  // De puzzels (#262) voegden er vijf toe (nu 220 vraagsoorten): 11,1 kB, dus de grens ging van 11 naar 11,5.
+  lijst: { sent: 11.5, why: 'de pagina met alle vraagsoorten' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
   // Hoofdstuk 1 van havo/vwo 1 (#232) voegde vier onderwerpen met 19 vraagsoorten toe. Van elk onderwerp staat de

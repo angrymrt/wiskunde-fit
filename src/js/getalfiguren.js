@@ -327,4 +327,97 @@ function lijnDesc({ lo, hi, step, lx, labeled, ticks, pts, arrows, coords }) {
   return out.join(' ');
 }
 
-export { breukFig, getallenlijn };
+// Een getal in een vak van een puzzel, met het midden bij (cx, cy). Een heel getal staat als tekst,
+// een breuk met de teller boven de noemer, en bij een gemengd getal staan de helen ervoor. Een
+// letter (een vak dat je invult) staat cursief. g is een breuk { n, d } of een letter.
+const vakBreedte = (g) => {
+  if (typeof g === 'string') return 12;
+  if (g.d === 1) return 8 * num(g.n).length;
+  const a = Math.abs(g.n),
+    w = Math.floor(a / g.d),
+    voor = `${g.n < 0 ? '−' : ''}${w || ''}`;
+  return (voor ? 8 * voor.length + 2 : 0) + 7 * String(g.d).length + 4;
+};
+function vakGetal(g, cx, cy) {
+  if (typeof g === 'string')
+    return `<text class="ti" text-anchor="middle" x="${f1(cx)}" y="${f1(cy + 5)}">${esc(g)}</text>`;
+  if (g.d === 1)
+    return `<text text-anchor="middle" x="${f1(cx)}" y="${f1(cy + 5)}">${num(g.n)}</text>`;
+  const a = Math.abs(g.n),
+    w = Math.floor(a / g.d),
+    voor = `${g.n < 0 ? '−' : ''}${w || ''}`,
+    bw = 7 * String(g.d).length + 4,
+    x0 = cx - vakBreedte(g) / 2,
+    xb = x0 + (voor ? 8 * voor.length + 2 : 0);
+  let o = voor ? `<text x="${f1(x0)}" y="${f1(cy + 5)}">${voor}</text>` : '';
+  o += `<text class="tn" text-anchor="middle" x="${f1(xb + bw / 2)}" y="${f1(cy - 3)}">${a % g.d}</text>`;
+  o += `<path class="ax" d="M${f1(xb)} ${f1(cy + 1)}h${bw}"/>`;
+  o += `<text class="tn" text-anchor="middle" x="${f1(xb + bw / 2)}" y="${f1(cy + 14)}">${g.d}</text>`;
+  return o;
+}
+// Een getal of letter zoals een schermlezer het zegt: −1 3/4, of "vak A". Een breuk blijft een
+// breuk, net als in de figuur.
+const zeg = (g) => {
+  if (typeof g === 'string') return `vak ${g}`;
+  if (g.d === 1) return num(g.n);
+  const a = Math.abs(g.n),
+    w = Math.floor(a / g.d);
+  return `${g.n < 0 ? '−' : ''}${w ? `${w} ` : ''}${a % g.d}/${g.d}`;
+};
+
+// Een getallenpiramide: rijen[0] is de onderste laag, en elke laag heeft een vak minder dan de laag
+// eronder, tot het ene vak bovenaan. Een vak is een breuk { n, d } uit Q, of een letter als de
+// leerling het vak invult. De vakken zijn allemaal even breed: zo breed als het breedste getal, met
+// ruimte aan beide kanten. Een piramide van vier lagen met getallen van drie cijfers is zo ongeveer
+// 230 pixels breed, en past op een telefoon van 320 pixels breed.
+function piramideFig(rijen, { desc } = {}) {
+  const n = rijen[0].length,
+    bw = Math.max(44, ...rijen.flat().map((g) => vakBreedte(g) + 22)),
+    bh = 40,
+    W = n * bw + 4,
+    H = n * bh + 4;
+  let o = '';
+  rijen.forEach((rij, r) =>
+    rij.forEach((g, k) => {
+      const x = 2 + (r * bw) / 2 + k * bw,
+        y = 2 + (n - 1 - r) * bh;
+      o += `<rect class="bd" x="${f1(x)}" y="${y}" width="${bw}" height="${bh}"/>`;
+      o += vakGetal(g, x + bw / 2, y + bh / 2);
+    }),
+  );
+  return svg(W, H, desc || piramideDesc(rijen), o);
+}
+function piramideDesc(rijen) {
+  const n = rijen.length,
+    laag = (r) => (r === 0 ? 'In de onderste laag staan' : `In laag ${r + 1} van onder staan`),
+    out = [`Een getallenpiramide met ${n} lagen.`];
+  rijen
+    .slice(0, -1)
+    .forEach((rij, r) => out.push(`${laag(r)} van links naar rechts ${and(rij.map(zeg))}.`));
+  out.push(`In het bovenste vak staat ${zeg(rijen[n - 1][0])}.`);
+  return out.join(' ');
+}
+
+// Een magisch vierkant van 3 bij 3: vk[r][k] is rij r van boven en kolom k van links. Een vak is een
+// breuk { n, d } of een letter, net als bij piramideFig.
+function vierkantFig(vk, { desc } = {}) {
+  const bw = Math.max(48, ...vk.flat().map((g) => vakBreedte(g) + 22)),
+    bh = 48,
+    W = 3 * bw + 4,
+    H = 3 * bh + 4;
+  let o = '';
+  vk.forEach((rij, r) =>
+    rij.forEach((g, k) => {
+      const x = 2 + k * bw,
+        y = 2 + r * bh;
+      o += `<rect class="bd" x="${x}" y="${y}" width="${bw}" height="${bh}"/>`;
+      o += vakGetal(g, x + bw / 2, y + bh / 2);
+    }),
+  );
+  const tekst =
+    'Een vierkant van 3 bij 3 vakken. ' +
+    vk.map((rij, r) => `In rij ${r + 1} van boven staan ${and(rij.map(zeg))}.`).join(' ');
+  return svg(W, H, desc || tekst, o);
+}
+
+export { breukFig, getallenlijn, piramideFig, vierkantFig };

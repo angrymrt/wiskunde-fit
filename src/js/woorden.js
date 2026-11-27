@@ -52,6 +52,18 @@ export const WOORDEN = {
     uitleg: 'Een heel getal met een breuk erachter. Het betekent het hele getal plus de breuk.',
     onderwerp: 'breuken',
   },
+  getallenpiramide: {
+    naam: 'getallenpiramide',
+    uitleg:
+      'Vakken in lagen, met in elke laag één vak minder. Elk vak is de som, of het product, van de twee vakken eronder.',
+    onderwerp: 'rekenen-met-breuken',
+  },
+  'magisch-vierkant': {
+    naam: 'magisch vierkant',
+    uitleg:
+      'Een vierkant van vakken met getallen. De getallen in elke rij, elke kolom en de twee diagonalen hebben dezelfde som.',
+    onderwerp: 'negatieve-breuken',
+  },
   gelijknamig: {
     naam: 'gelijknamig',
     uitleg: 'Breuken zijn gelijknamig als ze dezelfde noemer hebben.',

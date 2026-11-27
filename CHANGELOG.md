@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.26.0
+
+### Nieuw
+
+- **Puzzels bij hoofdstuk 2 van havo/vwo 1.** Er zijn getallenpiramides met breuken, met negatieve getallen en met producten. Daarin reken je de lege vakken uit, en soms moet je terugrekenen vanuit het vak erboven. Bij Negatieve breuken maak je een magisch vierkant af, en bij Rekenvolgorde zet je een getallenrij voort. De lege vakken hebben een letter, en die vul je in onder de figuur. Zo werkt het ook met een schermlezer.
+
 ## 1.25.0
 
 ### Nieuw

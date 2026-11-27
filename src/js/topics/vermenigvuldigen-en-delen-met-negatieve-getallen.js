@@ -7,6 +7,7 @@
 import { ri, pick, coin, shuffle, near, until } from '../math.js';
 import { F, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
+import { piramideOpen, piramideVraag, letterLijst } from '../puzzels.js';
 
 // Een berekening is een rij tekens: getallen (ook negatief), '-', '*', ':', '(' en ')'. tekst en
 // narekenen staan in shared.js.
@@ -595,6 +596,37 @@ function ontbrekendeFactor() {
   };
 }
 
+// Een getallenpiramide met producten (#262): elk vak is het product van de twee vakken eronder. Drie
+// lagen, met drie lege vakken, waarvan je minstens één vindt door terug te rekenen met delen. Geen
+// 0, want dan kun je niet terugrekenen.
+const PIRAMIDE_OPEN = piramideOpen(3, 3);
+function piramide() {
+  const { onder, open } = until(
+    () => ({
+      onder: [0, 1, 2].map(() => (coin() ? -1 : 1) * ri(1, 6)),
+      open: pick(PIRAMIDE_OPEN),
+    }),
+    ({ onder, open }) => {
+      if (!onder.some((x) => x < 0) || onder.filter((x) => Math.abs(x) === 1).length > 1)
+        return false;
+      const p = piramideVraag({ onder, soort: 'product', open });
+      return Math.abs(p.rijen[2][0].n) <= 200 && p.fields.some((f) => f.a < 0);
+    },
+  );
+  const p = piramideVraag({ onder, soort: 'product', open, teken: true });
+  return {
+    q: T(
+      `In deze {{getallenpiramide|getallenpiramide}} is elk vak het product van de twee vakken eronder. Bereken de getallen in de vakken ${letterLijst(p.namen)}.`,
+    ),
+    fig: p.fig,
+    fields: p.fields,
+    hint: 'Begin bij een vak waarvan je de twee vakken eronder al weet, en vermenigvuldig die. Weet je het vak erboven en één vak eronder, deel dan het vak erboven door dat vak eronder.',
+    steps: p.steps,
+    traps: p.traps,
+    v: p.v,
+  };
+}
+
 export default {
   slug: 'vermenigvuldigen-en-delen-met-negatieve-getallen',
   title: 'Vermenigvuldigen en delen met negatieve getallen',
@@ -609,6 +641,7 @@ export default {
     [208, 'Delen met negatieve getallen', delen],
     [209, 'Rekenvolgorde met negatieve getallen', rekenvolgordeNegatief],
     [210, 'De ontbrekende factor of deler', ontbrekendeFactor],
+    [218, 'Een getallenpiramide met producten', piramide],
   ],
   learn: [
     {

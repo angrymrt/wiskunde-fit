@@ -217,4 +217,9 @@ export default {
   213: 'optellenAftrekken',
   214: 'vermenigvuldigen',
   215: 'somAlsPijl',
+  216: 'piramide',
+  217: 'piramide',
+  218: 'piramide',
+  219: 'magischVierkant',
+  220: 'getallenrij',
 };
