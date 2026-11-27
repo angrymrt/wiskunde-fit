@@ -107,13 +107,7 @@ export default {
           'deels',
           'Puzzels zoals een getallenpiramide met breuken oefen je hier niet.',
         ],
-        [
-          '2.3',
-          'Getallen onder nul',
-          [201, 202, 203, 204, 205],
-          'deels',
-          'Een pijl tekenen op de getallenlijn kun je hier niet; je leest af en rekent.',
-        ],
+        ['2.3', 'Getallen onder nul', [201, 202, 203, 215, 204, 205], 'deels'],
         [
           '2.4',
           'Vermenigvuldigen en delen met mintekens',

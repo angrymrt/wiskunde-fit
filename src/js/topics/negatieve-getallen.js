@@ -4,7 +4,8 @@
 // deelberekening. Alleen gehele getallen, behalve bij de getallenlijn en het vergelijken.
 // Vermenigvuldigen en delen met negatieve getallen staat in een eigen onderwerp.
 import { ri, nz, pick, coin, shuffle, gcd, lcm, Q, near, until } from '../math.js';
-import { F, MC, tekst, narekenen } from './shared.js';
+import { F, H, MC, tekst, narekenen } from './shared.js';
+import { SOORTEN, tekenAf, tekenFig } from '../tekenvragen.js';
 import { T } from '../typeset.js';
 import { getallenlijn } from '../getalfiguren.js';
 
@@ -667,6 +668,100 @@ function temperatuur() {
   };
 }
 
+// --- 215 Een som als pijl op de getallenlijn (#263) ---
+
+// Een verhaal bij de pijl: een temperatuur die stijgt of daalt. Eigen verhalen, met b graden erbij of eraf.
+const PIJL_VERHAAL = {
+  '+': (a, b) =>
+    `Om zes uur 's ochtends is het ${a} graden. Tot de middag wordt het ${b} graden warmer. Teken dat als pijl op de getallenlijn.`,
+  '-': (a, b) =>
+    `Bij zonsondergang is het ${a} graden. In de nacht wordt het ${b} graden kouder. Teken dat als pijl op de getallenlijn.`,
+};
+
+function somAlsPijl() {
+  const op = coin() ? '+' : '-',
+    s = op === '+' ? 1 : -1,
+    lo = ri(-7, -3),
+    hi = lo + 10;
+  // Begin en uitkomst op de lijn en niet 0, en minstens een van de twee negatief.
+  const [a, b] = until(
+    () => [ri(lo, hi), ri(2, 7)],
+    ([a, b]) => {
+      const e = a + s * b;
+      return a !== 0 && e !== 0 && e >= lo && e <= hi && (a < 0 || e < 0);
+    },
+  );
+  const e = a + s * b,
+    t = { soort: 'pijl', lo, hi, a, e },
+    S = SOORTEN.pijl,
+    goed = S.schrijf(t, [[a], [e]]),
+    som = `${a} ${op} ${b}`,
+    verhaal = coin(),
+    fields = [{ teken: true, a: goed, label: 'Je pijl' }],
+    lees = (v) => S.lees(t, v[0]),
+    is = (p, x) => !!p && p[0] === x,
+    kant = op === '+' ? 'rechts' : 'links';
+  return {
+    q: T(
+      `${verhaal ? PIJL_VERHAAL[op](a, b) : `Teken ${som} als pijl op de getallenlijn.`} Tik eerst waar de pijl begint, en dan waar hij eindigt.`,
+    ),
+    fig: tekenFig(t),
+    teken: t,
+    fields,
+    hint: T(
+      `De pijl begint bij het eerste getal. ${op === '+' ? 'Erbij optellen is naar rechts' : 'Eraf aftrekken is naar links'}, en de pijl is zo lang als het tweede getal.`,
+    ),
+    steps: [
+      verhaal
+        ? `Je rekent ${som}: ${op === '+' ? 'warmer is erbij' : 'kouder is eraf'}.`
+        : `Je tekent ${som}.`,
+      `De pijl begint bij het eerste getal, ${a}.`,
+      `${op === '+' ? 'Erbij optellen' : 'Eraf aftrekken'} is naar ${kant}. De pijl gaat ${b} stappen naar ${kant}.`,
+      `Hij eindigt bij ${e}. Dus ${som} = ${e}.`,
+      H(tekenAf(t, goed, `Met een pijl van ${zw(a)} naar ${zw(e)}.`)),
+    ],
+    traps: [
+      {
+        id: 'pijl-omgedraaid',
+        f: (v) => {
+          const [p, q] = lees(v);
+          return is(p, e) && is(q, a);
+        },
+        m: 'De pijl begint bij het eerste getal en wijst naar de uitkomst. Jouw pijl wijst de andere kant op.',
+      },
+      {
+        id: 'pijl-vanaf-nul',
+        f: (v) => is(lees(v)[0], 0),
+        m: `Een pijl begint bij het eerste getal van de som. Begin dus bij ${zw(a)}, niet bij 0.`,
+      },
+      {
+        id: 'pijl-verkeerde-kant',
+        f: (v) => {
+          const [p, q] = lees(v);
+          return is(p, a) && !!q && (q[0] - a) * s < 0;
+        },
+        m:
+          op === '+'
+            ? 'Erbij optellen is een pijl naar rechts. Jouw pijl gaat naar links.'
+            : 'Eraf aftrekken is een pijl naar links. Jouw pijl gaat naar rechts.',
+      },
+      {
+        id: 'pijl-verkeerd-geteld',
+        f: (v) => {
+          const [p, q] = lees(v);
+          return is(p, a) && !!q && (q[0] - a) * s > 0 && q[0] !== e;
+        },
+        m: `De pijl moet ${b} stappen lang zijn. Tel de stappen van streepje naar streepje, en tel het streepje waar je begint niet mee.`,
+      },
+    ],
+    // Telt stap voor stap vanaf het begin, en een eigen ontleder rekent de som na.
+    v: () => {
+      const [p, q] = lees([goed]);
+      return is(p, a) && is(q, tel(a, b, s)) && narekenen(som) === q[0] && q[0] >= lo && q[0] <= hi;
+    },
+  };
+}
+
 // --- 204 en 205 Optellen en aftrekken ---
 
 // Een berekening is een rij tekens: getallen (ook negatief), '+', '-', '(' en ')'. tekst en
@@ -901,6 +996,7 @@ export default {
     [201, 'Getallen op de getallenlijn', getallenOpDeLijn],
     [202, 'Negatieve getallen vergelijken', negatiefVergelijken],
     [203, 'Temperatuur die stijgt of daalt', temperatuur],
+    [215, 'Een som als pijl op de getallenlijn', somAlsPijl],
     [204, 'Optellen en aftrekken met negatieve getallen', optellenAftrekken],
     [205, 'Drie getallen en haakjes', drieGetallen],
   ],

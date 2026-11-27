@@ -216,4 +216,5 @@ export default {
   212: 'vereenvoudigen',
   213: 'optellenAftrekken',
   214: 'vermenigvuldigen',
+  215: 'somAlsPijl',
 };

@@ -233,3 +233,58 @@ test('bij een tekenvraag geeft een bekende fout de goede valkuil', () => {
     assert.equal(findTrap(q, [cells.slice(1).join(' ')])?.id, 'te-weinig-hokjes');
   }
 });
+
+// Een som als pijl op de getallenlijn (#263).
+const pijlSoort = TOPIC['negatieve-getallen'].skills.find((k) => k.id === 215);
+const { pijl } = SOORTEN;
+
+test('een pijl: lezen, schrijven en nakijken', () => {
+  const t = { soort: 'pijl', lo: -6, hi: 6, a: -2, e: 3 };
+  assert.deepEqual(pijl.lees(t, '-2 3'), [[-2], [3]]);
+  assert.deepEqual(pijl.lees(t, '0 ?'), [[0], null]);
+  assert.deepEqual(pijl.lees(t, '-7 9'), [null, null], 'buiten de lijn telt niet');
+  assert.equal(pijl.schrijf(t, [[0], null]), '0 ?');
+  assert.equal(pijl.schrijf(t, [null, null]), '');
+  assert.deepEqual(pijl.nakijken(t, pijl.lees(t, '-2 3')), [true, true]);
+  assert.deepEqual(pijl.nakijken(t, pijl.lees(t, '3 -2')), [false, false]);
+  // Een tik komt op het dichtstbijzijnde streepje: 16 van links en 20 per getal.
+  assert.deepEqual(pijl.terug(t, 16 + 6 * 20 + 8), [0]);
+  assert.deepEqual(pijl.terug(t, 0), [-6]);
+  assert.deepEqual(pijl.verder(t, [6], [1, 0]), [6]);
+});
+
+test('een pijl: tikken zet eerst het begin en dan het eind, en een schermlezer hoort waar', () => {
+  const t = { soort: 'pijl', lo: -6, hi: 6, a: -2, e: 3 };
+  let r = pijl.tik(t, [null, null], [0]);
+  assert.deepEqual(r.st, [[0], null]);
+  assert.match(r.zin, /Begin van de pijl bij 0\. Tik nu waar de pijl eindigt\./);
+  r = pijl.tik(t, r.st, [-4]);
+  assert.deepEqual(r.st, [[0], [-4]]);
+  assert.match(r.zin, /De pijl gaat van 0 naar −4, 4 stappen naar links\./);
+  assert.match(pijl.tik(t, r.st, [2]).zin, /staat er al/);
+  r = pijl.tik(t, r.st, [0]);
+  assert.deepEqual(r.st, [null, [-4]]);
+  assert.match(pijl.staat(t, r.st), /eind van de pijl staat bij −4/i);
+  assert.equal(pijl.plek(t, r.st, [-4]), 'bij −4, het eind van de pijl');
+});
+
+test('een pijl: elke vraag is goed met het antwoord en heeft de valkuilen', () => {
+  for (let seed = 1; seed <= 200; seed++) {
+    const q = makeQuestion(pijlSoort, seed),
+      { a, e, lo, hi } = q.teken;
+    assert.ok(q.v(), `seed ${seed}`);
+    // Ook als JSON bewaard, zoals in een proeftoets.
+    assert.ok(checkAnswer(JSON.parse(JSON.stringify(q)), [q.fields[0].a]).ok, `seed ${seed}`);
+    assert.ok(!checkAnswer(q, [`${a} ?`]).ok);
+    assert.ok(a >= lo && a <= hi && e >= lo && e <= hi && lo <= 0 && hi >= 0);
+    assert.ok(a < 0 || e < 0, 'er staat een negatief getal in');
+    const s = Math.sign(e - a);
+    assert.equal(findTrap(q, [`${e} ${a}`])?.id, 'pijl-omgedraaid');
+    assert.equal(findTrap(q, [`0 ${e}`])?.id, 'pijl-vanaf-nul');
+    if (a - s >= lo && a - s <= hi)
+      assert.equal(findTrap(q, [`${a} ${a - s}`])?.id, 'pijl-verkeerde-kant');
+    if (e + s >= lo && e + s <= hi)
+      assert.equal(findTrap(q, [`${a} ${e + s}`])?.id, 'pijl-verkeerd-geteld');
+    assert.equal(findTrap(q, [q.fields[0].a]), null);
+  }
+});

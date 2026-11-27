@@ -7,8 +7,8 @@
 // draaien. Dit bestand onthoudt alleen wat bij het tekenen zelf hoort: waar de cursor van het toetsenbord staat en
 // hoe ver de passer open staat.
 //
-// Bediening zonder muis: bij een kubus en een uitslag krijgt het rooster de focus, en dan verplaatsen de pijltjes een
-// cursor en zet Enter of de spatie daar iets neer. Bij een kubus doen knoppen onder het rooster hetzelfde. Bij de
+// Bediening zonder muis: bij een kubus, een uitslag en een pijl krijgt het rooster of de getallenlijn de focus, en dan
+// verplaatsen de pijltjes een cursor en zet Enter of de spatie daar iets neer. Knoppen eronder doen hetzelfde. Bij de
 // passer gaat alles met knoppen. Wat er gebeurt, leest een schermlezer voor uit een eigen melding.
 import { SOORTEN } from '../tekenvragen.js';
 import { app, state } from './state.js';
@@ -61,17 +61,18 @@ const PIJL = {
   ArrowDown: [0, -1],
 };
 const KNOP_PIJL = { links: [-1, 0], rechts: [1, 0], omhoog: [0, 1], omlaag: [0, -1] };
-// Met het rooster zelf: bij een kubus en een uitslag. De passer gaat met knoppen.
+// Met het rooster of de getallenlijn zelf: bij een kubus, een uitslag en een pijl. De passer gaat met knoppen.
 const metRooster = (g) => g.t.soort !== 'passer';
 const HULP = {
   kubus:
     'Tik op een punt van het rooster om het volgende hoekpunt te zetten. Tik je op een gezet punt, dan haal je het weg.',
   uitslag: 'Tik op een hokje om het te kleuren. Tik je nog een keer, dan is het weer leeg.',
+  pijl: 'Tik op het getal waar de pijl begint, en daarna op het getal waar hij eindigt. Tik je op een gezet punt, dan haal je het weg.',
   passer: (L) =>
     `Stel de passer in met − en +. Zet hem in ${L[0]} of ${L[1]} met de knop, of tik in de figuur op ${L[0]} of ${L[1]}. Tik daarna op het snijpunt van de boogjes, of kies de knop voor ${L[2]}.`,
 };
-const TOETSEN =
-  ' Met het toetsenbord: zet de focus op het rooster, en gebruik de pijltjes en Enter.';
+const TOETSEN = (g) =>
+  ` Met het toetsenbord: zet de focus op ${g.t.soort === 'pijl' ? 'de getallenlijn' : 'het rooster'}, en gebruik de pijltjes en Enter.`;
 
 const knop = (g, naam, tekst, label) =>
   `<button class="btn" type="button" id="${g.pfx}tk-${naam}" data-teken-knop="${naam}"${label ? ` aria-label="${label}"` : ''}>${tekst}</button>`;
@@ -83,7 +84,9 @@ function knoppenHTML(g) {
     uitleg = `<p class="sr" id="${p}tk-uitleg"></p>`;
   if (g.t.soort === 'passer')
     return `${stap}<div class="row" role="group" aria-labelledby="${p}tk-pl"><span id="${p}tk-pl">Passer</span>${knop(g, 'kleiner', '−', 'Passer kleiner')}<b id="${p}tk-straal"></b>${knop(g, 'groter', '+', 'Passer groter')}</div><div class="row">${knop(g, 'a', `Passer in ${L[0]}`)}${knop(g, 'b', `Passer in ${L[1]}`)}${knop(g, 'c', `${L[2]} op het snijpunt`)}</div>${wis}<p class="small muted">${HULP.passer(L)}</p>${uitleg}`;
-  const pijlen = `<div class="row" role="group" aria-label="Cursor in het rooster">${knop(g, 'links', '←', 'Cursor naar links')}${knop(g, 'omhoog', '↑', 'Cursor omhoog')}${knop(g, 'omlaag', '↓', 'Cursor omlaag')}${knop(g, 'rechts', '→', 'Cursor naar rechts')}${knop(g, 'zet', g.t.soort === 'kubus' ? 'Zet punt' : 'Kleur hokje')}</div>`;
+  // Op een getallenlijn kan de cursor alleen naar links en naar rechts.
+  const lijn = g.t.soort === 'pijl',
+    pijlen = `<div class="row" role="group" aria-label="Cursor ${lijn ? 'op de getallenlijn' : 'in het rooster'}">${knop(g, 'links', '←', 'Cursor naar links')}${lijn ? '' : knop(g, 'omhoog', '↑', 'Cursor omhoog') + knop(g, 'omlaag', '↓', 'Cursor omlaag')}${knop(g, 'rechts', '→', 'Cursor naar rechts')}${knop(g, 'zet', g.t.soort === 'uitslag' ? 'Kleur hokje' : 'Zet punt')}</div>`;
   return `${stap}${pijlen}${wis}<p class="small muted">${HULP[g.t.soort]}</p>${uitleg}`;
 }
 
@@ -101,7 +104,7 @@ function bijwerken(g) {
   const deel = (naam) => document.getElementById(`${g.pfx}tk-${naam}`);
   deel('stap').textContent = g.S.stap(g.t, st);
   deel('uitleg').textContent = metRooster(g)
-    ? `${tekst}${cursor ? ` De cursor staat ${g.S.plek(g.t, st, cursor)}.` : ''} ${HULP[g.t.soort]}${TOETSEN}`
+    ? `${tekst}${cursor ? ` De cursor staat ${g.S.plek(g.t, st, cursor)}.` : ''} ${HULP[g.t.soort]}${TOETSEN(g)}`
     : tekst;
   if (g.t.soort === 'passer') {
     deel('straal').textContent = `${String(ui.straal).replace('.', ',')} cm`;
@@ -110,7 +113,7 @@ function bijwerken(g) {
   if (metRooster(g)) {
     const bezet = cursor && g.S.bezet(g.t, st, cursor);
     deel('zet').textContent =
-      g.t.soort === 'kubus'
+      g.t.soort !== 'uitslag'
         ? bezet
           ? 'Haal weg'
           : 'Zet punt'
@@ -139,7 +142,12 @@ function synchroniseer() {
     if (metRooster(g)) {
       g.svg.setAttribute('role', 'application');
       g.svg.setAttribute('tabindex', '0');
-      g.svg.setAttribute('aria-label', 'Rooster om in te tekenen');
+      g.svg.setAttribute(
+        'aria-label',
+        g.t.soort === 'pijl'
+          ? 'Getallenlijn om een pijl op te tekenen'
+          : 'Rooster om in te tekenen',
+      );
       g.svg.setAttribute('aria-describedby', `${g.pfx}tk-uitleg`);
     }
     g.knoppen.innerHTML = knoppenHTML(g);
