@@ -7,6 +7,7 @@
 import { ri, pick, coin, shuffle, near, until } from '../math.js';
 import { F, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
+import { metBerekening } from '../berekening.js';
 import { piramideOpen, piramideVraag, letterLijst } from '../puzzels.js';
 
 // Een berekening is een rij tekens: getallen (ook negatief), '-', '*', ':', '(' en ')'. tekst en
@@ -658,7 +659,7 @@ function rekentekensZetten() {
   const getallen = ts.filter((x) => typeof x === 'number'),
     u = uitkomst(ts),
     lijst = `${getallen.slice(0, -1).join(', ')} en ${getallen[getallen.length - 1]}`;
-  return {
+  return metBerekening({
     q: T(
       `Zet rekentekens tussen ${lijst}, zodat de uitkomst ${u} is. Laat de getallen in deze volgorde staan. Je mag ook haakjes gebruiken. Typ de hele berekening.`,
     ),
@@ -679,7 +680,7 @@ function rekentekensZetten() {
       narekenen(tekst(ts)) === u &&
       Number.isInteger(u) &&
       tekst(ts).replace(/ [-+*:] /g, ' ') === getallen.join(' '),
-  };
+  });
 }
 
 export default {

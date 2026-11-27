@@ -4,6 +4,7 @@
 import { ri, pick, coin, near, until } from '../math.js';
 import { F, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
+import { metBerekening } from '../berekening.js';
 
 // Een berekening is een boom: een getal, of [bewerking, links, rechts], met als bewerking '+', '-',
 // '*' of ':'. Als tekst voor T wordt '*' het maalpunt en '-' de aftrekmin.
@@ -973,7 +974,7 @@ function haakjesZetten() {
     kaal = ZONDER_HAAKJES(ts),
     { rijen, uitkomst } = stappen(ts),
     s = tekst(ts);
-  return {
+  return metBerekening({
     q: T(
       `Zet haakjes in ${tekst(kaal)}, zodat de uitkomst ${uitkomst} is. Typ de hele berekening, met de haakjes erin.`,
     ),
@@ -1000,7 +1001,7 @@ function haakjesZetten() {
       narekenen(s) === uitkomst &&
       narekenen(tekst(kaal)) !== uitkomst &&
       s.replace(/[()]/g, '').replace(/ +/g, ' ').trim() === tekst(kaal),
-  };
+  });
 }
 
 export default {

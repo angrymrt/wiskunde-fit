@@ -1,5 +1,6 @@
 // Invoervelden van een vraag tekenen en uitlezen, voor oefenen en proeftoets.
-import { isDrawing, leesBerekening, parseNum } from '../answers.js';
+import { isDrawing, parseNum } from '../answers.js';
+import { BEREKENING } from '../math.js';
 import { pathFor } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T } from '../typeset.js';
@@ -40,7 +41,7 @@ function readVals(q, pfx) {
 function unreadable(q, vals) {
   if (q.mc) return '';
   const leeg = (i) => !vals[i].trim();
-  if (q.fields.some((f, i) => f.berekening && !leeg(i) && !leesBerekening(vals[i])))
+  if (q.fields.some((f, i) => f.berekening && !leeg(i) && !BEREKENING.lees?.(vals[i])))
     return 'Deze berekening kan ik niet lezen. Kijk of elk haakje dicht is, en of er tussen twee getallen een rekenteken staat.';
   return q.fields.some(
     (f, i) => !f.sel && !f.teken && !f.berekening && !leeg(i) && Number.isNaN(parseNum(vals[i])),

@@ -4,7 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TOPICS, makeQuestion } from '../src/js/topics/index.js';
-import { checkAnswer, findTrap, leesBerekening } from '../src/js/answers.js';
+import { checkAnswer, findTrap } from '../src/js/answers.js';
+import { leesBerekening } from '../src/js/berekening.js';
 import { narekenen } from '../src/js/topics/shared.js';
 
 const skill = (id) => TOPICS.flatMap((t) => t.skills).find((k) => k.id === id);
