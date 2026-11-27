@@ -15,7 +15,7 @@
 // vraag nog niet af (zie empty in ui/question-form.js). answers.js kijkt de tekst na met TEKEN.nakijken uit math.js,
 // dat dit bestand hieronder invult.
 import { and, attr, graph } from './figures.js';
-import { grafiekDelen, pad } from './grafiekfiguren.js';
+import { grafiekDelen, pad, zegGetal } from './grafiekfiguren.js';
 import { TEKEN, d, near } from './math.js';
 import { CUBE_NETS, canonicalNet, isCubeNet, sameFace } from './ruimte.js';
 import { T } from './typeset.js';
@@ -881,14 +881,15 @@ const roosterpunten = puntenSoort({
 
 // Bij een grafiek bij een verhaal staan de getallen niet als coördinaten, maar als het getal op de horizontale as
 // en het getal op de verticale as: 'bij 9 en 15'.
+const grafiekPunt = (t, p) => `${zegGetal(t.fig.x)(p[0])} en ${zegGetal(t.fig.y)(p[1])}`;
 const grafiekpunten = puntenSoort({
   maat: grafiekMaat,
   fig: (t) => grafiekMaat(t).g.inner,
   desc: (t) => grafiekMaat(t).g.desc,
   lijst: (t, ps) =>
-    `${ps.map((p) => `${num(p[0])} en ${num(p[1])}`).join('; ')} (steeds ${t.fig.x.naam} en ${t.fig.y.naam})`,
-  een: (t, p) => `bij ${num(p[0])} en ${num(p[1])}`,
-  waar: (t, p) => `bij ${num(p[0])} en ${num(p[1])}`,
+    `${ps.map((p) => grafiekPunt(t, p)).join('; ')} (steeds ${t.fig.x.naam} en ${t.fig.y.naam})`,
+  een: (t, p) => `bij ${grafiekPunt(t, p)}`,
+  waar: (t, p) => `bij ${grafiekPunt(t, p)}`,
   verbind: true,
 });
 
