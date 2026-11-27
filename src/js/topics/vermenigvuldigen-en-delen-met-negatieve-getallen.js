@@ -670,7 +670,9 @@ function rekentekensZetten() {
         berekening: { getallen, uitkomst: u },
       },
     ],
-    hint: 'Probeer een paar rekentekens en reken na wat eruit komt. Denk aan de rekenvolgorde: keer en delen gaan voor plus en min. En denk aan de tekenregels: negatief keer negatief is positief.',
+    hint: T(
+      'Probeer een paar rekentekens en reken na wat eruit komt. Denk aan de {{rekenvolgorde|rekenvolgorde}}: keer en delen gaan voor plus en min. En denk aan de tekenregels: negatief keer negatief is positief.',
+    ),
     steps: ['Er kan meer dan één goede berekening zijn. Bijvoorbeeld:', ...uitwerking(ts)],
     // Een eigen ontleder rekent de berekening na.
     v: () =>

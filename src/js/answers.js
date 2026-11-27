@@ -62,7 +62,18 @@ function vormFout(vorm, raw) {
 // zoals in 4 · -3. Geeft de getallen en de rekentekens in de volgorde waarin ze staan, en de uitkomst
 // met de rekenvolgorde. Bij elk getal staat in voor het teken dat er direct voor staat. Is de tekst geen berekening, zoals bij een haakje dat niet dicht is, een min
 // voor een haakje of twee getallen zonder rekenteken ertussen, dan geeft het null.
+// Typt de leerling de uitkomst erachter, zoals 4 · -3 = -12, dan telt die mee: klopt hij niet met de
+// berekening, dan is de uitkomst geen getal en dus fout.
 function leesBerekening(raw) {
+  const delen = netjes(raw).split('=');
+  if (delen.length > 2) return null;
+  const r = leesLos(delen[0]);
+  if (!r || delen.length === 1) return r;
+  const na = parseNum(delen[1]);
+  if (Number.isNaN(na)) return null;
+  return near(na, r.waarde) ? r : { ...r, waarde: NaN };
+}
+function leesLos(raw) {
   const s = netjes(raw)
       .replace(/[·×*xX]/g, '*')
       .replace(/[÷/]/g, ':'),

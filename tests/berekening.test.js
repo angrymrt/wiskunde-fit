@@ -31,8 +31,12 @@ test('een berekening mag met ·, x, ×, −, ÷ en extra haakjes, maar moet te l
   assert.deepEqual(r.getallen, [4, -3, 12, -4, 2]);
   assert.deepEqual(r.tekens, ['*', '-', ':', '*']);
   assert.equal(r.waarde, -6);
+  // De uitkomst erachter mag, als die klopt.
+  assert.equal(leesBerekening('4 * -3 = -12').waarde, -12);
+  assert.ok(Number.isNaN(leesBerekening('4 * -3 = 12').waarde));
   for (const s of [
-    '',
+    '4 * -3 = ',
+    '4 = 4 = 4',
     '3 4',
     '(3 + 4',
     '3 + 4)',

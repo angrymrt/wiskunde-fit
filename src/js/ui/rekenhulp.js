@@ -45,9 +45,16 @@ const REKEN = [
   ['1'], ['2'], ['3'], ['·', '*', 'op', 'keer'], [')', ')', 'fn', 'haakje sluiten'],
   ['0'], [':', ':', 'op', 'gedeeld door'], ['Leeg', 'LEEG', 'fn rh-breed', 'Maak het veld leeg'],
 ].map(([tekst, waarde, soort, naam]) => [tekst, `V:${waarde ?? tekst}`, soort, naam]); // prettier-ignore
-// Een berekening zoals een schermlezer hem voorleest: · en : als woord.
+// Een berekening zoals een schermlezer hem voorleest: ·, : en de haakjes als woord, want haakjes leest een
+// schermlezer meestal niet voor.
 const uitspraak = (t) =>
-  t.replace(/·/g, ' keer ').replace(/:/g, ' gedeeld door ').replace(/ +/g, ' ');
+  t
+    .replace(/·/g, ' keer ')
+    .replace(/:/g, ' gedeeld door ')
+    .replace(/\(/g, ' haakje openen ')
+    .replace(/\)/g, ' haakje sluiten ')
+    .replace(/ +/g, ' ')
+    .trim();
 
 let paneel = null; // Het paneel, zodra het er is.
 let melding = null; // Het gebied dat een schermlezer voorleest.
