@@ -8,7 +8,7 @@ import { F, H, MC, tekst, narekenen } from './shared.js';
 import { SOORTEN, tekenAf, tekenFig } from '../tekenvragen.js';
 import { T } from '../typeset.js';
 import { getallenlijn } from '../getalfiguren.js';
-import { piramideOpen, piramideVraag } from '../puzzels.js';
+import { piramideOpen, piramideVraag, letterLijst } from '../puzzels.js';
 
 // Een getal als tekst voor T: een geheel getal, of een breuk of gemengd getal met de min ervoor,
 // zoals -{3/4} of -{7 1/2}. De min staat voor de breuk, nooit in de teller.
@@ -1008,7 +1008,7 @@ function piramide() {
   const p = piramideVraag({ onder, soort: 'som', open, teken: true });
   return {
     q: T(
-      `In deze {{getallenpiramide|getallenpiramide}} is elk vak de som van de twee vakken eronder. Bereken de getallen in de vakken ${lijstMet(p.namen)}.`,
+      `In deze {{getallenpiramide|getallenpiramide}} is elk vak de som van de twee vakken eronder. Bereken de getallen in de vakken ${letterLijst(p.namen)}.`,
     ),
     fig: p.fig,
     fields: p.fields,
@@ -1018,7 +1018,6 @@ function piramide() {
     v: p.v,
   };
 }
-const lijstMet = (xs) => `${xs.slice(0, -1).join(', ')} en ${xs[xs.length - 1]}`;
 
 export default {
   slug: 'negatieve-getallen',

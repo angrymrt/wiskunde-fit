@@ -7,7 +7,7 @@
 import { ri, pick, coin, shuffle, near, until } from '../math.js';
 import { F, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
-import { piramideOpen, piramideVraag } from '../puzzels.js';
+import { piramideOpen, piramideVraag, letterLijst } from '../puzzels.js';
 
 // Een berekening is een rij tekens: getallen (ook negatief), '-', '*', ':', '(' en ')'. tekst en
 // narekenen staan in shared.js.
@@ -616,7 +616,7 @@ function piramide() {
   const p = piramideVraag({ onder, soort: 'product', open, teken: true });
   return {
     q: T(
-      `In deze {{getallenpiramide|getallenpiramide}} is elk vak het product van de twee vakken eronder. Bereken de getallen in de vakken ${p.namen.slice(0, -1).join(', ')} en ${p.namen[p.namen.length - 1]}.`,
+      `In deze {{getallenpiramide|getallenpiramide}} is elk vak het product van de twee vakken eronder. Bereken de getallen in de vakken ${letterLijst(p.namen)}.`,
     ),
     fig: p.fig,
     fields: p.fields,

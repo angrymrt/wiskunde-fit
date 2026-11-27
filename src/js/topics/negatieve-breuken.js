@@ -16,6 +16,8 @@ import {
   losVierkantOp,
   vierkantStappen,
   vierkantKlopt,
+  letterLijst,
+  mintekenFout,
 } from '../puzzels.js';
 
 // Het veld voor een breuk als antwoord: zo ver mogelijk vereenvoudigd, de helen eruit halen mag.
@@ -668,20 +670,13 @@ function magischVierkant() {
     teken = goed.map((q, i) => [i, -q.n / q.d]).filter(([, x]) => x !== 0);
   return {
     q: T(
-      `Dit is een {{magisch-vierkant|magisch vierkant}}: de getallen in elke rij, elke kolom en de twee diagonalen hebben dezelfde som. Bereken de getallen in de vakken ${lijst(namen)}. Vereenvoudig zo ver mogelijk.`,
+      `Dit is een {{magisch-vierkant|magisch vierkant}}: de getallen in elke rij, elke kolom en de twee diagonalen hebben dezelfde som. Bereken de getallen in de vakken ${letterLijst(namen)}. Vereenvoudig zo ver mogelijk.`,
     ),
     fig: vierkantFig(toon),
     fields,
     hint: 'Zoek een rij, kolom of diagonaal waarin alle drie de getallen bekend zijn, en tel ze op. Dat is de som van elke lijn. Zoek dan een lijn waarin nog één vak leeg is.',
     steps: vierkantStappen(vk, losVierkantOp(open), letters),
-    traps: [
-      {
-        id: 'minteken-fout',
-        w: teken,
-        f: (v) => teken.some(([i, x]) => near(v[i], x)),
-        m: 'Op het minteken na klopt je antwoord. Kijk nog eens of de uitkomst positief of negatief is.',
-      },
-    ],
+    traps: [mintekenFout(teken)],
     // Rekent alle lijnen na met de ingevulde getallen, als kommagetallen.
     v: () =>
       vierkantKlopt(
@@ -810,6 +805,23 @@ export default {
       },
       watch:
         'Haal aftrekken en vermenigvuldigen niet door elkaar: -{1/4} - {1/4} = -{1/2}, maar -{1/4} * -{1/4} = {1/16}.',
+    },
+    {
+      t: 'Een magisch vierkant',
+      p: [
+        'In een {{=magisch-vierkant|magisch vierkant}} hebben de getallen in elke rij, elke kolom en de twee diagonalen dezelfde som.',
+        'Zoek eerst een rij, kolom of diagonaal waarin alle getallen bekend zijn. Tel ze op: dat is de som van elke lijn. Zoek dan een lijn waarin nog één vak leeg is. Het lege vak is de som min de twee andere getallen.',
+      ],
+      ex: {
+        q: T(
+          'De som van elke lijn is -{1/2}. In een rij staan -{3/4}, {1 1/2} en een leeg vak A. Bereken A.',
+        ),
+        steps: [
+          'Tel de twee bekende getallen op: -{3/4} + {1 1/2} = -{3/4} + {6/4} = {3/4}',
+          'A = -{1/2} - {3/4} = -{2/4} - {3/4} = -{5/4} = {-1 1/4}',
+        ],
+      },
+      watch: 'Let bij elk getal op het minteken. Een min min wordt een plus.',
     },
   ],
 };

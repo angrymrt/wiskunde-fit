@@ -5,7 +5,7 @@
 import { ri, pick, coin, gcd, lcm, Q, qAdd, qSub, qMul, near, until } from '../math.js';
 import { F } from './shared.js';
 import { T } from '../typeset.js';
-import { piramideOpen, piramideVraag } from '../puzzels.js';
+import { piramideOpen, piramideVraag, letterLijst } from '../puzzels.js';
 
 // Een breuk en een gemengd getal als tekst voor T, zonder te vereenvoudigen: {24/36} en {2 3/5}.
 const b = (t, n) => `{${t}/${n}}`;
@@ -872,7 +872,7 @@ function rekenvolgorde() {
 // gelijknamig maken niet te zwaar wordt.
 const PIRAMIDE_OPEN = piramideOpen(3, 3);
 function piramide() {
-  const { L, onder, open } = until(
+  const { onder, open } = until(
     () => {
       const L = pick([4, 6, 8, 12]);
       return { L, onder: [0, 1, 2].map(() => Q(ri(1, 2 * L), L)), open: pick(PIRAMIDE_OPEN) };
@@ -885,14 +885,14 @@ function piramide() {
   const p = piramideVraag({ onder, soort: 'som', open, vorm: 'vereenvoudigd' });
   return {
     q: T(
-      `In deze {{getallenpiramide|getallenpiramide}} is elk vak de som van de twee vakken eronder. Bereken de getallen in de vakken ${lijst(p.namen)}. Vereenvoudig zo ver mogelijk.`,
+      `In deze {{getallenpiramide|getallenpiramide}} is elk vak de som van de twee vakken eronder. Bereken de getallen in de vakken ${letterLijst(p.namen)}. Vereenvoudig zo ver mogelijk.`,
     ),
     fig: p.fig,
     fields: p.fields,
     hint: 'Begin bij een vak waarvan je de twee vakken eronder al weet, en tel die op. Weet je het vak erboven en één vak eronder, trek dan dat vak eronder af van het vak erboven.',
     steps: p.steps,
     traps: p.traps,
-    v: () => L > 1 && p.v(),
+    v: p.v,
   };
 }
 

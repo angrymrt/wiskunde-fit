@@ -31,7 +31,8 @@ function somTekst(a, op, b) {
   const s = [`${t(a)} ${op} ${t(b)}`];
   const midden = `${gn(teller(a))} ${op} ${gn(teller(b))}`;
   if (midden !== s[0]) s.push(midden);
-  if (gn(k) !== t(uit)) s.push(gn(k));
+  // Bij 0 zou dat {0/12} geven: dan staat er meteen 0.
+  if (k !== 0 && gn(k) !== t(uit)) s.push(gn(k));
   s.push(t(uit));
   return s.join(' = ');
 }
@@ -329,7 +330,19 @@ const vierkantOpen = (k) =>
     k,
   ).filter((open) => losVierkantOp(open));
 
+// De letters van de lege vakken voor de tekst van de vraag: A, B en C.
+const letterLijst = (xs) =>
+  xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(', ')} en ${xs[xs.length - 1]}`;
+// De valkuil voor een antwoord met het verkeerde teken, met als w de foute getallen per veld.
+const mintekenFout = (w) => ({
+  ...VALKUILEN.teken,
+  w,
+  f: (vs) => w.some(([i, x]) => near(vs[i], x)),
+});
+
 export {
+  letterLijst,
+  mintekenFout,
   piramideOpen,
   vierkantOpen,
   piramideVraag,

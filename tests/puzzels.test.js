@@ -91,5 +91,8 @@ test('de figuur van een puzzel noemt elk getal en elke letter (#262)', () => {
 test('een som van breuken in de uitwerking maakt eerst gelijknamig (#262)', () => {
   assert.equal(somTekst(Q(5, 4), '-', Q(3, 4)), '{1 1/4} - {3/4} = {5/4} - {3/4} = {2/4} = {1/2}');
   assert.equal(somTekst(Q(4), '-', Q(-3)), '4 - -3 = 7');
+  // Is de uitkomst 0, dan staat er geen {0/12}.
+  assert.equal(somTekst(Q(1, 4), '-', Q(1, 6)), '{1/4} - {1/6} = {3/12} - {2/12} = {1/12}');
+  assert.equal(somTekst(Q(-1, 4), '+', Q(1, 4)), '-{1/4} + {1/4} = 0');
   assert.equal(somTekst(Q(0), '+', Q(-9, 4)), '0 + {-2 1/4} = {-2 1/4}');
 });
