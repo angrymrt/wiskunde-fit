@@ -555,33 +555,13 @@ function flTwo() {
 // --- 236 Invullen met een negatieve waarde (#289) ---
 
 // Een negatief getal invullen, zoals in havo/vwo 1: zonder haakjes om het negatieve getal, en met een punt
-// voor een haakje, zoals 5 · (a - 3). Het maalpunt tussen een getal en een letter is weggelaten: 8 - 6d.
+// voor een haakje, zoals 5 · (a - 3) of 20 - 5 · (a + 4). Vormen zonder haakjes, zoals 8 - 6d, zitten al
+// in 139, daarom staan hier alleen de vormen met haakjes.
 function flNegatief() {
   const l = pick(LETTERS),
     x = -ri(1, 8),
-    form = pick(['p-kx', 'kx+q', 'k(x+r)', 'p-k(x+r)']);
-  if (form === 'p-kx' || form === 'kx+q') {
-    const ka = ri(2, 9),
-      e =
-        form === 'p-kx'
-          ? { k: -ka, c: ri(5, 30), lead: true }
-          : { k: ka, c: nz(-9, 9), lead: false },
-      y = e.c + e.k * x,
-      expr = exprText(e, l);
-    return {
-      q: T(`Bereken ${expr} voor ${l} = ${x}.`),
-      fields: [F(`${expr} =`, y)],
-      hint: T(
-        `Vul ${x} in voor ${l}. ${ka}${l} betekent ${ka} · ${l}, dus je krijgt ${ka} · ${x}. Haakjes om ${x} zijn niet nodig. Reken eerst de keer uit en let op de mintekens.`,
-      ),
-      steps: [`${l} = ${x} geeft ${expr} = ${valueChain(e, x, String(x)).join(' = ')}`],
-      traps: valueTraps(e, x, y, l),
-      // Reken terug: haal het vaste getal eraf en deel door het getal voor de letter.
-      v: () => near((y - e.c) / e.k, x),
-    };
-  }
-  const lead = form === 'p-k(x+r)',
-    { m, r } = until(
+    lead = pick([false, true]);
+  const { m, r } = until(
       () => ({ m: ri(2, 6), r: nz(-9, 9) }),
       ({ r }) => x + r !== 0,
     ),
@@ -603,16 +583,20 @@ function flNegatief() {
     traps: [
       fout(
         'haakje-vergeten',
-        lead ? c - (m * x + r) : m * x + r,
+        // Zonder haakjes: c - m · x + r, dus alleen x wordt met m vermenigvuldigd.
+        lead ? c - m * x + r : m * x + r,
         y,
         `Je moet alles tussen de haakjes met ${m} vermenigvuldigen. Reken eerst uit wat tussen de haakjes staat.`,
       ),
-      fout(
-        'min-keer-min',
-        lead ? c + m * s : -m * s,
-        y,
-        'Let op het teken. Min keer min is plus, en min keer plus is min.',
-      ),
+      // Alleen als er echt een negatief getal met m wordt vermenigvuldigd.
+      s < 0
+        ? fout(
+            'min-keer-min',
+            lead ? c + m * s : -m * s,
+            y,
+            'Let op het teken. Min keer min is plus, en min keer plus is min.',
+          )
+        : null,
       lead
         ? fout(
             'eerst-aftrekken',

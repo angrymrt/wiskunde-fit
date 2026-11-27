@@ -605,6 +605,7 @@ function wfCannot() {
 
 // Twee aanbieders met elk een woordformule: vast bedrag + bedrag per keer. De ene heeft een hoger vast bedrag en
 // is per keer goedkoper. b zijn de keuzes voor het bedrag per keer, a voor het lagere vaste bedrag.
+// xe is het meervoud na een aantal, xe1 het enkelvoud na 1.
 const TWEE = [
   {
     wie: ['Kanoverhuur De Reiger', 'Kanoverhuur Het Riet'],
@@ -612,6 +613,7 @@ const TWEE = [
     zin: 'Je huurt een kano. Voor de kosten in euro gelden bij twee verhuurders deze woordformules.',
     x: 'aantal uren',
     xe: 'uur',
+    xe1: 'uur',
     b: [3, 4, 5, 6, 7],
     a: [0, 2, 4, 5],
   },
@@ -621,6 +623,7 @@ const TWEE = [
     zin: 'Voor de kosten in euro van een abonnement gelden bij twee sportscholen deze woordformules.',
     x: 'aantal maanden',
     xe: 'maanden',
+    xe1: 'maand',
     b: [15, 18, 20, 22, 25],
     a: [10, 15, 20, 25],
   },
@@ -630,6 +633,7 @@ const TWEE = [
     zin: 'Voor de kosten in euro van zwemmen in de zomer gelden bij twee zwembaden deze woordformules. Bij het ene zwembad koop je eerst een pasje.',
     x: 'aantal keer',
     xe: 'keer',
+    xe1: 'keer',
     b: [3, 4, 5, 6],
     a: [0],
   },
@@ -639,6 +643,7 @@ const TWEE = [
     zin: 'Voor de kosten in euro van een avond bowlen gelden bij twee bowlingbanen deze woordformules. De vaste kosten zijn voor de schoenen.',
     x: 'aantal spellen',
     xe: 'spellen',
+    xe1: 'spel',
     b: [4, 5, 6, 7, 8],
     a: [2, 3, 4],
   },
@@ -734,7 +739,7 @@ function wfVergelijk() {
     opts = [`Bij ${rij[0].naam}`, `Bij ${rij[1].naam}`, 'Ze zijn even duur'].map((o) => T(o)),
     laagVast = rij[0].a < rij[1].a ? 0 : 1;
   return {
-    q: vraag(`Je wilt ${m} ${c.xe}. Waar is dat het goedkoopst?`),
+    q: vraag(`Je wilt ${m} ${m === 1 ? c.xe1 : c.xe}. Waar is dat het goedkoopst?`),
     mc: MC(opts, goed),
     hint: T(`Vul ${m} in bij allebei de formules en vergelijk de kosten.`),
     steps: [

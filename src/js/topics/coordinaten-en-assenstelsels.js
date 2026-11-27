@@ -752,8 +752,12 @@ function s31diagonalen() {
     k = heel(Sx) ? (heel(Sy) ? 0 : 2) : heel(Sy) ? 1 : 3,
     midX = (P[0][0] + P[2][0]) / 2,
     midY = (P[0][1] + P[2][1]) / 2,
-    // De letter staat van het midden af, zodat hij niet op een zijde valt.
-    off = ([x, y]) => [x > midX ? 6 : x < midX ? -14 : -4, y > midY ? -6 : y < midY ? 16 : 5],
+    // De letter staat van het midden af, zodat hij niet op een zijde valt. Op de y-as staat hij rechts en op de
+    // x-as boven, want links van de y-as en onder de x-as staan de getallen van de as.
+    off = ([x, y]) => [
+      x === 0 || x > midX ? 6 : x < midX ? -14 : -4,
+      y === 0 || y > midY ? -6 : y < midY ? 16 : 5,
+    ],
     hoeken = P.map((p, i) => ({ x: p[0], y: p[1], label: names[i], off: off(p) })),
     rand = (Xp, Yp) =>
       `<path class="l2" d="M${P.map(([x, y]) => `${Xp(x)} ${Yp(y)}`).join('L')}Z"/>`,
