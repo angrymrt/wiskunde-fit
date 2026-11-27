@@ -690,8 +690,8 @@ test('een parabool tekenen werkt met tikken en met typen', { timeout: 60_000 }, 
   }
 });
 
-// Tekenvragen (#232): een kubus afmaken, een driehoek met de passer en een uitslag van een kubus. Wat een tik precies
-// doet, staat in tests/tekenvragen.test.js. Hier: dat tikken, het toetsenbord en de knoppen het verborgen veld vullen,
+// Tekenvragen (#232): een kubus afmaken, een driehoek met de passer, een uitslag van een kubus en een pijl op de
+// getallenlijn (#263). Wat een tik precies doet, staat in tests/tekenvragen.test.js. Hier: dat tikken, het toetsenbord en de knoppen het verborgen veld vullen,
 // dat het nakijken werkt en dat de tekening er na een hint nog staat, op een telefoon, smal en donker.
 test(
   'een tekenvraag werkt met tikken, het toetsenbord en de knoppen',
@@ -786,8 +786,12 @@ test(
       assert.match(await controleer(), /meer dan zes/);
       await hokje(...vrij);
       assert.equal(await veld(), q.fields[0].a);
-      // Met het toetsenbord kleur je een hokje en maak je het weer leeg. De cursor begint linksboven.
+      // Met het toetsenbord kleur je een hokje en maak je het weer leeg. De cursor begint linksboven. Na Controleer
+      // bouwt het scherm zich opnieuw op, en ui/tekenen.js maakt het rooster daarna pas focusbaar: wacht daarop, en
+      // op de cursor, anders gaan de toetsen soms nergens heen.
+      await p.waitForSelector('svg[data-teken][tabindex="0"]');
       await p.focus('svg[data-teken]');
+      await p.waitForSelector('svg[data-teken] .getekend .cursor');
       for (let k = 0; k < vrij[0]; k++) await p.keyboard.press('ArrowRight');
       for (let k = 0; k < vrij[1]; k++) await p.keyboard.press('ArrowDown');
       await p.keyboard.press(' ');
@@ -796,18 +800,48 @@ test(
       assert.equal(await veld(), q.fields[0].a);
       assert.match(await controleer(), /Goed gedaan/);
 
+      // 215: een som als pijl op de getallenlijn (#263). De lijn begint 16 van links, met 20 per getal.
+      await p.goto(at('/negatieve-getallen/oefenen?soort=215&seed=k3x9q'));
+      await p.waitForSelector('.teken-knoppen button');
+      q = await p.evaluate(() => wiskundefit.state.prac['negatieve-getallen'].q);
+      const getal = (v) => tik(16 + (v - q.teken.lo) * 20, 58);
+      const uitleg = () => p.textContent('#ptk-uitleg');
+      assert.equal(await p.$$eval('.teken-knoppen [data-teken-knop="omhoog"]', (b) => b.length), 0);
+      // Met het toetsenbord: de cursor begint bij 0, en Enter zet daar het begin. Een schermlezer hoort waar.
+      await p.focus('svg[data-teken]');
+      await p.waitForSelector('svg[data-teken] .getekend .cursor');
+      assert.match(await uitleg(), /De cursor staat bij 0\./);
+      await p.keyboard.press('Enter');
+      assert.equal(await veld(), '0 ?');
+      assert.match(
+        await p.textContent('body > p.sr[aria-live]:not(#laadmelding)'),
+        /Begin van de pijl bij 0/,
+      );
+      assert.match(await uitleg(), /De pijl begint bij 0/);
+      // Een pijl vanaf 0 is een valkuil.
+      await getal(q.teken.e);
+      assert.match(await uitleg(), /De pijl gaat van 0 naar/);
+      assert.match(await controleer(), /niet bij 0/);
+      // Haal het begin weg en zet het goed.
+      await getal(0);
+      await getal(q.teken.a);
+      assert.equal(await veld(), q.fields[0].a);
+      await p.screenshot({ path: `${shotDir}teken-pijl.png`, fullPage: true });
+      assert.match(await controleer(), /Goed gedaan/);
+
       // Smal en donker: niets steekt buiten het scherm, en de schermafbeeldingen om zelf te bekijken.
-      for (const [naam, soort] of [
+      for (const [naam, soort, pad = 'tekenopdrachten'] of [
         ['kubus', 182],
         ['passer', 183],
         ['uitslag', 184],
+        ['pijl', 215, 'negatieve-getallen'],
       ]) {
         const d = await browser.newPage({
           viewport: { width: 320, height: 1000 },
           colorScheme: 'dark',
         });
         d.on('pageerror', (e) => errors.push(e.message));
-        await d.goto(at(`/tekenopdrachten/oefenen?soort=${soort}&seed=k3x9q`));
+        await d.goto(at(`/${pad}/oefenen?soort=${soort}&seed=k3x9q`));
         await d.waitForSelector('.teken-knoppen button');
         const wide = await d.evaluate(
           () => document.documentElement.scrollWidth > window.innerWidth + 1,

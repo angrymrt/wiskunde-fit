@@ -1,7 +1,8 @@
-// Tekenvragen (#232): de leerling tekent zelf, in een rooster. Er zijn drie soorten:
+// Tekenvragen (#232): de leerling tekent zelf, in een rooster of op een getallenlijn. Er zijn vier soorten:
 //  - kubus: een kubus afmaken op roosterpapier, door hoekpunten aan te tikken;
 //  - passer: een driehoek tekenen uit drie zijden, met boogjes van een passer;
-//  - uitslag: een uitslag van een kubus tekenen, door hokjes aan te tikken.
+//  - uitslag: een uitslag van een kubus tekenen, door hokjes aan te tikken;
+//  - pijl: een som als pijl op de getallenlijn, door het begin en het eind aan te tikken (#263).
 // Alleen gegevens, rekenwerk en SVG als tekst, geen DOM, zodat de tests het in Node draaien. Het tikken,
 // het toetsenbord en de knoppen staan in ui/tekenen.js, dat pas laadt als er een tekenvraag op het scherm staat.
 //
@@ -579,7 +580,126 @@ const uitslag = {
   verder: (t, c, [dx, dy]) => [clamp(c[0] + dx, 0, t.W - 1), clamp(c[1] - dy, 0, t.H - 1)],
 };
 
-const SOORTEN = { kubus, passer, uitslag };
+// ---------------------------------------------------------------------------------------------
+// Een som als pijl op de getallenlijn (#263). t = { soort: 'pijl', lo, hi, a, e }: de getallenlijn loopt van lo
+// tot hi met een streepje bij elk geheel getal, en de goede pijl gaat van a, het eerste getal van de som, naar e,
+// de uitkomst. De leerling tikt eerst het begin en dan het eind aan. Een punt is [x], zodat ook 0 een punt is.
+// In het veld staan het begin en het eind, met een spatie ertussen en ? voor wat nog niet is gezet.
+
+const pijlMaat = (t) => {
+  // 20 per getal, net als de getallenlijn in getalfiguren.js: zo past de lijn op een telefoon van 320 px breed
+  // zonder kleiner te worden, en blijven de getallen leesbaar.
+  const u = 20,
+    ml = 16,
+    Y = 58;
+  return {
+    u,
+    w: ml + (t.hi - t.lo) * u + 22,
+    h: Y + 30,
+    X: (x) => ml + (x - t.lo) * u,
+    Y,
+  };
+};
+// De hoogte van een pijl boven de lijn: die van de leerling, en daarboven de goede.
+const PIJL_Y = { mijn: 30, goed: 12 };
+function pijlLijn(m, van, naar, y, cls) {
+  const a = r2(m.X(van)),
+    b = r2(m.X(naar)),
+    r = naar > van ? 1 : -1;
+  return `<path class="hl" d="M${a} ${y}V${m.Y}M${b} ${y}V${m.Y}"/><path class="${cls}" d="M${a} ${y - 5}v10M${a} ${y}H${b}m${-7 * r} -5l${7 * r} 5l${-7 * r} 5"/>`;
+}
+const stappen = (van, naar) =>
+  `${Math.abs(naar - van)} ${Math.abs(naar - van) === 1 ? 'stap' : 'stappen'} naar ${naar > van ? 'rechts' : 'links'}`;
+const pijl = {
+  maat: pijlMaat,
+  lees(t, val) {
+    const w = String(val).split(' ');
+    return [0, 1].map((k) => {
+      const m = /^-?\d+$/.exec(w[k] ?? '');
+      return m && +m[0] >= t.lo && +m[0] <= t.hi ? [+m[0]] : null;
+    });
+  },
+  schrijf: (t, pts) =>
+    pts.some(Boolean) ? pts.map((p) => (p ? String(p[0]) : '?')).join(' ') : '',
+  nakijken: (t, [b, e]) => [same(b, [t.a]), same(e, [t.e])],
+  // Het streepje dat het dichtst bij een tik ligt.
+  terug(t, sx) {
+    const m = pijlMaat(t);
+    return [clamp(Math.round((sx - m.X(t.lo)) / m.u) + t.lo, t.lo, t.hi)];
+  },
+  fig(t) {
+    const m = pijlMaat(t);
+    let o = `<path class="ax" d="M${m.X(t.lo) - 10} ${m.Y}H${m.X(t.hi) + 16}m-6 -4l6 4l-6 4"/>`;
+    for (let v = t.lo; v <= t.hi; v++)
+      o += `<path class="ax" d="M${m.X(v)} ${m.Y - 6}v12"/><text class="tn" text-anchor="middle" x="${m.X(v)}" y="${m.Y + 23}">${num(v)}</text>`;
+    return o;
+  },
+  // Wat de leerling tekende: het begin en het eind als stip, en de pijl als ze er allebei zijn. Met fout een
+  // kruisje bij wat niet goed is, met goed ook de goede pijl gestippeld erboven, en met cursor de plek van het
+  // toetsenbord.
+  laag(t, [b, e], { fout, goed, cursor } = {}) {
+    const m = pijlMaat(t),
+      ok = pijl.nakijken(t, [b, e]);
+    let o = goed ? pijlLijn(m, t.a, t.e, PIJL_Y.goed, 'l2 d') : '';
+    if (b && e && b[0] !== e[0]) o += pijlLijn(m, b[0], e[0], PIJL_Y.mijn, 'l1');
+    [b, e].forEach((p, k) => {
+      if (!p) return;
+      o += `<circle class="dot" cx="${m.X(p[0])}" cy="${m.Y}" r="${k ? 4.5 : 3.5}"/>`;
+      if (fout && !ok[k]) o += kruis(m.X(p[0]), m.Y - 14, 5);
+    });
+    if (cursor) o += `<circle class="cursor" cx="${m.X(cursor[0])}" cy="${m.Y}" r="11"/>`;
+    return o;
+  },
+  desc: (t) =>
+    `Een getallenlijn van ${num(t.lo)} tot ${num(t.hi)}, met een streepje bij elk geheel getal. Onder elk streepje staat het getal.`,
+  staat(t, [b, e]) {
+    if (!b && !e) return 'Er staat nog geen pijl.';
+    if (!b) return `Het eind van de pijl staat bij ${num(e[0])}, het begin nog niet.`;
+    if (!e) return `De pijl begint bij ${num(b[0])}, het eind staat er nog niet.`;
+    return `De pijl gaat van ${num(b[0])} naar ${num(e[0])}, ${stappen(b[0], e[0])}.`;
+  },
+  rijen: (t, pts, each) =>
+    ['Begin', 'Eind'].map((naam, k) => [
+      naam,
+      pts[k] ? T(String(pts[k][0])) : '<span class="muted">niet gezet</span>',
+      each[k],
+      T(String(k ? t.e : t.a)),
+    ]),
+  // Een tik op punt p: een gezet punt haal je weg, en anders komt eerst het begin en dan het eind daar.
+  tik(t, pts, p) {
+    const uit = [...pts],
+      k = pts.findIndex((q) => same(q, p)),
+      vrij = pts.findIndex((q) => !q);
+    if (k >= 0) {
+      uit[k] = null;
+      return {
+        st: uit,
+        zin: `${k ? 'Eind' : 'Begin'} van de pijl weggehaald. ${pijl.stap(t, uit)}`,
+      };
+    }
+    if (vrij < 0)
+      return {
+        st: pts,
+        zin: 'De pijl staat er al. Tik op het begin of het eind om het weg te halen.',
+      };
+    uit[vrij] = p;
+    return {
+      st: uit,
+      zin: `${vrij ? 'Eind' : 'Begin'} van de pijl bij ${num(p[0])}. ${uit[0] && uit[1] ? pijl.staat(t, uit) : pijl.stap(t, uit)}`,
+    };
+  },
+  stap: (t, [b, e]) =>
+    !b ? 'Tik waar de pijl begint.' : !e ? 'Tik nu waar de pijl eindigt.' : 'De pijl staat er.',
+  plek(t, [b, e], p) {
+    const wat = same(p, b) ? ', het begin van de pijl' : same(p, e) ? ', het eind van de pijl' : '';
+    return `bij ${num(p[0])}${wat}`;
+  },
+  bezet: (t, pts, p) => pts.some((q) => same(q, p)),
+  start: () => [0],
+  verder: (t, p, [dx]) => [clamp(p[0] + dx, t.lo, t.hi)],
+};
+
+const SOORTEN = { kubus, passer, uitslag, pijl };
 TEKEN.nakijken = (t, val) => SOORTEN[t.soort].nakijken(t, SOORTEN[t.soort].lees(t, val));
 
 const svg = (t, inner, label, extra = '') => {

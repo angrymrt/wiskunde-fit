@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.25.0
+
+### Nieuw
+
+- **Een som als pijl op de getallenlijn.** Bij Negatieve getallen teken je nu zelf een pijl: tik aan waar hij begint en waar hij eindigt. Erbij optellen is naar rechts, eraf aftrekken naar links. Begin je bij 0, wijst de pijl de verkeerde kant op of tel je een stap te veel, dan zegt de site wat er mis ging. Het werkt ook met het toetsenbord en een schermlezer.
+
 ## 1.24.0
 
 ### Nieuw
