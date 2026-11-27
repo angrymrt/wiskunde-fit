@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.27.0
+
+### Nieuw
+
+- **Zelf een berekening maken.** Bij Rekenvolgorde zet je haakjes in een berekening, zodat er een gegeven uitkomst uitkomt. Bij Vermenigvuldigen en delen met negatieve getallen zet je rekentekens tussen getallen, ook negatieve. Je typt de hele berekening, en de site rekent die na. Zo is elke goede berekening goed, ook een andere dan in de uitwerking. Met de Rekenhulp typ je rekentekens en haakjes op het tabblad Toetsenbord.
+
 ## 1.26.0
 
 ### Nieuw

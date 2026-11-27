@@ -7,6 +7,7 @@
 import { ri, pick, coin, shuffle, near, until } from '../math.js';
 import { F, tekst, narekenen } from './shared.js';
 import { T } from '../typeset.js';
+import { metBerekening } from '../berekening.js';
 import { piramideOpen, piramideVraag, letterLijst } from '../puzzels.js';
 
 // Een berekening is een rij tekens: getallen (ook negatief), '-', '*', ':', '(' en ')'. tekst en
@@ -627,6 +628,61 @@ function piramide() {
   };
 }
 
+// --- 222 Rekentekens zetten (#262) ---
+// Drie of vier getallen, ook negatief, met een gegeven uitkomst. De leerling zet er rekentekens
+// tussen, en als hij wil haakjes, en typt de hele berekening. Elke berekening met deze getallen in
+// deze volgorde en deze uitkomst is goed: answers.js rekent hem na (berekeningKlopt). De vraag komt
+// van een berekening zonder haakjes, met minstens één keer of gedeeld door, en elke tussenuitkomst
+// heel en niet groter dan 100.
+const REKENTEKENS = ['+', '-', '*', ':'];
+function rekentekensZetten() {
+  const k = pick([3, 3, 4]);
+  const ts = until(
+    () =>
+      Array.from({ length: k }, () => metTeken(ri(2, 9))).flatMap((x, i) =>
+        i ? [pick(REKENTEKENS), x] : [x],
+      ),
+    (ts) => {
+      const xs = ts.filter((x) => typeof x === 'number'),
+        alle = rijen(ts)
+          .flat()
+          .filter((x) => typeof x === 'number');
+      return (
+        xs.some((x) => x < 0) &&
+        xs.some((x) => x > 0) &&
+        ts.some((x) => x === '*' || x === ':') &&
+        alle.every((x) => Number.isInteger(x) && Math.abs(x) <= 100) &&
+        uitkomst(ts) !== 0
+      );
+    },
+  );
+  const getallen = ts.filter((x) => typeof x === 'number'),
+    u = uitkomst(ts),
+    lijst = `${getallen.slice(0, -1).join(', ')} en ${getallen[getallen.length - 1]}`;
+  return metBerekening({
+    q: T(
+      `Zet rekentekens tussen ${lijst}, zodat de uitkomst ${u} is. Laat de getallen in deze volgorde staan. Je mag ook haakjes gebruiken. Typ de hele berekening.`,
+    ),
+    fields: [
+      {
+        pre: 'Berekening:',
+        label: 'Je berekening',
+        a: tekst(ts),
+        berekening: { getallen, uitkomst: u },
+      },
+    ],
+    hint: T(
+      'Probeer een paar rekentekens en reken na wat eruit komt. Denk aan de {{rekenvolgorde|rekenvolgorde}}: keer en delen gaan voor plus en min. En denk aan de tekenregels: negatief keer negatief is positief.',
+    ),
+    steps: ['Er kan meer dan één goede berekening zijn. Bijvoorbeeld:', ...uitwerking(ts)],
+    // Een eigen ontleder rekent de berekening na.
+    v: () =>
+      narekenen(tekst(ts)) === u &&
+      Number.isInteger(u) &&
+      tekst(ts).replace(/ [-+*:] /g, ' ') === getallen.join(' '),
+  });
+}
+
 export default {
   slug: 'vermenigvuldigen-en-delen-met-negatieve-getallen',
   title: 'Vermenigvuldigen en delen met negatieve getallen',
@@ -642,6 +698,7 @@ export default {
     [209, 'Rekenvolgorde met negatieve getallen', rekenvolgordeNegatief],
     [210, 'De ontbrekende factor of deler', ontbrekendeFactor],
     [218, 'Een getallenpiramide met producten', piramide],
+    [222, 'Rekentekens zetten', rekentekensZetten],
   ],
   learn: [
     {

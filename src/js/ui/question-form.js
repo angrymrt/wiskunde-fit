@@ -1,5 +1,6 @@
 // Invoervelden van een vraag tekenen en uitlezen, voor oefenen en proeftoets.
 import { isDrawing, parseNum } from '../answers.js';
+import { BEREKENING } from '../math.js';
 import { pathFor } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T } from '../typeset.js';
@@ -19,10 +20,10 @@ function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
         br = f.br ? '<span class="fbreak"></span>' : '';
       if (f.sel)
         return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<select id="${pfx}f${i}" aria-label="${f.label || 'Kies het teken'}" aria-describedby="${pfx}q" ${locked ? 'disabled' : ''}><option value="">kies</option>${f.sel.map((o) => `<option ${vals[i] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>${f.post ? `<span>${T(f.post)}</span>` : ''}</label>`;
-      const input = `<input id="${pfx}f${i}" ${f.teken ? 'type="hidden" data-teken' : 'type="text" inputmode="text" autocomplete="off"'} ${f.label ? `aria-label="${f.label}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
+      const input = `<input id="${pfx}f${i}" ${f.teken ? 'type="hidden" data-teken' : `type="text" inputmode="text" autocomplete="off"${f.berekening ? ' data-berekening spellcheck="false"' : ''}`} ${f.label ? `aria-label="${f.label}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
       // Het veld en de eenheid erachter blijven bij elkaar als het veld op een smal scherm onder
       // de tekst ervoor komt te staan.
-      return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}${f.post ? `<span class="fin">${input}<span>${T(f.post)}</span></span>` : input}</label>`;
+      return `${br}<label class="fld${f.berekening ? ' bereken' : ''} ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}${f.post ? `<span class="fin">${input}<span>${T(f.post)}</span></span>` : input}</label>`;
     })
     .join('')}${q.teken ? '<div class="teken-knoppen"></div>' : ''}</div>`;
 }
@@ -36,9 +37,18 @@ function readVals(q, pfx) {
     return el ? el.value : '';
   });
 }
-const unreadable = (q, vals) =>
-  !q.mc &&
-  q.fields.some((f, i) => !f.sel && !f.teken && vals[i].trim() && Number.isNaN(parseNum(vals[i])));
+// Een melding als een ingevuld veld niet te lezen is, of '' als alles te lezen is.
+function unreadable(q, vals) {
+  if (q.mc) return '';
+  const leeg = (i) => !vals[i].trim();
+  if (q.fields.some((f, i) => f.berekening && !leeg(i) && !BEREKENING.lees?.(vals[i])))
+    return 'Deze berekening kan ik niet lezen. Kijk of elk haakje dicht is, en of er tussen twee getallen een rekenteken staat.';
+  return q.fields.some(
+    (f, i) => !f.sel && !f.teken && !f.berekening && !leeg(i) && Number.isNaN(parseNum(vals[i])),
+  )
+    ? 'Dit getal kan ik niet lezen. Schrijf bijvoorbeeld -2, 3,5 of 1 1/2.'
+    : '';
+}
 // Een tekening is pas af als er geen ? meer in staat: zo'n punt is nog niet gezet (zie tekenvragen.js).
 const empty = (q, vals) =>
   q.mc

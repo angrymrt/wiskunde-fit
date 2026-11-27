@@ -145,7 +145,7 @@ function assertSound(q) {
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
   for (const f of q.fields) {
-    if (!f.sel && !f.teken) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+    if (!f.sel && !f.teken && !f.berekening) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
     if (f.vorm != null) assert.ok(VORMEN.includes(f.vorm), `onbekende vorm ${f.vorm}: ${q.q}`);
   }
   // Een tekening (q.teken) heeft één veld, met een goede tekening als tekst. Zonder het laatste deel is die
@@ -172,7 +172,11 @@ function assertSound(q) {
     assert.ok(size >= 2 && size <= 4, `groep met ${size} velden: ${q.q}`);
   }
   const right = q.fields.map((f) =>
-    f.sel ? f.a : f.round != null ? String(rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm),
+    f.sel || f.berekening
+      ? f.a
+      : f.round != null
+        ? String(rd(f.a, f.round)).replace('.', ',')
+        : typed(f.a, f.vorm),
   );
   // Bij een groep velden in elke volgorde.
   for (const r of rightOrders(q.fields, right)) {
@@ -183,7 +187,11 @@ function assertSound(q) {
   // Bij een tekenvraag verschuift alleen de y van het eerste punt (bij een parabool de top), want twee punten even ver opschuiven kan weer
   // een punt op dezelfde lijn geven.
   const wrong = q.fields.map((f, i) =>
-    f.sel ? f.a : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7 * 10 ** -(f.round ?? 0)),
+    f.sel
+      ? f.a
+      : f.berekening
+        ? `${f.a} + 1`
+        : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7 * 10 ** -(f.round ?? 0)),
   );
   // Zijn alle velden keuzelijsten, dan kiest het foute antwoord in de eerste een andere keuze.
   if (q.fields.every((f) => f.sel)) wrong[0] = q.fields[0].sel.find((o) => o !== q.fields[0].a);

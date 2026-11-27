@@ -247,9 +247,13 @@ const sg = (b) => (b < 0 ? ` - ${d(-b)}` : ` + ${d(b)}`);
 // tekenvragen.js en answers.js dit bestand allebei al laden: zo verdeelt de build de code bij het eerste bezoek
 // niet over een extra bestand, en blijft die klein.
 const TEKEN = {};
+// Het nakijken van een berekening die de leerling typt (#262). berekening.js vult het in, en laadt met de onderwerpen
+// die zo'n veld hebben. Om dezelfde reden als TEKEN staat het hier.
+const BEREKENING = {};
 
 export {
   TEKEN,
+  BEREKENING,
   withSeed,
   newSeed,
   seedText,

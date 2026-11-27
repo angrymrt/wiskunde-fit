@@ -96,9 +96,8 @@ export default {
         [
           '2.1',
           'De rekenbewerkingen en hun volgorde',
-          [185, 186, 187, 188, 189, 190, 220],
+          [185, 186, 187, 188, 189, 190, 220, 221],
           'deels',
-          'Zelf haakjes of rekentekens zetten zodat een berekening klopt, oefen je hier nog niet.',
         ],
         [
           '2.2',
@@ -110,9 +109,8 @@ export default {
         [
           '2.4',
           'Vermenigvuldigen en delen met mintekens',
-          [206, 207, 208, 209, 210, 218],
+          [206, 207, 208, 209, 210, 218, 222],
           'deels',
-          'Zelf een berekening maken met gegeven getallen oefen je hier nog niet.',
         ],
         ['2.5', 'Breuken met een minteken', [211, 212, 213, 214, 219], 'deels'],
       ],
