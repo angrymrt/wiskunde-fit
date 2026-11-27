@@ -1734,7 +1734,12 @@ test('de voortgang blijft heel in twee tabbladen, bij kapotte opslag en als opsl
     await A.click('[data-act="len"][data-id="10"]');
     await A.click('[data-act="start"]');
     await B.goto(at('/proeftoets'));
-    assert.ok(await B.$('#tform'), 'B ziet de lopende proeftoets');
+    // Het scherm van de proeftoets laadt apart (#188). Tot dat er is, staat de vooraf gebouwde keuzepagina er nog,
+    // dus wacht op de vraag in plaats van meteen te kijken (#242).
+    assert.ok(
+      await B.waitForSelector('#tform', { timeout: 5_000 }).catch(() => null),
+      'B ziet de lopende proeftoets',
+    );
     await A.click('[data-act="goto"][data-id="3"]');
     const a3 = await A.evaluate(`(${answerOf})(wiskundefit.state.test.items[3].q)`);
     if (a3.mc !== null) await A.check(`#tm${a3.mc}`);
