@@ -4,7 +4,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { checkAnswer, findTrap } from '../src/js/answers.js';
 import { CUBE_NETS, TURNS, notCubeNets, sameFace } from '../src/js/ruimte.js';
-import { MARGE, SOORTEN, cGoed, hoek, snijpunt, uitslagFout } from '../src/js/tekenvragen.js';
+import {
+  MARGE,
+  SOORTEN,
+  cGoed,
+  hoek,
+  snijpunt,
+  tekenAf,
+  tekenFig,
+  tekenResultaat,
+  tekenRijen,
+  uitslagFout,
+} from '../src/js/tekenvragen.js';
 import { TOPIC, makeQuestion } from '../src/js/topics/index.js';
 
 const { kubus, passer, uitslag } = SOORTEN;
@@ -287,5 +298,172 @@ test('een pijl: elke vraag is goed met het antwoord en heeft de valkuilen', () =
       assert.equal(findTrap(q, [`${a} ${e + s}`])?.id, 'pijl-te-lang');
     assert.equal(findTrap(q, [`${a} ${e - s}`])?.id, 'pijl-te-kort');
     assert.equal(findTrap(q, [q.fields[0].a]), null);
+  }
+});
+
+// Punten aantikken (#286): roosterpunten in een assenstelsel, en de punten uit een tabel in een grafiek bij een verhaal.
+const { roosterpunten, grafiekpunten } = SOORTEN;
+const ROOSTER = {
+  soort: 'roosterpunten',
+  xr: [-4, 4],
+  yr: [-3, 3],
+  goed: [
+    [2, -1],
+    [2, 0],
+    [2, 1],
+  ],
+  geg: [{ p: [0, 2], L: 'A' }],
+};
+const TABEL = {
+  soort: 'grafiekpunten',
+  fig: {
+    titel: 'Groei van een plant',
+    x: { naam: 'tijd in weken', van: 0, tot: 8, stap: 1 },
+    y: { naam: 'lengte in cm', van: 0, tot: 50, stap: 5 },
+  },
+  goed: [
+    [0, 5],
+    [2, 12.5],
+    [4, 30],
+  ],
+  snap: [1, 2.5],
+  verbind: 'kromme',
+};
+
+test('roosterpunten: lezen, schrijven en nakijken, in elke volgorde', () => {
+  const t = ROOSTER,
+    S = roosterpunten;
+  assert.deepEqual(S.lees(t, '2,1 2,-1 2,0'), [
+    [2, 1],
+    [2, -1],
+    [2, 0],
+  ]);
+  // Buiten het assenstelsel, niet op een roosterpunt of dubbel telt niet.
+  assert.deepEqual(S.lees(t, '5,0 1.5,0 2,1 2,1 x'), [[2, 1]]);
+  assert.equal(S.schrijf(t, S.lees(t, '2,1 2,-1 2,0')), '2,-1 2,0 2,1');
+  assert.deepEqual(S.nakijken(t, S.lees(t, '2,0 2,1 2,-1')), [true, true, true, true]);
+  // Een punt te weinig, of een punt te veel: fout.
+  assert.deepEqual(S.nakijken(t, S.lees(t, '2,0 2,1')), [false, true, true, true]);
+  assert.deepEqual(S.nakijken(t, S.lees(t, '2,0 2,1 2,-1 3,3')), [true, true, true, false]);
+  const q = { teken: t, fields: [{ teken: true, a: S.schrijf(t, t.goed) }] };
+  assert.ok(checkAnswer(JSON.parse(JSON.stringify(q)), ['2,1 2,0 2,-1']).ok);
+  assert.ok(!checkAnswer(q, ['2,1 2,0']).ok);
+  assert.ok(!checkAnswer(q, ['']).ok);
+});
+
+test('roosterpunten: een tik zet een punt of haalt het weg, en een schermlezer hoort waar', () => {
+  const t = ROOSTER,
+    S = roosterpunten,
+    m = S.maat(t);
+  let r = S.tik(t, [], [2, 1]);
+  assert.deepEqual(r.st, [[2, 1]]);
+  assert.equal(r.zin, 'Punt (2, 1) gezet. 1 punt gezet.');
+  r = S.tik(t, r.st, [2, -1]);
+  assert.match(S.staat(t, r.st), /Je zette 2 punten: \(2, −1\) en \(2, 1\)\./);
+  r = S.tik(t, r.st, [2, 1]);
+  assert.deepEqual(r.st, [[2, -1]]);
+  assert.match(r.zin, /Punt \(2, 1\) weggehaald/);
+  assert.equal(S.tik(t, r.st, [0, 2]).zin, 'Daar ligt punt A al.');
+  assert.equal(S.plek(t, r.st, [2, -1]), 'op (2, −1), gezet');
+  assert.equal(S.plek(t, r.st, [0, 2]), 'op (0, 2), punt A');
+  // Een tik komt op het dichtstbijzijnde roosterpunt, en ver buiten het rooster telt niet.
+  assert.deepEqual(S.terug(t, m.X(2) + 6, m.Y(1) - 5), [2, 1]);
+  assert.equal(S.terug(t, 0, 0), null);
+  assert.deepEqual(S.start(t), [0, 0]);
+  assert.deepEqual(S.verder(t, [4, 3], [1, 1]), [4, 3]);
+  assert.deepEqual(S.verder(t, [0, 0], [-1, 1]), [-1, 1]);
+  // De figuur is het assenstelsel van graph(), met de maat die tekenvragen.js gebruikt.
+  const svg = tekenFig(t);
+  assert.match(svg, new RegExp(`width="${m.w}" height="${m.h}"`));
+  assert.match(svg, /data-teken="roosterpunten"/);
+  assert.match(svg, /aria-label="Assenstelsel met een rooster\. .* Gegeven: A\(0, 2\)\."/);
+  assert.doesNotMatch(svg, /<svg[^>]*><svg class="fig"/, 'geen svg in een svg met dezelfde klasse');
+});
+
+test('grafiekpunten: de punten uit een tabel in het rooster van een grafiek bij een verhaal', () => {
+  const t = TABEL,
+    S = grafiekpunten,
+    m = S.maat(t);
+  // Op een fijnere verdeling dan het rooster: 12,5 ligt op een stap van 2,5.
+  assert.deepEqual(S.lees(t, '4,30 0,5 2,12.5 3,11 9,5'), [
+    [4, 30],
+    [0, 5],
+    [2, 12.5],
+  ]);
+  assert.equal(S.schrijf(t, S.lees(t, '4,30 0,5 2,12.5')), '0,5 2,12.5 4,30');
+  assert.deepEqual(S.nakijken(t, S.lees(t, '4,30 2,12.5 0,5')), [true, true, true, true]);
+  assert.deepEqual(S.nakijken(t, S.lees(t, '4,30 2,15 0,5')), [true, false, true, false]);
+  assert.deepEqual(S.terug(t, m.X(2) + 3, m.Y(12.5) + 2), [2, 12.5]);
+  assert.deepEqual(S.verder(t, [0, 0], [1, 1]), [1, 2.5]);
+  assert.deepEqual(S.verder(t, [8, 50], [1, 1]), [8, 50]);
+  const r = S.tik(t, [[0, 5]], [2, 12.5]);
+  assert.equal(r.zin, 'Punt bij 2 en 12,5 gezet. 2 punten gezet.');
+  assert.equal(
+    S.staat(t, r.st),
+    'Je zette 2 punten: 0 en 5; 2 en 12,5 (steeds tijd in weken en lengte in cm).',
+  );
+  // De figuur is die van contextGraph, met de beschrijving van de assen. Met verbind staat er een kromme door
+  // de gezette punten.
+  const svg = tekenFig(t);
+  assert.match(svg, /data-teken="grafiekpunten"/);
+  assert.match(
+    svg,
+    /aria-label="Grafiek: Groei van een plant\. Langs de horizontale as: tijd in weken/,
+  );
+  const af = tekenAf(t, '0,5 2,12.5 4,30', 'Met jouw punten.');
+  assert.match(af, /<path class="l1" d="M[^"]*C/);
+  assert.equal((af.match(/class="mk c1"/g) || []).length, 3);
+  // In het resultaat: de goede punten gestippeld, en een kruisje bij een punt dat er niet hoort.
+  const fout = tekenResultaat(t, '0,5 2,15', false);
+  assert.equal((fout.match(/class="l2 d"/g) || []).length, 3);
+  assert.equal((fout.match(/class="fout"/g) || []).length, 1);
+  const rijen = tekenRijen(t, '0,5 2,15', checkAnswer({ teken: t }, ['0,5 2,15']).each);
+  assert.deepEqual(
+    rijen.map((rij) => rij[2]),
+    [true, false, false, false],
+  );
+  assert.match(rijen[3][1], /2 en 15/);
+});
+
+test('grafiekpunten met lijn: een extra punt op de lijn is goed, een punt ernaast niet (#283)', () => {
+  const t = {
+      soort: 'grafiekpunten',
+      fig: {
+        titel: 'Een sup-board huren',
+        x: { naam: 'tijd in uren', van: 0, tot: 6, stap: 1 },
+        y: { naam: "bedrag in euro's", van: 0, tot: 60, stap: 5 },
+      },
+      goed: [
+        [0, 15],
+        [2, 35],
+        [4, 55],
+      ],
+      lijn: [15, 10],
+      verbind: 'lijn',
+    },
+    S = grafiekpunten;
+  // Alle punten uit de tabel en daartussen ook 1 en 3: allemaal op de lijn, dus goed.
+  assert.deepEqual(S.nakijken(t, S.lees(t, '0,15 1,25 2,35 3,45 4,55')), [true, true, true, true]);
+  // Een extra punt naast de lijn blijft fout, en krijgt als enige een kruisje.
+  assert.deepEqual(S.nakijken(t, S.lees(t, '0,15 1,30 2,35 4,55')), [true, true, true, false]);
+  const laag = S.laag(t, S.lees(t, '0,15 1,25 1,30 2,35 4,55'), { fout: true });
+  assert.equal((laag.match(/class="fout"/g) || []).length, 1);
+  // Zonder lijn is een extra punt fout, zoals bij punten uit een tabel met meetgegevens.
+  const zonder = { ...t, lijn: undefined };
+  assert.equal(S.nakijken(zonder, S.lees(zonder, '0,15 1,25 2,35 4,55'))[3], false);
+});
+
+test('234: mist er een punt uit de tabel naast extra punten op de lijn, dan zegt de melding dat (#283)', () => {
+  const sk = TOPIC['grafiek-bij-een-formule'].skills.find((k) => k.id === 234);
+  for (let seed = 1; seed <= 50; seed++) {
+    const q = makeQuestion(sk, seed),
+      t = q.teken,
+      [b, a] = t.lijn,
+      X = t.goed.map((p) => p[0]),
+      // Alle hele waarden van 0 tot de laatste kolom min één, dus de laatste kolom ontbreekt.
+      ps = [];
+    for (let x = 0; x < X[X.length - 1]; x++) ps.push([x, b + a * x]);
+    const v = [grafiekpunten.schrijf(t, ps)];
+    assert.equal(findTrap(q, v)?.id, 'punt-vergeten');
   }
 });

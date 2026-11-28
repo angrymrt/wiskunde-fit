@@ -552,6 +552,65 @@ function flTwo() {
   };
 }
 
+// --- 236 Invullen met een negatieve waarde (#289) ---
+
+// Een negatief getal invullen, zoals in havo/vwo 1: zonder haakjes om het negatieve getal, en met een punt
+// voor een haakje, zoals 5 · (a - 3) of 20 - 5 · (a + 4). Vormen zonder haakjes, zoals 8 - 6d, zitten al
+// in 139, daarom staan hier alleen de vormen met haakjes.
+function flNegatief() {
+  const l = pick(LETTERS),
+    x = -ri(1, 8),
+    lead = pick([false, true]);
+  const { m, r } = until(
+      () => ({ m: ri(2, 6), r: nz(-9, 9) }),
+      ({ r }) => x + r !== 0,
+    ),
+    c = lead ? ri(5, 30) : 0,
+    s = x + r,
+    y = lead ? c - m * s : m * s,
+    expr = `${lead ? `${c} - ` : ''}${m} · (${l}${sg(r)})`,
+    filled = `${lead ? `${c} - ` : ''}${m} · (${x}${sg(r)})`,
+    chain = lead
+      ? [filled, `${c} - ${m} · ${s}`, ...leadChain(c, '-', m * s), String(y)]
+      : [filled, `${m} · ${s}`, String(y)];
+  return {
+    q: T(`Bereken ${expr} voor ${l} = ${x}.`),
+    fields: [F(`${expr} =`, y)],
+    hint: T(
+      `Vul ${x} in voor ${l}, zonder haakjes om ${x}. Reken eerst uit wat tussen de haakjes staat, en vermenigvuldig dat daarna met ${m}.${lead ? ' Trek dat pas als laatste af.' : ''}`,
+    ),
+    steps: [`${l} = ${x} geeft ${expr} = ${chain.join(' = ')}`],
+    traps: [
+      fout(
+        'haakje-vergeten',
+        // Zonder haakjes: c - m · x + r, dus alleen x wordt met m vermenigvuldigd.
+        lead ? c - m * x + r : m * x + r,
+        y,
+        `Je moet alles tussen de haakjes met ${m} vermenigvuldigen. Reken eerst uit wat tussen de haakjes staat.`,
+      ),
+      // Alleen als er echt een negatief getal met m wordt vermenigvuldigd.
+      s < 0
+        ? fout(
+            'min-keer-min',
+            lead ? c + m * s : -m * s,
+            y,
+            'Let op het teken. Min keer min is plus, en min keer plus is min.',
+          )
+        : null,
+      lead
+        ? fout(
+            'eerst-aftrekken',
+            (c - m) * s,
+            y,
+            `Je hebt eerst ${c} - ${m} uitgerekend. Reken eerst ${m} · (${x}${sg(r)}) uit en trek dat daarna af.`,
+          )
+        : null,
+    ].filter(Boolean),
+    // Werk de haakjes weg en vul daarna in.
+    v: () => (lead ? c - m * x - m * r : m * x + m * r) === y,
+  };
+}
+
 export default {
   slug: 'formules-met-letters',
   title: 'Formules met letters',
@@ -566,6 +625,7 @@ export default {
     [140, 'Invullen met haakjes', flBrackets],
     [141, 'Letter terugrekenen', flBack],
     [142, 'Formule met twee letters', flTwo],
+    [236, 'Negatief invullen', flNegatief],
   ],
   learn: [
     {
@@ -608,7 +668,7 @@ export default {
       t: 'Haakjes',
       p: [
         T(
-          'Ook voor een haakje laat je het punt weg: 3(m + 5) betekent 3 · (m + 5). Reken eerst uit wat tussen de haakjes staat en vermenigvuldig dat daarna.',
+          'Voor een haakje staat soms een punt, zoals in 3 · (m + 5). Soms is het weggelaten: 3(m + 5) betekent hetzelfde. Reken eerst uit wat tussen de haakjes staat en vermenigvuldig dat daarna.',
         ),
       ],
       ex: {

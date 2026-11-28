@@ -2,6 +2,19 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.28.0
+
+### Nieuw
+
+- **Hoofdstuk 3 van havo/vwo 1: Grafieken en formules.** Drie nieuwe onderwerpen met 10 nieuwe soorten vragen. Bij Grafieken lezen en tekenen lees je een grafiek af, ook bij een tocht of bij twee grafieken in één figuur, en maak je een grafiek van een tabel. Bij Globale grafieken zeg je of een grafiek stijgt, daalt of gelijk blijft, en kies je de grafiek die bij een verhaal past. Bij Grafiek bij een formule maak je een tabel, teken je de grafiek en zoek je de formule bij een grafiek. Bij elk onderwerp staat uitleg, en bij een fout antwoord zie je wat er mis ging.
+- **Meer oefenen bij bestaande onderwerpen.** Bij Coördinaten en assenstelsels zet je roosterpunten en zoek je het snijpunt van de diagonalen. Bij Woordformules vergelijk je twee formules. Bij Formules met letters vul je een negatief getal in.
+- **Punten zetten in een rooster.** Je tikt de punten aan in een assenstelsel of in een grafiek. Tik je nog een keer, dan haal je het punt weg. Bij een grafiek tekent de site daarna de lijn door je punten.
+- **Methode-indeling.** In Getal & Ruimte, 13e editie, havo/vwo 1 en vwo 1, staat hoofdstuk 3 nu bij de vragen. Bij elke paragraaf staat wat je hier nog niet kunt oefenen, zoals vormen vullen met water.
+
+### Verbeterd
+
+- **De site opent sneller.** Bij je eerste bezoek hoeft er minder te laden. De schuifjes in de uitleg en het tekenen laden pas als je een onderwerp opent.
+
 ## 1.27.0
 
 ### Nieuw

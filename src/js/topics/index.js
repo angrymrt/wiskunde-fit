@@ -5,8 +5,11 @@
 // vraagsoorten. De build zet die op de plek van de imports hieronder (zie scripts/catalogus.js).
 // De generatoren en de uitleg komen pas met laadOnderwerpen().
 import coordinaten from './coordinaten-en-assenstelsels.js';
+import grafiekenLezen from './grafieken-lezen-en-tekenen.js';
+import globaleGrafieken from './globale-grafieken.js';
 import woordformules from './woordformules.js';
 import letters from './formules-met-letters.js';
+import grafiekFormule from './grafiek-bij-een-formule.js';
 import rekenen from './rekenen-met-een-formule.js';
 import lijnen from './lineaire-grafieken-tekenen.js';
 import opstellen from './lineaire-formule-opstellen.js';
@@ -83,14 +86,17 @@ const DOMAINS = [
     slug: 'formules-en-grafieken',
     name: 'Formules en grafieken',
     intro:
-      'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden, en werk je met parabolen: de top, de snijpunten met de assen en verschuiven.',
+      'Een formule zegt hoe twee hoeveelheden samenhangen, en een grafiek laat dat zien. Hier lees je grafieken bij een verhaal af, reken je met formules, teken je rechte lijnen en stel je zelf een formule op. Ook bereken je waar twee lijnen elkaar snijden, en werk je met parabolen: de top, de snijpunten met de assen en verschuiven.',
     description:
       'Formules en grafieken oefenen: lineaire formules, snijpunten, de top van een parabool en verschuiven. Gratis met uitleg, hints en uitwerkingen.',
     color: 'blue',
     topics: [
       coordinaten,
+      grafiekenLezen,
+      globaleGrafieken,
       woordformules,
       letters,
+      grafiekFormule,
       rekenen,
       lijnen,
       opstellen,
@@ -150,7 +156,10 @@ const DOMAINS = [
 
 // Stof die je al moet kennen voordat je aan een onderwerp begint.
 const PREREQUISITES = new Map([
+  [grafiekenLezen, [coordinaten]],
+  [globaleGrafieken, [grafiekenLezen]],
   [letters, [woordformules]],
+  [grafiekFormule, [letters, grafiekenLezen]],
   [rekenen, [vergelijkingen]],
   [lijnen, [rekenen]],
   [opstellen, [lijnen]],

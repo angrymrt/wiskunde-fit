@@ -176,6 +176,24 @@ export const WOORDEN = {
       'Een van de vier gebieden waarin de x-as en de y-as het vlak verdelen. Je nummert ze I tot en met IV, tegen de klok in.',
     onderwerp: 'coordinaten-en-assenstelsels',
   },
+  scheurlijn: {
+    naam: 'scheurlijn',
+    uitleg:
+      'Een zigzag in een as. Die laat zien dat de as niet bij 0 begint: een stuk van de as is weggelaten.',
+    onderwerp: 'grafieken-lezen-en-tekenen',
+  },
+  'afstand-tijdgrafiek': {
+    naam: 'afstand-tijdgrafiek',
+    uitleg:
+      'Een grafiek met de tijd op de horizontale as en de afgelegde afstand op de verticale as. Een horizontaal stuk betekent dat de afstand niet verandert.',
+    onderwerp: 'grafieken-lezen-en-tekenen',
+  },
+  'globale-grafiek': {
+    naam: 'globale grafiek',
+    uitleg:
+      'Een grafiek zonder getallen bij de assen. Je ziet alleen of iets stijgt, daalt of gelijk blijft, en hoe snel.',
+    onderwerp: 'globale-grafieken',
+  },
   woordformule: {
     naam: 'woordformule',
     uitleg:

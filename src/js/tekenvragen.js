@@ -1,8 +1,11 @@
-// Tekenvragen (#232): de leerling tekent zelf, in een rooster of op een getallenlijn. Er zijn vier soorten:
+// Tekenvragen (#232): de leerling tekent zelf, in een rooster of op een getallenlijn. Er zijn zes soorten:
 //  - kubus: een kubus afmaken op roosterpapier, door hoekpunten aan te tikken;
 //  - passer: een driehoek tekenen uit drie zijden, met boogjes van een passer;
 //  - uitslag: een uitslag van een kubus tekenen, door hokjes aan te tikken;
-//  - pijl: een som als pijl op de getallenlijn, door het begin en het eind aan te tikken (#263).
+//  - pijl: een som als pijl op de getallenlijn, door het begin en het eind aan te tikken (#263);
+//  - roosterpunten: roosterpunten in een assenstelsel aan- en weer uittikken, zoals alle punten die aan een
+//    voorwaarde voldoen (#286);
+//  - grafiekpunten: de punten uit een tabel zetten in het rooster van een grafiek bij een verhaal (#286).
 // Alleen gegevens, rekenwerk en SVG als tekst, geen DOM, zodat de tests het in Node draaien. Het tikken,
 // het toetsenbord en de knoppen staan in ui/tekenen.js, dat pas laadt als er een tekenvraag op het scherm staat.
 //
@@ -11,7 +14,8 @@
 // getypt antwoord bewaart, ook in een proeftoets. Een ? in die tekst is iets wat nog niet is getekend: dan is de
 // vraag nog niet af (zie empty in ui/question-form.js). answers.js kijkt de tekst na met TEKEN.nakijken uit math.js,
 // dat dit bestand hieronder invult.
-import { attr } from './figures.js';
+import { and, attr, graph } from './figures.js';
+import { grafiekDelen, pad, zegGetal } from './grafiekfiguren.js';
 import { TEKEN, d, near } from './math.js';
 import { CUBE_NETS, canonicalNet, isCubeNet, sameFace } from './ruimte.js';
 import { T } from './typeset.js';
@@ -699,7 +703,202 @@ const pijl = {
   verder: (t, p, [dx]) => [clamp(p[0] + dx, t.lo, t.hi)],
 };
 
-const SOORTEN = { kubus, passer, uitslag, pijl };
+// ---------------------------------------------------------------------------------------------
+// Punten aantikken (#286): de leerling zet een verzameling punten op de snijpunten van een rooster. Een tik zet
+// een punt, en een tik op een gezet punt haalt het weg. De volgorde is vrij. Goed is precies de verzameling
+// t.goed: elk punt van t.goed staat er, en er staat geen ander punt. In het veld staan de punten als 'x,y',
+// gesorteerd op x en dan op y, met een spatie ertussen. Een getal schrijft het veld met een punt, zoals 9.5.
+//
+// roosterpunten: t = { soort: 'roosterpunten', xr: [-6, 6], yr: [-6, 6], goed: [[x, y], ...], geg }. Een gewoon
+// assenstelsel zoals graph() in figures.js het tekent, met een rooster van 1 bij 1. geg zijn punten die er al
+// staan, met een letter: [{ p: [1, 2], L: 'A' }]. Die kun je niet aantikken, dus ze horen niet bij t.goed.
+//
+// grafiekpunten: t = { soort: 'grafiekpunten', fig, goed: [[x, y], ...], snap, verbind, lijn }. fig zijn de opties van
+// contextGraph() in grafiekfiguren.js (zonder functies, want t wordt als JSON bewaard), meestal zonder grafieken:
+// alleen de assen met hun namen en het rooster. De punten liggen op de lijnen van het rooster, of met snap = [dx, dy]
+// op een fijnere verdeling (bijvoorbeeld [1, 2.5] bij een as met stappen van 5). Met verbind ('lijn' of 'kromme')
+// tekent de site de grafiek door de gezette punten, van links naar rechts. Met lijn = [begin, per stap] mag een extra
+// punt er ook staan als het op die rechte lijn ligt, zoals bij de grafiek van een formule.
+
+const heeftP = (ps, p) => ps.some((q) => near(q[0], p[0], 1e-9) && near(q[1], p[1], 1e-9));
+const puntOrde = (ps) => [...ps].sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+const spotP = (p) => `(${num(p[0])}, ${num(p[1])})`;
+const aantal = (n) => (n === 1 ? '1 punt' : `${n} punten`);
+// Het rooster waarop punten mogen liggen: per as het begin, het eind en de stap.
+function raster(t) {
+  if (t.soort === 'roosterpunten')
+    return [
+      [...t.xr, 1],
+      [...t.yr, 1],
+    ];
+  const { x, y } = t.fig,
+    s = t.snap || [x.stap, y.stap];
+  return [
+    [x.van, x.tot, s[0]],
+    [y.van, y.tot, s[1]],
+  ];
+}
+// Een getal op het rooster van een as: afgerond op een stap vanaf het begin, en niet buiten de as.
+const opAs = ([lo, hi, st], v) => r2(clamp(lo + Math.round((v - lo) / st) * st, lo, hi));
+const opRaster = (A, v) => v >= A[0] - 1e-9 && v <= A[1] + 1e-9 && near(opAs(A, v), v, 1e-6);
+// De maat van een gewoon assenstelsel, zoals graph() in figures.js het tekent.
+const assenMaat = (t) => {
+  const u = t.u || 26;
+  return {
+    u,
+    w: (t.xr[1] - t.xr[0]) * u + 50,
+    h: (t.yr[1] - t.yr[0]) * u + 42,
+    X: (x) => 30 + (x - t.xr[0]) * u,
+    Y: (y) => 20 + (t.yr[1] - y) * u,
+  };
+};
+const grafiekMaat = (t) => {
+  const g = grafiekDelen(t.fig);
+  return { u: g.u, w: g.W, h: g.H, X: g.X, Y: g.Y, g };
+};
+// De inhoud van een figuur zonder de buitenste <svg>, om er in een tekenvraag op verder te tekenen.
+const zonderSvg = (s) => s.slice(s.indexOf('>') + 1, -6);
+// een is de naam van één punt, zoals (2, 1), en waar de plek van de cursor, zoals op (2, 1).
+function puntenSoort({ maat, fig, desc, lijst, een, waar, verbind }) {
+  const vast = (t, p) => (t.geg || []).find((g) => heeftP([g.p], p));
+  // Een punt mag er staan als het bij t.goed hoort, of, met t.lijn = [begin, per stap], als het op die rechte
+  // lijn ligt. Zo is een extra punt op de grafiek van een formule niet fout (#283).
+  const mag = (t, p) =>
+    heeftP(t.goed, p) || (!!t.lijn && near(p[1], t.lijn[0] + t.lijn[1] * p[0], 1e-9));
+  const S = {
+    maat,
+    lees(t, val) {
+      const R = raster(t),
+        out = [];
+      for (const w of String(val).split(' ')) {
+        const m = /^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/.exec(w);
+        if (!m) continue;
+        const p = [+m[1], +m[2]];
+        if (opRaster(R[0], p[0]) && opRaster(R[1], p[1]) && !heeftP(out, p)) out.push(p);
+      }
+      return out;
+    },
+    schrijf: (t, ps) =>
+      puntOrde(ps)
+        .map((p) => p.map(r2).join(','))
+        .join(' '),
+    // Per punt van t.goed of het er staat, en als laatste of er geen punt staat dat er niet mag staan.
+    nakijken: (t, ps) => [...t.goed.map((g) => heeftP(ps, g)), ps.every((p) => mag(t, p))],
+    // Het punt van het rooster dat het dichtst bij een tik ligt, of null als de tik buiten het rooster valt. Een
+    // halve stap buiten het rooster telt nog mee, zodat je ook de rand goed raakt.
+    terug(t, sx, sy) {
+      const m = maat(t),
+        [A, B] = raster(t),
+        x = A[0] + (sx - m.X(A[0])) / (m.X(A[0] + 1) - m.X(A[0])),
+        y = B[0] + (sy - m.Y(B[0])) / (m.Y(B[0] + 1) - m.Y(B[0])),
+        buiten = (R, v) => v < R[0] - R[2] / 2 || v > R[1] + R[2] / 2;
+      return buiten(A, x) || buiten(B, y) ? null : [opAs(A, x), opAs(B, y)];
+    },
+    fig,
+    // De punten van de leerling. Met fout een kruisje bij een punt dat er niet hoort, met goed de goede punten als
+    // gestippelde rondjes, en met cursor de plek van het toetsenbord.
+    laag(t, ps, { fout, goed, cursor } = {}) {
+      const m = maat(t),
+        P = (p) => [r2(m.X(p[0])), r2(m.Y(p[1]))],
+        rond = (p, cls, r) => `<circle class="${cls}" cx="${P(p)[0]}" cy="${P(p)[1]}" r="${r}"/>`;
+      let o = '';
+      if (verbind && t.verbind && ps.length > 1) {
+        const rij = puntOrde(ps),
+          zelfdeX = rij.some((p, k) => k && near(p[0], rij[k - 1][0], 1e-9));
+        o += `<path class="l1" d="${pad(rij.map(P), zelfdeX ? 'lijn' : t.verbind)}"/>`;
+      }
+      if (goed) for (const p of t.goed) o += rond(p, 'l2 d', 8);
+      for (const p of ps) {
+        o += rond(p, 'mk c1', 5);
+        if (fout && !mag(t, p)) o += kruis(P(p)[0] + 10, P(p)[1] - 10, 4);
+      }
+      if (cursor) o += rond(cursor, 'cursor', 11);
+      return o;
+    },
+    desc,
+    staat: (t, ps) =>
+      ps.length
+        ? `Je zette ${aantal(ps.length)}: ${lijst(t, puntOrde(ps))}.`
+        : 'Je hebt nog geen punten gezet.',
+    rijen(t, ps, each) {
+      const anders = puntOrde(ps.filter((p) => !mag(t, p))),
+        niet = '<span class="muted">niet gezet</span>';
+      return [
+        ...t.goed.map((g, k) => [
+          `Punt ${T(een(t, g))}`,
+          each[k] ? 'gezet' : niet,
+          each[k],
+          'gezet',
+        ]),
+        [
+          'Andere punten',
+          anders.length ? T(lijst(t, anders)) : 'geen',
+          each[each.length - 1],
+          'geen',
+        ],
+      ];
+    },
+    // Een tik op punt p zet het, of haalt het weg als het er al stond. Een punt dat er al stond, blijft staan.
+    tik(t, ps, p) {
+      const g = vast(t, p);
+      if (g) return { st: ps, zin: `Daar ligt punt ${g.L} al.` };
+      const weg = heeftP(ps, p),
+        uit = weg ? ps.filter((q) => !heeftP([q], p)) : [...ps, p];
+      return {
+        st: uit,
+        zin: `Punt ${een(t, p)} ${weg ? 'weggehaald' : 'gezet'}. ${S.stap(t, uit)}`,
+      };
+    },
+    stap: (t, ps) => `${aantal(ps.length)} gezet.`,
+    plek(t, ps, p) {
+      const g = vast(t, p);
+      return `${waar(t, p)}${heeftP(ps, p) ? ', gezet' : g ? `, punt ${g.L}` : ''}`;
+    },
+    bezet: (t, ps, p) => heeftP(ps, p),
+    start: (t) => raster(t).map((A) => opAs(A, 0)),
+    // De cursor een stap verder, met y omhoog, binnen het rooster.
+    verder(t, p, [dx, dy]) {
+      const [A, B] = raster(t);
+      return [opAs(A, p[0] + dx * A[2]), opAs(B, p[1] + dy * B[2])];
+    },
+  };
+  return S;
+}
+
+const roosterpunten = puntenSoort({
+  maat: assenMaat,
+  fig: (t) =>
+    zonderSvg(
+      graph({
+        xr: t.xr,
+        yr: t.yr,
+        u: t.u || 26,
+        coords: false,
+        pts: (t.geg || []).map((g) => ({ x: g.p[0], y: g.p[1], label: g.L })),
+      }),
+    ),
+  desc: (t) =>
+    `Assenstelsel met een rooster. De x-as loopt van ${num(t.xr[0])} tot ${num(t.xr[1])} en de y-as van ${num(t.yr[0])} tot ${num(t.yr[1])}.${t.geg?.length ? ` Gegeven: ${and(t.geg.map((g) => g.L + spotP(g.p)))}.` : ''}`,
+  lijst: (t, ps) => and(ps.map(spotP)),
+  een: (t, p) => spotP(p),
+  waar: (t, p) => `op ${spotP(p)}`,
+});
+
+// Bij een grafiek bij een verhaal staan de getallen niet als coördinaten, maar als het getal op de horizontale as
+// en het getal op de verticale as: 'bij 9 en 15'.
+const grafiekPunt = (t, p) => `${zegGetal(t.fig.x)(p[0])} en ${zegGetal(t.fig.y)(p[1])}`;
+const grafiekpunten = puntenSoort({
+  maat: grafiekMaat,
+  fig: (t) => grafiekMaat(t).g.inner,
+  desc: (t) => grafiekMaat(t).g.desc,
+  lijst: (t, ps) =>
+    `${ps.map((p) => grafiekPunt(t, p)).join('; ')} (steeds ${t.fig.x.naam} en ${t.fig.y.naam})`,
+  een: (t, p) => `bij ${grafiekPunt(t, p)}`,
+  waar: (t, p) => `bij ${grafiekPunt(t, p)}`,
+  verbind: true,
+});
+
+const SOORTEN = { kubus, passer, uitslag, pijl, roosterpunten, grafiekpunten };
 TEKEN.nakijken = (t, val) => SOORTEN[t.soort].nakijken(t, SOORTEN[t.soort].lees(t, val));
 
 const svg = (t, inner, label, extra = '') => {
@@ -743,6 +942,7 @@ export {
   MARGE,
   stukken,
   uitslagFout,
+  assenMaat,
   tekenFig,
   tekenAf,
   tekenResultaat,

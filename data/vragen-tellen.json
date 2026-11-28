@@ -921,6 +921,67 @@
       "aantal": 1288597,
       "ondergrens": true,
       "exact": false
+    },
+    "223": {
+      "aantal": 1941522,
+      "ondergrens": true,
+      "exact": false
+    },
+    "224": {
+      "aantal": 3286715,
+      "ondergrens": true,
+      "exact": false
+    },
+    "225": {
+      "aantal": 160080,
+      "exact": true
+    },
+    "226": {
+      "aantal": 2995565,
+      "ondergrens": true,
+      "exact": false
+    },
+    "227": {
+      "aantal": 1084523,
+      "ondergrens": true,
+      "exact": false
+    },
+    "228": {
+      "aantal": 588775,
+      "ondergrens": true,
+      "exact": false
+    },
+    "229": {
+      "aantal": 1060,
+      "exact": true
+    },
+    "230": {
+      "aantal": 19685,
+      "exact": true
+    },
+    "231": {
+      "aantal": 20946,
+      "exact": true
+    },
+    "232": {
+      "aantal": 40352,
+      "exact": true
+    },
+    "233": {
+      "aantal": 1490,
+      "exact": true
+    },
+    "234": {
+      "aantal": 251,
+      "exact": true
+    },
+    "235": {
+      "aantal": 181,
+      "exact": true
+    },
+    "236": {
+      "aantal": 220320,
+      "exact": true
     }
   }
 }

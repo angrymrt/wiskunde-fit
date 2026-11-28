@@ -75,7 +75,8 @@ test('de dekking klopt met de vraagsoorten', () => {
 test('een methode-indeling die niet is vergeleken met het boek zegt dat', () => {
   for (const m of MAPPINGS) {
     const coverage = paragraphsOf(m).map((p) => p.coverage);
-    if (m.note && m.id !== 'gr13-vwo1')
+    // vwo 1 en havo/vwo 1 zijn per hoofdstuk met het boek vergeleken: de note zegt welke hoofdstukken wel.
+    if (m.note && !['gr13-vwo1', 'gr13-hv1'].includes(m.id))
       assert.ok(!coverage.includes('gedekt'), `${m.id}: gedekt zonder vergelijking`);
   }
 });
@@ -138,7 +139,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
   );
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 222);
+  assert.equal(prog.stof.length, 236);
   setStof([]);
 });
 
