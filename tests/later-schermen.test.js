@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { BIJ_ONDERWERP, LATER as BESTANDEN, SCHERM_VAN } from '../scripts/later-schermen.js';
-import { LATER as SCHERMEN } from '../src/js/ui/laden.js';
+import { BIJ_ONDERWERP_LADEN, LATER as SCHERMEN } from '../src/js/ui/laden.js';
 
 const sleutels = (o) => Object.keys(o).sort();
 
@@ -13,10 +13,10 @@ test('elk scherm in laden.js heeft een bestand in SCHERM_VAN, en andersom', () =
   assert.deepEqual(sleutels(SCHERMEN), sleutels(SCHERM_VAN));
 });
 
-// Het bestand dat met een onderwerp laadt (BIJ_ONDERWERP) heeft geen eigen scherm en staat dus niet
+// De bestanden die met een onderwerp laden (BIJ_ONDERWERP) hebben geen eigen scherm en staan dus niet
 // in SCHERM_VAN.
 test('elk bestand in SCHERM_VAN staat in later-schermen.js, en andersom', () => {
-  const uitSchermVan = [...new Set([...Object.values(SCHERM_VAN), BIJ_ONDERWERP])]
+  const uitSchermVan = [...new Set([...Object.values(SCHERM_VAN), ...BIJ_ONDERWERP])]
     .map((f) => `${f}.js`)
     .sort();
   assert.deepEqual(sleutels(BESTANDEN), uitSchermVan);
@@ -38,5 +38,14 @@ test('elk scherm in laden.js gebruikt klaar en laad van het bestand uit SCHERM_V
     const m = await import(`../src/js/ui/${bestand}.js`);
     assert.equal(SCHERMEN[scherm].klaar, m.klaar, `${scherm}: klaar komt niet uit ${bestand}.js`);
     assert.equal(SCHERMEN[scherm].laad, m.laad, `${scherm}: laad komt niet uit ${bestand}.js`);
+  }
+});
+
+test('laden.js laadt met een onderwerp de bestanden uit BIJ_ONDERWERP', async () => {
+  assert.equal(BIJ_ONDERWERP_LADEN.length, BIJ_ONDERWERP.length);
+  for (const [i, bestand] of BIJ_ONDERWERP.entries()) {
+    const m = await import(`../src/js/ui/${bestand}.js`);
+    assert.equal(BIJ_ONDERWERP_LADEN[i].klaar, m.klaar, `klaar komt niet uit ${bestand}.js`);
+    assert.equal(BIJ_ONDERWERP_LADEN[i].laad, m.laad, `laad komt niet uit ${bestand}.js`);
   }
 });

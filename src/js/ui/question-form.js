@@ -4,7 +4,7 @@ import { BEREKENING } from '../math.js';
 import { pathFor } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T } from '../typeset.js';
-import { githubLink, mailLink, MAX_TEKST, melding, WAT } from './melden.js';
+import { MAX_TEKST, meldVoetHTML, melding, WAT } from './melden.js';
 import { app, state } from './state.js';
 
 function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
@@ -127,22 +127,6 @@ function shareHTML(skill, q) {
 // niet meer. Een vraag uit een oude proeftoets heeft geen seed, en daar valt dus niets te melden.
 const FLAG_ICON =
   '<svg class="icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3.5 14V2.5h8l-1.6 3 1.6 3h-8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>';
-// Onder in het paneel: wat er nog mist, en de twee manieren om te versturen. Zolang er niets gekozen
-// is, zijn het knoppen die niets doen. Daarna zijn het links met alles al ingevuld.
-function meldVoetHTML(m) {
-  const gh = m
-    ? `<a class="btn main" id="meldgh" href="${esc(githubLink(m))}" target="_blank" rel="noopener">Via GitHub</a>`
-    : '<button class="btn main" type="button" disabled>Via GitHub</button>';
-  const mail = m
-    ? `<a class="btn" id="meldmail" href="${esc(mailLink(m))}">Via e-mail</a>`
-    : '<button class="btn" type="button" disabled>Via e-mail</button>';
-  return `<p class="small melden-hulp" role="status">${m ? '' : 'Kies eerst wat er aan de hand is. Dan kun je het versturen.'}</p>
-      <p class="small melden-via"><b>Melden via:</b></p>
-      <div class="melden-kies">
-        <div class="melden-kanaal">${gh}<p class="small muted">Je hebt een GitHub-account nodig. Je gebruikersnaam staat openbaar bij de melding.</p></div>
-        <div class="melden-kanaal">${mail}<p class="small muted">Opent je mailprogramma. Alleen wij zien je mailadres.</p></div>
-      </div>`;
-}
 function meldHTML(skill, q) {
   const topic = topicOf(skill.id);
   if (q.seed === undefined || !topic) return { button: '', panel: '' };
@@ -178,13 +162,4 @@ function meldHTML(skill, q) {
   return { button, panel };
 }
 
-export {
-  fieldsHTML,
-  readVals,
-  unreadable,
-  empty,
-  shareHTML,
-  meldHTML,
-  meldVoetHTML,
-  rekenhulpHTML,
-};
+export { fieldsHTML, readVals, unreadable, empty, shareHTML, meldHTML, rekenhulpHTML };
