@@ -34,8 +34,8 @@ const VERHALEN = [
     intro:
       'Bij een meer kun je een sup-board huren. Je betaalt een vast bedrag en een bedrag per uur.',
     y: "bedrag in euro's",
-    a: [4, 5, 6, 8, 10, 15],
-    b: [2, 3, 4, 5, 6],
+    a: [5, 10, 15, 20],
+    b: [5, 10, 15],
   },
   {
     op: '+',
@@ -50,8 +50,8 @@ const VERHALEN = [
     titel: 'Een zonnebloem groeit',
     intro: 'Een zonnebloem wordt elke week even veel langer.',
     y: 'lengte in cm',
-    a: [4, 5, 6, 8, 10],
-    b: [2, 3, 4, 5, 6],
+    a: [4, 5, 6, 8, 10, 15, 20],
+    b: [2, 3, 4, 5, 6, 8, 10],
   },
   {
     op: '+',
@@ -66,8 +66,8 @@ const VERHALEN = [
     titel: 'Een bad loopt vol',
     intro: 'Er zit al wat water in een bad, en de kraan staat open.',
     y: 'water in liter',
-    a: [10, 15, 20, 30],
-    b: [10, 12, 15, 20],
+    a: [10, 15, 20, 25, 30],
+    b: [5, 10, 15],
   },
   {
     op: '+',
@@ -82,8 +82,8 @@ const VERHALEN = [
     titel: 'Sparen',
     intro: 'In een spaarpot zit al wat geld. Er komt elke week even veel bij.',
     y: "spaargeld in euro's",
-    a: [15, 20, 25, 30, 40],
-    b: [5, 7, 10, 15],
+    a: [10, 15, 20, 25, 30, 40, 50],
+    b: [5, 10, 15, 20],
   },
   {
     op: '-',
@@ -132,7 +132,7 @@ const VERHALEN = [
     titel: 'Een luchtballon daalt',
     intro: 'Een luchtballon daalt en komt elke minuut even veel lager.',
     y: 'hoogte in meter',
-    b: [20, 25, 50],
+    b: [20, 25, 30, 40, 50],
     n: [4, 6, 8, 10],
     op0: 'de ballon op de grond staat',
   },
@@ -185,8 +185,9 @@ function stapVoorStap(f, x) {
 }
 
 // De tabel met de letter bovenaan en de uitkomst eronder. Een leeg vak is null, en tekst blijft tekst.
-const tabel = (V, xs, ys) =>
-  `<div class="scroll" role="region" tabindex="0" aria-label="Tabel bij de formule"><table class="dt">${[
+// naam is de naam voor een schermlezer; die verschilt als er twee tabellen op het scherm staan.
+const tabel = (V, xs, ys, naam = 'Tabel bij de formule') =>
+  `<div class="scroll" role="region" tabindex="0" aria-label="${naam}"><table class="dt">${[
     [V.l, ...xs],
     [V.w, ...ys],
   ]
@@ -247,6 +248,7 @@ function tabelInvullen() {
           V,
           xs,
           xs.map((x) => uit(V, a, b, x)),
+          'Ingevulde tabel bij de formule',
         ),
       ),
     ],
@@ -330,22 +332,41 @@ const s35tabel = () => (coin() || coin() ? tabelInvullen() : tabelStopt());
 
 // --- 234 Grafiek tekenen bij een formule ---
 
-// Een handige stap voor één hokje op de verticale as: zo klein dat de as niet te lang wordt, en elk
-// getal uit lijst ligt op een lijn. null als er geen is.
+// De stappen voor één hokje op de verticale as. Een schaal past als de grafiek 4 tot 12 hokjes hoog is.
 const STAPPEN = [2, 5, 10, 20, 25, 50, 100];
-const yStap = (max, lijst, hokjes = 12) =>
-  STAPPEN.find((s) => Math.ceil(max / s) <= hokjes && lijst.every((w) => w % s === 0)) || null;
+const pastHoogte = (max, st) => Math.ceil(max / st) >= 4 && Math.ceil(max / st) <= 12;
+// Alle getallen bij een verhaal: het begin a, wat er per keer bij komt of af gaat b, en het laatste
+// getal X op de horizontale as. Bij een dalende formule is X de waarde waarbij alles op is.
+const keuzes = (V, Xs) =>
+  V.b.flatMap((b) =>
+    V.op === '+'
+      ? V.a.flatMap((a) => Xs.map((X) => ({ V, a, b, n: null, X })))
+      : V.n.map((n) => ({ V, a: b * n, b, n, X: n })),
+  );
+const hoogste = (g) => Math.max(g.a, uit(g.V, g.a, g.b, g.X));
+// Kiest uit een lijst keuzes eerst een schaal st en daarna getallen die daarop passen, zodat elke
+// schaal even vaak voorkomt.
+function kiesSchaal(L) {
+  const st = pick([...new Set(L.map((g) => g.st))]);
+  return pick(L.filter((g) => g.st === st));
+}
+
+// Per verhaal de getallen met een schaal waarop alle punten van de tabel op een lijn liggen. De tabel
+// gaat met stappen van 2 tot hoogstens 8, dus elk getal is een veelvoud van st als a en 2b dat zijn.
+const TEKENEN = VERHALEN.map((V) =>
+  keuzes(V, [4, 6, 8])
+    .filter((g) => g.X <= 8)
+    .flatMap((g) =>
+      STAPPEN.filter(
+        (st) => g.a % st === 0 && (2 * g.b) % st === 0 && pastHoogte(hoogste(g), st),
+      ).map((st) => ({ ...g, st })),
+    ),
+);
 
 function s35tekenen() {
-  const { V, a, b, xs, ys, st } = until(
-      () => {
-        const g = verhaal(),
-          xs = reeks(0, g.n ? g.n : pick([4, 6, 8])),
-          ys = xs.map((x) => uit(g.V, g.a, g.b, x));
-        return { ...g, xs, ys, st: yStap(Math.max(...ys), ys) };
-      },
-      ({ xs, st }) => st !== null && xs.length <= 5,
-    ),
+  const { V, a, b, X, st } = kiesSchaal(pick(TEKENEN)),
+    xs = reeks(0, X),
+    ys = xs.map((x) => uit(V, a, b, x)),
     f = formule(V, a, b),
     max = Math.max(...ys),
     t = {
@@ -368,7 +389,7 @@ function s35tekenen() {
     ernaast = (v, fout) => lees(v).some((p) => !hoort(p) && t.goed.some((q) => fout(p, q)));
   return {
     q: T(
-      `${zin(V, a, b)} Teken de grafiek. Maak eerst een tabel met ${V.l} = ${en(xs)}, en zet die punten in het assenstelsel. Tik op een plek om er een punt te zetten, en nog een keer om het weg te halen. Door de punten komt vanzelf een rechte lijn.`,
+      `${zin(V, a, b)} Teken de grafiek. Maak eerst een tabel met ${V.l} = ${en(xs)}, en zet die punten in het {{assenstelsel|assenstelsel}}. Tik op een plek om er een punt te zetten, en nog een keer om het weg te halen. Door de punten komt vanzelf een rechte lijn.`,
     ),
     fig: tekenFig(t),
     teken: t,
@@ -430,24 +451,30 @@ function s35tekenen() {
 
 // --- 235 Formule uit een grafiek ---
 
+// Alle getallen met een schaal waarbij het begin op een lijn ligt en de grafiek daarna voor het eerst
+// door een roosterpunt gaat bij x2: over x2 stappen lees je af, en daarna deel je door x2. Met de
+// stappen uit STAPPEN is x2 altijd 1, 2 of 4. a en b zijn verschillend, zodat omwisselen opvalt.
+const AFLEZEN = VERHALEN.flatMap((V) =>
+  keuzes(V, [6, 8])
+    .filter((g) => g.a !== g.b)
+    .flatMap((g) =>
+      STAPPEN.filter((st) => g.a % st === 0 && pastHoogte(hoogste(g), st)).map((st) => ({
+        ...g,
+        st,
+        x2: [1, 2, 3, 4].find((x) => (g.b * x) % st === 0) || 0,
+      })),
+    )
+    .filter((g) => g.x2 > 0),
+);
+
 function s35formule() {
-  const { V, a, b, n, X, st, x2 } = until(
-      () => {
-        const g = verhaal(),
-          X = g.n || pick([6, 8]),
-          max = Math.max(g.a, uit(g.V, g.a, g.b, X)),
-          // Een stap waarbij het begin op een lijn ligt, en de lijn later nog eens door een roosterpunt gaat.
-          st = STAPPEN.find(
-            (s) =>
-              Math.ceil(max / s) <= 12 &&
-              g.a % s === 0 &&
-              [1, 2, 3, 4].some((x) => x <= X && (g.b * x) % s === 0),
-          ),
-          x2 = st ? [1, 2, 3, 4].find((x) => (g.b * x) % st === 0) : 0;
-        return { ...g, X, st, x2 };
-      },
-      ({ a, b, st }) => !!st && a !== b,
-    ),
+  // Kies eerst over hoeveel stappen je afleest, zodat je meestal moet delen, dan stijgend of dalend,
+  // dan het verhaal, en daarna de schaal en de getallen.
+  const x2 = pick([1, 2, 2, 4]),
+    richting = coin() ? '+' : '-',
+    L = AFLEZEN.filter((g) => g.x2 === x2 && g.V.op === richting),
+    V = pick([...new Set(L.map((g) => g.V))]),
+    { a, b, n, X, st } = kiesSchaal(L.filter((g) => g.V === V)),
     y2 = uit(V, a, b, x2),
     plus = V.op === '+',
     op = plus ? '+' : '−',

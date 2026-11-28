@@ -40,9 +40,9 @@ export default {
         [
           '3.6',
           'Grafiek bij een formule',
-          [233, 234, 235, 1, 2, 3, 8, 11, 16],
+          [233, 234, 235],
           'deels',
-          'Twee grafieken bij twee formules in één figuur tekenen en het snijpunt aflezen kun je hier nog niet oefenen. Grafieken aflezen bij een verhaal oefen je bij 3.3.',
+          'Deze paragraaf is niet in detail met het boek vergeleken. Twee grafieken bij twee formules in één figuur tekenen en het snijpunt aflezen kun je hier nog niet oefenen, en ook niet een formule met twee letters waarin je er één vastzet. Grafieken aflezen bij een verhaal oefen je bij 3.3.',
         ],
       ],
     },
