@@ -3716,10 +3716,7 @@ const LIMITS = {
   tellen: { sent: 8, own: 30, why: 'het bestand met de tellen voor Cijfers' },
   // Een scherm in een eigen bestand (scripts/later-schermen.js), dat pas laadt als het nodig is.
   scherm: { sent: 7, own: 20, why: 'een scherm in een eigen bestand' },
-  // Grafieken lezen en tekenen (#288) kreeg er drie vraagsoorten bij (tabel naar grafiek, globale grafieken en een
-  // globale grafiek bij een verhaal), met veel eigen tekst: 45,5 kB zelf en 16,1 kB verstuurd. Het grootste andere
-  // onderwerp is 31 kB. De grens ging van 40 naar 46 kB en van 14 naar 16,5 kB.
-  topic: { sent: 16.5, own: 46, why: 'de code van een onderwerp' },
+  topic: { sent: 14, own: 40, why: 'de code van een onderwerp' },
   // De figuren voor ruimtefiguren (src/js/ruimtefiguren.js en ruimte.js, #232) worden door vier onderwerpen gedeeld en
   // staan daarom in een eigen gedeeld bestand: 16,2 kB verstuurd en 46,3 kB zelf. Dat bestand laadt alleen bij die
   // onderwerpen, niet bij het eerste bezoek. De grens ging van 16 naar 17 en van 44 naar 48 kB.
