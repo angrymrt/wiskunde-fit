@@ -2181,6 +2181,60 @@ test('soort in het adres kiest de vraagsoort', async () => {
   }
 });
 
+test('een uitdaging heeft een label en komt alleen als je hem zelf kiest (#309)', async () => {
+  const browser = await launch();
+  try {
+    const slug = 'lineaire-vergelijkingen';
+    const p = await browser.newPage({ viewport: { width: 1000, height: 900 } });
+    await p.goto(at(`/${slug}/oefenen`));
+    // Het label staat bij de keuze, en door elkaar komt de uitdaging niet.
+    assert.equal(await p.textContent('.chip[data-id="22"] .pill.uitdaging'), 'Uitdaging');
+    assert.equal(await p.$('.chip[data-id="17"] .pill'), null);
+    for (let i = 0; i < 15; i++) {
+      assert.notEqual(await p.evaluate((s) => wiskundefit.state.prac[s].skill.id, slug), 22);
+      assert.equal(await p.$('.uitdaging-uitleg'), null);
+      await p.click('.chip[data-id=""]');
+    }
+    // Kies je hem zelf, dan krijg je hem, met de uitleg boven de vraag.
+    await p.click('.chip[data-id="22"]');
+    assert.equal(new URL(p.url()).search, '?soort=22');
+    assert.match(await p.textContent('.uitdaging-uitleg'), /Extra stof voor wie meer wil/);
+    await p.screenshot({ path: `${shotDir}uitdaging.png`, fullPage: true });
+    // Goed beantwoord: het getal bij de soort gaat omhoog, maar de voortgang van het onderwerp niet.
+    const a = await p.evaluate(`(${answerOf})(wiskundefit.state.prac[${JSON.stringify(slug)}].q)`);
+    await fill(p, 'p', a.vals);
+    await p.click('#pform button[type=submit]');
+    await p.waitForSelector('#nextq');
+    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.skills), { 22: [1] });
+    await p.goto(at(`/${slug}`));
+    assert.equal(await p.$('.topic-pct'), null, 'geen % geoefend');
+    // Op een telefoon staat het label ook in het menu met de soorten.
+    const telefoon = await browser.newContext({
+      viewport: { width: 390, height: 780 },
+      hasTouch: true,
+      isMobile: true,
+    });
+    const tel = await telefoon.newPage();
+    await tel.goto(at(`/${slug}/oefenen?soort=22`));
+    await tel.waitForSelector('#rekenhulp:not([hidden])');
+    await tel.tap('.soort-knop');
+    await tel.waitForSelector('.chip[data-id="22"] .pill.uitdaging', { state: 'visible' });
+    await tel.locator('.chip[data-id="22"]').scrollIntoViewIfNeeded();
+    await tel.screenshot({ path: `${shotDir}uitdaging-telefoon.png` });
+    await telefoon.close();
+    // In je boek staat hij apart bij de paragraaf, en hij komt niet mee met de paragraaf.
+    await p.goto(at('/methode-indeling/getal-en-ruimte-13-havo-3'));
+    await p.check('[data-act="para"][data-id="1.3"]');
+    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.stof), [17, 18, 19, 20, 21]);
+    const uitdaging = p.locator('.pick-topics', { has: p.locator('.pill.uitdaging') });
+    await uitdaging.scrollIntoViewIfNeeded();
+    await p.screenshot({ path: `${shotDir}uitdaging-boek.png` });
+    assert.equal(await uitdaging.locator('a').getAttribute('href'), `/${slug}/oefenen?soort=22`);
+  } finally {
+    await browser.close();
+  }
+});
+
 test('het getal bij een soort rolt alleen als het verandert', async () => {
   const browser = await launch();
   try {

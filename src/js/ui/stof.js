@@ -10,11 +10,12 @@ import {
   stofFromBook,
   stofGaps,
   stofTopic,
+  topicOf,
 } from '../stof.js';
-import { DOMAINS } from '../topics/index.js';
+import { DOMAINS, basis } from '../topics/index.js';
 import { esc, T } from '../typeset.js';
 import { resultText } from './toets-opslag.js';
-import { crumbs, pageHead } from './layout.js';
+import { UITDAGING, crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
 import { topicLink, vPractice } from './topic.js';
 
@@ -101,8 +102,17 @@ function paragraphHTML(p) {
     p.coverage === 'deels'
       ? `<span class="small muted pick-note">Dit kun je hier al oefenen: ${skillNames(chosenTopics(p.skills).flatMap((g) => g.skills))}.${p.note ? ` ${T(p.note)}` : ''}</span>`
       : '';
-  return `<li><label class="pick">${checkbox('para', esc(p.number), p.skills)}<span>${label}${part}</span></label><span class="small pick-topics">Onderwerp: ${topics}</span></li>`;
+  return `<li><label class="pick">${checkbox('para', esc(p.number), p.skills)}<span>${label}${part}</span></label><span class="small pick-topics">Onderwerp: ${topics}</span>${uitdagingHTML(p)}</li>`;
 }
+// Een uitdaging bij de paragraaf staat apart, met een link om hem te oefenen. Hij komt niet mee als
+// je de paragraaf aanvinkt.
+const uitdagingHTML = (p) =>
+  p.uitdaging
+    .map((id) => {
+      const t = topicOf(id);
+      return `<span class="small pick-topics">${UITDAGING} <a class="linkbtn" href="${pathFor({ name: 'topic', slug: t.slug, oefen: true, soort: id })}">${T(t.skills.find((k) => k.id === id).name)}</a></span>`;
+    })
+    .join('');
 function chapterHTML(c) {
   const ids = c.paragraphs.flatMap((p) => p.skills);
   const head = `<h2 class="h3">Hoofdstuk ${esc(c.number)}: ${T(c.description)}</h2><span class="small muted">${esc(c.part)}</span>`;
@@ -129,7 +139,7 @@ function chosenHTML({ topic, skills }) {
   return `<a class="par color-${topic.domain.color}" href="${pathFor({ name: 'topic', slug: topic.slug })}"><span>${T(topic.title)}</span><span class="pct">${p}%</span><span class="small muted stof-skills">${skillNames(skills)}</span><span class="bar ${p >= 80 ? 'done' : ''}"><i style="width:${p}%"></i></span></a>`;
 }
 function topicPickHTML(topic) {
-  const ids = topic.skills.map((k) => k.id),
+  const ids = basis(topic.skills).map((k) => k.id),
     some = ids.filter(isChosen).length;
   return `<label class="pick">${checkbox('topicpick', topic.slug, ids)}<span>${T(topic.title)}${some && some < ids.length ? `<span class="small muted pick-note">${some} van ${ids.length} soorten vragen gekozen</span>` : ''}</span></label>`;
 }

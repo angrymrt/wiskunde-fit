@@ -3,22 +3,29 @@ import hv1 from './gr13-hv1.js';
 import hv2 from './gr13-hv2.js';
 import vwo1 from './gr13-vwo1.js';
 import havo3 from './gr13-havo3.js';
+import { STOF_IDS } from '../topics/index.js';
 
 const MAPPINGS = [hv1, hv2, vwo1, havo3];
 const MAPPING = Object.fromEntries(MAPPINGS.map((m) => [m.id, m]));
 
 // Dekking: zonder vraagsoorten niet gedekt, en anders gedekt tenzij de paragraaf 'deels' zegt.
 // Een paragraaf die deels gedekt is, kan zeggen wat je nog niet kunt oefenen (note).
+// Een uitdaging staat apart in uitdaging, want die kies je niet met de paragraaf mee en hij telt
+// niet mee voor de dekking.
 for (const mapping of MAPPINGS) {
   for (const chapter of mapping.chapters) {
     chapter.paragraphs = chapter.paragraphs.map(
-      ([number, description, skills = [], coverage, note = '']) => ({
-        number,
-        description,
-        skills,
-        coverage: coverage || (skills.length ? 'gedekt' : 'niet'),
-        note,
-      }),
+      ([number, description, ids = [], coverage, note = '']) => {
+        const skills = ids.filter((id) => STOF_IDS.has(id));
+        return {
+          number,
+          description,
+          skills,
+          uitdaging: ids.filter((id) => !STOF_IDS.has(id)),
+          coverage: coverage || (skills.length ? 'gedekt' : 'niet'),
+          note,
+        };
+      },
     );
   }
 }

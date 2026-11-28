@@ -1,8 +1,6 @@
 // Voortgang van de leerling. Blijft alleen in deze browser bewaard (localStorage).
 import { MAPPING } from './mappings/index.js';
-import { TOPICS } from './topics/index.js';
-
-const SKILL_IDS = new Set(TOPICS.flatMap((t) => t.skills.map((k) => k.id)));
+import { STOF_IDS, basis } from './topics/index.js';
 
 // Oude naam van de site. Laat dit staan: een nieuwe sleutel wist de opgeslagen voortgang.
 const STORE = 'lijn-driehoek-v1';
@@ -144,8 +142,10 @@ function cleanProgress(saved) {
     if (/^[a-z][a-z0-9-]*$/.test(id) && Number.isSafeInteger(n) && n > 0) out.iconen[id] = n;
   }
   // De stofkeuze bevat alleen vraagsoorten die bestaan, want oefenen en de proeftoets kiezen daaruit.
+  // Een uitdaging valt eruit: die kwam er vroeger in met een hele paragraaf of Alle stof, en hoort
+  // niet vanzelf in Oefen mijn stof of de proeftoets.
   if (Array.isArray(saved.stof)) {
-    const ids = [...new Set(saved.stof.filter((id) => SKILL_IDS.has(id)))].sort((a, b) => a - b);
+    const ids = [...new Set(saved.stof.filter((id) => STOF_IDS.has(id)))].sort((a, b) => a - b);
     out.stof = ids.length ? ids : null;
   }
   if (
@@ -215,7 +215,11 @@ const skillPct = (id) => {
 };
 // Het getal in `3/5`: hoeveel van de laatste 5 antwoorden goed waren.
 const skillGoed = (id) => Math.round(skillPct(id) * 5);
-const topicPct = (s) => s.skills.reduce((t, k) => t + skillPct(k.id), 0) / s.skills.length;
+// Hoeveel je van een onderwerp hebt geoefend. Een uitdaging telt niet mee.
+const topicPct = (s) => {
+  const skills = basis(s.skills);
+  return skills.reduce((t, k) => t + skillPct(k.id), 0) / skills.length;
+};
 const resetProgress = () =>
   update((p) => {
     p.skills = {};

@@ -14,7 +14,8 @@ const INDEX = fileURLToPath(new URL('../src/js/topics/index.js', import.meta.url
 
 // De velden van een onderwerp in de catalogus, en per vraagsoort het nummer en de naam. De andere
 // velden (VELDEN_LATER) komen pas met het onderwerp zelf. description en oldSlugs gebruikt alleen
-// de build, voor de pagina's en de doorverwijzingen.
+// de build, voor de pagina's en de doorverwijzingen. Een uitdaging krijgt null op de plek van de
+// generator en 'uitdaging' erachter, net als in het onderwerpbestand.
 const VELDEN = ['slug', 'title', 'intro'];
 const VELDEN_LATER = ['description', 'oldSlugs', 'videos', 'learn', 'rek'];
 
@@ -22,7 +23,9 @@ const VELDEN_LATER = ['description', 'oldSlugs', 'videos', 'learn', 'rek'];
 function catalogus(topic) {
   const out = {};
   for (const key of VELDEN) if (key in topic) out[key] = topic[key];
-  out.skills = topic.skills.map((k) => [k.id, k.name]);
+  out.skills = topic.skills.map((k) =>
+    k.uitdaging ? [k.id, k.name, null, 'uitdaging'] : [k.id, k.name],
+  );
   return out;
 }
 

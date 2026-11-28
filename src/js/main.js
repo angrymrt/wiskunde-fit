@@ -2,7 +2,7 @@
 import { Idiomorph } from 'idiomorph';
 import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
-import { TOPICS, TOPIC, laadOnderwerpen } from './topics/index.js';
+import { TOPICS, TOPIC, basis, laadOnderwerpen } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import {
   STORE,
@@ -588,7 +588,7 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'topicpick') {
-    toggleStof(TOPIC[id].skills.map((k) => k.id));
+    toggleStof(basis(TOPIC[id].skills).map((k) => k.id));
     render();
     return;
   }

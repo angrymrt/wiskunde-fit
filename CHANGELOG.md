@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.29.0
+
+### Nieuw
+
+- **Uitdaging.** Sommige soorten vragen zijn extra stof voor wie meer wil. Ze hebben het label Uitdaging. Ze tellen niet mee voor je voortgang bij een onderwerp, en ze komen niet vanzelf in Mijn stof of in de proeftoets. Je oefent ze als je ze zelf kiest. De eerste is *p* berekenen bij Lineaire vergelijkingen.
+
 ## 1.28.1
 
 ### Verbeterd

@@ -70,6 +70,10 @@ const storageNotice = () =>
   opslag.voortgang || opslag.toets
     ? `<p class="notice small"${opslag.gemeld ? '' : ' role="alert"'}>Je voortgang kan in deze browser niet worden bewaard, bijvoorbeeld omdat de opslag vol is of is uitgezet. Oefenen gaat gewoon door, maar als je de pagina sluit, ben je je voortgang kwijt.</p>`
     : '';
+// Het label achter de naam van een uitdaging: een soort vraag met extra stof voor wie meer wil (zie
+// topics/index.js). Bij een gewone soort leeg.
+const UITDAGING = '<span class="pill uitdaging">Uitdaging</span>';
+const uitdagingLabel = (k) => (k.uitdaging ? ` ${UITDAGING}` : '');
 const vMissing = () =>
   `${crumbs()}<div class="sheet">${pageHead('Deze pagina bestaat niet')}<p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
 
@@ -83,5 +87,7 @@ export {
   pageHead,
   testNotice,
   storageNotice,
+  UITDAGING,
+  uitdagingLabel,
   vMissing,
 };

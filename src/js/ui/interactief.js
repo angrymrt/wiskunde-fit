@@ -5,8 +5,15 @@
 // geladen.
 import { showDrawn, tapGrid } from './draw.js';
 import { mountWidgets, widgetHTML } from './widgets.js';
+import { UITDAGING } from './layout.js';
 
 const klaar = () => true;
 const laad = () => Promise.resolve();
 
-export { klaar, laad, mountWidgets, showDrawn, tapGrid, widgetHTML };
+// Boven een uitdaging bij het oefenen staat wat dat is, zodat niemand schrikt als het moeilijk is.
+// Dat staat hier en niet in topic.js, want het oefenen wacht toch op dit bestand, en zo blijft het
+// eerste bezoek klein (#309).
+const uitdagingUitleg = () =>
+  `<p class="small uitdaging-uitleg">${UITDAGING} Extra stof voor wie meer wil. Lukt het nog niet? Geen probleem: het telt niet mee voor je voortgang bij dit onderwerp.</p>`;
+
+export { klaar, laad, mountWidgets, showDrawn, tapGrid, uitdagingUitleg, widgetHTML };

@@ -50,8 +50,8 @@ test('de catalogus past bij de onderwerpen, en na het laden is alles hetzelfde',
       for (const key of VELDEN) assert.deepEqual(t[key], node[key], `${t.slug}: ${key}`);
       for (const key of VELDEN_LATER) assert.ok(!(key in t), `${t.slug}: ${key} komt pas later`);
       assert.deepEqual(
-        t.skills.map((k) => [k.id, k.name, k.gen]),
-        node.skills.map((k) => [k.id, k.name, undefined]),
+        t.skills.map((k) => [k.id, k.name, k.gen ?? undefined, k.uitdaging]),
+        node.skills.map((k) => [k.id, k.name, undefined, k.uitdaging]),
         t.slug,
       );
       assert.equal(t.domain.slug, node.domain.slug, t.slug);

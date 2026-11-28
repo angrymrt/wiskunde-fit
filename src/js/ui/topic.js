@@ -3,13 +3,13 @@ import { isDrawing } from '../answers.js';
 import { prog, skillGoed, skillPct, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { isChosen, topicOf } from '../stof.js';
-import { makeQuestion } from '../topics/index.js';
+import { basis, makeQuestion } from '../topics/index.js';
 import { esc, T, stepsHTML } from '../typeset.js';
-import { crumbs, pageHead } from './layout.js';
+import { crumbs, pageHead, uitdagingLabel } from './layout.js';
 import { fieldsHTML, meldHTML, rekenhulpHTML, shareHTML } from './question-form.js';
 import { state } from './state.js';
 import { termen } from './termen.js';
-import { widgetHTML } from './interactief.js';
+import { uitdagingUitleg, widgetHTML } from './interactief.js';
 
 function exampleHTML(ex, key) {
   const st = ex.steps;
@@ -57,10 +57,11 @@ function vVideos(s) {
 // Zonder seed krijgt de vraag een nieuwe. Met ?soort=...&seed=... uit het adres komt precies die
 // vraag terug.
 // Heeft de leerling stof gekozen met een deel van de soorten van dit onderwerp, dan staat de
-// schakelaar "Alleen mijn stof" erbij, standaard aan. Uit (st.alle) oefent ze alles.
+// schakelaar "Alleen mijn stof" erbij, standaard aan. Uit (st.alle) oefent ze alles. Een uitdaging
+// staat nooit in de stofkeuze en telt hier dus niet mee.
 const mijnStof = (s) => {
   const mine = s.skills.filter((k) => isChosen(k.id));
-  return !s.mixed && mine.length && mine.length < s.skills.length ? mine : null;
+  return !s.mixed && mine.length && mine.length < basis(s.skills).length ? mine : null;
 };
 const activeSkills = (s) => (!state.prac[s.slug]?.alle && mijnStof(s)) || s.skills;
 function newQuestion(s, seed) {
@@ -69,7 +70,8 @@ function newQuestion(s, seed) {
   if (st.filter) {
     sk = s.skills.find((k) => k.id === st.filter);
   } else {
-    const pool = [...activeSkills(s)].sort(
+    // Door elkaar komt een uitdaging niet vanzelf: die kies je zelf met de chip of de link.
+    const pool = basis(activeSkills(s)).sort(
       (a, b) => skillPct(a.id) - skillPct(b.id) + (Math.random() - 0.5) * 0.5,
     );
     sk = pool.find((k) => k.id !== st.lastSkill) || pool[0];
@@ -172,7 +174,7 @@ function vPractice(s, title, terug) {
       )
         .map(
           (k) =>
-            `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}">${T(k.name)}${prog.skills[k.id] ? chipGetal(k.id, st.roll) : ''}</button>`,
+            `<button class="chip" type="button" data-act="filter" data-id="${k.id}" aria-pressed="${st.filter === k.id}"><span>${T(k.name)}${uitdagingLabel(k)}</span>${prog.skills[k.id] ? chipGetal(k.id, st.roll) : ''}</button>`,
         )
         .join('')}</div></div>`;
   const share = shareHTML(st.skill, q),
@@ -184,7 +186,7 @@ function vPractice(s, title, terug) {
     ? ''
     : `<button class="soort-knop" type="button" data-act="menu" aria-expanded="${!!st.menu}">${st.filter ? SOORT_ICON : MIX_ICON}<span class="sn"><span class="sr">Soort vraag, ${st.filter ? 'alleen deze soort' : 'alles door elkaar'}: </span>${T(st.skill.name)}</span>${CARET_ICON}</button>`;
   return termen(`<div class="sheet practice${st.menu ? ' menu-open' : ''}"><div class="oef-kop"><a class="oef-terug" href="${terug}"><svg class="icon" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Terug naar het onderwerp</span></a>${pageHead(title, chips)}<div class="q-head"><div class="row small muted q-row">${knop}<span class="soort-naam">${T(st.skill.name)}</span><span class="row q-rechts">${st.total ? `<span class="row q-stat"><span>${st.right} van ${st.total} goed deze ronde</span>${reeksHTML(st)}</span>` : ''}<span class="row q-tools">${rek.button}${ANDERE_KNOP}${share.button}${meld.button}</span></span></div>${share.note}</div></div><div class="practice-q fade">
-  <div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
+  ${st.skill.uitdaging ? uitdagingUitleg() : ''}<div class="q" id="pq">${q.q}</div>${q.fig ? `<div class="figbox">${q.fig}</div>` : ''}
   <form id="pform" class="block" novalidate${rek.attrs}>${fieldsHTML(q, 'p', st.vals, st.marks, done)}${!q.mc && !isDrawing(q) && q.fields.some((f) => !f.sel) ? `<p class="small muted">${q.fields.some((f) => f.berekening) ? 'Typ de hele berekening, zoals <span class="nowrap">4 * (5 - -2)</span>. Keer typ je als * of x, en delen als : of /.' : q.fields.some((f) => f.vorm) ? 'Schrijf een breuk als 3/4, en een gemengd getal als 1 5/8.' : 'Een breuk mag ook: 1/2 of 1 1/2. Een kommagetal schrijf je als 3,5.'}</p>` : ''}
   ${st.msg ? `<div class="fb ${st.status === 'right' ? 'good' : 'bad'}" id="pfb">${st.msg}</div>` : ''}
   ${st.hint && !done ? `<div class="hintb"><b>Hint:</b> ${/<span/.test(q.hint) ? q.hint : T(q.hint)}</div>` : ''}

@@ -19,7 +19,7 @@ const LATER = {
   'cijfers.js': ['vCijfers'],
   'about.js': ['vOver', 'vPrivacy', 'vContact'],
   'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
-  'interactief.js': ['widgetHTML', 'mountWidgets', 'showDrawn', 'tapGrid'],
+  'interactief.js': ['widgetHTML', 'mountWidgets', 'showDrawn', 'tapGrid', 'uitdagingUitleg'],
 };
 
 // Een bestand dat geen eigen scherm heeft, maar dat elk scherm met een onderwerp nodig heeft: de

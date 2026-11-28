@@ -202,9 +202,22 @@ for (const domain of DOMAINS) {
     t.prev = domain.topics[i - 1] || null;
     t.next = domain.topics[i + 1] || null;
     t.prerequisites = PREREQUISITES.get(t) || [];
-    t.skills = t.skills.map(([id, name, gen]) => ({ id, name, gen }));
+    // Een vierde waarde 'uitdaging' maakt van de vraagsoort een uitdaging: extra stof voor wie meer
+    // wil. Die telt niet mee voor de voortgang en komt niet vanzelf bij het oefenen, in Mijn stof of
+    // in de proeftoets, alleen als de leerling hem zelf kiest. In de catalogus is gen nog null.
+    t.skills = t.skills.map(([id, name, gen, soort]) => ({
+      id,
+      name,
+      gen,
+      uitdaging: soort === 'uitdaging',
+    }));
   });
 }
+// De vraagsoorten van een onderwerp zonder de uitdagingen: die tellen mee voor de voortgang en
+// komen vanzelf bij het oefenen, in Mijn stof en in de proeftoets.
+const basis = (skills) => skills.filter((k) => !k.uitdaging);
+// Hun nummers: de vraagsoorten die in de stofkeuze kunnen staan.
+const STOF_IDS = new Set(TOPICS.flatMap((t) => basis(t.skills).map((k) => k.id)));
 
 // Of alles van een onderwerp er is, zoals de generatoren en de uitleg. In Node altijd. In de
 // browser heeft een onderwerp dat nog niet geladen is een functie laad (zie scripts/catalogus.js).
@@ -250,4 +263,4 @@ function makeQuestion(skill, seed = newSeed()) {
   return { ...q, ...(traps.length ? { traps } : {}), seed };
 }
 
-export { DOMAINS, DOMAIN, TOPICS, TOPIC, makeQuestion, geladen, laadOnderwerpen };
+export { DOMAINS, DOMAIN, STOF_IDS, TOPICS, TOPIC, basis, makeQuestion, geladen, laadOnderwerpen };

@@ -1,12 +1,13 @@
 // De stofkeuze: altijd een lijst id's van vraagsoorten, of een leerling nu op paragraaf, hoofdstuk
-// of onderwerp kiest. Oefenen en de proeftoets gebruiken dezelfde lijst.
+// of onderwerp kiest. Oefenen en de proeftoets gebruiken dezelfde lijst. Een uitdaging staat er
+// nooit in: die oefen je alleen als je hem bij het onderwerp zelf kiest.
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, update } from './progress.js';
 import { pathFor, to } from './routes.js';
-import { TOPICS } from './topics/index.js';
+import { STOF_IDS, TOPICS } from './topics/index.js';
 
 const TOPIC_OF = new Map(TOPICS.flatMap((t) => t.skills.map((k) => [k.id, t])));
-const ALL_IDS = [...TOPIC_OF.keys()];
+const ALL_IDS = [...STOF_IDS];
 
 const isChosen = (id) => (prog.stof || []).includes(id);
 const allChosen = (ids) => ids.length > 0 && ids.every(isChosen);
