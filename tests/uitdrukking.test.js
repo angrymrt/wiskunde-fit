@@ -7,6 +7,7 @@ import { checkAnswer, checkField, findTrap } from '../src/js/answers.js';
 import {
   U,
   UF,
+  invullen,
   leesUitdrukking as lees,
   metUitdrukking,
   NIET_HERLEID,
@@ -60,7 +61,6 @@ test('een uitdrukking lezen: getallen, letters, machten, wortels, breuken en min
     'x + 1)',
     'a2',
     '3 4',
-    '2A',
     'x/0',
     '1/(x - x)',
     '√x',
@@ -309,8 +309,92 @@ test('een uitdrukking als HTML en in woorden (#304)', () => {
   // er met T omheen.
   assert.equal(U('2x + = 2x'), '2x + = 2<span class="v">x</span>');
   assert.equal(UITDRUKKING.zeg('12a^3b^2'), '12 a tot de macht 3 b kwadraat');
-  assert.equal(UITDRUKKING.zeg('2a/(3c)'), 'breuk met teller 2 a en noemer 3 c');
-  assert.equal(UITDRUKKING.zeg('-√12 + 1/2x'), 'min wortel 12 plus 1 gedeeld door 2 x');
+  assert.equal(UITDRUKKING.zeg('2a/(3c)'), 'breuk met teller 2 a en noemer 3 c, einde breuk');
+  assert.equal(
+    UITDRUKKING.zeg('-√12 + 1/2x'),
+    'min wortel 12 plus breuk 1 gedeeld door 2, einde breuk, x',
+  );
+  // Je hoort waar een breuk ophoudt, en een getalbreuk klinkt anders dan een breuk met letters.
+  assert.equal(UITDRUKKING.zeg('1/3x'), 'breuk 1 gedeeld door 3, einde breuk, x');
+  assert.equal(UITDRUKKING.zeg('1/(3x)'), 'breuk met teller 1 en noemer 3 x, einde breuk');
+  assert.equal(
+    UITDRUKKING.zeg('3/x + 4/y'),
+    'breuk met teller 3 en noemer x, einde breuk, plus breuk met teller 4 en noemer y, einde breuk',
+  );
+  assert.equal(
+    UITDRUKKING.zeg('3/(x + 4/y)'),
+    'breuk met teller 3 en noemer x plus breuk met teller 4 en noemer y, einde breuk, einde breuk',
+  );
+  assert.equal(UITDRUKKING.zeg('2 1/3x'), '2 en breuk 1 gedeeld door 3, einde breuk, x');
   assert.equal(UITDRUKKING.html('2x +'), '');
   assert.equal(UITDRUKKING.lees('2x +'), false);
+});
+
+test('wortel en sqrt worden √, en hoofdletters kleine letters (#304)', () => {
+  allemaal(
+    '6√3',
+    ['6√3', '6wortel 3', '6 wortel(3)', '6sqrt3', '6 sqrt(3)', '6 Wortel 3', '6SQRT3'],
+    'goed',
+  );
+  allemaal('√5', ['wortel 5', 'wortel(5)', 'sqrt5', 'sqrt(5)'], 'goed');
+  allemaal('12a^3b^6', ['12A^3B^6', '12a^3B^6'], 'goed');
+  allemaal('x^2', ['X^2', 'X²'], 'goed');
+});
+
+test('heel diepe haakjes zijn niet te lezen, zonder dat het nakijken breekt (#304)', () => {
+  const diep = `${'('.repeat(5000)}1${')'.repeat(5000)}`;
+  assert.equal(lees(diep), null);
+  assert.equal(UITDRUKKING.lees(diep), false);
+  assert.equal(oordeel(veld('1'), diep).goed, false);
+});
+
+test('1/3x is ⅓x, en de valkuil breuk-voor-letter zegt hoe je 1/(3x) typt (#304)', () => {
+  const q = (a, opties) => metUitdrukking({ q: '', fields: [UF('', a, opties)], traps: [] });
+  assert.equal(findTrap(q('1/(3x)'), ['1/3x'])?.id, 'breuk-voor-letter');
+  assert.equal(findTrap(q('2/(3c)'), ['2/3c'])?.id, 'breuk-voor-letter');
+  assert.equal(findTrap(q('2/(3c^2)'), ['2/3c^2'])?.id, 'breuk-voor-letter');
+  assert.equal(findTrap(q('x + 1/(3x)'), ['x + 1/3x'])?.id, 'breuk-voor-letter');
+  assert.equal(findTrap(q('-1/(3x)'), ['-1/3x'])?.id, 'breuk-voor-letter');
+  assert.match(
+    findTrap(q('1/(3x)'), ['1/3x']).m,
+    /Bedoel je 1\/\(3x\)\? Zet dan haakjes om de noemer/,
+  );
+  // Niet als het antwoord goed is, of als het ook als 1/(3x) fout is.
+  assert.equal(findTrap(q('1/3x'), ['1/3x']), null);
+  assert.equal(findTrap(q('1/(3x)'), ['1/(3x)']), null);
+  assert.equal(findTrap(q('1/(3x)'), ['1/4x']), null);
+  // Andersom is het gewoon fout: 2/(3c) is niet ⅔c.
+  assert.equal(findTrap(q('2/3c'), ['2/(3c)']), null);
+  assert.ok(!checkAnswer(q('2/3c'), ['2/(3c)']).ok);
+  // Niet bij een gemengd getal, een macht of een wortel.
+  assert.equal(findTrap(q('1/(7x)'), ['2 1/3x']), null);
+  assert.equal(findTrap(q('1/(3x)'), ['√4/3x']), null);
+});
+
+test('letter-in-breuk en wortel-in-breuk hebben elk een eigen melding (#304)', () => {
+  allemaal('1/6√2', ['√2/6'], 'wortel-in-breuk', { breuk: 'ervoor' });
+  allemaal('1/6√2', ['1/6√2', '⅙√2'], 'goed', { breuk: 'ervoor' });
+  allemaal('1/8x√2', ['x√2/8'], 'letter-in-breuk', { breuk: 'ervoor' });
+  assert.match(NIET_HERLEID['wortel-in-breuk'], /vóór de wortel, zoals √2\/6 = ⅙√2/);
+});
+
+test('invullen geeft een getal voor elke letter, voor de v van een generator (#304)', () => {
+  assert.equal(invullen('2a^3', { a: 2 }), 16);
+  assert.equal(invullen('3a^4 · 4a^3', { a: 2 }), invullen('12a^7', { a: 2 }));
+  assert.notEqual(invullen('3a^4 · 4a^3', { a: 2 }), invullen('12a^12', { a: 2 }));
+  assert.equal(invullen('2a/(3c)', { a: 3, c: 2 }), 1);
+  assert.equal(invullen('(3y + 4x)/(xy)', { x: 2, y: 3 }), 17 / 6);
+  assert.ok(Math.abs(invullen('2√3 · 4√7', {}) - 8 * Math.sqrt(21)) < 1e-9);
+  assert.ok(Math.abs(invullen('x√2', { x: 3 }) - 3 * Math.sqrt(2)) < 1e-9);
+  assert.throws(() => invullen('2a', { b: 2 }), /letter a/);
+});
+
+test('de Rekenhulp heeft bij een uitdrukking altijd de toets Leeg (#304)', async () => {
+  const { uitdrukkingToetsen } = await import('../src/js/ui/rekenhulp.js');
+  for (const letters of ['', 'a', 'ab', 'abc', 'abcdefghi', 'xy'])
+    assert.match(
+      uitdrukkingToetsen(letters),
+      /grid-column: span [1-6]"[^>]*data-k="V:LEEG"/,
+      letters,
+    );
 });

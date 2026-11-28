@@ -24,9 +24,9 @@ function uitdrukkingVeld(q, i, pfx, waarde, cl, locked) {
     naam = f.label ? `aria-label="${esc(f.label)}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`,
     tip =
       q.fields.findIndex((g) => g.uitdrukking) === i
-        ? '<p class="small muted">Een macht typ je als a^3, een wortel als √5, een breuk als 2a/(3c) en een gemengd getal als 2 1/3.</p>'
+        ? '<p class="small muted">Een macht typ je als a^3, een wortel als √5 of wortel 5, een breuk als 2a/(3c) en een gemengd getal als 2 1/3.</p>'
         : '';
-  const input = `<input id="${id}" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-uitdrukking="${letters}" ${naam} aria-describedby="${pfx}q ${id}z" value="${esc(waarde ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
+  const input = `<input id="${id}" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200" data-uitdrukking="${letters}" ${naam} aria-describedby="${pfx}q ${id}z" value="${esc(waarde ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
   return `<label class="fld uitdr ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}${input}</label><div class="uitdr-zien" id="${id}z">${zienHTML(waarde)}</div>${tip}`;
 }
 

@@ -102,32 +102,33 @@ Een veld voor een **uitdrukking** (#304) laat de leerling een herleid antwoord z
 Een valkuil bij een uitdrukking geef je een foute uitdrukking in `als` in plaats van een `f`. Hij valt als het antwoord daaraan gelijk is, in elke volgorde en schrijfwijze. `als` mag ook een lijst zijn, en `veld` is het nummer van het veld (standaard het eerste met een uitdrukking). `metUitdrukking` maakt er een gewone valkuil van; `npm test` faalt als een valkuil geen `f` heeft.
 
 ```js
-import { UF, U, metUitdrukking } from '../uitdrukking.js';
+import { UF, U, metUitdrukking, invullen } from '../uitdrukking.js';
 
 function s240product() {
   // Vanaf 3 is p + q nooit p · q, en e + f nooit e · f: dan is een valkuil nooit het goede antwoord.
   const [p, q] = [ri(3, 5), ri(2, 5)];
   const [e, f] = [ri(3, 6), ri(2, 6)];
+  const antwoord = `${p * q}a^${e + f}`;
   return metUitdrukking({
     q: T(`Herleid ${p}a^${e} * ${q}a^${f}.`),
-    fields: [UF('', `${p * q}a^${e + f}`)],
+    fields: [UF('', antwoord)],
     traps: [
       { id: 'exponenten-keer', als: `${p * q}a^${e * f}`, m: 'Bij keer tel je de exponenten op.' },
       { id: 'getallen-opgeteld', als: `${p + q}a^${e + f}`, m: 'De getallen doe je keer.' },
     ],
     hint: 'Doe de getallen keer en tel de exponenten op.',
     steps: [H(U(`${p}a^${e} · ${q}a^${f} = ${p * q}a^${e + f}`))],
-    // Vul a = 2 in, in de vraag en in het antwoord.
-    v: () => p * 2 ** e * (q * 2 ** f) === p * q * 2 ** (e + f),
+    // Vul a = 2 in, in de opgave en in het antwoord: zo rekent v anders dan de generator.
+    v: () => invullen(`${p}a^${e} · ${q}a^${f}`, { a: 2 }) === invullen(antwoord, { a: 2 }),
   });
 }
 ```
 
-Een valkuil met `als` mag het goede antwoord niet zijn: kies de getallen zo dat hij altijd anders is, zoals hierboven. `U(tekst)` zet een uitdrukking om naar HTML, voor de uitwerking met `H(...)`. Een rij met `=` zet elk deel apart, zoals hierboven. `T` kan dat niet, want `a^3b^6` wordt daar één macht `3b`. Tekst eromheen zet je er zelf bij, zoals `H(`${T('Dus')} ${U('12a^7')}`)`, want voor `U` is een woord een product van letters. Zo leest het veld wat de leerling typt:
+Geef `v` met `invullen(tekst, { a: 2 })` uit `uitdrukking.js` een getal voor elke letter (een heel getal), in de opgave en in het antwoord, en vergelijk. Zonder wortel is dat precies. Een valkuil met `als` mag het goede antwoord niet zijn: kies de getallen zo dat hij altijd anders is, zoals hierboven. `U(tekst)` zet een uitdrukking om naar HTML, voor de uitwerking met `H(...)`. Een rij met `=` zet elk deel apart, zoals hierboven. `T` kan dat niet, want `a^3b^6` wordt daar één macht `3b`. Tekst eromheen zet je er zelf bij, zoals `H(`${T('Dus')} ${U('12a^7')}`)`, want voor `U` is een woord een product van letters. Zo leest het veld wat de leerling typt:
 
 - Letters, haakjes en wortels achter elkaar zijn keer: `12a^3b^6`, `2(x + 3)`, `3√2`. Een getal staat vooraan, `a2` is niet te lezen.
-- Een breuk van twee hele getallen zonder spatie rond de streep is één getal: `2/3a` is ⅔a en `7/3x` is 7/3 · x. Een gemengd getal is `2 1/3`. Wat achter een andere `/` of `:` staat, hoort helemaal bij de noemer: `2a/3c` is 2a/(3c). Voor 1/(3x) zijn haakjes nodig, want `1/3x` is ⅓x. Onder het veld ziet de leerling hoe de site het leest.
-- `^` met een heel getal tot 40, ook `²` en `³`. `√` met een getal of iets tussen haakjes, zonder letters. Keer als `*`, `·` of `×`, delen als `/` of `:`, en de min ook als `−`.
+- Een breuk van twee hele getallen zonder spatie rond de streep is één getal: `2/3a` is ⅔a en `7/3x` is 7/3 · x. Een gemengd getal is `2 1/3`. Wat achter een andere `/` of `:` staat, hoort helemaal bij de noemer: `2a/3c` is 2a/(3c). Voor 1/(3x) zijn haakjes nodig, want `1/3x` is ⅓x. Onder het veld ziet de leerling hoe de site het leest, en `metUitdrukking` zet zelf de valkuil `breuk-voor-letter`, die valt als `1/3x` fout is maar 1/(3x) goed zou zijn.
+- `^` met een heel getal tot 40, ook `²` en `³`. `√` met een getal of iets tussen haakjes, zonder letters, ook getypt als `wortel` of `sqrt`. Hoofdletters worden kleine letters. Keer als `*`, `·` of `×`, delen als `/` of `:`, en de min ook als `−`.
 
 Een veld kan ook `label` krijgen, de naam voor een schermlezer als de tekst ernaast niet genoeg zegt, en `br: true` om op een nieuwe regel te beginnen. Velden met dezelfde `grp`, zoals `grp: 'x'`, vormen een groep die zonder volgorde wordt nagekeken: elk ingevuld getal mag bij een antwoord van de groep horen dat nog niet is gebruikt. Twee keer hetzelfde getal is dus één goed veld en één fout veld, tenzij de antwoorden ook gelijk zijn. Een groep heeft 2 tot 4 velden met getallen, en kan niet bij een keuzelijst of tekenvraag. In de uitslag staat bij een fout veld het antwoord dat nog over is (`matchFields` in `answers.js`). Meestal is `orFields` genoeg.
 

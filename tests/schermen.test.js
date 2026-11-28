@@ -295,6 +295,9 @@ test('een vraag met een uitdrukking toont het veld, hoe het eruitziet en het goe
   const leeg = fieldsHTML(q, 'p', []);
   assert.match(leeg, /<input id="pf0" [^>]*data-uitdrukking="abc"[^>]*aria-describedby="pq pf0z"/);
   assert.match(leeg, /autocapitalize="off"/);
+  // Niet te lang, zodat heel diepe haakjes niet kunnen.
+  assert.match(leeg, /<input id="pf0" [^>]*maxlength="200"/);
+  assert.match(leeg, /een wortel als √5 of wortel 5/);
   assert.match(leeg, /<div class="uitdr-zien" id="pf0z"><\/div>/);
   assert.match(leeg, /Een macht typ je als a\^3/);
   // Met een antwoord staat eronder hoe de site het leest, en voor een schermlezer in woorden.
@@ -305,7 +308,7 @@ test('een vraag met een uitdrukking toont het veld, hoe het eruitziet en het goe
   );
   assert.match(
     vol,
-    /<span class="sr">Zo lees ik het: breuk met teller 2 a en noemer 3 c\.<\/span>/,
+    /<span class="sr">Zo lees ik het: breuk met teller 2 a en noemer 3 c, einde breuk\.<\/span>/,
   );
   assert.match(fieldsHTML(q, 'p', ['2a/(3c']), /Dit kan ik nog niet lezen/);
   assert.equal(fieldsHTML(q, 'p', ['2a/3c']), vol, 'twee keer dezelfde HTML');

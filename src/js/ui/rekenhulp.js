@@ -54,7 +54,8 @@ const UITDR = [
   ['1'], ['2'], ['3'], ['^', '^', 'fn', 'macht'], ['√', '√', 'fn', 'wortel'], [')', ')', 'fn', 'haakje sluiten'],
   ['0'], [',', ',', '', 'komma'], ['␣', ' ', 'fn', 'spatie, voor een gemengd getal'],
 ]; // prettier-ignore
-// De toetsen bij een uitdrukking, met de letters erachter. Leeg vult de rest van de onderste rij, als daar plaats is.
+// De toetsen bij een uitdrukking, met de letters erachter. Leeg vult de rest van de onderste rij, of staat op een eigen
+// rij als die vol is.
 function uitdrukkingToetsen(letters) {
   const lijst = [...UITDR, ...[...letters].map((l) => [`<span class="v">${l}</span>`, l, '', l])];
   const rest = 6 - (lijst.length % 6);
@@ -62,8 +63,7 @@ function uitdrukkingToetsen(letters) {
   return (
     lijst
       .map(([tekst, waarde, soort, naam]) => toets([tekst, `V:${waarde ?? tekst}`, soort, naam]))
-      .join('') +
-    (rest < 6 ? leeg.replace('<button', `<button style="grid-column: span ${rest}"`) : '')
+      .join('') + leeg.replace('<button', `<button style="grid-column: span ${rest}"`)
   );
 }
 // Een berekening zoals een schermlezer hem voorleest: ·, : en de haakjes als woord, want haakjes leest een
@@ -565,4 +565,4 @@ function synchroniseer() {
   if (nieuw) zetRuimte(true);
 }
 
-export { zet, synchroniseer };
+export { zet, synchroniseer, uitdrukkingToetsen };

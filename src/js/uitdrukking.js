@@ -135,8 +135,9 @@ const graad = (p) =>
   Math.max(0, ...[...p.values()].map((t) => Object.values(t.m).reduce((s, e) => s + e, 0)));
 
 // ---------------------------------------------------------------------------------------------------
-// Lezen. Eerst gaat wat de leerling typte naar één schrijfwijze: − en – worden -, ·, × en * worden *,
-// ÷ wordt :, ² en ³ worden ^2 en ^3, en ½ wordt 1/2 (en 2½ wordt 2 1/2).
+// Lezen. Eerst gaat wat de leerling typte naar één schrijfwijze: hoofdletters worden kleine letters,
+// wortel en sqrt worden √ (zonder Rekenhulp kun je √ vaak niet typen), − en – worden -, ·, × en * worden
+// *, ÷ wordt :, ² en ³ worden ^2 en ^3, en ½ wordt 1/2 (en 2½ wordt 2 1/2).
 const SUPER = '⁰¹²³⁴⁵⁶⁷⁸⁹';
 const BREUKEN = {
   '½': '1/2',
@@ -157,6 +158,8 @@ const BREUKEN = {
 };
 const normaal = (s) =>
   String(s ?? '')
+    .toLowerCase()
+    .replace(/(?:wortel|sqrt) ?/g, '√')
     .replace(/[−–‒]/g, '-')
     .replace(/[·×∙⋅]/g, '*')
     .replace(/÷/g, ':')
@@ -304,8 +307,22 @@ function boom(ts) {
   return x;
 }
 
-// De waarde van een boom.
-function waarde(n) {
+// De waarde van een boom. Met waarden, zoals { a: 2 }, staat er voor elke letter dat getal.
+function waarde(n, waarden) {
+  if (waarden) {
+    const w = (x) => waarde(x, waarden);
+    if (n.k === 'letter') {
+      if (!(n.w in waarden)) throw new Error(`Geen getal voor de letter ${n.w}`);
+      return W(veelterm({ c: R(waarden[n.w]), m: {}, r: 1 }));
+    }
+    if (n.k === 'wortel') return wWortel(w(n.a));
+    if (n.k === 'macht') return wMacht(w(n.a), n.e);
+    if (n.k === 'haakjes') return w(n.a);
+    if (n.k === 'min') return wKeer(W(veelterm({ c: R(-1), m: {}, r: 1 })), w(n.a));
+    if (n.k === '*') return wKeer(w(n.a), w(n.b));
+    if (n.k === '/') return wDeel(w(n.a), w(n.b));
+    if (n.k === '+' || n.k === '-') return wPlus(w(n.a), w(n.b), n.k === '-' ? -1 : 1);
+  }
   switch (n.k) {
     case 'getal':
       return W(veelterm({ c: n.q, m: {}, r: 1 }));
@@ -342,7 +359,8 @@ function lees(raw) {
       r = { boom: b, w: waarde(b) };
     }
   } catch (e) {
-    if (e !== KAPOT) throw e;
+    // Bij heel diepe haakjes loopt de stack vol: ook dan is het niet te lezen.
+    if (e !== KAPOT && !(e instanceof RangeError)) throw e;
   }
   if (geheugen.size > 500) geheugen.clear();
   geheugen.set(s, r);
@@ -374,6 +392,7 @@ const NIET_HERLEID = {
   'gelijksoortige-termen': 'Neem de gelijksoortige termen samen.',
   'niet-een-breuk': 'Schrijf je antwoord als één breuk.',
   'letter-in-breuk': 'Haal de letter uit de breuk, zoals x/8 = ⅛x.',
+  'wortel-in-breuk': 'Zet de breuk vóór de wortel, zoals √2/6 = ⅙√2.',
   'wortel-in-noemer': 'Werk de wortel uit de noemer weg.',
 };
 
@@ -511,12 +530,10 @@ function breukFout(b, heel, opties) {
   if (getalNoemer && ol[0].c.n === 1) return 'breuk-niet-vereenvoudigd';
   if (tl.length === 1 && ol.length === 1 && tl[0].r > 1 && ol[0].r > 1) return 'wortels-niet-samen';
   if (opties.wortelUitNoemer && ol.some((x) => x.r > 1)) return 'wortel-in-noemer';
-  if (
-    opties.breuk === 'ervoor' &&
-    getalNoemer &&
-    tl.some((x) => Object.keys(x.m).length || x.r > 1)
-  )
-    return 'letter-in-breuk';
+  if (opties.breuk === 'ervoor' && getalNoemer) {
+    if (tl.some((x) => Object.keys(x.m).length)) return 'letter-in-breuk';
+    if (tl.some((x) => x.r > 1)) return 'wortel-in-breuk';
+  }
   return null;
 }
 // Waarom een antwoord nog niet herleid is, of null als het herleid is. verwacht is het goede antwoord
@@ -660,12 +677,16 @@ const U = (s) =>
     })
     .join(' = ');
 
-// Hoe een schermlezer de uitdrukking voorleest, in woorden, zodat je hoort hoe de site hem leest.
+// Hoe een schermlezer de uitdrukking voorleest, in woorden, zodat je hoort hoe de site hem leest. Na
+// elke breuk staat 'einde breuk', zodat je hoort wat bij de breuk hoort: 1/3x is 'breuk 1 gedeeld door
+// 3, einde breuk, x' en 1/(3x) is 'breuk met teller 1 en noemer 3 x, einde breuk'.
+const EINDE = ', einde breuk';
+const na = (s) => (s.endsWith(EINDE) ? `${s},` : s);
 function zeg(n) {
   switch (n.k) {
     case 'getal':
-      if (n.vorm === 'breuk') return `${n.a} gedeeld door ${n.b}`;
-      if (n.vorm === 'gemengd') return `${n.h} en ${n.a} gedeeld door ${n.b}`;
+      if (n.vorm === 'breuk') return `breuk ${n.a} gedeeld door ${n.b}${EINDE}`;
+      if (n.vorm === 'gemengd') return `${n.h} en breuk ${n.a} gedeeld door ${n.b}${EINDE}`;
       return n.tekst;
     case 'letter':
       return n.w;
@@ -678,13 +699,13 @@ function zeg(n) {
     case 'min':
       return `min ${zeg(n.a)}`;
     case '*':
-      return `${zeg(n.a)} ${n.x ? 'keer ' : ''}${zeg(n.b)}`;
+      return `${na(zeg(n.a))} ${n.x ? 'keer ' : ''}${zeg(n.b)}`;
     case '/':
       return n.op === ':'
         ? `${zeg(n.a)} gedeeld door ${zeg(n.b)}`
-        : `breuk met teller ${zeg(zonderHaakjes(n.a))} en noemer ${zeg(zonderHaakjes(n.b))}`;
+        : `breuk met teller ${na(zeg(zonderHaakjes(n.a)))} en noemer ${zeg(zonderHaakjes(n.b))}${EINDE}`;
     default:
-      return `${zeg(n.a)} ${n.k === '-' ? 'min' : 'plus'} ${zeg(n.b)}`;
+      return `${na(zeg(n.a))} ${n.k === '-' ? 'min' : 'plus'} ${zeg(n.b)}`;
   }
 }
 
@@ -708,15 +729,49 @@ function UF(pre, a, opties = {}) {
   if (fout) throw new Error(`Het antwoord ${a} is niet herleid: ${fout}`);
   return f;
 }
-// Een vraag met een uitdrukking, met de valkuilen erbij: die met als, en die voor een antwoord dat
-// niet herleid is.
+// Een getalbreuk met letters erachter, zoals 1/3x, leest de site als ⅓x, zoals in het boek. Bedoelde
+// de leerling 1/(3x), dan krijgt hij dat te horen: deze valkuil valt als het antwoord fout is, maar
+// klopt als je zo'n breuk leest als 1/(3x). Niet na een ander getal (2 1/3x), ^, √ of /.
+const ANDERS = /(^|[-+*:(] ?)(\d+)\/(\d+)((?:[a-z](?:\^\d+)?)+)/g;
+function breukVoorLetter(fields) {
+  return {
+    id: 'breuk-voor-letter',
+    m: 'Zo lees ik 1/3x als ⅓ · x. Bedoel je 1/(3x)? Zet dan haakjes om de noemer.',
+    f: (v, raw = []) =>
+      fields.some((f, i) => {
+        if (!f.uitdrukking) return false;
+        const s = normaal(raw[i]),
+          t = s.replace(ANDERS, '$1$2/($3$4)'),
+          goed = lees(f.a);
+        if (t === s || !goed) return false;
+        const r = lees(s),
+          a = lees(t);
+        return !!a && gelijk(a.w, goed.w) && !(r && gelijk(r.w, goed.w));
+      }),
+  };
+}
+// Een vraag met een uitdrukking, met de valkuilen erbij: die met als, die voor een breuk voor een
+// letter, en die voor een antwoord dat niet herleid is.
 const metUitdrukking = (q) => ({
   ...q,
   traps: [
     ...(q.traps ?? []).map((t) => (t.als == null ? t : alsValkuil(q.fields, t))),
+    ...(q.fields.some((f) => f.uitdrukking) ? [breukVoorLetter(q.fields)] : []),
     ...herleidValkuilen(q.fields),
   ],
 });
+
+// Voor de v van een generator: vult voor elke letter een getal in, zoals invullen('2a^3', { a: 2 }) = 16.
+// Vul dezelfde getallen in in de opgave en in het antwoord, en vergelijk: zo rekent v anders dan de
+// generator. Zonder wortel is het precies, dus vergelijk met ===. Met een wortel is het een benadering.
+function invullen(tekst, waarden) {
+  const r = lees(tekst);
+  if (!r) throw new Error(`Niet te lezen: ${tekst}`);
+  const w = waarde(r.boom, waarden),
+    getal = (p) => [...p.values()].reduce((s, t) => s + (t.c.n / t.c.d) * Math.sqrt(t.r), 0),
+    q = getalVan(w);
+  return q ? q.n / q.d : getal(w.t) / getal(w.n);
+}
 
 UITDRUKKING.klopt = uitdrukkingKlopt;
 UITDRUKKING.lees = (raw) => !!lees(raw);
@@ -728,6 +783,7 @@ UITDRUKKING.onleesbaar =
 export {
   UF,
   U,
+  invullen,
   metUitdrukking,
   lees as leesUitdrukking,
   gelijk as uitdrukkingGelijk,
