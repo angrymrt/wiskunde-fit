@@ -250,10 +250,13 @@ const TEKEN = {};
 // Het nakijken van een berekening die de leerling typt (#262). berekening.js vult het in, en laadt met de onderwerpen
 // die zo'n veld hebben. Om dezelfde reden als TEKEN staat het hier.
 const BEREKENING = {};
+// Het nakijken van een uitdrukking die de leerling typt (#304). uitdrukking.js vult het in, net als BEREKENING.
+const UITDRUKKING = {};
 
 export {
   TEKEN,
   BEREKENING,
+  UITDRUKKING,
   withSeed,
   newSeed,
   seedText,

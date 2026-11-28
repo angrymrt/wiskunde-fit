@@ -32,19 +32,20 @@ export const WOORDEN = {
   },
   teller: {
     naam: 'teller',
-    uitleg: 'Het getal boven de streep van een breuk. Het zegt hoeveel delen je neemt.',
+    uitleg:
+      'Wat boven de streep van een breuk staat. Bij een breuk met getallen zegt het hoeveel delen je neemt.',
     onderwerp: 'breuken',
   },
   noemer: {
     naam: 'noemer',
     uitleg:
-      'Het getal onder de streep van een breuk. Het zegt in hoeveel gelijke delen het geheel is verdeeld.',
+      'Wat onder de streep van een breuk staat. Bij een breuk met getallen zegt het in hoeveel gelijke delen het geheel is verdeeld.',
     onderwerp: 'breuken',
   },
   vereenvoudigen: {
     naam: 'vereenvoudigen',
     uitleg:
-      'De teller en de noemer van een breuk door hetzelfde getal delen. De breuk blijft even groot.',
+      'De teller en de noemer van een breuk door hetzelfde getal delen, of door dezelfde letter. De breuk blijft even groot.',
     onderwerp: 'breuken',
   },
   'gemengd-getal': {
@@ -280,8 +281,68 @@ export const WOORDEN = {
   herleiden: {
     naam: 'herleiden',
     uitleg:
-      'Een formule of vergelijking omschrijven zonder dat de oplossingen veranderen, bijvoorbeeld zodat y alleen links staat. Je lost hem dus niet op.',
-    onderwerp: 'vergelijkingen-met-twee-variabelen',
+      'Iets korter of in een andere vorm schrijven, zonder dat het iets anders betekent. Bij een uitdrukking werk je de haakjes weg en neem je gelijksoortige termen samen. Een vergelijking herleid je bijvoorbeeld zo dat y alleen links staat. Je lost hem dus niet op.',
+    onderwerp: 'herleiden',
+  },
+  'gelijksoortige-termen': {
+    naam: 'gelijksoortige termen',
+    uitleg:
+      'Termen met dezelfde letters en dezelfde exponenten, zoals 3x² en −5x². Die mag je samennemen: 3x² − 5x² = −2x². De termen 3x² en 3x zijn niet gelijksoortig.',
+    onderwerp: 'herleiden',
+  },
+  'merkwaardig-product': {
+    naam: 'merkwaardig product',
+    uitleg:
+      'Een product met haakjes dat zo vaak voorkomt dat je het in één keer uitschrijft: (a + b)(a − b) = a² − b², (a + b)² = a² + 2ab + b² en (a − b)² = a² − 2ab + b².',
+    onderwerp: 'herleiden',
+  },
+  dubbelproduct: {
+    naam: 'dubbelproduct',
+    uitleg:
+      'Twee keer het product van de twee termen in (a + b)² of (a − b)², dus 2ab. Bij (y + 3)² is het dubbelproduct 2 · y · 3 = 6y.',
+    onderwerp: 'herleiden',
+  },
+  macht: {
+    naam: 'macht',
+    uitleg:
+      'Een korte schrijfwijze voor een product van gelijke factoren, zoals 2⁵ = 2 · 2 · 2 · 2 · 2. Het getal of de letter onderaan is het grondtal, het kleine getal rechtsboven de exponent.',
+    onderwerp: 'machten-herleiden',
+  },
+  grondtal: {
+    naam: 'grondtal',
+    uitleg:
+      'Het getal of de letter in een macht dat je met zichzelf vermenigvuldigt. Bij y⁴ is het grondtal y.',
+    onderwerp: 'machten-herleiden',
+  },
+  exponent: {
+    naam: 'exponent',
+    uitleg:
+      'Het kleine getal rechtsboven in een macht. Het zegt hoe vaak het grondtal er staat: bij y⁴ is de exponent 4. Een letter zonder exponent heeft exponent 1.',
+    onderwerp: 'machten-herleiden',
+  },
+  'variabele-uit-de-breuk-halen': {
+    naam: 'variabele uit de breuk halen',
+    uitleg:
+      'Een breuk met alleen een getal in de noemer schrijven als een getal keer de letter, zoals x/4 = ¼x. Staat de letter in de noemer, dan kan dat niet.',
+    onderwerp: 'breuken-met-letters',
+  },
+  'gelijksoortige-wortels': {
+    naam: 'gelijksoortige wortels',
+    uitleg:
+      'Wortels met hetzelfde getal onder het wortelteken, zoals 2√7 en −5√7. Die mag je samennemen: 2√7 − 5√7 = −3√7. De wortels √7 en √3 zijn niet gelijksoortig.',
+    onderwerp: 'wortels-herleiden',
+  },
+  'factor-voor-het-wortelteken': {
+    naam: 'factor voor het wortelteken',
+    uitleg:
+      'Het getal vóór een wortel, zoals de 4 in 4√3. Je maakt die factor zo groot mogelijk door een kwadraat uit de wortel te halen: √48 = √16 · √3 = 4√3.',
+    onderwerp: 'wortels-herleiden',
+  },
+  'wortel-uit-de-noemer-wegwerken': {
+    naam: 'wortel uit de noemer wegwerken',
+    uitleg:
+      'Een breuk zo schrijven dat er geen wortel meer in de noemer staat. Je vermenigvuldigt de teller en de noemer met die wortel: 1/√3 = √3/3 = ⅓√3.',
+    onderwerp: 'wortels-herleiden',
   },
   'schuine-zijde': {
     naam: 'schuine zijde',

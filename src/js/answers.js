@@ -1,5 +1,5 @@
 // Antwoorden lezen en nakijken. Bevat geen DOM-code, dus goed los te testen.
-import { near, isNice, rd, roundText, gcd, TEKEN, BEREKENING, Q, d, fr } from './math.js';
+import { near, isNice, rd, roundText, gcd, TEKEN, BEREKENING, UITDRUKKING, Q, d, fr } from './math.js';
 
 const netjes = (s) => String(s).trim().replace(/[−–]/g, '-').replace(/\s+/g, ' ');
 function parseNum(s) {
@@ -61,6 +61,8 @@ function checkField(f, raw) {
   if (f.sel) return raw === f.a;
   // Een berekening (#262): berekening.js vult BEREKENING in, en laadt met de onderwerpen die zo'n veld hebben.
   if (f.berekening) return !!BEREKENING.klopt && BEREKENING.klopt(f.berekening, raw);
+  // Een uitdrukking (#304), zoals 12a^3b^6: uitdrukking.js vult UITDRUKKING in.
+  if (f.uitdrukking) return !!UITDRUKKING.klopt && UITDRUKKING.klopt(f, raw);
   const v = parseNum(raw);
   if (Number.isNaN(v)) return false;
   if (f.vorm && vormFout(f.vorm, raw)) return false;

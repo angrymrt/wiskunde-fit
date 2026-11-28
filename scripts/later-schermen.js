@@ -19,7 +19,14 @@ const LATER = {
   'cijfers.js': ['vCijfers'],
   'about.js': ['vOver', 'vPrivacy', 'vContact'],
   'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
-  'interactief.js': ['widgetHTML', 'mountWidgets', 'showDrawn', 'tapGrid'],
+  'interactief.js': [
+    'widgetHTML',
+    'mountWidgets',
+    'showDrawn',
+    'tapGrid',
+    'uitdrukkingVeld',
+    'toonUitdrukking',
+  ],
   'topic.js': [
     'vTopic',
     'vPractice',

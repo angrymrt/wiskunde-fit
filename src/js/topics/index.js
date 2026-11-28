@@ -23,6 +23,10 @@ import tweeVariabelen from './vergelijkingen-met-twee-variabelen.js';
 import kwVergelijkingen from './kwadratische-vergelijkingen.js';
 import ontbinden from './ontbinden-in-factoren.js';
 import haakjes from './haakjes-wegwerken.js';
+import herleiden from './herleiden.js';
+import machten from './machten-herleiden.js';
+import breukenLetters from './breuken-met-letters.js';
+import wortels from './wortels-herleiden.js';
 import pythagoras from './stelling-van-pythagoras.js';
 import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
@@ -76,11 +80,11 @@ const DOMAINS = [
     slug: 'rekenen-met-letters',
     name: 'Rekenen met letters',
     intro:
-      'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen. Ook leer je het omgekeerde: haakjes wegwerken.',
+      'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen. Ook leer je het omgekeerde: haakjes wegwerken. En je leert herleiden: een uitdrukking zo kort mogelijk schrijven, ook met de merkwaardige producten, zoals (a + b)² = a² + 2ab + b², met machten, zoals 2a³ · 4a² = 8a⁵, met breuken met letters, en met wortels, zoals √12 = 2√3.',
     description:
-      'Rekenen met letters oefenen: ontbinden in factoren, de product-som-methode en haakjes wegwerken. Gratis met uitleg, hints en uitwerkingen.',
+      'Rekenen met letters oefenen: ontbinden in factoren, haakjes wegwerken, herleiden, merkwaardige producten, machten, breuken met letters en wortels.',
     color: 'plum',
-    topics: [ontbinden, haakjes],
+    topics: [ontbinden, haakjes, herleiden, machten, breukenLetters, wortels],
   },
   {
     slug: 'formules-en-grafieken',
@@ -171,6 +175,10 @@ const PREREQUISITES = new Map([
   [tweeVariabelen, [lijnen]],
   [kwVergelijkingen, [ontbinden, vergelijkingen]],
   [haakjes, [kwadratisch]],
+  [herleiden, [haakjes]],
+  [machten, [herleiden]],
+  [breukenLetters, [machten, rekenenMetBreuken]],
+  [wortels, [breukenLetters, pythagoras]],
   [gelijkvormig, [verhoudingen, pythagoras]],
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],

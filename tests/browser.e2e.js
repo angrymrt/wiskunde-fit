@@ -61,7 +61,7 @@ const answerOf = `(q) => {
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken || f.berekening ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken || f.berekening || f.uitdrukking ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {
@@ -3756,11 +3756,12 @@ const LIMITS = {
   // De pagina Cijfers noemt alle vraagsoorten (#232: 184). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 7,2 kB, dus de grens ging van 7 naar 7,5.
   // Rekenvolgorde en Breuken (#244) voegden er tien aan toe: 7,52 kB, dus de grens ging van 7,5 naar 8.
   // Haakjes zetten en rekentekens zetten (#262) maakten er 222: 8,0 kB, dus de grens ging van 8 naar 8,5.
-  page: { sent: 8.5, why: 'een vooraf gebouwde pagina' },
+  // Machten herleiden (#306) maakte er 248: 8,6 kB, dus de grens ging van 8,5 naar 9.
+  page: { sent: 9, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 184 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
   // Rekenen met breuken (#244) voegde er zes toe (nu 200 vraagsoorten): 10,6 kB, dus de grens ging van 10,5 naar 11.
   // De puzzels (#262) voegden er vijf toe (nu 220 vraagsoorten): 11,1 kB, dus de grens ging van 11 naar 11,5.
-  lijst: { sent: 11.5, why: 'de pagina met alle vraagsoorten' },
+  lijst: { sent: 12.5, why: 'de pagina met alle vraagsoorten; groeit met elke vraagsoort (H5 havo 3, #101)' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
   // Hoofdstuk 1 van havo/vwo 1 (#232) voegde vier onderwerpen met 19 vraagsoorten toe. Van elk onderwerp staat de
@@ -3785,7 +3786,11 @@ const LIMITS = {
   // De uitleg en het oefenen (ui/topic.js) en de invoervelden van een vraag (ui/question-form.js, samen 16,5 kB zelf)
   // laden sinds #206 ook pas met een onderwerp, net als interactief.js. Het eerste bezoek ging van 125,4 naar 110,3 kB
   // onverpakt en van 47,1 naar 41,9 kB verstuurd, dus de grenzen gingen van 48 naar 43 en van 126 naar 112 kB.
-  start: { sent: 43, own: 112, why: 'de code bij het eerste bezoek' },
+  // De uitdaging (#309) en het veld voor een uitdrukking (#304) maakten het eerste bezoek 112,6 kB onverpakt.
+  // De eigenaar koos een grens van 114 kB, met ruimte voor de rest van hoofdstuk 5 van havo 3 (#101).
+  // Wortels herleiden (#308), het vierde onderwerp van dat hoofdstuk, maakte het 114,65 kB onverpakt en 43,2 kB
+  // verstuurd. De eigenaar koos 116 en 44 kB. Voor het volgende hoofdstuk eerst #206 verder: de catalogus later laden.
+  start: { sent: 44, own: 116, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen

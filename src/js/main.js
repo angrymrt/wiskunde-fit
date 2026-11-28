@@ -32,7 +32,13 @@ import {
 // De schermen van een onderwerp en het uitlezen van een vraag laden pas met een onderwerp (#206). Deze functies gaan
 // alleen over een vraag die op het scherm staat, en die staat er pas als topic.js er is.
 import { applySoort, empty, newQuestion, readVals, unreadable } from './ui/topic.js';
-import { klaar as interactiefKlaar, mountWidgets, showDrawn, tapGrid } from './ui/interactief.js';
+import {
+  klaar as interactiefKlaar,
+  mountWidgets,
+  showDrawn,
+  tapGrid,
+  toonUitdrukking,
+} from './ui/interactief.js';
 import { laadScherm, nogTeLaden, schermVooraf, wachtOpScherm } from './ui/laden.js';
 import { githubLink, mailLink, melding as maakMelding, meldVoetHTML } from './ui/melden.js';
 import { bijWissel, oefModus } from './ui/oef-modus.js';
@@ -381,7 +387,11 @@ function watchPracticeBar() {
   barWatch = new IntersectionObserver(([e]) => bar.classList.toggle('away', e.isIntersecting));
   barWatch.observe(button);
 }
-app.addEventListener('input', () => interactiefKlaar() && showDrawn());
+// Onder een veld voor een uitdrukking staat hoe die eruitziet (#304).
+app.addEventListener(
+  'input',
+  (e) => interactiefKlaar() && (showDrawn(), toonUitdrukking(e.target)),
+);
 // Het paneel om een probleem te melden: wat de leerling kiest of typt staat in state.melden, en de
 // links naar GitHub en e-mail volgen dat. Zie ui/melden.js.
 app.addEventListener('input', (e) => {

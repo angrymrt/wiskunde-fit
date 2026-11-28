@@ -567,6 +567,11 @@ mark {
 .f > span:last-child {
   padding: 0 0.2em;
 }
+/* De streep boven wat onder het wortelteken staat (#304). */
+.wortel {
+  border-top: 1px solid currentColor;
+  padding-top: 0.05em;
+}
 sup,
 sub {
   font-size: 0.72em;
@@ -1910,10 +1915,18 @@ ol.how {
 .fields.compact .fld input {
   width: 3.8em;
 }
-/* Een berekening die de leerling zelf typt (#262) past op een telefoon over de hele breedte. */
-.fld.bereken {
+/* Een berekening of uitdrukking die de leerling zelf typt (#262, #304) past op een telefoon over de hele breedte. Onder
+   een uitdrukking staat hoe de site hem leest. */
+.fld.bereken,
+.fld.uitdr,
+.uitdr-zien {
   flex: 1 1 100%;
 }
+.uitdr-zien {
+  min-height: 1.6em;
+  margin-top: -6px;
+}
+.fld.uitdr input,
 .fld.bereken input {
   width: 100%;
   max-width: 22em;
@@ -2783,6 +2796,9 @@ html.rh-open body {
 }
 .rh-invtoetsen.rh-reken {
   grid-template-columns: repeat(5, 1fr);
+}
+.rh-invtoetsen.rh-uitdr {
+  grid-template-columns: repeat(6, 1fr);
 }
 .rh-reken .rh-breed {
   grid-column: span 3;

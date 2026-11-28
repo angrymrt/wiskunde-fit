@@ -279,6 +279,60 @@ test('een onderwerp oefent standaard alleen de gekozen soorten, en alles als je 
   }
 });
 
+test('een vraag met een uitdrukking toont het veld, hoe het eruitziet en het goede antwoord (#304)', async () => {
+  const { vPractice } = await import(new URL('topic.js', ui));
+  const { fieldsHTML, unreadable } = await import(new URL('question-form.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const { UF, metUitdrukking } = await import('../src/js/uitdrukking.js');
+  // Een vraag zoals een generator hem maakt, alleen voor deze test.
+  const q = metUitdrukking({
+    q: 'Herleid 10ab/(15bc).',
+    fields: [UF('', '2a/(3c)', { letters: 'abc' })],
+    hint: 'Deel teller en noemer door 5b.',
+    steps: ['Deel door 5b.'],
+    seed: 7,
+  });
+  const leeg = fieldsHTML(q, 'p', []);
+  assert.match(leeg, /<input id="pf0" [^>]*data-uitdrukking="abc"[^>]*aria-describedby="pq pf0z"/);
+  assert.match(leeg, /autocapitalize="off"/);
+  // Niet te lang, zodat heel diepe haakjes niet kunnen.
+  assert.match(leeg, /<input id="pf0" [^>]*maxlength="200"/);
+  assert.match(leeg, /een wortel als √5 of wortel 5/);
+  assert.match(leeg, /<div class="uitdr-zien" id="pf0z"><\/div>/);
+  assert.match(leeg, /Een macht typ je als a\^3/);
+  // Met een antwoord staat eronder hoe de site het leest, en voor een schermlezer in woorden.
+  const vol = fieldsHTML(q, 'p', ['2a/3c']);
+  assert.match(
+    vol,
+    /id="pf0z"><span aria-hidden="true">[^]*<span class="f"><span>2<span class="v">a<\/span>/,
+  );
+  assert.match(
+    vol,
+    /<span class="sr">Zo lees ik het: breuk met teller 2 a en noemer 3 c, einde breuk\.<\/span>/,
+  );
+  assert.match(fieldsHTML(q, 'p', ['2a/(3c']), /Dit kan ik nog niet lezen/);
+  assert.equal(fieldsHTML(q, 'p', ['2a/3c']), vol, 'twee keer dezelfde HTML');
+  assert.match(unreadable(q, ['2a/(3c']), /Deze uitdrukking kan ik niet lezen/);
+  assert.equal(unreadable(q, ['2a/3c']), '');
+  // Op het oefenscherm staat de uitleg bij het veld, en niet die voor een getal.
+  const topic = TOPICS[0];
+  try {
+    vPractice(topic, 'x');
+    Object.assign(state.prac[topic.slug], { q, vals: ['2a/3c'], status: 'open' });
+    const html = vPractice(topic, 'x');
+    assert.match(html, /class="fld uitdr /);
+    assert.doesNotMatch(html, /Een kommagetal schrijf je als/);
+  } finally {
+    delete state.prac[topic.slug];
+  }
+  // De uitslag van een proeftoets toont het goede antwoord netjes, ook als uitdrukking.js niet geladen is.
+  const { toon } = JSON.parse(JSON.stringify(q.fields[0]));
+  assert.match(
+    toon,
+    /^<span class="f"><span>2<span class="v">a<\/span><\/span><span>3<span class="v">c<\/span><\/span><\/span>$/,
+  );
+});
+
 test('een uitdaging heeft een label en komt alleen als je hem zelf kiest', async () => {
   const { vPractice, vTopic, applySoort } = await import(new URL('topic.js', ui));
   const { vMapping, vStof, vStofPractice } = await import(new URL('stof.js', ui));
