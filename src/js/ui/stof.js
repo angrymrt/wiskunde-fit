@@ -15,9 +15,9 @@ import {
 import { DOMAINS, basis } from '../topics/index.js';
 import { esc, T } from '../typeset.js';
 import { resultText } from './toets-opslag.js';
-import { UITDAGING, crumbs, pageHead } from './layout.js';
+import { UITDAGING, crumbs, pageHead, topicLink } from './layout.js';
 import { state } from './state.js';
-import { topicLink, vPractice } from './topic.js';
+import { vPractice } from './topic.js';
 
 const mappingName = (m) => `${esc(m.method)}, ${m.edition}e editie, ${esc(m.level)} ${m.year}`;
 // Een vinkje voor een groep vraagsoorten. Is maar een deel gekozen, dan zet main.js het vinkje

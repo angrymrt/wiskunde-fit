@@ -1,6 +1,6 @@
 // Onderdelen die op elk scherm terugkomen.
-import { crumbsFor, sectionFor, to } from '../routes.js';
-import { esc } from '../typeset.js';
+import { crumbsFor, pathFor, sectionFor, to } from '../routes.js';
+import { esc, T } from '../typeset.js';
 import { opslag } from '../progress.js';
 import { state } from './state.js';
 
@@ -74,6 +74,9 @@ const storageNotice = () =>
 // topics/index.js). Bij een gewone soort leeg.
 const UITDAGING = '<span class="pill uitdaging">Uitdaging</span>';
 const uitdagingLabel = (k) => (k.uitdaging ? ` ${UITDAGING}` : '');
+// Een link naar de uitleg van een onderwerp, zoals bij de voorkennis en in een methode-indeling.
+const topicLink = (t) =>
+  `<a class="linkbtn" href="${pathFor({ name: 'topic', slug: t.slug })}">${T(t.title)}</a>`;
 const vMissing = () =>
   `${crumbs()}<div class="sheet">${pageHead('Deze pagina bestaat niet')}<p>Misschien is de link verkeerd overgenomen of staat de pagina ergens anders.</p><div class="row"><a class="btn main" href="${to('home')}">Naar het overzicht</a></div></div>`;
 
@@ -89,5 +92,6 @@ export {
   storageNotice,
   UITDAGING,
   uitdagingLabel,
+  topicLink,
   vMissing,
 };

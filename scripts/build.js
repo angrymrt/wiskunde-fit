@@ -214,8 +214,8 @@ for (const naam of Object.keys(LATER)) {
     [file, ...imported(file)].filter((f) => !start.includes(f)),
   );
 }
-// Op de pagina's met een onderwerp ook interactief.js, met wat het nodig heeft (BIJ_ONDERWERP in
-// later-schermen.js). Een bestand dat in twee lijsten staat, komt er één keer in.
+// Op de pagina's met een onderwerp ook interactief.js en topic.js, met wat ze nodig hebben (BIJ_ONDERWERP
+// in later-schermen.js). Een bestand dat in twee lijsten staat, komt er één keer in.
 const metOnderwerp = (view) => ['topic', 'stofoefen', 'toets'].includes(view.name);
 const modulepreload = (list) =>
   [...new Set(list)].map((f) => `\n    <link rel="modulepreload" href="${f}" />`).join('');
@@ -269,7 +269,7 @@ function pageHTML(page, body) {
   html = replace(
     html,
     /<script type="module" src="\/js\/main\.js"><\/script>/,
-    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : []), ...(page.view.name === 'cijfers' ? cijfersCode : []), ...(schermCode.get(SCHERM_VAN[page.view.name]) ?? []), ...(metOnderwerp(page.view) ? schermCode.get(BIJ_ONDERWERP) : [])])}`,
+    `<script type="module" src="${main}"></script>${modulepreload([...start.slice(1), ...(page.view.name === 'topic' ? topicCode.get(page.view.slug) : []), ...(page.view.name === 'cijfers' ? cijfersCode : []), ...(schermCode.get(SCHERM_VAN[page.view.name]) ?? []), ...(metOnderwerp(page.view) ? BIJ_ONDERWERP.flatMap((n) => schermCode.get(n)) : [])])}`,
   );
   return replace(
     html,
