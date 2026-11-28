@@ -317,9 +317,45 @@ function grafiekDelen({
   return { W, H, X, Y, x, y, u, px0, px1, mt, py1, inner: o, desc };
 }
 
+// Leest een figuur uit contextGraph terug: per grafiek de punten in de getallen van de assen. De
+// schaal komt uit de getallen bij de assen (de twee grootste, zodat de 0 bij een scheurlijn niet
+// meetelt). Bij een vloeiende kromme zijn de punten de eindpunten van de Bézier-stukken. tx en ty
+// zijn een halve pixel in de getallen van de assen: zo nauwkeurig is de figuur.
+function leesGrafiek(fig) {
+  const getal = (s) => +s.replace('−', '-').replace(',', '.'),
+    tk = [
+      ...fig.matchAll(
+        /<text class="tk" text-anchor="(middle|end)" x="([-\d.]+)" y="([-\d.]+)">([^<]+)<\/text>/g,
+      ),
+    ].map(([, a, x, y, s]) => ({ a, x: +x, y: +y - 4, v: getal(s) })),
+    schaal = (L, k) => {
+      const [p, q] = L.sort((a, b) => b.v - a.v);
+      return [
+        (px) => p.v + ((px - p[k]) * (q.v - p.v)) / (q[k] - p[k]),
+        (q.v - p.v) / (q[k] - p[k]),
+      ];
+    },
+    [xv, sx] = schaal(
+      tk.filter((t) => t.a === 'middle'),
+      'x',
+    ),
+    [yv, sy] = schaal(
+      tk.filter((t) => t.a === 'end'),
+      'y',
+    ),
+    lijnen = [...fig.matchAll(/<path class="l\d" d="([^"]+)"/g)].map(([, dd]) => {
+      const n = dd.match(/-?[\d.]+/g).map(Number),
+        P = [];
+      for (let i = 0; i + 1 < n.length; i += 2) P.push([n[i], n[i + 1]]);
+      const punten = dd.includes('C') ? P.filter((p, i) => i % 3 === 0) : P;
+      return punten.map(([a, b]) => [xv(a), yv(b)]);
+    });
+  return { lijnen, tx: Math.abs(sx) / 2, ty: Math.abs(sy) / 2 };
+}
+
 const contextGraph = (opts) => {
   const { W, H, inner, desc } = grafiekDelen(opts);
   return `<svg class="fig" role="img" aria-label="${attr(desc)}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${inner}</svg>`;
 };
 
-export { contextGraph, grafiekDelen, tijd, zegGetal, bezier, pad };
+export { contextGraph, grafiekDelen, leesGrafiek, tijd, zegGetal, bezier, pad };

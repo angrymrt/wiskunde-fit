@@ -234,5 +234,8 @@ export default {
   230: 's31rooster',
   231: 's31diagonalen',
   232: 'wfVergelijk',
+  233: 's35tabel',
+  234: 's35tekenen',
+  235: 's35formule',
   236: 'flNegatief',
 };

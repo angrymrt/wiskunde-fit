@@ -9,6 +9,7 @@ import grafiekenLezen from './grafieken-lezen-en-tekenen.js';
 import globaleGrafieken from './globale-grafieken.js';
 import woordformules from './woordformules.js';
 import letters from './formules-met-letters.js';
+import grafiekFormule from './grafiek-bij-een-formule.js';
 import rekenen from './rekenen-met-een-formule.js';
 import lijnen from './lineaire-grafieken-tekenen.js';
 import opstellen from './lineaire-formule-opstellen.js';
@@ -95,6 +96,7 @@ const DOMAINS = [
       globaleGrafieken,
       woordformules,
       letters,
+      grafiekFormule,
       rekenen,
       lijnen,
       opstellen,
@@ -157,6 +159,7 @@ const PREREQUISITES = new Map([
   [grafiekenLezen, [coordinaten]],
   [globaleGrafieken, [grafiekenLezen]],
   [letters, [woordformules]],
+  [grafiekFormule, [letters, grafiekenLezen]],
   [rekenen, [vergelijkingen]],
   [lijnen, [rekenen]],
   [opstellen, [lijnen]],

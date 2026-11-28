@@ -7,7 +7,7 @@ import { ri, pick, coin, until, near, d } from '../math.js';
 import { F, MC, H } from './shared.js';
 import { T, esc } from '../typeset.js';
 import { SOORTEN, tekenAf, tekenFig } from '../tekenvragen.js';
-import { contextGraph, tijd } from '../grafiekfiguren.js';
+import { contextGraph, leesGrafiek as lees, tijd } from '../grafiekfiguren.js';
 
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 const heel = (x) => near(x, Math.round(x), 1e-9);
@@ -67,42 +67,6 @@ function snijpunten(P, Q, tol = 1e-6) {
     }
   });
   return uit;
-}
-
-// Leest een figuur uit contextGraph terug: per grafiek de punten in de getallen van de assen. De
-// schaal komt uit de getallen bij de assen (de twee grootste, zodat de 0 bij een scheurlijn niet
-// meetelt). Bij een vloeiende kromme zijn de punten de eindpunten van de Bézier-stukken. tx en ty
-// zijn een halve pixel in de getallen van de assen: zo nauwkeurig is de figuur.
-function lees(fig) {
-  const getal = (s) => +s.replace('−', '-').replace(',', '.'),
-    tk = [
-      ...fig.matchAll(
-        /<text class="tk" text-anchor="(middle|end)" x="([-\d.]+)" y="([-\d.]+)">([^<]+)<\/text>/g,
-      ),
-    ].map(([, a, x, y, s]) => ({ a, x: +x, y: +y - 4, v: getal(s) })),
-    schaal = (L, k) => {
-      const [p, q] = L.sort((a, b) => b.v - a.v);
-      return [
-        (px) => p.v + ((px - p[k]) * (q.v - p.v)) / (q[k] - p[k]),
-        (q.v - p.v) / (q[k] - p[k]),
-      ];
-    },
-    [xv, sx] = schaal(
-      tk.filter((t) => t.a === 'middle'),
-      'x',
-    ),
-    [yv, sy] = schaal(
-      tk.filter((t) => t.a === 'end'),
-      'y',
-    ),
-    lijnen = [...fig.matchAll(/<path class="l\d" d="([^"]+)"/g)].map(([, dd]) => {
-      const n = dd.match(/-?[\d.]+/g).map(Number),
-        P = [];
-      for (let i = 0; i + 1 < n.length; i += 2) P.push([n[i], n[i + 1]]);
-      const punten = dd.includes('C') ? P.filter((p, i) => i % 3 === 0) : P;
-      return punten.map(([a, b]) => [xv(a), yv(b)]);
-    });
-  return { lijnen, tx: Math.abs(sx) / 2, ty: Math.abs(sy) / 2 };
 }
 
 // Tijd op de horizontale as: in uren (een tijdstip, zoals 9.30 uur), weken of minuten.

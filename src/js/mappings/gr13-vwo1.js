@@ -40,9 +40,9 @@ export default {
         [
           '3.6',
           'Grafiek bij een formule',
-          [1, 2, 3, 8, 11, 16],
+          [233, 234, 235, 1, 2, 3, 8, 11, 16],
           'deels',
-          'Een formule opstellen uit een grafiek en uitrekenen wanneer iets leeg is kun je hier nog niet oefenen. Grafieken aflezen bij een verhaal oefen je bij 3.3.',
+          'Twee grafieken bij twee formules in één figuur tekenen en het snijpunt aflezen kun je hier nog niet oefenen. Grafieken aflezen bij een verhaal oefen je bij 3.3.',
         ],
       ],
     },

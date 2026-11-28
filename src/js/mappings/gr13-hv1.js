@@ -137,7 +137,13 @@ export default {
           'Een formule opstellen bij een patroon, zoals van lucifers, kun je hier nog niet oefenen.',
         ],
         ['3.4', 'Formules in letters schrijven', [138, 139, 140, 141, 142, 236]],
-        ['3.5', 'Van formule naar grafiek', [1, 2, 3, 4, 5, 8, 11, 14, 16], 'deels'],
+        [
+          '3.5',
+          'Van formule naar grafiek',
+          [233, 234, 235],
+          'deels',
+          'Twee grafieken bij twee formules in één figuur tekenen en het snijpunt aflezen kun je hier nog niet oefenen.',
+        ],
       ],
     },
     {
