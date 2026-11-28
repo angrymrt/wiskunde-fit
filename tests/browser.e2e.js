@@ -3708,7 +3708,9 @@ const LIMITS = {
   // De schuifjes in de uitleg en het tekenen in een rooster (#206) staan in een eigen bestand (interactief.js), dat
   // laadt met een onderwerp. Daarmee laadt ook figures.js (19,8 kB zelf, 9,4 kB verstuurd) niet meer bij het eerste
   // bezoek. Dat is nu 123,2 kB onverpakt en 46,4 kB verstuurd, dus de grenzen gingen van 58 naar 47 en van 148 naar 124 kB.
-  start: { sent: 47, own: 124, why: 'de code bij het eerste bezoek' },
+  // Hoofdstuk 3 van havo/vwo 1 (#283) zet drie onderwerpen in de catalogus (Grafieken lezen en tekenen, Globale grafieken,
+  // Grafiek bij een formule), drie woorden en de vraagsoorten in de methode-indelingen: ongeveer 125 kB onverpakt, dus die grens ging van 124 naar 126 kB.
+  start: { sent: 47, own: 126, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
