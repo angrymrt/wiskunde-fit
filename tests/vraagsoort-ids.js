@@ -244,4 +244,10 @@ export default {
   240: 's240verschil',
   241: 's241kwadraat',
   242: 's242gemengd',
+  243: 's243product',
+  244: 's244optellen',
+  245: 's245macht',
+  246: 's246delen',
+  247: 's247gemengd',
+  248: 's248haakjes',
 };

@@ -24,6 +24,7 @@ import kwVergelijkingen from './kwadratische-vergelijkingen.js';
 import ontbinden from './ontbinden-in-factoren.js';
 import haakjes from './haakjes-wegwerken.js';
 import herleiden from './herleiden.js';
+import machten from './machten-herleiden.js';
 import pythagoras from './stelling-van-pythagoras.js';
 import verhoudingen from './verhoudingstabellen.js';
 import gelijkvormig from './gelijkvormige-driehoeken.js';
@@ -77,11 +78,11 @@ const DOMAINS = [
     slug: 'rekenen-met-letters',
     name: 'Rekenen met letters',
     intro:
-      'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen. Ook leer je het omgekeerde: haakjes wegwerken. En je leert herleiden: een uitdrukking zo kort mogelijk schrijven, ook met de merkwaardige producten, zoals (a + b)² = a² + 2ab + b².',
+      'Bij rekenen met letters werk je met termen als 3x en x² zonder te weten welk getal x is. Hier leer je een som van termen schrijven als een product. Dat heet ontbinden in factoren, en je hebt het nodig bij kwadratische vergelijkingen. Ook leer je het omgekeerde: haakjes wegwerken. En je leert herleiden: een uitdrukking zo kort mogelijk schrijven, ook met de merkwaardige producten, zoals (a + b)² = a² + 2ab + b², en met machten, zoals 2a³ · 4a² = 8a⁵.',
     description:
-      'Rekenen met letters oefenen: ontbinden in factoren, haakjes wegwerken, herleiden en merkwaardige producten. Gratis met uitleg, hints en uitwerkingen.',
+      'Rekenen met letters oefenen: ontbinden in factoren, haakjes wegwerken, herleiden, merkwaardige producten en machten. Gratis met uitleg en uitwerkingen.',
     color: 'plum',
-    topics: [ontbinden, haakjes, herleiden],
+    topics: [ontbinden, haakjes, herleiden, machten],
   },
   {
     slug: 'formules-en-grafieken',
@@ -173,6 +174,7 @@ const PREREQUISITES = new Map([
   [kwVergelijkingen, [ontbinden, vergelijkingen]],
   [haakjes, [kwadratisch]],
   [herleiden, [haakjes]],
+  [machten, [herleiden]],
   [gelijkvormig, [verhoudingen, pythagoras]],
   [aantonen, [gelijkvormig]],
   [lengtes, [pythagoras, gelijkvormig]],

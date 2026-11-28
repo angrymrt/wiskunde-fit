@@ -3756,7 +3756,8 @@ const LIMITS = {
   // De pagina Cijfers noemt alle vraagsoorten (#232: 184). Hoofdstuk 1 van havo/vwo 1 voegde er 39 aan toe: 7,2 kB, dus de grens ging van 7 naar 7,5.
   // Rekenvolgorde en Breuken (#244) voegden er tien aan toe: 7,52 kB, dus de grens ging van 7,5 naar 8.
   // Haakjes zetten en rekentekens zetten (#262) maakten er 222: 8,0 kB, dus de grens ging van 8 naar 8,5.
-  page: { sent: 8.5, why: 'een vooraf gebouwde pagina' },
+  // Machten herleiden (#306) maakte er 248: 8,6 kB, dus de grens ging van 8,5 naar 9.
+  page: { sent: 9, why: 'een vooraf gebouwde pagina' },
   // Alleen Zo maken we de vragen: alle 184 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
   // Rekenen met breuken (#244) voegde er zes toe (nu 200 vraagsoorten): 10,6 kB, dus de grens ging van 10,5 naar 11.
   // De puzzels (#262) voegden er vijf toe (nu 220 vraagsoorten): 11,1 kB, dus de grens ging van 11 naar 11,5.

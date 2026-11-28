@@ -301,6 +301,24 @@ export const WOORDEN = {
       'Twee keer het product van de twee termen in (a + b)² of (a − b)², dus 2ab. Bij (y + 3)² is het dubbelproduct 2 · y · 3 = 6y.',
     onderwerp: 'herleiden',
   },
+  macht: {
+    naam: 'macht',
+    uitleg:
+      'Een korte schrijfwijze voor een product van gelijke factoren, zoals 2⁵ = 2 · 2 · 2 · 2 · 2. Het getal of de letter onderaan is het grondtal, het kleine getal rechtsboven de exponent.',
+    onderwerp: 'machten-herleiden',
+  },
+  grondtal: {
+    naam: 'grondtal',
+    uitleg:
+      'Het getal of de letter in een macht dat je met zichzelf vermenigvuldigt. Bij y⁴ is het grondtal y.',
+    onderwerp: 'machten-herleiden',
+  },
+  exponent: {
+    naam: 'exponent',
+    uitleg:
+      'Het kleine getal rechtsboven in een macht. Het zegt hoe vaak het grondtal er staat: bij y⁴ is de exponent 4. Een letter zonder exponent heeft exponent 1.',
+    onderwerp: 'machten-herleiden',
+  },
   'schuine-zijde': {
     naam: 'schuine zijde',
     uitleg: 'De langste zijde van een rechthoekige driehoek. Ze ligt tegenover de rechte hoek.',
