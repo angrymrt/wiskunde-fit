@@ -3,7 +3,7 @@
 // contextGraph in grafiekfiguren.js. Elke v leest de getallen terug uit de getekende figuur: de
 // getallen bij de assen en de lijnen in pixels. Zo controleert v wat de leerling echt ziet, en niet
 // de gegevens waarmee de vraag is gemaakt.
-import { ri, pick, coin, until, near, d } from '../math.js';
+import { ri, nz, pick, coin, until, near, d } from '../math.js';
 import { F, MC, H } from './shared.js';
 import { T, esc } from '../typeset.js';
 import { SOORTEN, tekenAf, tekenFig } from '../tekenvragen.js';
@@ -910,13 +910,22 @@ function s32tweeRit() {
     },
   };
 }
+// Twee plaatsen in Nederland hebben op dezelfde dag ongeveer hetzelfde weer. De tweede plaats volgt de
+// eerste daarom, met een verschil van hoogstens 4 graden dat per meting hoogstens 1 graad verandert.
+function buurplaats(P) {
+  let dt = nz(-3, 3);
+  return P.map(([x, w], i) => {
+    if (i) dt = Math.max(-4, Math.min(4, dt + ri(-1, 1)));
+    return [x, w + dt];
+  });
+}
 function s32tweeWarmte() {
   const S = MEET[0],
     { P, Q, y, pa, pb } = until(
       () => {
         const pa = pick(PLAATSEN),
           P = metingen(S),
-          Q = metingen(S),
+          Q = buurplaats(P),
           ys = [...P, ...Q].map((p) => p[1]);
         return { P, Q, pa, pb: pick(PLAATSEN.filter((x) => x !== pa)), y: yAs(S, ys) };
       },
