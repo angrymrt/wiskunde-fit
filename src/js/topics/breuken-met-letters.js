@@ -652,7 +652,14 @@ function s251keerDelen() {
       );
     }
     steps.push(rij(`= ${ruw(P)}`), rij(`= ${antwoord}`), ...vereenvoudigZin(P));
-    if (min) steps.push(uitleg('Plus keer min is min. De min staat vóór de breuk.'));
+    // min is 1 als de min bij de eerste breuk staat, en 2 als hij bij de tweede staat.
+    const tekens = (bij) => (min === 1 ? `min ${bij} plus` : `plus ${bij} min`);
+    if (min)
+      steps.push(
+        uitleg(
+          `${tekens(soort === 'keer' ? 'keer' : 'gedeeld door').replace(/^./, (x) => x.toUpperCase())} is min. De min staat vóór de breuk.`,
+        ),
+      );
     return vraag({
       opgave,
       antwoord,
@@ -676,7 +683,7 @@ function s251keerDelen() {
               {
                 id: 'teken',
                 als: min ? antwoordTekst(tegengesteld(v)) : [],
-                m: 'Let op het teken: plus keer min is min.',
+                m: `Let op het teken: ${tekens('keer')} is min.`,
               },
             ]
           : [
@@ -693,7 +700,7 @@ function s251keerDelen() {
               {
                 id: 'teken',
                 als: min ? antwoordTekst(tegengesteld(v)) : [],
-                m: 'Let op het teken: plus gedeeld door min is min.',
+                m: `Let op het teken: ${tekens('gedeeld door')} is min.`,
               },
             ],
     });
@@ -900,9 +907,11 @@ function s252gelijknamig() {
   return vraag({
     opgave,
     antwoord,
-    opties: { breuk: 'een' },
+    // Alleen met een letter in de noemer moet het één breuk zijn. Zonder is ⅐x + 2 ook herleid, zoals bij
+    // de letter uit de breuk halen.
+    opties: metN ? { breuk: 'een' } : {},
     hint: T(
-      `De noemers zijn gelijk. Zet de tellers op één breukstreep${plus ? '' : ', met haakjes om de tweede teller'}. Neem daarna de {{gelijksoortige-termen|gelijksoortige termen}} samen.`,
+      `De noemers zijn gelijk. Zet de tellers op één breukstreep${plus || T2.length === 1 ? '' : ', met haakjes om de tweede teller'}. Neem daarna de {{gelijksoortige-termen|gelijksoortige termen}} samen.`,
     ),
     steps,
     traps: [
