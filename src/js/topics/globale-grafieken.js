@@ -171,7 +171,8 @@ function s32globaal() {
     return {
       q: T(`${G.intro(n)} ${G.snelst(td)}`),
       fig,
-      mc: MC(opts, a),
+      // De stukken staan op volgorde van de letters, net als in de figuur: dat zoekt makkelijker en verklapt niets.
+      mc: { opts, a },
       hint: T(`Zoek eerst de stukken die ${wat}. Hoe steiler de grafiek, hoe sneller het gaat.`),
       steps: [
         `De stukken ${zelfde.join(' en ')} ${wat}.`,
