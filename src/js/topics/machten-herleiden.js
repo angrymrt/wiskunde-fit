@@ -176,7 +176,8 @@ const klopt = (opgave, antwoord, letters) =>
   });
 
 // Maakt de vraag: "Herleid …." met een veld voor de uitdrukking.
-function vraag({ opgave, antwoord, hint, steps, traps = [], opties = {} }) {
+// Met ook erbij controleert v nog iets wat het invullen niet ziet, zoals dat het antwoord herleid is.
+function vraag({ opgave, antwoord, hint, steps, traps = [], opties = {}, ook = () => true }) {
   const letters = [...new Set(opgave.match(/[a-z]/g))].sort();
   return metUitdrukking({
     q: `${T('{{herleiden|Herleid}}')} ${U(opgave)}.`,
@@ -184,7 +185,7 @@ function vraag({ opgave, antwoord, hint, steps, traps = [], opties = {} }) {
     hint,
     steps,
     traps: valkuilen(antwoord, traps),
-    v: () => klopt(opgave, antwoord, letters),
+    v: () => klopt(opgave, antwoord, letters) && ook(),
   });
 }
 
@@ -355,6 +356,9 @@ function s244optellen() {
     return vraag({
       opgave,
       antwoord: opgave,
+      // Het antwoord is de opgave zelf, dus invullen geeft altijd hetzelfde. Controleer daarom ook dat
+      // de twee termen echt niet samen kunnen.
+      ook: () => samen([A, B]).length === 2,
       hint: T(
         'Kijk of de termen {{gelijksoortige-termen|gelijksoortig}} zijn: dezelfde letters met dezelfde {{exponent|exponenten}}. Kun je niets samennemen, dan is de uitdrukking zelf het antwoord.',
       ),
@@ -831,7 +835,9 @@ function s247gemengd() {
           coin(),
         ];
       },
-      ([k, p, q, c, d]) => Math.abs(k) ** q <= 27 && k ** q + s * c.c * d.c !== 0,
+      // Geen kale letter tussen haakjes, zoals (t)².
+      ([k, p, q, c, d]) =>
+        (k !== 1 || p > 1) && Math.abs(k) ** q <= 27 && k ** q + s * c.c * d.c !== 0,
     );
     const binnen = { c: k, m: T1(p) },
       M = macht(binnen, q),
