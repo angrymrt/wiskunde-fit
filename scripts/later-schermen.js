@@ -19,7 +19,13 @@ const LATER = {
   'cijfers.js': ['vCijfers'],
   'about.js': ['vOver', 'vPrivacy', 'vContact'],
   'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
+  'interactief.js': ['widgetHTML', 'mountWidgets', 'showDrawn', 'tapGrid'],
 };
+
+// Een bestand dat geen eigen scherm heeft, maar dat elk scherm met een onderwerp nodig heeft: de
+// uitleg, het oefenen, Mijn stof oefenen en de proeftoets (nodig() in src/js/ui/laden.js). Het staat
+// daarom niet in SCHERM_VAN. De build zet het in de modulepreload van die pagina's.
+const BIJ_ONDERWERP = 'interactief';
 
 // Bij welk bestand de pagina van een scherm hoort (voor de modulepreload in scripts/build.js). De
 // proeftoets en de uitslag delen er één. Het scherm staat ook in LATER in src/js/ui/laden.js;
@@ -65,4 +71,4 @@ function laterSchermenPlugin() {
   };
 }
 
-export { LATER, SCHERM_VAN, laterSchermenPlugin };
+export { BIJ_ONDERWERP, LATER, SCHERM_VAN, laterSchermenPlugin };

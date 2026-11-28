@@ -9,7 +9,7 @@ import { crumbs, pageHead } from './layout.js';
 import { fieldsHTML, meldHTML, rekenhulpHTML, shareHTML } from './question-form.js';
 import { state } from './state.js';
 import { termen } from './termen.js';
-import { widgetHTML } from './widgets.js';
+import { widgetHTML } from './interactief.js';
 
 function exampleHTML(ex, key) {
   const st = ex.steps;
