@@ -17,10 +17,9 @@ const sorted = (ids) => (ids.length ? [...new Set(ids)].sort((a, b) => a - b) : 
 function setStof(ids) {
   update((p) => (p.stof = sorted(ids)));
 }
-// Kiest deze vraagsoorten, of haalt ze weg als ze allemaal al gekozen zijn. Met de stofkeuze zoals
-// die nu bewaard is, want een ander tabblad kan die hebben veranderd.
-// Zet ids aan, of uit als ze er al allemaal in staan. Bij uitzetten gaan ook de ids in ook weg, zoals
-// de gekozen uitdagingen van een onderwerp.
+// Kiest deze vraagsoorten, of haalt ze weg als ze allemaal al gekozen zijn. Bij weghalen gaan ook de
+// ids in ook weg, zoals de gekozen uitdagingen van een onderwerp. Met de stofkeuze zoals die nu
+// bewaard is, want een ander tabblad kan die hebben veranderd.
 function toggleStof(ids, ook = []) {
   update((p) => {
     const uit = allChosen(ids),
