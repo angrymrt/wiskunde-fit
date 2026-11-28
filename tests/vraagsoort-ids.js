@@ -250,4 +250,10 @@ export default {
   246: 's246delen',
   247: 's247gemengd',
   248: 's248haakjes',
+  249: 's249vereenvoudigen',
+  250: 's250uitDeBreuk',
+  251: 's251keerDelen',
+  252: 's252gelijknamig',
+  253: 's253ongelijknamig',
+  254: 's254ontbinden',
 };

@@ -32,19 +32,20 @@ export const WOORDEN = {
   },
   teller: {
     naam: 'teller',
-    uitleg: 'Het getal boven de streep van een breuk. Het zegt hoeveel delen je neemt.',
+    uitleg:
+      'Wat boven de streep van een breuk staat. Bij een breuk met getallen zegt het hoeveel delen je neemt.',
     onderwerp: 'breuken',
   },
   noemer: {
     naam: 'noemer',
     uitleg:
-      'Het getal onder de streep van een breuk. Het zegt in hoeveel gelijke delen het geheel is verdeeld.',
+      'Wat onder de streep van een breuk staat. Bij een breuk met getallen zegt het in hoeveel gelijke delen het geheel is verdeeld.',
     onderwerp: 'breuken',
   },
   vereenvoudigen: {
     naam: 'vereenvoudigen',
     uitleg:
-      'De teller en de noemer van een breuk door hetzelfde getal delen. De breuk blijft even groot.',
+      'De teller en de noemer van een breuk door hetzelfde getal delen, of door dezelfde letter. De breuk blijft even groot.',
     onderwerp: 'breuken',
   },
   'gemengd-getal': {
@@ -318,6 +319,12 @@ export const WOORDEN = {
     uitleg:
       'Het kleine getal rechtsboven in een macht. Het zegt hoe vaak het grondtal er staat: bij y⁴ is de exponent 4. Een letter zonder exponent heeft exponent 1.',
     onderwerp: 'machten-herleiden',
+  },
+  'variabele-uit-de-breuk-halen': {
+    naam: 'variabele uit de breuk halen',
+    uitleg:
+      'Een breuk met alleen een getal in de noemer schrijven als een getal keer de letter, zoals x/4 = ¼x. Staat de letter in de noemer, dan kan dat niet.',
+    onderwerp: 'breuken-met-letters',
   },
   'schuine-zijde': {
     naam: 'schuine zijde',

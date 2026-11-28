@@ -1036,6 +1036,32 @@
       "aantal": 809239,
       "ondergrens": true,
       "exact": false
+    },
+    "249": {
+      "aantal": 21114,
+      "exact": true
+    },
+    "250": {
+      "aantal": 37203,
+      "exact": true
+    },
+    "251": {
+      "aantal": 1757626,
+      "ondergrens": true,
+      "exact": false
+    },
+    "252": {
+      "aantal": 1126221,
+      "ondergrens": true,
+      "exact": false
+    },
+    "253": {
+      "aantal": 54696,
+      "exact": true
+    },
+    "254": {
+      "aantal": 8424,
+      "exact": true
     }
   }
 }
