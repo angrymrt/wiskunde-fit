@@ -760,6 +760,10 @@ const zonderSvg = (s) => s.slice(s.indexOf('>') + 1, -6);
 // een is de naam van één punt, zoals (2, 1), en waar de plek van de cursor, zoals op (2, 1).
 function puntenSoort({ maat, fig, desc, lijst, een, waar, verbind }) {
   const vast = (t, p) => (t.geg || []).find((g) => heeftP([g.p], p));
+  // Een punt mag er staan als het bij t.goed hoort, of, met t.lijn = [begin, per stap], als het op die rechte
+  // lijn ligt. Zo is een extra punt op de grafiek van een formule niet fout (#283).
+  const mag = (t, p) =>
+    heeftP(t.goed, p) || (!!t.lijn && near(p[1], t.lijn[0] + t.lijn[1] * p[0], 1e-9));
   const S = {
     maat,
     lees(t, val) {
@@ -777,8 +781,8 @@ function puntenSoort({ maat, fig, desc, lijst, een, waar, verbind }) {
       puntOrde(ps)
         .map((p) => p.map(r2).join(','))
         .join(' '),
-    // Per punt van t.goed of het er staat, en als laatste of er geen ander punt staat.
-    nakijken: (t, ps) => [...t.goed.map((g) => heeftP(ps, g)), ps.every((p) => heeftP(t.goed, p))],
+    // Per punt van t.goed of het er staat, en als laatste of er geen punt staat dat er niet mag staan.
+    nakijken: (t, ps) => [...t.goed.map((g) => heeftP(ps, g)), ps.every((p) => mag(t, p))],
     // Het punt van het rooster dat het dichtst bij een tik ligt, of null als de tik buiten het rooster valt. Een
     // halve stap buiten het rooster telt nog mee, zodat je ook de rand goed raakt.
     terug(t, sx, sy) {
@@ -805,7 +809,7 @@ function puntenSoort({ maat, fig, desc, lijst, een, waar, verbind }) {
       if (goed) for (const p of t.goed) o += rond(p, 'l2 d', 8);
       for (const p of ps) {
         o += rond(p, 'mk c1', 5);
-        if (fout && !heeftP(t.goed, p)) o += kruis(P(p)[0] + 10, P(p)[1] - 10, 4);
+        if (fout && !mag(t, p)) o += kruis(P(p)[0] + 10, P(p)[1] - 10, 4);
       }
       if (cursor) o += rond(cursor, 'cursor', 11);
       return o;
@@ -816,7 +820,7 @@ function puntenSoort({ maat, fig, desc, lijst, een, waar, verbind }) {
         ? `Je zette ${aantal(ps.length)}: ${lijst(t, puntOrde(ps))}.`
         : 'Je hebt nog geen punten gezet.',
     rijen(t, ps, each) {
-      const anders = puntOrde(ps.filter((p) => !heeftP(t.goed, p))),
+      const anders = puntOrde(ps.filter((p) => !mag(t, p))),
         niet = '<span class="muted">niet gezet</span>';
       return [
         ...t.goed.map((g, k) => [

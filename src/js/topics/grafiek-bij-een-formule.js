@@ -378,6 +378,8 @@ function s35tekenen() {
         u: 26,
       },
       goed: xs.map((x, k) => [x, ys[k]]),
+      // Een extra punt op de lijn, bijvoorbeeld tussen twee kolommen van de tabel in, is ook goed.
+      lijn: [ys[0], (ys[1] - ys[0]) / (xs[1] - xs[0])],
       verbind: 'lijn',
     },
     G = SOORTEN.grafiekpunten,

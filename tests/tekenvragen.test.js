@@ -424,3 +424,31 @@ test('grafiekpunten: de punten uit een tabel in het rooster van een grafiek bij 
   );
   assert.match(rijen[3][1], /2 en 15/);
 });
+
+test('grafiekpunten met lijn: een extra punt op de lijn is goed, een punt ernaast niet (#283)', () => {
+  const t = {
+      soort: 'grafiekpunten',
+      fig: {
+        titel: 'Een sup-board huren',
+        x: { naam: 'tijd in uren', van: 0, tot: 6, stap: 1 },
+        y: { naam: "bedrag in euro's", van: 0, tot: 60, stap: 5 },
+      },
+      goed: [
+        [0, 15],
+        [2, 35],
+        [4, 55],
+      ],
+      lijn: [15, 10],
+      verbind: 'lijn',
+    },
+    S = grafiekpunten;
+  // Alle punten uit de tabel en daartussen ook 1 en 3: allemaal op de lijn, dus goed.
+  assert.deepEqual(S.nakijken(t, S.lees(t, '0,15 1,25 2,35 3,45 4,55')), [true, true, true, true]);
+  // Een extra punt naast de lijn blijft fout, en krijgt als enige een kruisje.
+  assert.deepEqual(S.nakijken(t, S.lees(t, '0,15 1,30 2,35 4,55')), [true, true, true, false]);
+  const laag = S.laag(t, S.lees(t, '0,15 1,25 1,30 2,35 4,55'), { fout: true });
+  assert.equal((laag.match(/class="fout"/g) || []).length, 1);
+  // Zonder lijn is een extra punt fout, zoals bij punten uit een tabel met meetgegevens.
+  const zonder = { ...t, lijn: undefined };
+  assert.equal(S.nakijken(zonder, S.lees(zonder, '0,15 1,25 2,35 4,55'))[3], false);
+});
