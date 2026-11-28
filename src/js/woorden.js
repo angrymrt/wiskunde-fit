@@ -192,7 +192,7 @@ export const WOORDEN = {
     naam: 'globale grafiek',
     uitleg:
       'Een grafiek zonder getallen bij de assen. Je ziet alleen of iets stijgt, daalt of gelijk blijft, en hoe snel.',
-    onderwerp: 'grafieken-lezen-en-tekenen',
+    onderwerp: 'globale-grafieken',
   },
   woordformule: {
     naam: 'woordformule',

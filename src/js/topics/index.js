@@ -6,6 +6,7 @@
 // De generatoren en de uitleg komen pas met laadOnderwerpen().
 import coordinaten from './coordinaten-en-assenstelsels.js';
 import grafiekenLezen from './grafieken-lezen-en-tekenen.js';
+import globaleGrafieken from './globale-grafieken.js';
 import woordformules from './woordformules.js';
 import letters from './formules-met-letters.js';
 import rekenen from './rekenen-met-een-formule.js';
@@ -91,6 +92,7 @@ const DOMAINS = [
     topics: [
       coordinaten,
       grafiekenLezen,
+      globaleGrafieken,
       woordformules,
       letters,
       rekenen,
@@ -153,6 +155,7 @@ const DOMAINS = [
 // Stof die je al moet kennen voordat je aan een onderwerp begint.
 const PREREQUISITES = new Map([
   [grafiekenLezen, [coordinaten]],
+  [globaleGrafieken, [grafiekenLezen]],
   [letters, [woordformules]],
   [rekenen, [vergelijkingen]],
   [lijnen, [rekenen]],
