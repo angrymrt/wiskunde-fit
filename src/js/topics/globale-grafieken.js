@@ -218,7 +218,8 @@ function s32globaal() {
   return {
     q: T(`${G.intro(n)} Wat doet ${n} in stuk ${s}?`),
     fig,
-    mc: MC(opts, a),
+    // Een vaste volgorde, van harder naar stilstaan: dat zoekt makkelijker. Het goede antwoord hangt af van het stuk.
+    mc: { opts, a },
     hint: T(
       'Dit is een snelheidsgrafiek. Stijgt hij, dan gaat de snelheid omhoog. Loopt hij horizontaal, dan blijft de snelheid gelijk. Ligt hij op de horizontale as, dan is de snelheid 0.',
     ),

@@ -2,6 +2,12 @@
 
 De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een geslaagde deploy wordt die vanzelf een release op GitHub. Zie de skill `release-maken` in `.claude/skills/`.
 
+## 1.28.1
+
+### Verbeterd
+
+- **Globale grafieken.** Bij de vraag wat de fietser in een stuk van de grafiek doet, staan de keuzes nu altijd in dezelfde volgorde: van harder fietsen naar stilstaan. Zo vind je ze makkelijker.
+
 ## 1.28.0
 
 ### Nieuw
