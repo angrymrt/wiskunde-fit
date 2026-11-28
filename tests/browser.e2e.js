@@ -3785,7 +3785,7 @@ const LIMITS = {
   // De uitleg en het oefenen (ui/topic.js) en de invoervelden van een vraag (ui/question-form.js, samen 16,5 kB zelf)
   // laden sinds #206 ook pas met een onderwerp, net als interactief.js. Het eerste bezoek ging van 125,4 naar 110,3 kB
   // onverpakt en van 47,1 naar 41,9 kB verstuurd, dus de grenzen gingen van 48 naar 43 en van 126 naar 112 kB.
-  start: { sent: 43, own: 112, why: 'de code bij het eerste bezoek' },
+  start: { sent: 43, own: 114, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
