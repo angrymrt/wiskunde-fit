@@ -164,12 +164,12 @@ function s255keer() {
         {
           id: 'getallen-opgeteld',
           als: Math.abs(a) > 1 && Math.abs(b) > 1 && a + b ? wt(a + b, n) : [],
-          m: `De getallen vóór de wortels vermenigvuldig je: ${a} · ${b} = ${c}. Je telt ze niet op.`,
+          m: 'De getallen vóór de wortels vermenigvuldig je met elkaar. Je telt ze niet op.',
         },
         {
           id: 'wortels-opgeteld',
           als: wt(c, p + q),
-          m: `Onder het wortelteken vermenigvuldig je ook: √${p} · √${q} = √${n}, en niet √${p + q}.`,
+          m: `Onder het wortelteken vermenigvuldig je ook: √${p} · √${q} is de wortel uit ${p} · ${q}, en niet √${p + q}.`,
         },
         { ...teken(a, b), als: c < 0 ? wt(-c, n) : [] },
       ],
@@ -227,7 +227,7 @@ function s255keer() {
         {
           id: 'getallen-opgeteld',
           als: Math.abs(a) > 1 && Math.abs(b) > 1 ? `${(a + b) * w}` : [],
-          m: `De getallen vóór de wortels vermenigvuldig je: ${a} · ${b} = ${c}. Je telt ze niet op.`,
+          m: 'De getallen vóór de wortels vermenigvuldig je met elkaar. Je telt ze niet op.',
         },
         { ...teken(a, b), als: c < 0 ? `${-c * w}` : [] },
       ],
@@ -430,7 +430,8 @@ function s256optellen() {
       },
       {
         id: 'wortel-plus-getal',
-        als: `${a + k + s * (b + m)}`,
+        // Staat er geen getal vóór de wortel (1), dan rekent de leerling die term gewoon goed uit.
+        als: `${(a > 1 ? a + k : k) + s * (b > 1 ? b + m : m)}`,
         m: `Een getal vóór het wortelteken betekent keer: ${cv}√${wv * wv} = ${cv} · ${wv}.`,
       },
       {
@@ -485,12 +486,12 @@ function s257factor() {
         {
           id: 'factor-opgeteld',
           als: a > 1 ? wt(a + k, r) : [],
-          m: `${a}√${n} = ${a} · ${k}√${r}. Vermenigvuldig de getallen vóór het wortelteken.`,
+          m: `Haal eerst de factor uit √${n}. Vermenigvuldig die factor daarna met de ${a} ervoor; je telt ze niet op.`,
         },
         {
           id: 'getal-ervoor-vergeten',
           als: a > 1 ? wt(k, r) : [],
-          m: `Vergeet de ${a} vóór het wortelteken niet: ${a} · ${k} = ${a * k}.`,
+          m: `Vergeet de ${a} vóór het wortelteken niet. Vermenigvuldig die met het getal dat je uit de wortel haalt.`,
         },
       ],
     });
@@ -535,7 +536,7 @@ function s257factor() {
         {
           id: 'getallen-opgeteld',
           als: Math.abs(a) > 1 && Math.abs(b) > 1 ? [wt(a + b, p * q), wt((a + b) * g, r)] : [],
-          m: `De getallen vóór de wortels vermenigvuldig je: ${a} · ${b} = ${ab}. Je telt ze niet op.`,
+          m: 'De getallen vóór de wortels vermenigvuldig je met elkaar. Je telt ze niet op.',
         },
         { ...teken(a, b), als: c < 0 ? wt(-c, r) : [] },
       ],
