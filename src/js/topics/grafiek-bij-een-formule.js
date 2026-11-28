@@ -410,11 +410,15 @@ function s35tekenen() {
     traps: [
       {
         id: 'punt-vergeten',
+        // Er mist een punt uit de tabel, en elk gezet punt klopt: het hoort bij de tabel of ligt op de lijn.
         f: (v) => {
           const L = lees(v);
-          return L.length < t.goed.length && L.every(hoort);
+          return (
+            t.goed.some((q) => !L.some((p) => is(p, q))) &&
+            L.every((p) => hoort(p) || near(p[1], t.lijn[0] + t.lijn[1] * p[0], 1e-9))
+          );
         },
-        m: `Je hebt niet alle punten gezet. In de tabel staan ${xs.length} kolommen, dus er horen ${xs.length} punten in de grafiek.`,
+        m: `Je hebt niet alle punten uit de tabel gezet. Zet bij elke kolom van de tabel een punt: bij ${V.l} = ${en(xs)}.`,
       },
       {
         id: 'x-en-y-verwisseld',

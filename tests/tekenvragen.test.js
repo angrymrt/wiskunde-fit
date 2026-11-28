@@ -452,3 +452,18 @@ test('grafiekpunten met lijn: een extra punt op de lijn is goed, een punt ernaas
   const zonder = { ...t, lijn: undefined };
   assert.equal(S.nakijken(zonder, S.lees(zonder, '0,15 1,25 2,35 4,55'))[3], false);
 });
+
+test('234: mist er een punt uit de tabel naast extra punten op de lijn, dan zegt de melding dat (#283)', () => {
+  const sk = TOPIC['grafiek-bij-een-formule'].skills.find((k) => k.id === 234);
+  for (let seed = 1; seed <= 50; seed++) {
+    const q = makeQuestion(sk, seed),
+      t = q.teken,
+      [b, a] = t.lijn,
+      X = t.goed.map((p) => p[0]),
+      // Alle hele waarden van 0 tot de laatste kolom min één, dus de laatste kolom ontbreekt.
+      ps = [];
+    for (let x = 0; x < X[X.length - 1]; x++) ps.push([x, b + a * x]);
+    const v = [grafiekpunten.schrijf(t, ps)];
+    assert.equal(findTrap(q, v)?.id, 'punt-vergeten');
+  }
+});

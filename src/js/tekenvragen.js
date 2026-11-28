@@ -713,11 +713,12 @@ const pijl = {
 // assenstelsel zoals graph() in figures.js het tekent, met een rooster van 1 bij 1. geg zijn punten die er al
 // staan, met een letter: [{ p: [1, 2], L: 'A' }]. Die kun je niet aantikken, dus ze horen niet bij t.goed.
 //
-// grafiekpunten: t = { soort: 'grafiekpunten', fig, goed: [[x, y], ...], snap, verbind }. fig zijn de opties van
+// grafiekpunten: t = { soort: 'grafiekpunten', fig, goed: [[x, y], ...], snap, verbind, lijn }. fig zijn de opties van
 // contextGraph() in grafiekfiguren.js (zonder functies, want t wordt als JSON bewaard), meestal zonder grafieken:
 // alleen de assen met hun namen en het rooster. De punten liggen op de lijnen van het rooster, of met snap = [dx, dy]
 // op een fijnere verdeling (bijvoorbeeld [1, 2.5] bij een as met stappen van 5). Met verbind ('lijn' of 'kromme')
-// tekent de site de grafiek door de gezette punten, van links naar rechts.
+// tekent de site de grafiek door de gezette punten, van links naar rechts. Met lijn = [begin, per stap] mag een extra
+// punt er ook staan als het op die rechte lijn ligt, zoals bij de grafiek van een formule.
 
 const heeftP = (ps, p) => ps.some((q) => near(q[0], p[0], 1e-9) && near(q[1], p[1], 1e-9));
 const puntOrde = (ps) => [...ps].sort((p, q) => p[0] - q[0] || p[1] - q[1]);
