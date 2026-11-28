@@ -134,6 +134,12 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
   assert.deepEqual(prog.stof, [23, 24, 25]);
   toggleStof([24, 25]);
   assert.deepEqual(prog.stof, [23]);
+  // Een onderwerp uitzetten haalt ook de gekozen uitdaging ervan weg (#309), aanzetten voegt hem niet toe.
+  toggleStof([17, 18], [17, 18, 22]);
+  assert.deepEqual(prog.stof, [17, 18, 23]);
+  setStof([17, 18, 22, 23]);
+  toggleStof([17, 18], [17, 18, 22]);
+  assert.deepEqual(prog.stof, [23]);
   assert.deepEqual(
     chosenTopics([38, 23]).map((g) => g.topic.slug),
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],

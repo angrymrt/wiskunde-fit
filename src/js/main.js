@@ -589,7 +589,10 @@ app.addEventListener('click', (e) => {
     return;
   }
   if (a === 'topicpick') {
-    toggleStof(basis(TOPIC[id].skills).map((k) => k.id));
+    toggleStof(
+      basis(TOPIC[id].skills).map((k) => k.id),
+      TOPIC[id].skills.map((k) => k.id),
+    );
     render();
     return;
   }

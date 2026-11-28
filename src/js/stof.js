@@ -1,6 +1,6 @@
 // De stofkeuze: altijd een lijst id's van vraagsoorten, of een leerling nu op paragraaf, hoofdstuk
-// of onderwerp kiest. Oefenen en de proeftoets gebruiken dezelfde lijst. Een uitdaging staat er
-// nooit in: die oefen je alleen als je hem bij het onderwerp zelf kiest.
+// of onderwerp kiest. Oefenen en de proeftoets gebruiken dezelfde lijst. Een uitdaging komt er alleen
+// in met zijn eigen vinkje bij de paragraaf, niet via een paragraaf, hoofdstuk, onderwerp of Alle stof.
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, update } from './progress.js';
 import { pathFor, to } from './routes.js';
@@ -19,10 +19,13 @@ function setStof(ids) {
 }
 // Kiest deze vraagsoorten, of haalt ze weg als ze allemaal al gekozen zijn. Met de stofkeuze zoals
 // die nu bewaard is, want een ander tabblad kan die hebben veranderd.
-function toggleStof(ids) {
+// Zet ids aan, of uit als ze er al allemaal in staan. Bij uitzetten gaan ook de ids in ook weg, zoals
+// de gekozen uitdagingen van een onderwerp.
+function toggleStof(ids, ook = []) {
   update((p) => {
-    const rest = (p.stof || []).filter((id) => !ids.includes(id));
-    p.stof = sorted(allChosen(ids) ? rest : [...rest, ...ids]);
+    const uit = allChosen(ids),
+      rest = (p.stof || []).filter((id) => !ids.includes(id) && !(uit && ook.includes(id)));
+    p.stof = sorted(uit ? rest : [...rest, ...ids]);
   });
 }
 // De gekozen vraagsoorten per onderwerp, in de volgorde van de site.
