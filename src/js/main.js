@@ -30,7 +30,7 @@ import {
   clockText,
 } from './ui/toets-opslag.js';
 import { newQuestion, applySoort } from './ui/topic.js';
-import { showDrawn, tapGrid } from './ui/draw.js';
+import { klaar as interactiefKlaar, mountWidgets, showDrawn, tapGrid } from './ui/interactief.js';
 import { laadScherm, nogTeLaden, schermVooraf, wachtOpScherm } from './ui/laden.js';
 import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
 import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
@@ -38,7 +38,6 @@ import { bijWissel, oefModus } from './ui/oef-modus.js';
 import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';
 import { runClock, sent, telPoging, telToets, telValkuil } from './ui/tellen.js';
-import { mountWidgets } from './ui/widgets.js';
 
 const here = () => location.pathname + location.search;
 function stopTimer() {
@@ -309,7 +308,8 @@ function paint(focus) {
   // Half aangevinkt kan alleen vanuit JavaScript. Een schermlezer zegt dan "half aangevinkt".
   app.querySelectorAll('input[data-mixed]').forEach((el) => (el.indeterminate = true));
   if (state.view.oefen || state.view.name === 'stofoefen') laadIconen().catch(() => {});
-  mountWidgets();
+  // De schuifjes en het tekenen (interactief.js) laden met een onderwerp. Zonder staan ze ook niet op het scherm.
+  if (interactiefKlaar()) mountWidgets();
   rekenhulp?.synchroniseer();
   // In dat modus laadt de Rekenhulp vanzelf, voor een vraag die er een heeft.
   if (oef && !rekenhulp && app.querySelector('#pform[data-rek]'))
@@ -317,7 +317,7 @@ function paint(focus) {
       .then((m) => m.synchroniseer())
       .catch(() => {});
   mountTermen()?.catch(() => {});
-  showDrawn();
+  if (interactiefKlaar()) showDrawn();
   // Het tekenen bij een tekenvraag met q.teken (#232), zoals een kubus afmaken, staat in een eigen bestand. Dat laadt
   // pas als zo'n vraag op het scherm staat, en zet daarna na elke render() de knoppen en de tekening erbij. Lukt het
   // laden niet, dan probeert de volgende render() het opnieuw.
@@ -380,7 +380,7 @@ function watchPracticeBar() {
   barWatch = new IntersectionObserver(([e]) => bar.classList.toggle('away', e.isIntersecting));
   barWatch.observe(button);
 }
-app.addEventListener('input', showDrawn);
+app.addEventListener('input', () => interactiefKlaar() && showDrawn());
 // Het paneel om een probleem te melden: wat de leerling kiest of typt staat in state.melden, en de
 // links naar GitHub en e-mail volgen dat. Zie ui/melden.js.
 app.addEventListener('input', (e) => {
@@ -451,7 +451,8 @@ function closeMelden() {
 }
 app.addEventListener('click', (e) => {
   const grid = e.target.closest('svg[data-draw]');
-  if (grid) return tapGrid(grid, e);
+  // Een rooster staat er alleen als interactief.js er is, maar een klik mag nooit een fout geven.
+  if (grid) return interactiefKlaar() ? tapGrid(grid, e) : undefined;
   // De link naar de inhoud zet de focus daar, zonder #inhoud in het adres.
   if (e.target.closest('a.skip')) {
     e.preventDefault();
