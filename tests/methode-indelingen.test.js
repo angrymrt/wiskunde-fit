@@ -146,7 +146,7 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
   );
   // Alle stof, zonder de uitdagingen.
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 251);
+  assert.equal(prog.stof.length, 255);
   assert.ok(!prog.stof.includes(22));
   setStof([]);
 });

@@ -256,4 +256,9 @@ export default {
   252: 's252gelijknamig',
   253: 's253ongelijknamig',
   254: 's254ontbinden',
+  255: 's255keer',
+  256: 's256optellen',
+  257: 's257factor',
+  258: 's258delen',
+  259: 's259noemer',
 };

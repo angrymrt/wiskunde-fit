@@ -326,6 +326,24 @@ export const WOORDEN = {
       'Een breuk met alleen een getal in de noemer schrijven als een getal keer de letter, zoals x/4 = ¼x. Staat de letter in de noemer, dan kan dat niet.',
     onderwerp: 'breuken-met-letters',
   },
+  'gelijksoortige-wortels': {
+    naam: 'gelijksoortige wortels',
+    uitleg:
+      'Wortels met hetzelfde getal onder het wortelteken, zoals 2√7 en −5√7. Die mag je samennemen: 2√7 − 5√7 = −3√7. De wortels √7 en √3 zijn niet gelijksoortig.',
+    onderwerp: 'wortels-herleiden',
+  },
+  'factor-voor-het-wortelteken': {
+    naam: 'factor voor het wortelteken',
+    uitleg:
+      'Het getal vóór een wortel, zoals de 4 in 4√3. Je maakt die factor zo groot mogelijk door een kwadraat uit de wortel te halen: √48 = √16 · √3 = 4√3.',
+    onderwerp: 'wortels-herleiden',
+  },
+  'wortel-uit-de-noemer-wegwerken': {
+    naam: 'wortel uit de noemer wegwerken',
+    uitleg:
+      'Een breuk zo schrijven dat er geen wortel meer in de noemer staat. Je vermenigvuldigt de teller en de noemer met die wortel: 1/√3 = √3/3 = ⅓√3.',
+    onderwerp: 'wortels-herleiden',
+  },
   'schuine-zijde': {
     naam: 'schuine zijde',
     uitleg: 'De langste zijde van een rechthoekige driehoek. Ze ligt tegenover de rechte hoek.',

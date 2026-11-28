@@ -3788,7 +3788,9 @@ const LIMITS = {
   // onverpakt en van 47,1 naar 41,9 kB verstuurd, dus de grenzen gingen van 48 naar 43 en van 126 naar 112 kB.
   // De uitdaging (#309) en het veld voor een uitdrukking (#304) maakten het eerste bezoek 112,6 kB onverpakt.
   // De eigenaar koos een grens van 114 kB, met ruimte voor de rest van hoofdstuk 5 van havo 3 (#101).
-  start: { sent: 43, own: 114, why: 'de code bij het eerste bezoek' },
+  // Wortels herleiden (#308), het vierde onderwerp van dat hoofdstuk, maakte het 114,65 kB onverpakt en 43,2 kB
+  // verstuurd. De eigenaar koos 116 en 44 kB. Voor het volgende hoofdstuk eerst #206 verder: de catalogus later laden.
+  start: { sent: 44, own: 116, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
