@@ -1,12 +1,13 @@
 // De stofkeuze: altijd een lijst id's van vraagsoorten, of een leerling nu op paragraaf, hoofdstuk
-// of onderwerp kiest. Oefenen en de proeftoets gebruiken dezelfde lijst.
+// of onderwerp kiest. Oefenen en de proeftoets gebruiken dezelfde lijst. Een uitdaging komt er alleen
+// in met zijn eigen vinkje bij de paragraaf, niet via een paragraaf, hoofdstuk, onderwerp of Alle stof.
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import { prog, update } from './progress.js';
 import { pathFor, to } from './routes.js';
-import { TOPICS } from './topics/index.js';
+import { STOF_IDS, TOPICS } from './topics/index.js';
 
 const TOPIC_OF = new Map(TOPICS.flatMap((t) => t.skills.map((k) => [k.id, t])));
-const ALL_IDS = [...TOPIC_OF.keys()];
+const ALL_IDS = [...STOF_IDS];
 
 const isChosen = (id) => (prog.stof || []).includes(id);
 const allChosen = (ids) => ids.length > 0 && ids.every(isChosen);
@@ -16,12 +17,14 @@ const sorted = (ids) => (ids.length ? [...new Set(ids)].sort((a, b) => a - b) : 
 function setStof(ids) {
   update((p) => (p.stof = sorted(ids)));
 }
-// Kiest deze vraagsoorten, of haalt ze weg als ze allemaal al gekozen zijn. Met de stofkeuze zoals
-// die nu bewaard is, want een ander tabblad kan die hebben veranderd.
-function toggleStof(ids) {
+// Kiest deze vraagsoorten, of haalt ze weg als ze allemaal al gekozen zijn. Bij weghalen gaan ook de
+// ids in ook weg, zoals de gekozen uitdagingen van een onderwerp. Met de stofkeuze zoals die nu
+// bewaard is, want een ander tabblad kan die hebben veranderd.
+function toggleStof(ids, ook = []) {
   update((p) => {
-    const rest = (p.stof || []).filter((id) => !ids.includes(id));
-    p.stof = sorted(allChosen(ids) ? rest : [...rest, ...ids]);
+    const uit = allChosen(ids),
+      rest = (p.stof || []).filter((id) => !ids.includes(id) && !(uit && ook.includes(id)));
+    p.stof = sorted(uit ? rest : [...rest, ...ids]);
   });
 }
 // De gekozen vraagsoorten per onderwerp, in de volgorde van de site.
