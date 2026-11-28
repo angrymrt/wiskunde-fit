@@ -118,13 +118,16 @@ function valkuilen(goed, lijst) {
 }
 
 // v vult in de opgave en in het antwoord dezelfde getallen in en vergelijkt. Zo rekent v met de
-// uitdrukking zelf, en niet met de veeltermen waarmee de generator het antwoord maakt. Een veelterm van
-// graad 2 in één letter die op drie plekken gelijk is, is overal gelijk.
+// uitdrukking zelf, en niet met de veeltermen waarmee de generator het antwoord maakt. Bij één letter
+// bewijst het: een veelterm van graad 2 die op drie plekken gelijk is, is overal gelijk. Bij twee letters
+// is het een steekproef op zes plekken, die een fout in een coëfficiënt in de praktijk altijd vindt.
 const PUNTEN = [
   [2, -3],
   [-1, 4],
   [5, 2],
   [-4, -2],
+  [3, 7],
+  [-6, 1],
 ];
 const klopt = (opgave, antwoord, letters) =>
   PUNTEN.every((p) => {
@@ -165,7 +168,7 @@ function dubbelZin(A, B, min) {
 function kwadraatZin(A, B) {
   const een = (X) => `${X.length === 1 && X[0].c === 1 ? tekst(X) : `(${tekst(X)})`}^2`;
   const delen = [A, B]
-    .filter((X) => !(X[0].c === 1 && Object.keys(X[0].m).length))
+    .filter((X) => !(X.length === 1 && X[0].c === 1))
     .map((X) =>
       W(`${Object.keys(X[0].m).length ? een(X) : `${X[0].c}^2`} = ${tekst(samen(kwadraat(X)))}`),
     );
@@ -538,7 +541,10 @@ function kwadraatValkuilen(A, B, s, f = 1) {
     {
       id: 'min-kwadraat',
       als: [F([...A2, ...schaal(AB, 2 * s), ...schaal(B2, -1)])],
-      m: 'Een kwadraat is nooit negatief: min keer min is plus. Het laatste kwadraat komt er dus bij.',
+      m:
+        f < 0
+          ? 'Werk eerst het kwadraat uit tussen haakjes. Een kwadraat is nooit negatief, dus het laatste kwadraat komt er tussen de haakjes bij. Daarna gaat de min of het getal ervoor keer elke term.'
+          : 'Een kwadraat is nooit negatief: min keer min is plus. Het laatste kwadraat komt er dus bij.',
     },
   ];
 }
@@ -802,9 +808,9 @@ export default {
       },
       watch: zin(
         'Denk aan de haakjes. Een min voor een product hoort bij elke term van dat product. En bij ',
-        W('(4k)^2'),
+        W('(5k)^2'),
         ' gaat ook het getal in het {{kwadraat|kwadraat}}: ',
-        W('(4k)^2 = 16k^2'),
+        W('(5k)^2 = 25k^2'),
         '.',
       ),
     },
