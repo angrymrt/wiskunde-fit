@@ -8,6 +8,7 @@ import { esc } from '../typeset.js';
 import { klaar as aboutKlaar, laad as laadAbout } from './about.js';
 import { klaar as cijfersKlaar, laad as laadCijfers } from './cijfers.js';
 import { klaar as examKlaar, laad as laadExam } from './exam.js';
+import { klaar as interactiefKlaar, laad as laadInteractief } from './interactief.js';
 import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
 import { klaar as vragenKlaar, laad as laadVragen } from './vragen.js';
@@ -42,8 +43,17 @@ const LATER = {
   toetsres: examen,
 };
 const schermVooraf = (v = state.view) => LATER[v.name]?.vooraf === true;
-const wachtOpScherm = (v = state.view) => !!LATER[v.name] && !LATER[v.name].klaar();
-const laadScherm = (v = state.view) => LATER[v.name].laad();
+// Een scherm met een onderwerp heeft ook interactief.js nodig, met de schuifjes in de uitleg en het
+// tekenen in een rooster. Dat bestand laadt tegelijk met het onderwerp (#206).
+const metOnderwerp = (v) => nodig(v).length > 0;
+const schermLaadt = (v) => !!LATER[v.name] && !LATER[v.name].klaar();
+const interactiefLaadt = (v) => metOnderwerp(v) && !interactiefKlaar();
+const wachtOpScherm = (v = state.view) => schermLaadt(v) || interactiefLaadt(v);
+const laadScherm = (v = state.view) =>
+  Promise.all([
+    schermLaadt(v) ? LATER[v.name].laad() : null,
+    interactiefLaadt(v) ? laadInteractief() : null,
+  ]);
 
 // Zoals een schil: het kruimelpad en de kop staan er al, met daaronder dat het laadt, of een
 // melding met een knop om het opnieuw te proberen. Een schermlezer hoort "Even laden…" uit
