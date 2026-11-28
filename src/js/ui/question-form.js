@@ -1,9 +1,10 @@
 // Invoervelden van een vraag tekenen en uitlezen, voor oefenen en proeftoets.
 import { isDrawing, parseNum } from '../answers.js';
-import { BEREKENING } from '../math.js';
+import { BEREKENING, UITDRUKKING } from '../math.js';
 import { pathFor } from '../routes.js';
 import { topicOf } from '../stof.js';
 import { esc, T } from '../typeset.js';
+import { klaar as interactiefKlaar, uitdrukkingVeld } from './interactief.js';
 import { githubLink, mailLink, MAX_TEKST, melding, WAT } from './melden.js';
 import { app, state } from './state.js';
 
@@ -18,6 +19,9 @@ function fieldsHTML(q, pfx, vals = [], marks = null, locked = false) {
     .map((f, i) => {
       const cl = marks ? ((q.teken ? marks.ok : marks.each[i]) ? 'ok' : 'no') : '',
         br = f.br ? '<span class="fbreak"></span>' : '';
+      // Een uitdrukking (#304), met eronder hoe die eruitziet. Dat veld laadt met het onderwerp (interactief.js).
+      if (f.uitdrukking && interactiefKlaar())
+        return br + uitdrukkingVeld(q, i, pfx, vals[i], cl, locked);
       if (f.sel)
         return `${br}<label class="fld ${cl}">${f.pre ? `<span>${T(f.pre)}</span>` : ''}<select id="${pfx}f${i}" aria-label="${f.label || 'Kies het teken'}" aria-describedby="${pfx}q" ${locked ? 'disabled' : ''}><option value="">kies</option>${f.sel.map((o) => `<option ${vals[i] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>${f.post ? `<span>${T(f.post)}</span>` : ''}</label>`;
       const input = `<input id="${pfx}f${i}" ${f.teken ? 'type="hidden" data-teken' : `type="text" inputmode="text" autocomplete="off"${f.berekening ? ' data-berekening spellcheck="false"' : ''}`} ${f.label ? `aria-label="${f.label}"` : f.pre ? '' : `aria-label="Antwoord ${i + 1}"`} aria-describedby="${pfx}q" value="${esc(vals[i] ?? '').replace(/"/g, '&quot;')}" ${locked ? 'disabled' : ''}>`;
@@ -43,8 +47,16 @@ function unreadable(q, vals) {
   const leeg = (i) => !vals[i].trim();
   if (q.fields.some((f, i) => f.berekening && !leeg(i) && !BEREKENING.lees?.(vals[i])))
     return 'Deze berekening kan ik niet lezen. Kijk of elk haakje dicht is, en of er tussen twee getallen een rekenteken staat.';
+  if (q.fields.some((f, i) => f.uitdrukking && !leeg(i) && !UITDRUKKING.lees?.(vals[i])))
+    return UITDRUKKING.onleesbaar;
   return q.fields.some(
-    (f, i) => !f.sel && !f.teken && !f.berekening && !leeg(i) && Number.isNaN(parseNum(vals[i])),
+    (f, i) =>
+      !f.sel &&
+      !f.teken &&
+      !f.berekening &&
+      !f.uitdrukking &&
+      !leeg(i) &&
+      Number.isNaN(parseNum(vals[i])),
   )
     ? 'Dit getal kan ik niet lezen. Schrijf bijvoorbeeld -2, 3,5 of 1 1/2.'
     : '';

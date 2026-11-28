@@ -10,6 +10,7 @@
 // tik in een veld brengt een telefoon naar het tabblad Toetsenbord. Een fysiek toetsenbord werkt gewoon door.
 //
 // Bewust niet: afronden of een breuk maken. De leerling rondt zelf af en maakt zelf een breuk.
+import { UITDRUKKING } from '../math.js';
 import { uitkomst } from '../rekenen.js';
 import { oefModus } from './oef-modus.js';
 import { state } from './state.js';
@@ -45,6 +46,26 @@ const REKEN = [
   ['1'], ['2'], ['3'], ['·', '*', 'op', 'keer'], [')', ')', 'fn', 'haakje sluiten'],
   ['0'], [':', ':', 'op', 'gedeeld door'], ['Leeg', 'LEEG', 'fn rh-breed', 'Maak het veld leeg'],
 ].map(([tekst, waarde, soort, naam]) => [tekst, `V:${waarde ?? tekst}`, soort, naam]); // prettier-ignore
+// Het tabblad Toetsenbord bij een veld voor een uitdrukking (#304): cijfers, rekentekens, breukstreep, macht, wortel,
+// haakjes, een spatie voor een gemengd getal en de letters uit de vraag (die komen er in uitdrukkingToetsen bij).
+const UITDR = [
+  ['7'], ['8'], ['9'], ['+', '+', 'op', 'plus'], ['−', '-', 'op', 'min'], ['⌫', 'WIS', 'fn', 'Wis het laatste teken'],
+  ['4'], ['5'], ['6'], ['·', '*', 'op', 'keer'], ['/', '/', 'op', 'breukstreep'], ['(', '(', 'fn', 'haakje openen'],
+  ['1'], ['2'], ['3'], ['^', '^', 'fn', 'macht'], ['√', '√', 'fn', 'wortel'], [')', ')', 'fn', 'haakje sluiten'],
+  ['0'], [',', ',', '', 'komma'], ['␣', ' ', 'fn', 'spatie, voor een gemengd getal'],
+]; // prettier-ignore
+// De toetsen bij een uitdrukking, met de letters erachter. Leeg vult de rest van de onderste rij, als daar plaats is.
+function uitdrukkingToetsen(letters) {
+  const lijst = [...UITDR, ...[...letters].map((l) => [`<span class="v">${l}</span>`, l, '', l])];
+  const rest = 6 - (lijst.length % 6);
+  const leeg = toets(['Leeg', 'V:LEEG', 'fn', 'Maak het veld leeg']);
+  return (
+    lijst
+      .map(([tekst, waarde, soort, naam]) => toets([tekst, `V:${waarde ?? tekst}`, soort, naam]))
+      .join('') +
+    (rest < 6 ? leeg.replace('<button', `<button style="grid-column: span ${rest}"`) : '')
+  );
+}
 // Een berekening zoals een schermlezer hem voorleest: ·, : en de haakjes als woord, want haakjes leest een
 // schermlezer meestal niet voor.
 const uitspraak = (t) =>
@@ -53,12 +74,16 @@ const uitspraak = (t) =>
     .replace(/:/g, ' gedeeld door ')
     .replace(/\(/g, ' haakje openen ')
     .replace(/\)/g, ' haakje sluiten ')
+    .replace(/\//g, ' gedeeld door ')
+    .replace(/\^/g, ' tot de macht ')
+    .replace(/√/g, ' wortel ')
     .replace(/ +/g, ' ')
     .trim();
 
 let paneel = null; // Het paneel, zodra het er is.
 let melding = null; // Het gebied dat een schermlezer voorleest.
-let rekenToetsen = null; // Of het tabblad Toetsenbord de toetsen voor een berekening heeft.
+let rekenToetsen = null; // Welke toetsen het tabblad Toetsenbord heeft: '' (een getal), 'reken' of 'u' en de letters.
+const uitdrukking = () => !!rekenToetsen && rekenToetsen[0] === 'u';
 
 const toets = ([tekst, waarde, soort, naam]) =>
   `<button class="rh-toets${soort ? ` ${soort}` : ''}" type="button" data-k="${waarde ?? tekst}"${naam ? ` aria-label="${naam}"` : ''}>${tekst}</button>`;
@@ -178,13 +203,21 @@ function teken() {
   paneel.querySelector('#rh-doel').textContent = doel;
   paneel.querySelector('#rh-invnaam').textContent = doel;
   paneel.querySelector('#rh-invwaarde').textContent = veld?.value || '';
-  // Bij een veld voor een berekening krijgt het tabblad Toetsenbord rekentekens en haakjes.
-  const reken = !!veld?.hasAttribute('data-berekening');
-  if (reken !== rekenToetsen) {
-    rekenToetsen = reken;
+  // Bij een veld voor een berekening krijgt het tabblad Toetsenbord rekentekens en haakjes, en bij een uitdrukking ook
+  // de letters, de macht, de wortel en de breukstreep.
+  const soort = veld?.hasAttribute('data-uitdrukking')
+    ? `u${veld.dataset.uitdrukking}`
+    : veld?.hasAttribute('data-berekening')
+      ? 'reken'
+      : '';
+  if (soort !== rekenToetsen) {
+    rekenToetsen = soort;
     const vak = paneel.querySelector('#rh-invtoetsen');
-    vak.innerHTML = (reken ? REKEN : INVOER).map(toets).join('');
-    vak.classList.toggle('rh-reken', reken);
+    vak.innerHTML = uitdrukking()
+      ? uitdrukkingToetsen(soort.slice(1))
+      : (soort ? REKEN : INVOER).map(toets).join('');
+    vak.classList.toggle('rh-reken', soort === 'reken');
+    vak.classList.toggle('rh-uitdr', uitdrukking());
   }
   // Volgende heeft alleen zin als er nog een ander veld is. Controleer volgt de knop van de vraag.
   paneel.querySelector('[data-k="V:VOLGENDE"]').disabled = lijst.length < 2;
@@ -252,7 +285,8 @@ function typ(k) {
   }
   let t = veld.value;
   const deel = t.split(' ').pop();
-  if (veld.hasAttribute('data-berekening')) t = rekenTyp(t, k);
+  if (veld.hasAttribute('data-uitdrukking')) t = uitdrukkingTyp(t, k);
+  else if (veld.hasAttribute('data-berekening')) t = rekenTyp(t, k);
   else if (k === 'WIS') t = t.slice(0, -1);
   else if (k === 'LEEG') t = '';
   else if (k === 'TEKEN') t = /^[−-]/.test(t) ? t.replace(/^[−-]/, '') : `−${t}`;
@@ -263,7 +297,8 @@ function typ(k) {
   veld.value = t;
   veld.dispatchEvent(new Event('input', { bubbles: true }));
   teken();
-  zeg(uitspraak(t) || 'leeg');
+  // Een uitdrukking die te lezen is, leest een schermlezer voor zoals de site hem leest, zoals "a kwadraat".
+  zeg((veld.hasAttribute('data-uitdrukking') && UITDRUKKING.zeg?.(t)) || uitspraak(t) || 'leeg');
 }
 // Een toets in een veld voor een berekening. Een rekenteken krijgt een spatie ervoor en erna. Een min na een getal of
 // een haakje sluiten is een aftrekmin, en anders een negatieve min, die vast aan het getal erachter staat.
@@ -274,6 +309,19 @@ function rekenTyp(t, k) {
   if (k === '-' && !/[\d)]$/.test(kaal)) return `${t}−`;
   const teken = { '+': '+', '-': '−', '*': '·', ':': ':' }[k];
   return teken ? `${kaal} ${teken} ` : t + k;
+}
+// Een toets in een veld voor een uitdrukking. Plus en min tussen twee termen en keer krijgen een spatie ervoor en
+// erna. Een min aan het begin, na een rekenteken of na ( staat vast aan wat erachter komt. Een breukstreep, macht en
+// wortel staan zonder spatie, zodat 2/3x één breuk voor de x blijft. Een spatie komt alleen na een cijfer, voor een
+// gemengd getal (2 1/3).
+function uitdrukkingTyp(t, k) {
+  const kaal = t.trimEnd();
+  if (k === 'WIS') return kaal.slice(0, -1).trimEnd();
+  if (k === 'LEEG') return '';
+  if (k === '-' && !/[\da-z)²³]$/.test(kaal)) return `${t}−`;
+  if (k === '+' || k === '-' || k === '*') return `${kaal} ${{ '+': '+', '-': '−', '*': '·' }[k]} `;
+  if (k === ' ') return /\d$/.test(t) ? `${t} ` : t;
+  return t + k;
 }
 const veldNodig = (el) => (el.value ? ` ${el.value}` : ' leeg');
 
@@ -362,7 +410,16 @@ function toetsenbord(e) {
     Delete: 'C',
   };
   const k = kaart[e.key] ?? e.key;
-  // Op het tabblad Toetsenbord typen de toetsen in het veld.
+  // Op het tabblad Toetsenbord typen de toetsen in het veld. Bij een uitdrukking ook letters, ^, / en een spatie.
+  if (h().tab === 'toetsenbord' && uitdrukking()) {
+    const t = { '×': '*', '·': '*', '−': '-', Backspace: 'WIS', Enter: 'CONTROLEER' };
+    const r = t[e.key] ?? e.key;
+    if (/^[0-9a-z+\-*/^(),√ ]$/.test(r) || r === 'WIS' || r === 'CONTROLEER') {
+      e.preventDefault();
+      typ(r);
+    }
+    return;
+  }
   if (h().tab === 'toetsenbord' && rekenToetsen) {
     const t = {
       x: '*',

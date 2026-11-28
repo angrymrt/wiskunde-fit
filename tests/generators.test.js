@@ -131,6 +131,11 @@ function assertSound(q) {
     assert.match(id ?? '', VALKUIL_ID, `valkuil zonder geldige id: ${q.q}`);
   }
   assert.equal(new Set(traps).size, traps.length, `twee valkuilen met dezelfde id: ${q.q}`);
+  // Een valkuil met als (bij een uitdrukking) krijgt zijn f van metUitdrukking in uitdrukking.js (#304).
+  for (const t of q.traps ?? [])
+    assert.equal(typeof t.f, 'function', `valkuil ${t.id} zonder f, mist metUitdrukking? ${q.q}`);
+  if (q.fields?.some((f) => f.uitdrukking))
+    assert.ok(traps.includes('nog-haakjes'), `zet de vraag in metUitdrukking: ${q.q}`);
 
   if (q.mc) {
     assert.ok(q.mc.a >= 0 && q.mc.a < q.mc.opts.length, `juiste keuze bestaat niet: ${q.q}`);
@@ -145,7 +150,8 @@ function assertSound(q) {
   }
   assert.ok(q.fields.length > 0, `geen invoervelden: ${q.q}`);
   for (const f of q.fields) {
-    if (!f.sel && !f.teken && !f.berekening) assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
+    if (!f.sel && !f.teken && !f.berekening && !f.uitdrukking)
+      assert.ok(Number.isFinite(f.a), `geen getal: ${q.q}`);
     if (f.vorm != null) assert.ok(VORMEN.includes(f.vorm), `onbekende vorm ${f.vorm}: ${q.q}`);
   }
   // Een tekening (q.teken) heeft één veld, met een goede tekening als tekst. Zonder het laatste deel is die
@@ -172,7 +178,7 @@ function assertSound(q) {
     assert.ok(size >= 2 && size <= 4, `groep met ${size} velden: ${q.q}`);
   }
   const right = q.fields.map((f) =>
-    f.sel || f.berekening
+    f.sel || f.berekening || f.uitdrukking
       ? f.a
       : f.round != null
         ? String(rd(f.a, f.round)).replace('.', ',')
@@ -189,7 +195,7 @@ function assertSound(q) {
   const wrong = q.fields.map((f, i) =>
     f.sel
       ? f.a
-      : f.berekening
+      : f.berekening || f.uitdrukking
         ? `${f.a} + 1`
         : typed(isDrawing(q) ? (i === 1 ? f.a + 7 : f.a) : f.a + 7 * 10 ** -(f.round ?? 0)),
   );

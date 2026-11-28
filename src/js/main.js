@@ -30,7 +30,13 @@ import {
   clockText,
 } from './ui/toets-opslag.js';
 import { newQuestion, applySoort } from './ui/topic.js';
-import { klaar as interactiefKlaar, mountWidgets, showDrawn, tapGrid } from './ui/interactief.js';
+import {
+  klaar as interactiefKlaar,
+  mountWidgets,
+  showDrawn,
+  tapGrid,
+  toonUitdrukking,
+} from './ui/interactief.js';
 import { laadScherm, nogTeLaden, schermVooraf, wachtOpScherm } from './ui/laden.js';
 import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
 import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
@@ -380,7 +386,11 @@ function watchPracticeBar() {
   barWatch = new IntersectionObserver(([e]) => bar.classList.toggle('away', e.isIntersecting));
   barWatch.observe(button);
 }
-app.addEventListener('input', () => interactiefKlaar() && showDrawn());
+// Onder een veld voor een uitdrukking staat hoe die eruitziet (#304).
+app.addEventListener(
+  'input',
+  (e) => interactiefKlaar() && (showDrawn(), toonUitdrukking(e.target)),
+);
 // Het paneel om een probleem te melden: wat de leerling kiest of typt staat in state.melden, en de
 // links naar GitHub en e-mail volgen dat. Zie ui/melden.js.
 app.addEventListener('input', (e) => {
