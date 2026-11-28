@@ -15,7 +15,7 @@ import {
 import { DOMAINS, basis } from '../topics/index.js';
 import { esc, T } from '../typeset.js';
 import { resultText } from './toets-opslag.js';
-import { UITDAGING, crumbs, pageHead, topicLink } from './layout.js';
+import { UITDAGING, crumbs, pageHead, topicLink, uitdagingLabel } from './layout.js';
 import { state } from './state.js';
 import { vPractice } from './topic.js';
 
@@ -27,7 +27,7 @@ const checkbox = (act, id, ids) => {
     mixed = !on && ids.some(isChosen);
   return `<input type="checkbox" data-act="${act}" data-id="${id}" ${on ? 'checked' : ''}${mixed ? ' data-mixed' : ''}>`;
 };
-const skillNames = (skills) => skills.map((k) => T(k.name)).join(', ');
+const skillNames = (skills) => skills.map((k) => T(k.name) + uitdagingLabel(k)).join(', ');
 const list = (items) =>
   items.length > 1 ? `${items.slice(0, -1).join(', ')} en ${items[items.length - 1]}` : items[0];
 
@@ -93,6 +93,9 @@ function vPick() {
 
 function paragraphHTML(p) {
   const label = `<b>${esc(p.number)}</b> ${T(p.description)}`;
+  // Een paragraaf met alleen een uitdaging telt niet als gedekt, maar de uitdaging staat er wel.
+  if (p.coverage === 'niet' && p.uitdaging.length)
+    return `<li><span class="pick off"><span></span><span>${label}<span class="small muted pick-note">Hier kun je alleen de uitdaging oefenen.</span></span></span>${uitdagingHTML(p)}</li>`;
   if (p.coverage === 'niet')
     return `<li class="pick off"><span></span><span>${label}<span class="small muted pick-note">Dit kun je hier nog niet oefenen.</span></span></li>`;
   const topics = chosenTopics(p.skills)
@@ -105,24 +108,30 @@ function paragraphHTML(p) {
   return `<li><label class="pick">${checkbox('para', esc(p.number), p.skills)}<span>${label}${part}</span></label><span class="small pick-topics">Onderwerp: ${topics}</span>${uitdagingHTML(p)}</li>`;
 }
 // Een uitdaging bij de paragraaf staat apart, met een link om hem te oefenen. Hij komt niet mee als
-// je de paragraaf aanvinkt.
+// je de paragraaf aanvinkt, maar met een eigen vinkje wel (#309).
 const uitdagingHTML = (p) =>
-  p.uitdaging
-    .map((id) => {
-      const t = topicOf(id);
-      return `<span class="small pick-topics">${UITDAGING} <a class="linkbtn" href="${pathFor({ name: 'topic', slug: t.slug, oefen: true, soort: id })}">${T(t.skills.find((k) => k.id === id).name)}</a></span>`;
-    })
-    .join('');
+  p.uitdaging.length
+    ? `<div class="pick-uitdaging"><label class="pick">${checkbox('uitdaging', esc(p.number), p.uitdaging)}<span>${p.skills.length ? 'Ook' : 'Kies'} de uitdaging${p.uitdaging.length > 1 ? 'en' : ''}<span class="sr"> van paragraaf ${esc(p.number)}</span></span></label>${p.uitdaging
+        .map((id) => {
+          const t = topicOf(id);
+          return `<span class="small pick-topics">${UITDAGING} <a class="linkbtn" href="${pathFor({ name: 'topic', slug: t.slug, oefen: true, soort: id })}">${T(t.skills.find((k) => k.id === id).name)}</a></span>`;
+        })
+        .join('')}</div>`
+    : '';
 function chapterHTML(c) {
   const ids = c.paragraphs.flatMap((p) => p.skills);
+  const uitdaging = c.paragraphs.some((p) => p.uitdaging.length);
   const head = `<h2 class="h3">Hoofdstuk ${esc(c.number)}: ${T(c.description)}</h2><span class="small muted">${esc(c.part)}</span>`;
   const paragraphs = `<ul class="picks">${c.paragraphs.map(paragraphHTML).join('')}</ul>`;
   // Een hoofdstuk zonder iets om te oefenen staat ingeklapt, zodat de lijst kort blijft en je
   // toch ziet wat ontbreekt.
-  if (!ids.length)
+  if (!ids.length && !uitdaging)
     return `<section class="chapter">${head}<details class="small"><summary>Dit kun je hier nog niet oefenen. Bekijk de ${c.paragraphs.length} paragrafen.</summary>${paragraphs}</details></section>`;
+  const all = ids.length
+    ? `<label class="pick pick-all">${checkbox('chapter', esc(c.number), ids)}<span>Kies alles wat je hier kunt oefenen uit hoofdstuk ${esc(c.number)}</span></label>`
+    : '';
   return `<section class="chapter">${head}
-  <label class="pick pick-all">${checkbox('chapter', esc(c.number), ids)}<span>Kies alles wat je hier kunt oefenen uit hoofdstuk ${esc(c.number)}</span></label>
+  ${all}
   ${paragraphs}</section>`;
 }
 function vMapping(m) {

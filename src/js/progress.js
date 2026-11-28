@@ -1,6 +1,6 @@
 // Voortgang van de leerling. Blijft alleen in deze browser bewaard (localStorage).
 import { MAPPING } from './mappings/index.js';
-import { STOF_IDS, basis } from './topics/index.js';
+import { STOF_IDS, TOPICS, basis } from './topics/index.js';
 
 // Oude naam van de site. Laat dit staan: een nieuwe sleutel wist de opgeslagen voortgang.
 const STORE = 'lijn-driehoek-v1';
@@ -111,10 +111,11 @@ function migrateScope(scope) {
   const chapter = MAPPING['gr13-havo3'].chapters.find((c) => c.number === number);
   return chapter ? chapter.paragraphs.flatMap((p) => p.skills) : null;
 }
+const ALLE_IDS = new Set(TOPICS.flatMap((t) => t.skills.map((k) => k.id)));
 // Zet opgeslagen voortgang om naar de vorm van nu, en houdt alleen wat klopt. Een ongeldig deel,
 // zoals een vraagsoort zonder lijst met resultaten, valt weg. De rest blijft staan.
 function cleanProgress(saved) {
-  const out = { v: 5, skills: {}, stof: null, mapping: null, iconen: {} };
+  const out = { v: 6, skills: {}, stof: null, mapping: null, iconen: {} };
   if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return out;
   saved = { ...saved };
   const map = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
@@ -142,10 +143,11 @@ function cleanProgress(saved) {
     if (/^[a-z][a-z0-9-]*$/.test(id) && Number.isSafeInteger(n) && n > 0) out.iconen[id] = n;
   }
   // De stofkeuze bevat alleen vraagsoorten die bestaan, want oefenen en de proeftoets kiezen daaruit.
-  // Een uitdaging valt eruit: die kwam er vroeger in met een hele paragraaf of Alle stof, en hoort
-  // niet vanzelf in Oefen mijn stof of de proeftoets.
+  // Een uitdaging komt er alleen in met het vinkje bij de paragraaf (versie 6). In een oudere keuze
+  // valt hij eruit: die kwam er toen vanzelf in met een hele paragraaf of Alle stof (#309).
   if (Array.isArray(saved.stof)) {
-    const ids = [...new Set(saved.stof.filter((id) => STOF_IDS.has(id)))].sort((a, b) => a - b);
+    const ok = saved.v >= 6 ? ALLE_IDS : STOF_IDS;
+    const ids = [...new Set(saved.stof.filter((id) => ok.has(id)))].sort((a, b) => a - b);
     out.stof = ids.length ? ids : null;
   }
   if (
@@ -163,7 +165,7 @@ function cleanProgress(saved) {
 const opslag = { voortgang: false, toets: false, gemeld: false };
 // In Node, bij het bouwen en testen, is er geen opslag. Dat is geen mislukte poging.
 const inBrowser = () => typeof window !== 'undefined';
-const prog = { v: 5, skills: {}, stof: null, mapping: null, iconen: {} };
+const prog = { v: 6, skills: {}, stof: null, mapping: null, iconen: {} };
 // Leest de voortgang opnieuw, want een ander tabblad kan die intussen hebben veranderd.
 // Is er geen opslag, of lukte het bewaren niet, dan is wat in het geheugen staat het nieuwst.
 function load() {

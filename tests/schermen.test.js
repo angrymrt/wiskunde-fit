@@ -357,3 +357,88 @@ test('een uitdaging heeft een label en komt alleen als je hem zelf kiest', async
     delete state.prac['mijn-stof'];
   }
 });
+
+test('met het vinkje bij de paragraaf kies je de uitdaging bewust, en die blijft bewaard', async () => {
+  const { vMapping, vStof, vStofPractice } = await import(new URL('stof.js', ui));
+  const { buildTest } = await import(new URL('exam.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const havo3 = MAPPINGS.find((m) => m.id === 'gr13-havo3');
+  const vinkje = (html) =>
+    html.match(/<input type="checkbox" data-act="uitdaging" data-id="1\.3"[^>]*>/)?.[0];
+  const vorig = { stof: prog.stof, view: state.view };
+  try {
+    state.view = { name: 'mapping', id: havo3.id };
+    // Een echt vinkje met een label, los van het vinkje van de paragraaf, eerst uit.
+    prog.stof = [17, 18, 19, 20, 21];
+    let boek = vMapping(havo3);
+    assert.match(
+      boek,
+      /<label class="pick"><input type="checkbox" data-act="para" data-id="1\.3" checked>/,
+    );
+    assert.match(
+      boek,
+      /<label class="pick"><input type="checkbox" data-act="uitdaging" data-id="1\.3" >[^]*?Ook de uitdaging<span class="sr"> van paragraaf 1\.3<\/span><\/span><\/label>/,
+    );
+    assert.doesNotMatch(vinkje(boek), /checked/);
+    // Aangevinkt (versie 6) blijft de uitdaging in de stofkeuze staan.
+    prog.stof = cleanProgress({ v: 6, stof: [17, 18, 19, 20, 21, 22] }).stof;
+    assert.deepEqual(prog.stof, [17, 18, 19, 20, 21, 22]);
+    boek = vMapping(havo3);
+    assert.match(vinkje(boek), /checked/);
+    // Mijn stof noemt hem met het label, en oefenen en de proeftoets nemen hem mee.
+    state.view = { name: 'stof' };
+    assert.match(vStof(), /berekenen <span class="pill uitdaging">Uitdaging<\/span>/);
+    prog.stof = [22];
+    state.view = { name: 'stofoefen', slug: 'mijn-stof' };
+    delete state.prac['mijn-stof'];
+    vStofPractice();
+    assert.equal(state.prac['mijn-stof'].skill.id, 22);
+    assert.ok(buildTest(prog.stof, 5).every((x) => x.skill.id === 22));
+    // Een oudere keuze (versie 5 of zonder versie) verliest hem nog steeds.
+    assert.deepEqual(cleanProgress({ v: 5, stof: [17, 22] }).stof, [17]);
+  } finally {
+    prog.stof = vorig.stof;
+    state.view = vorig.view;
+    delete state.prac['mijn-stof'];
+  }
+});
+
+test('een paragraaf met alleen een uitdaging toont die, met het vinkje en de link', async () => {
+  const { vMapping } = await import(new URL('stof.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const havo3 = MAPPINGS.find((m) => m.id === 'gr13-havo3');
+  // Een nep-indeling, want in de echte indelingen heeft elke paragraaf met een uitdaging nu ook
+  // gewone soorten. Dezelfde vorm als na de omzetting in mappings/index.js.
+  const p = {
+    number: '9.1',
+    description: 'Proef',
+    skills: [],
+    uitdaging: [22],
+    coverage: 'niet',
+    note: '',
+  };
+  const nep = {
+    ...havo3,
+    id: 'nep',
+    chapters: [{ number: '9', description: 'Proef', part: 'Deel 3', paragraphs: [p] }],
+  };
+  const vorig = { stof: prog.stof, view: state.view };
+  try {
+    prog.stof = null;
+    state.view = { name: 'mapping', id: havo3.id };
+    const boek = vMapping(nep);
+    // Het hoofdstuk klapt niet in en heeft geen vinkje voor alles, want er is niets gewoons te kiezen.
+    assert.doesNotMatch(boek, /<details class="small"><summary>Dit kun je hier nog niet oefenen/);
+    assert.doesNotMatch(boek, /data-act="chapter"/);
+    assert.doesNotMatch(boek, /data-act="para"/);
+    assert.match(boek, /Hier kun je alleen de uitdaging oefenen\./);
+    assert.match(boek, /data-act="uitdaging" data-id="9\.1"[^>]*>[^]*?Kies de uitdaging/);
+    assert.match(
+      boek,
+      /<span class="pill uitdaging">Uitdaging<\/span> <a class="linkbtn" href="\/lineaire-vergelijkingen\/oefenen\?soort=22">/,
+    );
+  } finally {
+    prog.stof = vorig.stof;
+    state.view = vorig.view;
+  }
+});

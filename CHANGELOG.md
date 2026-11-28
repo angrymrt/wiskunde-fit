@@ -6,7 +6,7 @@ De bovenste versie moet gelijk zijn aan de versie in `package.json`. Na een gesl
 
 ### Nieuw
 
-- **Uitdaging.** Sommige soorten vragen zijn extra stof voor wie meer wil. Ze hebben het label Uitdaging. Ze tellen niet mee voor je voortgang bij een onderwerp, en ze komen niet vanzelf in Mijn stof of in de proeftoets. Je oefent ze als je ze zelf kiest. De eerste is *p* berekenen bij Lineaire vergelijkingen.
+- **Uitdaging.** Sommige soorten vragen zijn extra stof voor wie meer wil. Ze hebben het label Uitdaging. Ze tellen niet mee voor je voortgang bij een onderwerp, en ze komen niet vanzelf in Mijn stof of in de proeftoets. Je oefent ze als je ze zelf kiest. Wil je ze in Mijn stof en de proeftoets, vink dan bij de paragraaf in je boek **Ook de uitdaging** aan. De eerste is _p_ berekenen bij Lineaire vergelijkingen.
 
 ## 1.28.1
 

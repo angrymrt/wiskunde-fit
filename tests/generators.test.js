@@ -491,7 +491,7 @@ test('oude voortgang verhuist mee met de nieuwe indeling', () => {
 });
 
 test('opgeslagen voortgang houdt alleen wat klopt', () => {
-  const empty = { v: 5, skills: {}, stof: null, mapping: null, iconen: {} };
+  const empty = { v: 6, skills: {}, stof: null, mapping: null, iconen: {} };
   // Geen voortgang of iets wat geen voortgang is.
   for (const saved of [null, 'x', 5, [], [1, 2]]) assert.deepEqual(cleanProgress(saved), empty);
   // Uit #56: een tekst in plaats van een lijst liet het herladen vastlopen.
@@ -515,7 +515,7 @@ test('opgeslagen voortgang houdt alleen wat klopt', () => {
       },
     }),
     {
-      v: 5,
+      v: 6,
       skills: { 3: [1, 0, 1], 4: [1, 0], 5: [1, 1, 1, 0, 0] },
       stof: [3, 41],
       mapping: 'gr13-havo3',

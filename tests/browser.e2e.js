@@ -1218,7 +1218,7 @@ test('oude voortgang blijft bewaard na de nieuwe indeling', { timeout: 60_000 },
       await p.evaluate(() => wiskundefit.TOPIC['lineaire-ongelijkheden'].title),
       'Lineaire ongelijkheden',
     );
-    assert.equal(await p.evaluate(() => wiskundefit.prog.v), 5);
+    assert.equal(await p.evaluate(() => wiskundefit.prog.v), 6);
     assert.equal(await p.evaluate(() => wiskundefit.prog.stof), null);
 
     // Voortgang op de id's uit paragraaf en volgorde krijgt het vaste nummer.
@@ -2230,6 +2230,23 @@ test('een uitdaging heeft een label en komt alleen als je hem zelf kiest (#309)'
     await uitdaging.scrollIntoViewIfNeeded();
     await p.screenshot({ path: `${shotDir}uitdaging-boek.png` });
     assert.equal(await uitdaging.locator('a').getAttribute('href'), `/${slug}/oefenen?soort=22`);
+    // Met het eigen vinkje kies je hem wel. Dat blijft na herladen staan (versie 6 in de opslag).
+    const vinkje = p.getByLabel('Ook de uitdaging van paragraaf 1.3');
+    assert.equal(await vinkje.isChecked(), false);
+    await vinkje.check();
+    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.stof), [17, 18, 19, 20, 21, 22]);
+    await p.reload();
+    assert.equal(await vinkje.isChecked(), true);
+    assert.equal(await p.isChecked('[data-act="para"][data-id="1.3"]'), true);
+    await uitdaging.scrollIntoViewIfNeeded();
+    await p.screenshot({ path: `${shotDir}uitdaging-vinkje.png` });
+    assert.equal(await p.evaluate(() => JSON.parse(localStorage.getItem('lijn-driehoek-v1')).v), 6);
+    // De paragraaf uitvinken laat de uitdaging staan, en Mijn stof oefenen geeft hem dan.
+    await p.uncheck('[data-act="para"][data-id="1.3"]');
+    assert.deepEqual(await p.evaluate(() => wiskundefit.prog.stof), [22]);
+    await p.goto(at('/mijn-stof/oefenen'));
+    await p.waitForSelector('.uitdaging-uitleg');
+    assert.equal(await p.evaluate(() => wiskundefit.state.prac['mijn-stof'].skill.id), 22);
   } finally {
     await browser.close();
   }

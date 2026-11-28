@@ -72,10 +72,10 @@ function vVideos(s) {
 // vraag terug.
 // Heeft de leerling stof gekozen met een deel van de soorten van dit onderwerp, dan staat de
 // schakelaar "Alleen mijn stof" erbij, standaard aan. Uit (st.alle) oefent ze alles. Een uitdaging
-// staat nooit in de stofkeuze en telt hier dus niet mee.
+// staat alleen in de stofkeuze als de leerling hem bij de paragraaf aanvinkte, en telt hier niet mee.
 const mijnStof = (s) => {
   const mine = s.skills.filter((k) => isChosen(k.id));
-  return !s.mixed && mine.length && mine.length < basis(s.skills).length ? mine : null;
+  return !s.mixed && mine.length && basis(mine).length < basis(s.skills).length ? mine : null;
 };
 const activeSkills = (s) => (!state.prac[s.slug]?.alle && mijnStof(s)) || s.skills;
 function newQuestion(s, seed) {
@@ -84,10 +84,11 @@ function newQuestion(s, seed) {
   if (st.filter) {
     sk = s.skills.find((k) => k.id === st.filter);
   } else {
-    // Door elkaar komt een uitdaging niet vanzelf: die kies je zelf met de chip of de link.
-    const pool = basis(activeSkills(s)).sort(
-      (a, b) => skillPct(a.id) - skillPct(b.id) + (Math.random() - 0.5) * 0.5,
-    );
+    // Door elkaar komt een uitdaging niet vanzelf: die kies je zelf met de chip, de link of het
+    // vinkje bij de paragraaf.
+    const pool = activeSkills(s)
+      .filter((k) => !k.uitdaging || isChosen(k.id))
+      .sort((a, b) => skillPct(a.id) - skillPct(b.id) + (Math.random() - 0.5) * 0.5);
     sk = pool.find((k) => k.id !== st.lastSkill) || pool[0];
   }
   st.q = makeQuestion(sk, seed);
