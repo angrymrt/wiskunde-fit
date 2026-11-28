@@ -20,12 +20,23 @@ const LATER = {
   'about.js': ['vOver', 'vPrivacy', 'vContact'],
   'exam.js': ['buildTest', 'toQuestion', 'finishTest', 'vToetsSetup', 'vToetsRun', 'vToetsRes'],
   'interactief.js': ['widgetHTML', 'mountWidgets', 'showDrawn', 'tapGrid'],
+  'topic.js': [
+    'vTopic',
+    'vPractice',
+    'newQuestion',
+    'applySoort',
+    'readVals',
+    'unreadable',
+    'empty',
+  ],
 };
 
-// Een bestand dat geen eigen scherm heeft, maar dat elk scherm met een onderwerp nodig heeft: de
-// uitleg, het oefenen, Mijn stof oefenen en de proeftoets (nodig() in src/js/ui/laden.js). Het staat
-// daarom niet in SCHERM_VAN. De build zet het in de modulepreload van die pagina's.
-const BIJ_ONDERWERP = 'interactief';
+// Bestanden die geen eigen scherm zijn, maar die elk scherm met een onderwerp nodig heeft: de uitleg,
+// het oefenen, Mijn stof oefenen en de proeftoets (metOnderwerp() in src/js/ui/laden.js). Dat zijn de
+// schuifjes en het tekenen (interactief.js), en de schermen van een onderwerp met de invoervelden van
+// een vraag (topic.js). Ze staan daarom niet in SCHERM_VAN. De build zet ze in de modulepreload van
+// die pagina's.
+const BIJ_ONDERWERP = ['interactief', 'topic'];
 
 // Bij welk bestand de pagina van een scherm hoort (voor de modulepreload in scripts/build.js). De
 // proeftoets en de uitslag delen er één. Het scherm staat ook in LATER in src/js/ui/laden.js;

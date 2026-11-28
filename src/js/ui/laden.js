@@ -11,6 +11,7 @@ import { klaar as examKlaar, laad as laadExam } from './exam.js';
 import { klaar as interactiefKlaar, laad as laadInteractief } from './interactief.js';
 import { crumbs, pageHead } from './layout.js';
 import { state } from './state.js';
+import { klaar as topicKlaar, laad as laadTopic } from './topic.js';
 import { klaar as vragenKlaar, laad as laadVragen } from './vragen.js';
 
 // De uitleg en het oefenen hebben het onderwerp nodig. Mijn stof oefenen en de proeftoets hebben
@@ -43,16 +44,23 @@ const LATER = {
   toetsres: examen,
 };
 const schermVooraf = (v = state.view) => LATER[v.name]?.vooraf === true;
-// Een scherm met een onderwerp heeft ook interactief.js nodig, met de schuifjes in de uitleg en het
-// tekenen in een rooster. Dat bestand laadt tegelijk met het onderwerp (#206).
-const metOnderwerp = (v) => nodig(v).length > 0;
+// Een scherm met een onderwerp heeft ook de bestanden uit BIJ_ONDERWERP in scripts/later-schermen.js
+// nodig: interactief.js, met de schuifjes in de uitleg en het tekenen in een rooster, en topic.js, met
+// de uitleg, het oefenen en de invoervelden van een vraag. Die laden tegelijk met het onderwerp (#206).
+// Mijn stof oefenen gebruikt altijd het oefenen uit topic.js, ook als er geen onderwerp te laden is.
+// In dezelfde volgorde als daar; tests/later-schermen.test.js kijkt dat na.
+const BIJ_ONDERWERP = [
+  { klaar: interactiefKlaar, laad: laadInteractief },
+  { klaar: topicKlaar, laad: laadTopic },
+];
+const metOnderwerp = (v) => v.name === 'stofoefen' || nodig(v).length > 0;
 const schermLaadt = (v) => !!LATER[v.name] && !LATER[v.name].klaar();
-const interactiefLaadt = (v) => metOnderwerp(v) && !interactiefKlaar();
-const wachtOpScherm = (v = state.view) => schermLaadt(v) || interactiefLaadt(v);
+const bijOnderwerp = (v) => (metOnderwerp(v) ? BIJ_ONDERWERP.filter((b) => !b.klaar()) : []);
+const wachtOpScherm = (v = state.view) => schermLaadt(v) || bijOnderwerp(v).length > 0;
 const laadScherm = (v = state.view) =>
   Promise.all([
     schermLaadt(v) ? LATER[v.name].laad() : null,
-    interactiefLaadt(v) ? laadInteractief() : null,
+    ...bijOnderwerp(v).map((b) => b.laad()),
   ]);
 
 // Zoals een schil: het kruimelpad en de kop staan er al, met daaronder dat het laadt, of een
@@ -73,4 +81,13 @@ function vLaden() {
   return `${crumbs()}<div class="sheet">${pageHead(heading)}${body}</div>`;
 }
 
-export { nodig, nogTeLaden, vLaden, wachtOpScherm, laadScherm, schermVooraf, LATER };
+export {
+  nodig,
+  nogTeLaden,
+  vLaden,
+  wachtOpScherm,
+  laadScherm,
+  schermVooraf,
+  LATER,
+  BIJ_ONDERWERP as BIJ_ONDERWERP_LADEN,
+};
