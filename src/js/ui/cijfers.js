@@ -8,7 +8,7 @@ import { MINIMUM, MINIMUM_VALKUIL } from '../cijfers.js';
 import { pathFor, to } from '../routes.js';
 import { DOMAINS, TOPICS } from '../topics/index.js';
 import { T, esc } from '../typeset.js';
-import { crumbs, pageHead, REPO } from './layout.js';
+import { crumbs, pageHead, REPO, uitdagingLabel } from './layout.js';
 
 // Zo vaak staat iets in een top: de moeilijkste vraagsoorten en de meest gemaakte fouten.
 const TOP = 5;
@@ -161,7 +161,7 @@ function perOnderwerp(c) {
     <div class="ctable" role="region" tabindex="0" aria-label="${esc(name)}"><table>
     <caption class="sr">${esc(name)}</caption>
     <thead><tr><th scope="col">Soort vraag</th><th scope="col">Gemaakt</th><th scope="col">Goed</th><th scope="col">Hint</th><th scope="col">Uitwerking</th><th scope="col">Tijd</th></tr></thead>
-    <tbody>${rows.map(({ k, s }) => `<tr><th scope="row"><a href="${practice(k, t)}">${T(k.name)}</a></th><td>${getal(s.pogingen)}</td>${cells(s)}</tr>`).join('')}</tbody></table></div><p class="small muted">Gemaakt: zo vaak is de vraag gemaakt. Goed: in één keer goed. Hint: eerst de hint gevraagd. Uitwerking: meteen de uitwerking bekeken. Tijd: de helft van de goede antwoorden was sneller.</p></details>`;
+    <tbody>${rows.map(({ k, s }) => `<tr><th scope="row"><a href="${practice(k, t)}">${T(k.name)}</a>${uitdagingLabel(k)}</th><td>${getal(s.pogingen)}</td>${cells(s)}</tr>`).join('')}</tbody></table></div><p class="small muted">Gemaakt: zo vaak is de vraag gemaakt. Goed: in één keer goed. Hint: eerst de hint gevraagd. Uitwerking: meteen de uitwerking bekeken. Tijd: de helft van de goede antwoorden was sneller.</p></details>`;
   };
   return `<div class="block"><h2 class="h3">Per onderwerp</h2>
   ${DOMAINS.map((d) => `<h3 class="plain-h">${esc(d.name)}</h3>${d.topics.map(topic).join('')}`).join('')}</div>`;

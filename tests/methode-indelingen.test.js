@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MAPPING, MAPPINGS } from '../src/js/mappings/index.js';
-import { migrateScope, prog } from '../src/js/progress.js';
+import { cleanProgress, migrateScope, prog, topicPct } from '../src/js/progress.js';
 import {
   ALL_IDS,
   chosenTopics,
@@ -11,11 +11,11 @@ import {
   stofGaps,
   toggleStof,
 } from '../src/js/stof.js';
-import { TOPICS } from '../src/js/topics/index.js';
+import { TOPIC, TOPICS } from '../src/js/topics/index.js';
 import { T } from '../src/js/typeset.js';
 
 const paragraphsOf = (m) => m.chapters.flatMap((c) => c.paragraphs);
-const skillIdsOf = (m) => paragraphsOf(m).flatMap((p) => p.skills);
+const skillIdsOf = (m) => paragraphsOf(m).flatMap((p) => [...p.skills, ...p.uitdaging]);
 
 // Het laatste cijfer van een ISBN volgt uit de andere twaalf, dus een tikfout valt zo op.
 function validIsbn(isbn) {
@@ -134,13 +134,41 @@ test('de stofkeuze is een lijst vraagsoorten die je aan en uit kunt zetten', () 
   assert.deepEqual(prog.stof, [23, 24, 25]);
   toggleStof([24, 25]);
   assert.deepEqual(prog.stof, [23]);
+  // Een onderwerp uitzetten haalt ook de gekozen uitdaging ervan weg (#309), aanzetten voegt hem niet toe.
+  toggleStof([17, 18], [17, 18, 22]);
+  assert.deepEqual(prog.stof, [17, 18, 23]);
+  setStof([17, 18, 22, 23]);
+  toggleStof([17, 18], [17, 18, 22]);
+  assert.deepEqual(prog.stof, [23]);
   assert.deepEqual(
     chosenTopics([38, 23]).map((g) => g.topic.slug),
     ['snijpunten-van-lijnen', 'stelling-van-pythagoras'],
   );
+  // Alle stof, zonder de uitdagingen.
   setStof(ALL_IDS);
-  assert.equal(prog.stof.length, 236);
+  assert.equal(prog.stof.length, 235);
+  assert.ok(!prog.stof.includes(22));
   setStof([]);
+});
+
+test('een uitdaging staat apart bij de paragraaf en komt niet in de stofkeuze', () => {
+  const p = paragraphsOf(MAPPING['gr13-havo3']).find((x) => x.number === '1.3');
+  assert.deepEqual(p.skills, [17, 18, 19, 20, 21]);
+  assert.deepEqual(p.uitdaging, [22]);
+  assert.equal(p.coverage, 'gedekt');
+  // Een uitdaging die er van vroeger in staat, met een hele paragraaf of Alle stof, valt eruit.
+  assert.deepEqual(cleanProgress({ v: 5, skills: {}, stof: [17, 22] }).stof, [17]);
+  assert.equal(cleanProgress({ v: 5, skills: {}, stof: [22] }).stof, null);
+});
+
+test('een uitdaging telt niet mee voor de voortgang van het onderwerp', () => {
+  const topic = TOPIC['lineaire-vergelijkingen'];
+  const saved = prog.skills;
+  prog.skills = { 22: [1, 1, 1, 1, 1] };
+  assert.equal(topicPct(topic), 0);
+  prog.skills = Object.fromEntries([17, 18, 19, 20, 21].map((id) => [id, [1, 1, 1, 1, 1]]));
+  assert.equal(topicPct(topic), 1, 'alles behalve de uitdaging is 100%');
+  prog.skills = saved;
 });
 
 test('Mijn stof noemt alleen wat ontbreekt in de gekozen hoofdstukken', () => {
@@ -183,7 +211,8 @@ test('Mijn stof zegt welke hoofdstukken en paragrafen uit je boek komen', () => 
 test('een oude keuze voor een hoofdstuk wordt een stofkeuze', () => {
   assert.equal(migrateScope('all'), null);
   assert.equal(migrateScope('iets anders'), null);
-  assert.equal(migrateScope('h1').length, 35);
+  // Zonder de uitdaging uit paragraaf 1.3.
+  assert.equal(migrateScope('h1').length, 34);
   assert.equal(migrateScope('h2').length, 25);
   assert.ok(!migrateScope('h2').includes(38), 'voorkennis hoort er niet bij');
 });

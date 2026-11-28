@@ -491,7 +491,7 @@ test('oude voortgang verhuist mee met de nieuwe indeling', () => {
 });
 
 test('opgeslagen voortgang houdt alleen wat klopt', () => {
-  const empty = { v: 5, skills: {}, stof: null, mapping: null, iconen: {} };
+  const empty = { v: 6, skills: {}, stof: null, mapping: null, iconen: {} };
   // Geen voortgang of iets wat geen voortgang is.
   for (const saved of [null, 'x', 5, [], [1, 2]]) assert.deepEqual(cleanProgress(saved), empty);
   // Uit #56: een tekst in plaats van een lijst liet het herladen vastlopen.
@@ -515,7 +515,7 @@ test('opgeslagen voortgang houdt alleen wat klopt', () => {
       },
     }),
     {
-      v: 5,
+      v: 6,
       skills: { 3: [1, 0, 1], 4: [1, 0], 5: [1, 1, 1, 0, 0] },
       stof: [3, 41],
       mapping: 'gr13-havo3',
@@ -586,11 +586,27 @@ test('elk onderwerp heeft een adres dat bij de titel past', () => {
     assert.ok(t.intro, `${t.title} heeft geen intro`);
     assert.ok(!/[{}<]/.test(t.intro), `${t.title}: de intro is geen gewone tekst`);
     assert.ok(t.skills.length > 0, `${t.title} heeft geen vraagsoorten`);
+    // Een uitdaging telt niet mee voor de voortgang, dus er moet ook een gewone soort zijn.
+    assert.ok(
+      t.skills.some((k) => !k.uitdaging),
+      `${t.title} heeft alleen uitdagingen`,
+    );
     assert.ok(DOMAINS.includes(t.domain), `${t.title} hoort niet bij een domein`);
     for (const p of t.prerequisites) {
       assert.ok(TOPICS.includes(p) && p !== t, `Verkeerde voorkennis bij ${t.title}`);
     }
   }
+});
+
+test('een vierde waarde bij een vraagsoort is altijd uitdaging', async () => {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const dir = new URL('../src/js/topics/', import.meta.url);
+  for (const file of await readdir(dir)) {
+    const text = await readFile(new URL(file, dir), 'utf8');
+    for (const [, id, soort] of text.matchAll(/^\s*\[(\d+), '[^']*', \w+, '([^']*)'\],?$/gm))
+      assert.equal(soort, 'uitdaging', `${file}: vraagsoort ${id}`);
+  }
+  assert.ok(TOPICS.some((t) => t.skills.some((k) => k.uitdaging)));
 });
 
 test('elke vraagsoort houdt haar vaste nummer', () => {

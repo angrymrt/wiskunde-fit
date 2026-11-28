@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { MAPPINGS } from '../src/js/mappings/index.js';
-import { prog } from '../src/js/progress.js';
+import { cleanProgress, prog } from '../src/js/progress.js';
 import { ALL_IDS } from '../src/js/stof.js';
 import { DOMAINS, TOPICS } from '../src/js/topics/index.js';
 
@@ -276,5 +276,169 @@ test('een onderwerp oefent standaard alleen de gekozen soorten, en alles als je 
   } finally {
     prog.stof = vorig;
     delete state.prac[topic.slug];
+  }
+});
+
+test('een uitdaging heeft een label en komt alleen als je hem zelf kiest', async () => {
+  const { vPractice, vTopic, applySoort } = await import(new URL('topic.js', ui));
+  const { vMapping, vStof, vStofPractice } = await import(new URL('stof.js', ui));
+  const { buildTest } = await import(new URL('exam.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const topic = TOPICS.find((t) => t.slug === 'lineaire-vergelijkingen');
+  const uitdaging = topic.skills.find((k) => k.id === 22);
+  assert.ok(uitdaging.uitdaging, 'vraagsoort 22 is een uitdaging');
+  assert.equal(uitdaging.name, 'p berekenen');
+  const chip = (html, id) => html.match(new RegExp(`data-id="${id}"[^>]*>(.*?)</button>`))?.[1];
+  const label = /class="pill uitdaging">Uitdaging</;
+  const vorig = { stof: prog.stof, skills: prog.skills, view: state.view };
+  try {
+    prog.stof = null;
+    // Bij de keuzes staat het label bij de uitdaging, en niet bij de andere soorten.
+    const html = vPractice(topic, 'x');
+    assert.match(chip(html, 22), label);
+    assert.doesNotMatch(chip(html, 17), label);
+    // Door elkaar komt de uitdaging nooit.
+    for (let i = 0; i < 100; i++) {
+      delete state.prac[topic.slug].q;
+      vPractice(topic, 'x');
+      assert.notEqual(state.prac[topic.slug].skill.id, 22);
+    }
+    assert.doesNotMatch(vPractice(topic, 'x'), /uitdaging-uitleg/);
+    // Met alles van het onderwerp in je stof staat de uitdaging gewoon bij de keuzes.
+    delete state.prac[topic.slug];
+    prog.stof = [17, 18, 19, 20, 21];
+    assert.ok(chip(vPractice(topic, 'x'), 22));
+    // Kies je hem zelf, met de chip of een link met ?soort=, dan krijg je hem, met de uitleg erbij.
+    // Dezelfde seed geeft dezelfde vraag.
+    applySoort(topic, 22, 12345);
+    const eerst = state.prac[topic.slug].q.q;
+    assert.equal(state.prac[topic.slug].skill.id, 22);
+    assert.match(
+      vPractice(topic, 'x'),
+      /class="small uitdaging-uitleg"><span class="pill uitdaging">/,
+    );
+    delete state.prac[topic.slug];
+    applySoort(topic, 22, 12345);
+    assert.equal(state.prac[topic.slug].q.q, eerst);
+    // Een goede uitdaging maakt de voortgang van het onderwerp niet hoger.
+    prog.skills = { 22: [1, 1, 1, 1, 1] };
+    state.view = { name: 'topic', slug: topic.slug };
+    assert.doesNotMatch(vTopic(topic), /% geoefend/);
+    // In Mijn stof oefenen en in de proeftoets komt hij niet, ook niet met alle stof.
+    // De stofkeuze komt altijd via cleanProgress uit de opslag, en verliest daar een uitdaging.
+    prog.stof = cleanProgress({ stof: [...ALL_IDS, 22] }).stof;
+    assert.deepEqual(
+      prog.stof,
+      [...ALL_IDS].sort((a, b) => a - b),
+    );
+    state.view = { name: 'stofoefen', slug: 'mijn-stof' };
+    for (let i = 0; i < 50; i++) {
+      delete state.prac['mijn-stof'];
+      vStofPractice();
+      assert.notEqual(state.prac['mijn-stof'].skill.id, 22);
+    }
+    assert.ok(!buildTest(prog.stof, 300).some((x) => x.skill.id === 22));
+    // Op onderwerp kiezen: het hele onderwerp is gekozen zonder de uitdaging.
+    prog.stof = [17, 18, 19, 20, 21];
+    state.view = { name: 'stof' };
+    assert.match(vStof(), /data-act="topicpick" data-id="lineaire-vergelijkingen" checked>/);
+    // In je boek staat hij apart bij de paragraaf, met het label en een link om hem te oefenen.
+    state.view = { name: 'mapping', id: 'gr13-havo3' };
+    const boek = vMapping(MAPPINGS.find((m) => m.id === 'gr13-havo3'));
+    assert.match(
+      boek,
+      /<span class="pill uitdaging">Uitdaging<\/span> <a class="linkbtn" href="\/lineaire-vergelijkingen\/oefenen\?soort=22"><span class="v">p<\/span> berekenen<\/a>/,
+    );
+  } finally {
+    prog.stof = vorig.stof;
+    prog.skills = vorig.skills;
+    state.view = vorig.view;
+    delete state.prac[topic.slug];
+    delete state.prac['mijn-stof'];
+  }
+});
+
+test('met het vinkje bij de paragraaf kies je de uitdaging bewust, en die blijft bewaard', async () => {
+  const { vMapping, vStof, vStofPractice } = await import(new URL('stof.js', ui));
+  const { buildTest } = await import(new URL('exam.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const havo3 = MAPPINGS.find((m) => m.id === 'gr13-havo3');
+  const vinkje = (html) =>
+    html.match(/<input type="checkbox" data-act="uitdaging" data-id="1\.3"[^>]*>/)?.[0];
+  const vorig = { stof: prog.stof, view: state.view };
+  try {
+    state.view = { name: 'mapping', id: havo3.id };
+    // Een echt vinkje met een label, los van het vinkje van de paragraaf, eerst uit.
+    prog.stof = [17, 18, 19, 20, 21];
+    let boek = vMapping(havo3);
+    assert.match(
+      boek,
+      /<label class="pick"><input type="checkbox" data-act="para" data-id="1\.3" checked>/,
+    );
+    assert.match(
+      boek,
+      /<label class="pick"><input type="checkbox" data-act="uitdaging" data-id="1\.3" >[^]*?Ook de uitdaging<span class="sr"> van paragraaf 1\.3<\/span><\/span><\/label>/,
+    );
+    assert.doesNotMatch(vinkje(boek), /checked/);
+    // Aangevinkt (versie 6) blijft de uitdaging in de stofkeuze staan.
+    prog.stof = cleanProgress({ v: 6, stof: [17, 18, 19, 20, 21, 22] }).stof;
+    assert.deepEqual(prog.stof, [17, 18, 19, 20, 21, 22]);
+    boek = vMapping(havo3);
+    assert.match(vinkje(boek), /checked/);
+    // Mijn stof noemt hem met het label, en oefenen en de proeftoets nemen hem mee.
+    state.view = { name: 'stof' };
+    assert.match(vStof(), /berekenen <span class="pill uitdaging">Uitdaging<\/span>/);
+    prog.stof = [22];
+    state.view = { name: 'stofoefen', slug: 'mijn-stof' };
+    delete state.prac['mijn-stof'];
+    vStofPractice();
+    assert.equal(state.prac['mijn-stof'].skill.id, 22);
+    assert.ok(buildTest(prog.stof, 5).every((x) => x.skill.id === 22));
+    // Een oudere keuze (versie 5 of zonder versie) verliest hem nog steeds.
+    assert.deepEqual(cleanProgress({ v: 5, stof: [17, 22] }).stof, [17]);
+  } finally {
+    prog.stof = vorig.stof;
+    state.view = vorig.view;
+    delete state.prac['mijn-stof'];
+  }
+});
+
+test('een paragraaf met alleen een uitdaging toont die, met het vinkje en de link', async () => {
+  const { vMapping } = await import(new URL('stof.js', ui));
+  const { state } = await import(new URL('state.js', ui));
+  const havo3 = MAPPINGS.find((m) => m.id === 'gr13-havo3');
+  // Een nep-indeling, want in de echte indelingen heeft elke paragraaf met een uitdaging nu ook
+  // gewone soorten. Dezelfde vorm als na de omzetting in mappings/index.js.
+  const p = {
+    number: '9.1',
+    description: 'Proef',
+    skills: [],
+    uitdaging: [22],
+    coverage: 'niet',
+    note: '',
+  };
+  const nep = {
+    ...havo3,
+    id: 'nep',
+    chapters: [{ number: '9', description: 'Proef', part: 'Deel 3', paragraphs: [p] }],
+  };
+  const vorig = { stof: prog.stof, view: state.view };
+  try {
+    prog.stof = null;
+    state.view = { name: 'mapping', id: havo3.id };
+    const boek = vMapping(nep);
+    // Het hoofdstuk klapt niet in en heeft geen vinkje voor alles, want er is niets gewoons te kiezen.
+    assert.doesNotMatch(boek, /<details class="small"><summary>Dit kun je hier nog niet oefenen/);
+    assert.doesNotMatch(boek, /data-act="chapter"/);
+    assert.doesNotMatch(boek, /data-act="para"/);
+    assert.match(boek, /Hier kun je alleen de uitdaging oefenen\./);
+    assert.match(boek, /data-act="uitdaging" data-id="9\.1"[^>]*>[^]*?Kies de uitdaging/);
+    assert.match(
+      boek,
+      /<span class="pill uitdaging">Uitdaging<\/span> <a class="linkbtn" href="\/lineaire-vergelijkingen\/oefenen\?soort=22">/,
+    );
+  } finally {
+    prog.stof = vorig.stof;
+    state.view = vorig.view;
   }
 });

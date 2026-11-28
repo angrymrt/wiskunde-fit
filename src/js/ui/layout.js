@@ -70,6 +70,10 @@ const storageNotice = () =>
   opslag.voortgang || opslag.toets
     ? `<p class="notice small"${opslag.gemeld ? '' : ' role="alert"'}>Je voortgang kan in deze browser niet worden bewaard, bijvoorbeeld omdat de opslag vol is of is uitgezet. Oefenen gaat gewoon door, maar als je de pagina sluit, ben je je voortgang kwijt.</p>`
     : '';
+// Het label achter de naam van een uitdaging: een soort vraag met extra stof voor wie meer wil (zie
+// topics/index.js). Bij een gewone soort leeg.
+const UITDAGING = '<span class="pill uitdaging">Uitdaging</span>';
+const uitdagingLabel = (k) => (k.uitdaging ? ` ${UITDAGING}` : '');
 // Een link naar de uitleg van een onderwerp, zoals bij de voorkennis en in een methode-indeling.
 const topicLink = (t) =>
   `<a class="linkbtn" href="${pathFor({ name: 'topic', slug: t.slug })}">${T(t.title)}</a>`;
@@ -86,6 +90,8 @@ export {
   pageHead,
   testNotice,
   storageNotice,
+  UITDAGING,
+  uitdagingLabel,
   topicLink,
   vMissing,
 };

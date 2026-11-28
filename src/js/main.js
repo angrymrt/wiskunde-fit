@@ -2,7 +2,7 @@
 import { Idiomorph } from 'idiomorph';
 import { checkAnswer, fillState, findTrap } from './answers.js';
 import { rd } from './math.js';
-import { TOPICS, TOPIC, laadOnderwerpen } from './topics/index.js';
+import { TOPICS, TOPIC, basis, laadOnderwerpen } from './topics/index.js';
 import { MAPPING, MAPPINGS } from './mappings/index.js';
 import {
   STORE,
@@ -576,7 +576,7 @@ app.addEventListener('click', (e) => {
     render(a === 'boekfiltersdone' ? '.found-count [role="status"]' : undefined);
     return;
   }
-  if (a === 'para' || a === 'chapter') {
+  if (a === 'para' || a === 'chapter' || a === 'uitdaging') {
     // Iets aanvinken maakt dit je boek. Alleen de pagina openen niet, want dat kan via een link zijn.
     update((p) => (p.mapping = state.view.id));
     const chapters = MAPPING[state.view.id].chapters;
@@ -584,12 +584,15 @@ app.addEventListener('click', (e) => {
       a === 'chapter'
         ? chapters.find((c) => c.number === id).paragraphs
         : chapters.flatMap((c) => c.paragraphs).filter((p) => p.number === id);
-    toggleStof(paragraphs.flatMap((p) => p.skills));
+    toggleStof(paragraphs.flatMap((p) => (a === 'uitdaging' ? p.uitdaging : p.skills)));
     render();
     return;
   }
   if (a === 'topicpick') {
-    toggleStof(TOPIC[id].skills.map((k) => k.id));
+    toggleStof(
+      basis(TOPIC[id].skills).map((k) => k.id),
+      TOPIC[id].skills.map((k) => k.id),
+    );
     render();
     return;
   }

@@ -8,7 +8,7 @@ import TELLEN from '../../../data/vragen-tellen.json' with { type: 'json' };
 import { pathFor, to } from '../routes.js';
 import { DOMAINS, TOPICS } from '../topics/index.js';
 import { T, esc } from '../typeset.js';
-import { crumbs, pageHead, REPO } from './layout.js';
+import { crumbs, pageHead, REPO, uitdagingLabel } from './layout.js';
 
 const getal = (x) => x.toLocaleString('nl-NL');
 
@@ -81,7 +81,7 @@ function perOnderwerp(tellen) {
     const rows = t.skills
       .map(
         (k) =>
-          `<tr><th scope="row"><a href="${practice(k, t)}">${T(k.name)}</a></th><td>${aantal(soort(tellen, k))}</td></tr>`,
+          `<tr><th scope="row"><a href="${practice(k, t)}">${T(k.name)}</a>${uitdagingLabel(k)}</th><td>${aantal(soort(tellen, k))}</td></tr>`,
       )
       .join('');
     // Een tabel die opzij schuift, moet ook met het toetsenbord te schuiven zijn.

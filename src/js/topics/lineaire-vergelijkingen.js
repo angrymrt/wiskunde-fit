@@ -311,7 +311,8 @@ export default {
     [19, 'Vergelijking met haakjes', s13brackets],
     [20, 'Kleinste veelvoud', s13kgv],
     [21, 'Vergelijking met breuken', s13frac],
-    [22, 'Uitdaging: p berekenen', s13param],
+    // Uit de uitdagende route van het boek: extra stof voor wie meer wil.
+    [22, 'p berekenen', s13param, 'uitdaging'],
   ],
   learn: [
     {
