@@ -3711,7 +3711,10 @@ const LIMITS = {
   // Hoofdstuk 3 van havo/vwo 1 (#283) zet drie onderwerpen in de catalogus (Grafieken lezen en tekenen, Globale grafieken,
   // Grafiek bij een formule), drie woorden en de vraagsoorten in de methode-indelingen: ongeveer 125 kB onverpakt, dus die grens ging van 124 naar 126 kB.
   // Met Grafiek bij een formule (#290) is het eerste bezoek 47,1 kB verstuurd, dus die grens ging van 47 naar 48 kB.
-  start: { sent: 48, own: 126, why: 'de code bij het eerste bezoek' },
+  // De uitleg en het oefenen (ui/topic.js) en de invoervelden van een vraag (ui/question-form.js, samen 16,5 kB zelf)
+  // laden sinds #206 ook pas met een onderwerp, net als interactief.js. Het eerste bezoek ging van 125,4 naar 110,3 kB
+  // onverpakt en van 47,1 naar 41,9 kB verstuurd, dus de grenzen gingen van 48 naar 43 en van 126 naar 112 kB.
+  start: { sent: 43, own: 112, why: 'de code bij het eerste bezoek' },
   // De tellen voor de pagina Cijfers (src/js/cijfers-data.js). Dit bestand groeit met elke week aan
   // tellen en valt niet onder de code bij het eerste bezoek. Wordt het te groot, dan moet de build de
   // cijfers beperken of in delen splitsen. Nu is het 5,4 kB zelf en 1,0 kB verstuurd (vier dagen
@@ -3767,7 +3770,8 @@ test('de pagina’s en de code blijven klein', async () => {
         ? 'shared'
         : /^cijfers-data-/.test(name)
           ? 'tellen'
-          : /^(vragen|exam|about|cijfers|rekenhulp|tekenen|interactief)-/.test(name) && 'scherm';
+          : /^(vragen|exam|about|cijfers|rekenhulp|tekenen|interactief|topic)-/.test(name) &&
+            'scherm';
     const kind = ext === '.js' ? code : { '.css': 'css', '.woff2': 'font' }[ext];
     if (kind) files.push([`assets/${name}`, kind]);
   }
@@ -4007,60 +4011,64 @@ test('een lopende proeftoets wacht op het scherm, en de klok loopt pas als het e
   }
 });
 
-test('de schuifjes en het tekenen laden met een onderwerp, in een eigen bestand', async () => {
+// De schuifjes en het tekenen (interactief.js) en de schermen van een onderwerp (topic.js) staan elk in een eigen
+// bestand, dat laadt met een onderwerp (BIJ_ONDERWERP in scripts/later-schermen.js, #206).
+test('de bestanden die met een onderwerp laden: niet bij Home, en de uitleg blijft staan', async () => {
   const browser = await launch();
   try {
-    const file = '**/assets/interactief-*.js';
-    const geladen = /\/assets\/interactief-/;
-    const uitleg = { name: 'topic', slug: 'lineaire-grafieken-tekenen' };
-    // Het schuifje voor a verandert de formule erboven. Het schuift steeds opnieuw, want het werkt pas
-    // als interactief.js er is en het schuifje heeft gekoppeld.
-    const schuif = async (p) => {
-      const voor = await p.innerHTML('#sl-f');
-      await p.waitForFunction((v) => {
-        const a = document.querySelector('#sl-a');
-        a.value = a.value === '2' ? '2.5' : '2';
-        a.dispatchEvent(new Event('input', { bubbles: true }));
-        return document.querySelector('#sl-f').innerHTML !== v;
-      }, voor);
-    };
-    // Rechtstreeks openen: de vooraf gebouwde uitleg blijft staan tot het bestand er is.
-    {
-      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
-      let release;
-      const gate = new Promise((resolve) => (release = resolve));
-      await p.route(file, async (route) => {
-        await gate;
-        await route.continue();
-      });
-      const gevraagd = p.waitForRequest(geladen);
-      await p.goto(at('/lineaire-grafieken-tekenen'));
-      await p.waitForFunction(() => window.wiskundefit);
-      await gevraagd;
-      await p.waitForTimeout(600);
-      assert.ok(await p.$('#sl-a'), 'de vooraf gebouwde uitleg staat er');
-      assert.equal(await p.$('#app :text("Even laden")'), null, 'geen laadmelding');
-      release();
-      await schuif(p);
-      await p.close();
-    }
-    // Home laadt het bestand niet. Lukt het later niet, dan een melding met opnieuw proberen.
-    {
-      const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
-      const aangevraagd = [];
-      p.on('request', (r) => geladen.test(r.url()) && aangevraagd.push(r.url()));
-      await p.goto(siteUrl, { waitUntil: 'networkidle' });
-      await p.waitForFunction(() => window.wiskundefit);
-      assert.deepEqual(aangevraagd, [], 'Home laadt interactief.js niet');
-      await p.route(file, (route) => route.abort());
-      await p.evaluate((v) => wiskundefit.go(v), uitleg);
-      await p.waitForSelector('#laadfout');
-      await p.unroute(file);
-      await p.click('[data-act=opnieuw]');
-      await p.waitForSelector('#sl-a');
-      assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
-      await schuif(p);
-      await p.close();
+    for (const naam of ['interactief', 'topic']) {
+      const file = `**/assets/${naam}-*.js`;
+      const geladen = new RegExp(`/assets/${naam}-`);
+      const uitleg = { name: 'topic', slug: 'lineaire-grafieken-tekenen' };
+      // Het schuifje voor a verandert de formule erboven. Het schuift steeds opnieuw, want het werkt pas
+      // als beide bestanden er zijn en het schuifje is gekoppeld.
+      const schuif = async (p) => {
+        const voor = await p.innerHTML('#sl-f');
+        await p.waitForFunction((v) => {
+          const a = document.querySelector('#sl-a');
+          a.value = a.value === '2' ? '2.5' : '2';
+          a.dispatchEvent(new Event('input', { bubbles: true }));
+          return document.querySelector('#sl-f').innerHTML !== v;
+        }, voor);
+      };
+      // Rechtstreeks openen: de vooraf gebouwde uitleg blijft staan tot het bestand er is.
+      {
+        const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+        let release;
+        const gate = new Promise((resolve) => (release = resolve));
+        await p.route(file, async (route) => {
+          await gate;
+          await route.continue();
+        });
+        const gevraagd = p.waitForRequest(geladen);
+        await p.goto(at('/lineaire-grafieken-tekenen'));
+        await p.waitForFunction(() => window.wiskundefit);
+        await gevraagd;
+        await p.waitForTimeout(600);
+        assert.ok(await p.$('#sl-a'), 'de vooraf gebouwde uitleg staat er');
+        assert.equal(await p.$('#app :text("Even laden")'), null, 'geen laadmelding');
+        release();
+        await schuif(p);
+        await p.close();
+      }
+      // Home laadt het bestand niet. Lukt het later niet, dan een melding met opnieuw proberen.
+      {
+        const p = await browser.newPage({ viewport: { width: 390, height: 800 } });
+        const aangevraagd = [];
+        p.on('request', (r) => geladen.test(r.url()) && aangevraagd.push(r.url()));
+        await p.goto(siteUrl, { waitUntil: 'networkidle' });
+        await p.waitForFunction(() => window.wiskundefit);
+        assert.deepEqual(aangevraagd, [], `Home laadt ${naam}.js niet`);
+        await p.route(file, (route) => route.abort());
+        await p.evaluate((v) => wiskundefit.go(v), uitleg);
+        await p.waitForSelector('#laadfout');
+        await p.unroute(file);
+        await p.click('[data-act=opnieuw]');
+        await p.waitForSelector('#sl-a');
+        assert.equal(await p.$('#laadfout'), null, 'na opnieuw proberen is de fout weg');
+        await schuif(p);
+        await p.close();
+      }
     }
   } finally {
     await browser.close();
