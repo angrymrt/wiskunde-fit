@@ -1,12 +1,24 @@
-// De schermen van een onderwerp: de uitleg en het oefenen.
+// De schermen van een onderwerp: de uitleg en het oefenen. Dit bestand laadt in de browser pas met een
+// onderwerp, net als interactief.js (BIJ_ONDERWERP in scripts/later-schermen.js, #206). Daarom geeft
+// het ook door wat main.js en toets-opslag.js uit question-form.js nodig hebben: zo laadt dat bestand
+// ook niet bij het eerste bezoek. Die functies lezen alleen een formulier van een vraag, en dat staat
+// er pas als dit bestand er is. In Node is het gewoon geladen.
 import { isDrawing } from '../answers.js';
 import { prog, skillGoed, skillPct, topicPct } from '../progress.js';
 import { pathFor, to } from '../routes.js';
 import { isChosen, topicOf } from '../stof.js';
 import { makeQuestion } from '../topics/index.js';
 import { esc, T, stepsHTML } from '../typeset.js';
-import { crumbs, pageHead } from './layout.js';
-import { fieldsHTML, meldHTML, rekenhulpHTML, shareHTML } from './question-form.js';
+import { crumbs, pageHead, topicLink } from './layout.js';
+import {
+  empty,
+  fieldsHTML,
+  meldHTML,
+  readVals,
+  rekenhulpHTML,
+  shareHTML,
+  unreadable,
+} from './question-form.js';
 import { state } from './state.js';
 import { termen } from './termen.js';
 import { widgetHTML } from './interactief.js';
@@ -17,7 +29,6 @@ function exampleHTML(ex, key) {
 }
 const topicPath = (t) => pathFor({ name: 'topic', slug: t.slug });
 const practicePath = (t) => pathFor({ name: 'topic', slug: t.slug, oefen: true });
-const topicLink = (t) => `<a class="linkbtn" href="${topicPath(t)}">${T(t.title)}</a>`;
 // Vorig en volgend onderwerp binnen het domein. Voor het eerste en na het laatste onderwerp
 // wijst het naar de pagina van het domein.
 function pagerHTML(s) {
@@ -221,4 +232,7 @@ function vTopic(s) {
   ${pagerHTML(s)}</article></div>`;
 }
 
-export { vTopic, vPractice, newQuestion, applySoort, topicLink };
+const klaar = () => true;
+const laad = () => Promise.resolve();
+
+export { klaar, laad, vTopic, vPractice, newQuestion, applySoort, readVals, unreadable, empty };

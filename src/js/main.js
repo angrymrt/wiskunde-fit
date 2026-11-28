@@ -29,7 +29,9 @@ import {
   pauseClock,
   clockText,
 } from './ui/toets-opslag.js';
-import { newQuestion, applySoort } from './ui/topic.js';
+// De schermen van een onderwerp en het uitlezen van een vraag laden pas met een onderwerp (#206). Deze functies gaan
+// alleen over een vraag die op het scherm staat, en die staat er pas als topic.js er is.
+import { applySoort, empty, newQuestion, readVals, unreadable } from './ui/topic.js';
 import {
   klaar as interactiefKlaar,
   mountWidgets,
@@ -38,8 +40,7 @@ import {
   toonUitdrukking,
 } from './ui/interactief.js';
 import { laadScherm, nogTeLaden, schermVooraf, wachtOpScherm } from './ui/laden.js';
-import { readVals, unreadable, empty, meldVoetHTML } from './ui/question-form.js';
-import { githubLink, mailLink, melding as maakMelding } from './ui/melden.js';
+import { githubLink, mailLink, melding as maakMelding, meldVoetHTML } from './ui/melden.js';
 import { bijWissel, oefModus } from './ui/oef-modus.js';
 import { screenHTML } from './ui/screens.js';
 import { state, app } from './ui/state.js';

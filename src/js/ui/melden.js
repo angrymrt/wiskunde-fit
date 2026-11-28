@@ -4,6 +4,7 @@
 // de vraag (de vraagsoort en de seed), de versie van de site en wat de leerling zelf kiest of typt.
 // Bevat geen DOM-code, zodat de tests de links kunnen controleren.
 import { SITE } from '../routes.js';
+import { esc } from '../typeset.js';
 import { MAIL, REPO, VERSION } from './layout.js';
 
 // De keuzes. De tekst komt als gewone tekst in het veld `wat` van .github/ISSUE_TEMPLATE/vraagmelding.yml.
@@ -50,4 +51,21 @@ function mailLink(m) {
   return `mailto:${MAIL}?subject=${q(m.titel)}&body=${q(regels.join('\r\n'))}`;
 }
 
-export { WAT, MAX_TEKST, melding, githubLink, mailLink };
+// Onder in het paneel: wat er nog mist, en de twee manieren om te versturen. Zolang er niets gekozen
+// is, zijn het knoppen die niets doen. Daarna zijn het links met alles al ingevuld.
+function meldVoetHTML(m) {
+  const gh = m
+    ? `<a class="btn main" id="meldgh" href="${esc(githubLink(m))}" target="_blank" rel="noopener">Via GitHub</a>`
+    : '<button class="btn main" type="button" disabled>Via GitHub</button>';
+  const mail = m
+    ? `<a class="btn" id="meldmail" href="${esc(mailLink(m))}">Via e-mail</a>`
+    : '<button class="btn" type="button" disabled>Via e-mail</button>';
+  return `<p class="small melden-hulp" role="status">${m ? '' : 'Kies eerst wat er aan de hand is. Dan kun je het versturen.'}</p>
+      <p class="small melden-via"><b>Melden via:</b></p>
+      <div class="melden-kies">
+        <div class="melden-kanaal">${gh}<p class="small muted">Je hebt een GitHub-account nodig. Je gebruikersnaam staat openbaar bij de melding.</p></div>
+        <div class="melden-kanaal">${mail}<p class="small muted">Opent je mailprogramma. Alleen wij zien je mailadres.</p></div>
+      </div>`;
+}
+
+export { WAT, MAX_TEKST, melding, githubLink, mailLink, meldVoetHTML };

@@ -5,7 +5,9 @@
 import { d, rd } from '../math.js';
 import { inBrowser, opslag } from '../progress.js';
 import { topicOf } from '../stof.js';
-import { readVals } from './question-form.js';
+// readVals komt via topic.js, dat pas met een onderwerp laadt. storeTest() leest alleen het formulier van een lopende
+// proeftoets, en dat staat er pas als topic.js er is (#206).
+import { readVals } from './topic.js';
 import { state } from './state.js';
 
 // Een lopende proeftoets en de laatste uitslag blijven in de browser bewaard, los van de voortgang.
