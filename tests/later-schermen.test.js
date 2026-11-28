@@ -4,7 +4,7 @@
 // zou anders pas opvallen als de browser iets niet vindt.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LATER as BESTANDEN, SCHERM_VAN } from '../scripts/later-schermen.js';
+import { BIJ_ONDERWERP, LATER as BESTANDEN, SCHERM_VAN } from '../scripts/later-schermen.js';
 import { LATER as SCHERMEN } from '../src/js/ui/laden.js';
 
 const sleutels = (o) => Object.keys(o).sort();
@@ -13,8 +13,12 @@ test('elk scherm in laden.js heeft een bestand in SCHERM_VAN, en andersom', () =
   assert.deepEqual(sleutels(SCHERMEN), sleutels(SCHERM_VAN));
 });
 
+// Het bestand dat met een onderwerp laadt (BIJ_ONDERWERP) heeft geen eigen scherm en staat dus niet
+// in SCHERM_VAN.
 test('elk bestand in SCHERM_VAN staat in later-schermen.js, en andersom', () => {
-  const uitSchermVan = [...new Set(Object.values(SCHERM_VAN))].map((f) => `${f}.js`).sort();
+  const uitSchermVan = [...new Set([...Object.values(SCHERM_VAN), BIJ_ONDERWERP])]
+    .map((f) => `${f}.js`)
+    .sort();
   assert.deepEqual(sleutels(BESTANDEN), uitSchermVan);
 });
 
