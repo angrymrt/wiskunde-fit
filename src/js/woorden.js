@@ -280,8 +280,26 @@ export const WOORDEN = {
   herleiden: {
     naam: 'herleiden',
     uitleg:
-      'Een formule of vergelijking omschrijven zonder dat de oplossingen veranderen, bijvoorbeeld zodat y alleen links staat. Je lost hem dus niet op.',
-    onderwerp: 'vergelijkingen-met-twee-variabelen',
+      'Iets korter of in een andere vorm schrijven, zonder dat het iets anders betekent. Bij een uitdrukking werk je de haakjes weg en neem je gelijksoortige termen samen. Een vergelijking herleid je bijvoorbeeld zo dat y alleen links staat. Je lost hem dus niet op.',
+    onderwerp: 'herleiden',
+  },
+  'gelijksoortige-termen': {
+    naam: 'gelijksoortige termen',
+    uitleg:
+      'Termen met dezelfde letters en dezelfde exponenten, zoals 3x² en −5x². Die mag je samennemen: 3x² − 5x² = −2x². De termen 3x² en 3x zijn niet gelijksoortig.',
+    onderwerp: 'herleiden',
+  },
+  'merkwaardig-product': {
+    naam: 'merkwaardig product',
+    uitleg:
+      'Een product met haakjes dat zo vaak voorkomt dat je het in één keer uitschrijft: (a + b)(a − b) = a² − b², (a + b)² = a² + 2ab + b² en (a − b)² = a² − 2ab + b².',
+    onderwerp: 'herleiden',
+  },
+  dubbelproduct: {
+    naam: 'dubbelproduct',
+    uitleg:
+      'Twee keer het product van de twee termen in (a + b)² of (a − b)², dus 2ab. Bij (y + 3)² is het dubbelproduct 2 · y · 3 = 6y.',
+    onderwerp: 'herleiden',
   },
   'schuine-zijde': {
     naam: 'schuine zijde',

@@ -61,7 +61,7 @@ const answerOf = `(q) => {
     }
     return String(x).replace('.', ',');
   };
-  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken || f.berekening ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
+  const vals = q.mc ? null : q.fields.map((f) => (f.sel || f.teken || f.berekening || f.uitdrukking ? f.a : (f.round != null ? String(window.wiskundefit.rd(f.a, f.round)).replace('.', ',') : typed(f.a, f.vorm))));
   const groups = {};
   if (vals) q.fields.forEach((f, i) => f.grp != null && (groups[f.grp] = groups[f.grp] || []).push(i));
   for (const g of Object.values(groups)) {
@@ -3689,7 +3689,7 @@ const LIMITS = {
   // Alleen Zo maken we de vragen: alle 184 vraagsoorten en drie roosters staan erin (10,1 kB, dus de grens ging van 10 naar 10,5).
   // Rekenen met breuken (#244) voegde er zes toe (nu 200 vraagsoorten): 10,6 kB, dus de grens ging van 10,5 naar 11.
   // De puzzels (#262) voegden er vijf toe (nu 220 vraagsoorten): 11,1 kB, dus de grens ging van 11 naar 11,5.
-  lijst: { sent: 11.5, why: 'de pagina met alle vraagsoorten' },
+  lijst: { sent: 12.5, why: 'de pagina met alle vraagsoorten; groeit met elke vraagsoort (H5 havo 3, #101)' },
   shell: { sent: 2.5, why: 'een schil of de 404-pagina' },
   // Het volledig-schermmodus (#222) voegde 0,5 kB toe aan main. De grens ging van 52 naar 53, en onverpakt van 130 naar 133 kB.
   // Hoofdstuk 1 van havo/vwo 1 (#232) voegde vier onderwerpen met 19 vraagsoorten toe. Van elk onderwerp staat de

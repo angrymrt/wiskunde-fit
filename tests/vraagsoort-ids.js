@@ -238,4 +238,10 @@ export default {
   234: 's35tekenen',
   235: 's35formule',
   236: 'flNegatief',
+  237: 's237samennemen',
+  238: 's238factor',
+  239: 's239min',
+  240: 's240verschil',
+  241: 's241kwadraat',
+  242: 's242gemengd',
 };
