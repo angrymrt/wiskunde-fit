@@ -544,7 +544,7 @@ function kwadraatValkuilen(A, B, s, f = 1) {
       m:
         f < 0
           ? 'Werk eerst het kwadraat uit tussen haakjes. Een kwadraat is nooit negatief, dus het laatste kwadraat komt er tussen de haakjes bij. Daarna gaat de min of het getal ervoor keer elke term.'
-          : 'Een kwadraat is nooit negatief: min keer min is plus. Het laatste kwadraat komt er dus bij.',
+          : 'Een kwadraat is nooit negatief, ook niet bij een min in de haakjes. Het laatste kwadraat komt er dus bij.',
     },
   ];
 }
